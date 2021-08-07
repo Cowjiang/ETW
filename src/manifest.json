@@ -60,7 +60,9 @@
       "urlCheck": false
     },
     "usingComponents": true,
-    "permission": {}
+    "permission": {"scope.userLocation" : {
+        "desc" : "你的描述信息"
+    }}
   },
   "mp-alipay": {
     "usingComponents": true

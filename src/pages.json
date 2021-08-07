@@ -3,6 +3,22 @@
         "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
     },
     "pages": [
+        {
+            "path": "pages/amap/amap",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/login/login",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
         // {
         //     "path": "pages/home/home",
         //     "style": {
@@ -19,6 +35,7 @@
             }
         },
         {
+<<<<<<< HEAD
             "path": "pages/trending/subpages/trendDetailPage",
             "style": {
                 "navigationBarTitleText": "",
@@ -28,6 +45,9 @@
         },
         {
             "path": "pages/login/login",
+=======
+            "path": "pages/trending/subpages/trendPostPage",
+>>>>>>> Cowjiang
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
