@@ -7,6 +7,7 @@
     }"
   >
     <navigationBar ref="navigationBar"></navigationBar>
+    <!-- 动态容器 -->
     <view class="trend-box">
       <!-- 用户信息容器 -->
       <view class="author-box">
@@ -33,12 +34,22 @@
       <!-- 动态图片组 -->
       <trendsImageGroup :imageDataList="item.dynamicImages"></trendsImageGroup>
     </view>
-
+    <!-- 评论区容器 -->
+    <view class="comment-list-box">
+      <view class="comment-item">
+        <view class="avatar-box">
+          <u-avatar :size="60"></u-avatar>
+        </view>
+        <view class="comment-content"> </view>
+      </view>
+    </view>
+    <!-- 底部评论容器 -->
     <view class="bottom-button-area">
       <view class="left-area">
-        <view @click="isShowCommentbox = true" class="comment-input-view"
-          >写个评论吧</view
-        >
+        <view @tap.stop="isShowCommentbox = true" class="comment-input-view">
+          <text class="fa fa-pencil"></text>
+          写个评论吧
+        </view>
       </view>
       <view class="right-area">
         <view>
@@ -53,7 +64,7 @@
       </view>
     </view>
     <view
-      v-show="isShowCommentbox"
+      v-if="isShowCommentbox"
       class="comment-box"
       :style="'bottom:' + KeyboardHeight + 'px;'"
     >
@@ -64,6 +75,7 @@
         :auto-blur="true"
         :fixed="true"
         :adjust-position="false"
+        :show-confirm-bar="false"
         placeholder="写个评论吧"
         @focus="focusTextarea"
         @blur="blurTextarea"
@@ -72,6 +84,33 @@
         <view class="submit-button" @click="submitComment">发送</view>
       </view>
     </view>
+    <!-- <view class="bottom-button-area">
+      <view class="left-area">
+        <textarea
+          v-model="commentText"
+          class="test-textarea"
+          :focus="isShowCommentbox"
+          :auto-blur="true"
+          :fixed="true"
+          :adjust-position="true"
+          :show-confirm-bar="false"
+          placeholder="写个评论吧"
+          @focus="focusTextarea"
+          @blur="blurTextarea"
+        />
+      </view>
+      <view class="right-area">
+        <view>
+          <text class="fa fa-star-o fa-lg"></text>
+        </view>
+        <view @click="likeTrend(item.id)">
+          <text class="fa fa-heart-o fa-lg"></text>
+        </view>
+        <view>
+          <text class="fa fa-share-square-o fa-lg"></text>
+        </view>
+      </view>
+    </view> -->
     <toast ref="toast"></toast>
   </view>
 </template>
@@ -101,7 +140,6 @@ export default {
   methods: {
     focusTextarea(e) {
       //键盘高度
-      console.log("focus事件");
       this.KeyboardHeight = e.detail.height;
     },
     blurTextarea() {
@@ -167,7 +205,6 @@ export default {
 }
 .trend-box {
   padding: 6vw 4vw;
-  margin-bottom: auto;
   .author-box {
     display: flex;
     justify-content: flex-start;
@@ -198,21 +235,35 @@ export default {
       width: 50rpx;
     }
   }
+  .trend-text {
+    margin: 20rpx 0;
+  }
 }
-.trend-text {
-  margin: 20rpx 0;
+.comment-list-box {
+  padding: 6vw 4vw;
+  .comment-item {
+    display: flex;
+    .avatar-box {
+      width: 60rpx;
+    }
+    .comment-content {
+      background-color: black;
+      width: 100%;
+    }
+  }
 }
 .bottom-button-area {
+  position: fixed;
+  bottom: 0;
   height: 150rpx;
-  border: 1rpx solid black;
+  border-top: 1rpx solid $uni-color-grey;
   display: flex;
-  align-items: center;
   width: 100%;
   .left-area {
     width: 100%;
-    height: 100%;
+    height: 70rpx;
     flex: 2;
-    padding: 25rpx 20rpx 0 20rpx;
+    margin: 25rpx 20rpx 0 20rpx;
     .comment-input-view {
       background-color: $uni-color-grey;
       color: $uni-text-color-placeholder;
@@ -220,20 +271,34 @@ export default {
       height: 70rpx;
       line-height: 70rpx;
       border-radius: 30rpx;
+      .fa {
+        margin-right: 10rpx;
+      }
+    }
+    .test-textarea {
+      background-color: $uni-color-grey;
+      color: $uni-text-color-placeholder;
+      padding-left: 25rpx;
+      height: 70rpx;
+      border-radius: 30rpx;
+      width: 100%;
     }
   }
   .right-area {
-    padding-top: 25rpx;
-    height: 100%;
+    margin-top: 25rpx;
+    height: 70rpx;
     flex: 1;
     display: flex;
     justify-content: space-evenly;
+    align-items: center;
     view {
       text-align: center;
     }
   }
 }
 .comment-box {
+  border-top: 1rpx solid $uni-color-grey;
+  border-radius: 30rpx;
   width: 100%;
   height: 250rpx;
   background-color: white;

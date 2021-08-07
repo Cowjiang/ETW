@@ -1,14 +1,12 @@
 /**
  *封装请求
- *@param {Object} url 接口的地址
+ *@param {String} url 接口的地址
  *@param {Object} pramsObject 自定义请求参数
  *@return {Promise} 请求结果
  **/
 export const apiResquest = (url, pramsObject) => {
-  //header,cookies,query等参数
-  const requestConfig = pramsObject.requestConfig  //方法
-  let method = pramsObject.method
-  //请求query数据
+  //方法、请求query数据header,cookies,query等参数
+  const {method,requestConfig} = pramsObject
   let queryData = {};
   //请求头
   let headerData = {};

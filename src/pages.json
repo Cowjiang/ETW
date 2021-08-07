@@ -19,6 +19,14 @@
             }
         },
         {
+            "path": "pages/trending/subpages/trendDetailPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/login/login",
             "style": {
                 "navigationBarTitleText": "",
@@ -28,14 +36,6 @@
         },
         {
             "path": "pages/trending/subpages/trendPostPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/trending/subpages/trendDetailPage",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,

@@ -71,8 +71,7 @@ export default {
         url: "/pages/trending/subpages/trendDetailPage",
         events: {
           // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
-          acceptDataFromOpenedPage: function (data) {
-          },
+          acceptDataFromOpenedPage: function (data) {},
         },
         success: function (res) {
           // 通过eventChannel向被打开页面传送数据
@@ -93,6 +92,7 @@ export default {
 }
 .trend-box {
   padding: 6vw 4vw;
+  border-bottom: 1rpx solid $uni-color-grey;
   .author-box {
     display: flex;
     justify-content: flex-start;
