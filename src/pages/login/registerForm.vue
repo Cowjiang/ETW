@@ -283,7 +283,10 @@
                             else {
                                 this.$parent.$refs["captchaForm"].setUserInfo('phone', this.phone);
                             }
-                            this.$parent.$refs["navigationBar"].setNavigation(true, true, "注册", this.$parent.toRegisterScreen);
+                            this.$parent.$refs.navigationBar.setNavigation({
+                                titleText: '注册',
+                                customBackFunc: this.$parent.toRegisterScreen,
+                            });
                             this.$parent.toCaptchaScreen();
                         }
                         else {
@@ -320,7 +323,10 @@
                         this.usernamePlaceholderStyle,
                         this.passwordPlaceholderStyle,
                     ] = ["", "", "", ""]; //还原输入区域样式
-                    this.$parent.$refs["navigationBar"].setNavigation(true, true, "登录", this.$parent.toRegisterScreen);
+                    this.$parent.$refs.navigationBar.setNavigation({
+                        titleText: '登录',
+                        customBackFunc: this.$parent.toRegisterScreen,
+                    });
                     this.$parent.toLoginScreen();
                 });
             },

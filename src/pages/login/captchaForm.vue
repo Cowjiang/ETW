@@ -171,12 +171,14 @@
                 });
                 this.captchaInputShowColor.fill("#EDEDED");
                 this.captchaInputShowColor[this.captchaInputShowValue.length] = "#f4756b";
+                this.$forceUpdate();
             },
             /**
              * 验证码输入框失焦事件
              */
             captchaInputBlur() {
-                //Captcha Input Blur
+                this.captchaInputShowColor.fill("#EDEDED");
+                this.$forceUpdate();
             },
             /**
              * 注册前检查
@@ -186,7 +188,7 @@
                     if (this.captchaRawInputValue.length === 6) {
                         registerTest({
                             queryData: {
-                                email: this.$parent.username,
+                                key: this.$parent.username,
                                 password: this.$parent.password,
                                 code: this.captchaRawInputValue,
                             },

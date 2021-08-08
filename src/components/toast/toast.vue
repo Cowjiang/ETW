@@ -6,18 +6,19 @@
             :key="index"
             :for-item="item"
             :class="[
-        item.isShow ? item.toastAnimation : '',
-        `type-${item.type}`,
-        `${selDirection(item.direction)}`,
-      ]"
+                item.isShow ? item.toastAnimation : '',
+                `type-${item.type}`,
+                `${selDirection(item.direction)}`,
+            ]"
             :id="`toast${index}`"
             :style="{
-        zIndex: `${item.isShow ? '999999' : '-1'}`,
-        display: item.isShow ? 'flex' : 'none',
-        animationDuration: `${item.animationDuration}ms`,
-        marginTop: `${item.marginTop}rpx`,
-        transitionDuration: `${item.marginTransitionDuration}ms`,
-      }"
+                top: `${navigationHeight * 0.5}rpx`,
+                zIndex: `${item.isShow ? '999999' : '-1'}`,
+                display: item.isShow ? 'flex' : 'none',
+                animationDuration: `${item.animationDuration}ms`,
+                marginTop: `${item.marginTop}rpx`,
+                transitionDuration: `${item.marginTransitionDuration}ms`,
+            }"
         >
             <text
                 class="fa fa-lg fa-check-circle"
@@ -41,6 +42,7 @@
         name: "toast",
         data() {
             return {
+                navigationHeight: 0,
                 showDuration: 2500, //消息显示的时间，毫秒
                 toastQueue: [], //消息队列
                 pushReady: true, //允许新消息推送进入消息队列
@@ -56,6 +58,7 @@
                 let config = {
                     type: "", //消息类型，['success', 'warning', 'error']
                     text: "", //消息内容
+                    showDuration: 2500, //显示持续时间，毫秒
                     isShow: false, //是否显示消息
                     direction: "right", //出现的方向，['left', 'right', 'top']
                     toastAnimation: "", //消息动效
@@ -67,6 +70,7 @@
                 };
                 if (Object.getOwnPropertyNames(options).length) {
                     config = Object.assign(config, options);
+                    this.showDuration = config.showDuration;
                 }
                 config.isShow = true;
                 switch (config.direction) {
@@ -143,6 +147,7 @@
             },
         },
         mounted() {
+            this.navigationHeight = this.utils.getNavigationHeight();
         },
     };
 </script>
@@ -150,7 +155,6 @@
 <style lang="scss" scoped>
     .toast {
         position: absolute;
-        top: 3%;
         z-index: -1;
         min-width: 30%;
         min-height: rpx(100);
