@@ -99,7 +99,9 @@
         watch: {
             showLoginForm(nval, oval) {
                 if (nval === "") {
-                    this.$parent.$refs.navigationBar.setNavigation(true, true, "登录");
+                    this.$parent.$refs.navigationBar.setNavigation({
+                        titleText: '登录',
+                    });
                 }
             },
         },
@@ -290,7 +292,10 @@
                         this.usernamePlaceholderStyle,
                         this.passwordPlaceholderStyle,
                     ] = ["", "", "", ""]; //还原输入区域样式
-                    this.$parent.$refs.navigationBar.setNavigation(true, true, "注册", this.$parent.toLoginScreen);
+                    this.$parent.$refs.navigationBar.setNavigation({
+                        titleText: '注册',
+                        customBackFunc: this.$parent.toLoginScreen,
+                    });
                     this.$parent.toRegisterScreen();
                 });
             },
@@ -308,7 +313,9 @@
 
                     // this.isShow = true;
 
-                    this.amapTest();
+                    wx.navigateTo({
+                        url: '../amap/amap'
+                    })
 
                     // uni.navigateTo({
                     //   url: "/pages/home/subpages/upload-file",
@@ -324,30 +331,6 @@
                 this.username = '';
                 this.password = '';
             },
-            amapTest() {
-                this.amap.getRegeo({
-                    success: data => {
-                        console.log(data[0])
-                        this.$refs.toast.show({
-                            text: '获取位置信息成功',
-                            type: 'success'
-                        });
-                        console.log('附近地点：')
-                        for (const item of data[0].regeocodeData.pois) {
-                            console.log(item.name, '地址：', item.address);
-                        }
-                    },
-                    fail: data => {
-                        if (data.errMsg === 'getLocation:fail auth deny') {
-                            this.$refs.toast.show({
-                                text: '用户拒绝定位权限',
-                                type: 'error'
-                            });
-                        }
-                        console.log(data)
-                    }
-                });
-            }
         },
         mounted() {
         },

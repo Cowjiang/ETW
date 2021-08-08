@@ -40,7 +40,7 @@ export class Utils {
 	}
 	/**
 	* 总页数
-	*@param（总条数，每页总条数）
+	* @param（总条数，每页总条数）
 	*/
 	getTotalPages(total, pageSize) {
 		if (!total) {
@@ -55,6 +55,15 @@ export class Utils {
 				return parseInt(total / pageSize) + 1;
 			}
 		}
+	}
+
+	/**
+	 * 获取导航栏高度
+	 * @returns {*} 返回导航栏高度数值
+	 */
+	getNavigationHeight() {
+		let {height, top} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+		return height + top;
 	}
 }
 
