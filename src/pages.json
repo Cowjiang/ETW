@@ -4,40 +4,15 @@
     },
     "pages": [
         {
+            "path": "pages/chat/chat",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/login/login",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/trending/trending",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/chatList/chatList",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-
-        {
-            "path": "pages/chatDetail/chatDetail",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/amap/amap",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -53,23 +28,22 @@
             }
         },
         {
-            "path": "pages/trending/subpages/trendDetailPage",
+            "path": "pages/trending/trending",
             "style": {
                 "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/trending/subpages/trendDetailCommentPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
+                "enablePullDownRefresh": false
             }
         },
         {
             "path": "pages/trending/subpages/trendPostPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/trending/subpages/trendDetailPage",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
