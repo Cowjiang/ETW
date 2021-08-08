@@ -49,7 +49,7 @@ export const getTrendComment = (requestConfig) =>
 	apiResquest(`${baseUrl}/dynamic/${requestConfig.urlParam}/comment`, {method: "GET", requestConfig});
 //获取我的私信列表
 export const getMyChatList = (requestConfig) =>
-	apiResquest(`${baseUrl}/chat/list/${requestConfig.urlParam}`, {method: "GET", requestConfig});
+	apiResquest(`${baseUrl}/chat/list`, {method: "GET", requestConfig});
 //获取私信记录
 export const getChatHistory = (requestConfig) =>
 	apiResquest(`${baseUrl}/chat/user/${requestConfig.urlParam}`, {method: "GET", requestConfig});
@@ -58,4 +58,7 @@ export const sendMessage = (requestConfig) =>
 	apiResquest(`${baseUrl}/chat/user/${requestConfig.urlParam}`, {method: "POST", requestConfig});
 //删除私信记录
 export const deleteChatHistory = (requestConfig) =>
-	apiResquest(`${baseUrl}/chat/user/${requestConfig.urlParam}`, {method: "DELETE", requestConfig});
+	apiResquest(`${baseUrl}/chat/user`, {method: "DELETE", requestConfig});
+//获取用户简要信息（临时）
+export const getUserInfoTemp = (requestConfig) =>
+	apiResquest(`${baseUrl}/user/simple/info/${requestConfig.urlParam}`, {method: "GET", requestConfig});

@@ -4,7 +4,15 @@
     },
     "pages": [
         {
-            "path": "pages/chat/chat",
+            "path": "pages/chatList/chatList",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/chatDetail/chatDetail",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -13,6 +21,14 @@
         },
         {
             "path": "pages/login/login",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/amap/amap",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,

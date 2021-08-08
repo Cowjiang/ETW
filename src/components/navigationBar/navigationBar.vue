@@ -11,7 +11,6 @@
                 backgroundColor: `${backgroundColor === '' ? 'transparent' : backgroundColor}`
             }"
         >
-
         </view>
         <view
             class="navigation-bar"
@@ -58,6 +57,7 @@
                 :style="{
                     lineHeight: `${navigationBarHeight}px`,
                     width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin}px`,
+                    color: `${titleColor}`
                 }"
             >
                 <text class="title">{{ titleText }}</text>
@@ -80,31 +80,45 @@
                 navigationButtonHorizontalMargin: 0, //导航栏胶囊按钮水平方向的外边距
                 isShowButton: true, //是否显示胶囊按钮
                 isShowTitle: true, //是否展示标题
-                titleText: "", //导航栏标题
-                backgroundColor: '1',
+                titleText: '', //导航栏标题
+                titleColor: '#333333', //标题字体颜色
+                backgroundColor: '', //导航栏背景颜色，为空时背景颜色为透明，且导航栏不占高度
                 customBackFunc: null, //自定义返回按钮触发行为方法
             };
         },
         methods: {
             /**
              * 设置导航栏行为
-             * @param isShowButton 是否显示胶囊按钮(true/false)
-             * @param isShowTitle 是否展示标题(true/false)
-             * @param titleText 导航栏标题
-             * @param customBackFunc 自定义返回按钮点击事件
+             * @param options 导航栏设置
              */
-            setNavigation(isShowButton, isShowTitle, titleText, customBackFunc) {
-                if (typeof customBackFunc === "function") {
-                    this.customBackFunc = customBackFunc;
+            setNavigation(options) {
+                let config = {
+                    isShowButton: true, //是否显示左侧胶囊按钮
+                    titleText: '', //标题内容，为空字符串时不显示标题
+                    titleColor: 'dark', //标题字体颜色，可传入"light"/"dark"，或自定义色号
+                    backgroundColor: '', //导航栏背景颜色，为空时背景颜色为透明，且导航栏不占高度
+                    customBackFunc: null, //自定义返回按钮点击事件
+                };
+                if (Object.getOwnPropertyNames(options).length) {
+                    config = Object.assign(config, options);
                 }
-                else {
-                    this.customBackFunc = null;
+                if (typeof config.customBackFunc === "function") {
+                    this.customBackFunc = config.customBackFunc;
                 }
-                [this.isShowButton, this.isShowTitle, this.titleText] = [
-                    isShowButton,
-                    isShowTitle,
-                    titleText,
-                ];
+                this.isShowTitle = `${(config.titleText !== '')}`;
+                switch(config.titleColor) {
+                    case 'dark':
+                        this.titleColor = '#333333';
+                        break;
+                    case 'light':
+                        this.titleColor = '#ffffff'
+                        break;
+                    default:
+                        this.titleColor = config.titleColor;
+                }
+                this.backgroundColor = `${config.backgroundColor === '' ? '' : config.backgroundColor}`;
+                this.isShowButton = config.isShowButton;
+                this.titleText = config.titleText;
             },
             /**
              * 导航栏返回按钮点击事件
@@ -147,27 +161,15 @@
                 return this.topAreaHeight;
             },
             /**
-             * 设置导航栏背景颜色
-             * @param backgroundColor 导航栏背景颜色，为空字符串或null时设置为透明
-             */
-            setNavigationBackgroundColor(backgroundColor) {
-                if (backgroundColor === null || backgroundColor === '' || backgroundColor === undefined) {
-                    this.backgroundColor = '';
-                }
-                else {
-                    this.backgroundColor = backgroundColor;
-                }
-                console.log(backgroundColor)
-            },
-            /**
              * 重置导航栏默认行为
              */
             resetNavigation() {
                 this.isShowButton = true;
                 this.isShowTitle = true;
-                this.titleText = "";
-                this.customBackFunc = null;
+                this.titleText = '';
+                this.titleColor = '#333333'
                 this.backgroundColor = '';
+                this.customBackFunc = null;
             },
         },
         beforeMount() {

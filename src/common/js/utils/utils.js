@@ -38,7 +38,6 @@ export class Utils {
 			}, this.debounceGapTime);
 		})();
 	}
-
 	/**
 	* 总页数
 	* @param（总条数，每页总条数）
@@ -58,31 +57,13 @@ export class Utils {
 		}
 	}
 
-	// 获取导航栏高度
+	/**
+	 * 获取导航栏高度
+	 * @returns {*} 返回导航栏高度数值
+	 */
 	getNavigationHeight() {
-		let windowWidth;
-		wx.getSystemInfo({
-			success: res => windowWidth = res.windowWidth,
-		});
-		let { height, top, right } = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
-		return height + top + windowWidth - right;
-	}
-
-	// 获取当前页面URL及参数
-	getCurrentPage() {
-		let routes = getCurrentPages(); //获取当前打开过的页面路由数组
-		let curRoute = routes[routes.length - 1].route; //获取当前页面路由
-		let curParam = routes[routes.length - 1].options; //获取路由参数
-		// 拼接参数
-		let param = ''
-		for (let key in curParam) {
-			param += '&' + key + '=' + curParam[key];
-		}
-		let curUrl = {
-			curUrl: curRoute,
-			curParam: curParam
-		};
-		return curUrl;
+		let {height, top} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+		return height + top;
 	}
 }
 
