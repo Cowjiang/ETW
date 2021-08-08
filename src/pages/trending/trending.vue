@@ -4,7 +4,6 @@
       ref="loadRefresh"
       :isRefresh="isLoading"
       refreshType="halfCircle"
-      color="#6cd4ff"
       backgroundCover="#f4f5f6"
       :currentPage="currentPage"
       :totalNumber="totalPages"

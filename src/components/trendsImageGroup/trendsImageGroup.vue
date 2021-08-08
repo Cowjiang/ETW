@@ -90,6 +90,7 @@ $image-border-radius: 20rpx;
   width: $box-length;
   image {
     border-radius: $image-border-radius;
+    width: $box-length;
   }
 }
 .two-four-image-box {

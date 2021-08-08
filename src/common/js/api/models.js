@@ -47,3 +47,6 @@ export const postTrendComment = (requestConfig) =>
 //获取动态评论
 export const getTrendComment = (requestConfig) =>
   apiResquest(`${baseUrl}/dynamic/${requestConfig.urlParam}/comment`, { method: "GET", requestConfig });
+//在评论下回复
+export const postCommentByComment = (requestConfig) =>
+  apiResquest(`${baseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "POST", requestConfig });

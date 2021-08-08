@@ -48,7 +48,6 @@ export const apiResquest = (url, pramsObject) => {
       method: method,
       header: headerData,
       success: (res) => {
-        console.log(queryData,method,headerData);
         console.log(`【${url}】请求响应：`, res);
         // 和后端约定的状态码
         const { errorCode } = res.data;

@@ -10,7 +10,7 @@
           <!-- 用户名 -->
           <view class="author-name">{{ item.userInfo.username }}</view>
           <view class="author-description">{{
-            item.createdTime | dateFilter("yy-mm-dd hh:mm:ss")
+            item.createdTime | dateFilter("yy-mm-dd hh:mm")
           }}</view>
         </view>
         <!-- 右侧按钮组 -->

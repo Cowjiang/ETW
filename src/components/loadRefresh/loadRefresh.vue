@@ -68,7 +68,7 @@ export default {
     },
     color: {
       type: String,
-      default: "#04C4C4",
+      default: "#f4756b",
     },
     backgroundCover: {
       type: String,
