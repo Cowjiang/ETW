@@ -39,69 +39,15 @@
       ><text class="fa fa-window-minimize fa-rotate-90"></text> 评论
     </view>
     <!-- 评论区容器 -->
-    <view class="comment-list-box">
-      <view
-        class="comment-item"
-        v-for="(item, index) in commentList"
-        :key="index"
-      >
-        <!-- 评论者头像 -->
-        <view class="left-avatar-box">
-          <u-avatar :size="80"></u-avatar>
-        </view>
-        <!-- 评论内容 -->
-        <view class="right-content-box">
-          <view class="main-content-box">
-            <view
-              class="main-info-box"
-              @tap.stop="ShowCommentbox(1, item.id, item.userInfo.username)"
-            >
-              <view class="comment-username">
-                {{ item.userInfo.username }}
-              </view>
-              <text class="comment-date">{{
-                item.createdTime | dateFilter("yy-mm-dd hh:mm")
-              }}</text>
-              <view class="comment-text">{{ item.content }}</view>
-            </view>
-            <view class="like-box">
-              <text
-                @tap.stop="likeComment(item.id)"
-                class="fa fa-heart-o"
-              ></text>
-            </view>
-          </view>
-          <!-- 二级评论容器 -->
-          <view class="second-comment-box" v-if="item.secondComment">
-            <view class="avatar-box">
-              <u-avatar :size="48"></u-avatar>
-            </view>
-            <view class="second-content-box">
-              <view class="comment-username">
-                {{ item.secondComment.scUserInfo.username }}
-              </view>
-              <view class="comment-text">
-                {{ item.secondComment.content }}
-              </view>
-            </view>
-            <view class="like-box">
-              <text
-                @tap.stop="likeComment(item.secondComment.id)"
-                class="fa fa-heart-o"
-              ></text>
-            </view>
-          </view>
-          <view class="more-comment" v-if="item.secondComment > 1">
-            查看{{ item.commentNumber }}条回复
-          </view>
-        </view>
-      </view>
-      <view class="bottom-button-area-placeholder"></view>
-    </view>
+    <commentList
+      :commentList="commentList"
+      @clickSecondComment="toSecondCommentPage($event)"
+      @clickFirstComment="commentByFirstComment(arguments)"
+    ></commentList>
     <!-- 底部按钮容器 -->
     <view class="bottom-button-area">
       <view class="left-area">
-        <view @tap.stop="ShowCommentbox(0)" class="comment-input-view">
+        <view @tap.stop="commentByTrend()" class="comment-input-view">
           <text class="fa fa-pencil"></text>
           写个评论吧
         </view>
@@ -147,7 +93,7 @@
 <script>
 import {
   postTrendComment,
-  postCommentByComment,
+  postTrendSecondComment,
   getTrendComment,
 } from "@/common/js/api/models.js";
 export default {
@@ -197,28 +143,28 @@ export default {
       this.commentTextareaPlaceholder = `写个评论吧`;
     },
     /**
-     * @description: 弹出输入框
-     * @param {Number} postType 发布评论的类型 [0,1] 分别是：在当前动态评论，在评论中回复
-     * @param {Number} commentId 可选 回复其他评论的id
-     * @param {String} toUser 可选 回复其他评论的评论人
+     * @description: 给一级评论回复二级评论
+     * @param {Number} commentId  一级评论的id
+     * @param {String} toUser  一级评论的用户
      */
-    ShowCommentbox(postType, commentId, toUser) {
+    commentByFirstComment(arg) {
+      let commentId = arg[0];
+      let toUser = arg[1];
+      this.commentPostType = 1;
+      this.commentPostId = commentId;
+      this.commentTextareaPlaceholder = `回复@${toUser}`;
       this.isShowCommentbox = true;
-      switch (postType) {
-        case 0:
-          this.commentPostType = 0;
-          break;
-        case 1:
-          this.commentPostType = 1;
-          this.commentPostId = commentId;
-          this.commentTextareaPlaceholder = `回复@${toUser}`;
-          break;
-        default:
-          break;
-      }
     },
-    //提交评论
-    submitComment() {
+    /**
+     * @description: 评论当前动态
+     */
+    commentByTrend() {
+      this.commentPostType = 0;
+      this.isShowCommentbox = true;
+    },
+    /**
+     * @description:提交评论
+     */ submitComment() {
       this.utils.debounce(() => {
         if (this.commentPostText.replace(/\s+/g, "") === "") {
           this.$refs.toast.show({
@@ -227,7 +173,6 @@ export default {
             direction: "top",
           });
         } else {
-          console.log(this.commentPostType);
           switch (this.commentPostType) {
             case 0:
               postTrendComment({
@@ -262,7 +207,7 @@ export default {
                 });
               break;
             case 1:
-              postCommentByComment({
+              postTrendSecondComment({
                 urlParam: {
                   trendId: this.trendData.id,
                   commentId: this.commentPostId,
@@ -302,7 +247,9 @@ export default {
         }
       });
     },
-    //获取评论
+    /**
+     * @description:获取评论
+     */
     loadTrendComment() {
       getTrendComment({
         urlParam: this.trendData.id,
@@ -317,6 +264,18 @@ export default {
             direction: "top",
           });
         });
+    },
+    /**
+     * @description:跳转到二级评论详细页
+     */
+    toSecondCommentPage(mainCommentData) {
+      uni.navigateTo({
+        url: "/pages/trending/subpages/trendDetailCommentPage",
+        success: function (res) {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit("acceptDataFromOpenerPage", mainCommentData);
+        },
+      });
     },
   },
 };

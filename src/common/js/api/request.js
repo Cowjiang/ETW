@@ -6,7 +6,7 @@
  **/
 export const apiResquest = (url, pramsObject) => {
   //方法、请求query数据header,cookies,query等参数
-  const {method,requestConfig} = pramsObject
+  const { method, requestConfig } = pramsObject
   let queryData = {};
   //请求头
   let headerData = {};
@@ -85,8 +85,12 @@ export const apiResquest = (url, pramsObject) => {
         }
       },
       fail: (err) => {
+        uni.showModal({
+          title: '请求失败',
+          content: '服务端连接错误，请检查网络后重试',
+        });
         console.log(`【${url}】请求失败：`, err);
-        reject(err);
+        reject(err.errMsg);
       },
       complete: () => {
         // console.log(`【${url}】请求完成`);

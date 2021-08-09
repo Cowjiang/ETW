@@ -4,26 +4,14 @@
     },
     "pages": [
         {
-<<<<<<< HEAD
             "path": "pages/trending/trending",
-=======
-            "path": "pages/chatList/chatList",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/chatDetail/chatDetail",
->>>>>>> Cowjiang
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false
             }
         },
         {
-            "path": "pages/amap/amap",
+            "path": "pages/login/login",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -55,7 +43,7 @@
             }
         },
         {
-            "path": "pages/login/login",
+            "path": "pages/trending/subpages/trendDetailCommentPage",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
