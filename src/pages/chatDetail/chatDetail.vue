@@ -23,8 +23,11 @@
                               :class="message.isMe === false ? 'avatar-container-left' : 'avatar-container-right'">
 
                         </view>
-                        <view class="message-content"
-                              :class="message.isMe === false ? 'message-content-left' : 'message-content-right'">
+                        <view class="message-content" @longpress="handleLongPress" :data-name="`message${index}`"
+                              @touchstart="handleTouchStart" @touchend="handleTouchEnd" @touchcancel="handleTouchEnd"
+                              :class="message.isMe === false ? 'message-content-left' : 'message-content-right'"
+                              :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}"
+                        >
                             {{ message.content }}
                         </view>
                     </view>
@@ -83,7 +86,7 @@
                     userId: '0',
                     avgPath: '',
                     realName: '',
-                    username: '粽子',
+                    username: '蜜雪冰城',
                 },
                 rawInputValue: '',
                 inputFocusStatus: false,
@@ -177,6 +180,7 @@
                     },
                 ],
                 scrollToViewId: '',
+                messageTouchingId: '',
             }
         },
         methods: {
@@ -256,6 +260,35 @@
             },
             handleScroll(e) {
                 // console.log(e)
+            },
+            handleLongPress(e) {
+                uni.showActionSheet({
+                    itemList: ['复制', '举报该用户'],
+                    success: res => {
+                        if (res.tapIndex === 0) {
+                            uni.setClipboardData({
+                                data: this.messageRecords[parseInt(e.target.dataset.name.replace('message', ''))].content,
+                                success: () => {
+
+                                }
+                            });
+                        }
+                        else {
+                            this.$refs.toast.show({
+                                text: '举报成功',
+                                type: 'success'
+                            });
+                        }
+                    }
+                });
+            },
+            handleTouchStart(e) {
+                this.messageTouchingId = e.target.dataset.name;
+                this.$forceUpdate();
+            },
+            handleTouchEnd(e) {
+                this.messageTouchingId = '';
+                this.$forceUpdate();
             }
         },
         computed: {
