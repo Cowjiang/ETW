@@ -62,8 +62,17 @@ export class Utils {
 	 * @returns {*} 返回导航栏高度数值
 	 */
 	getNavigationHeight() {
+<<<<<<< HEAD
 		let {height, top} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
 		return height + top;
+=======
+		let windowWidth;
+		wx.getSystemInfo({
+			success: res => windowWidth = res.windowWidth,
+		});
+		let {height, top, right} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+		return height + top + windowWidth - right;
+>>>>>>> eea6043a56d8f8bee5bd4839b43e0feb7cdc3ebc
 	}
 }
 

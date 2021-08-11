@@ -47,6 +47,10 @@
                             class="navigation-home-image"
                             mode="heightFix"
                         ></image>
+<<<<<<< HEAD
+=======
+<!--                        <i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
+>>>>>>> eea6043a56d8f8bee5bd4839b43e0feb7cdc3ebc
                     </view>
                 </view>
             </view>
@@ -178,7 +182,11 @@
                     this.windowWidth = res.windowWidth;
                     this.windowHeight = res.windowHeight;
                 },
+<<<<<<< HEAD
             }); // 获取设备信息
+=======
+            }); //获取设备信息
+>>>>>>> eea6043a56d8f8bee5bd4839b43e0feb7cdc3ebc
             let {width, height, left, right, top, bottom} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
             [
                 this.navigationBarTop,
@@ -199,6 +207,10 @@
         //background-color: orange;
         width: 100%;
         height: rpx(300);
+<<<<<<< HEAD
+=======
+        z-index: 999;
+>>>>>>> eea6043a56d8f8bee5bd4839b43e0feb7cdc3ebc
     }
 
     .navigation-bar {
