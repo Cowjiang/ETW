@@ -177,17 +177,9 @@
             setChatBaseInfo() {
                 this.$refs.navigationBar.setNavigation({
                     titleText: this.receiverInfo.username,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    customBackFunc: this.redirectToChatList
                 });
-                // getUserInfoTemp({
-                //     urlParam: this.receiverInfo.userId
-                // }).then(res => {
-                //     console.log(res.data)
-                //     let userInfo = res.data;
-                //     if (Object.getOwnPropertyNames(userInfo).length) {
-                //         this.receiverInfo = Object.assign(this.receiverInfo, userInfo);
-                //     }
-                // });
             },
             /**
              * 获取聊天消息记录
@@ -476,13 +468,10 @@
                 setTimeout(() => {
                     this.getChatHistory(this.currentPage + 1);
                 }, 300);
-                if (this.checkUpdateTimer !== null) {
-                    clearInterval(this.checkUpdateTimer);
-                    this.checkUpdateTimer = null;
-                }
+                this.stopCheckingUpdate();
                 this.checkUpdateTimer = setInterval(() => {
                     this.getChatHistory(NaN, true);
-                }, 1000);
+                }, 3000);
                 this.currentPage += 1;
             },
             // scroll-view下拉刷新结束事件
@@ -491,9 +480,16 @@
             },
             // 停止检查聊天消息更新
             stopCheckingUpdate() {
-                clearInterval(this.checkUpdateTimer);
-                this.checkUpdateTimer = null;
+                if (this.checkUpdateTimer !== null) {
+                    clearInterval(this.checkUpdateTimer);
+                    this.checkUpdateTimer = null;
+                }
             },
+            redirectToChatList() {
+                uni.redirectTo({
+                    url: `/pages/chatList/chatList`
+                });
+            }
         },
         computed: {
             // 计算时间差
@@ -544,6 +540,12 @@
             }
         },
         mounted() {
+            this.receiverInfo.username = this.utils.getCurrentPage().curParam.senderName || null;
+            this.receiverInfo.userId = this.utils.getCurrentPage().curParam.senderId || null;
+            if (this.receiverInfo.username === null || this.receiverInfo.userId === null) {
+                this.redirectToChatList();
+            }
+            else this.setChatBaseInfo();
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -559,16 +561,23 @@
             //         this.setChatBaseInfo();
             //     }
             // })
-            this._freshing = false;
-            setTimeout(() => {
-                this.refresherTriggered = true;
-            }, 1000)
         },
         onShow() {
             this.setChatBaseInfo();
+            this.stopCheckingUpdate();
+            this._freshing = false;
+            setTimeout(() => {
+                this.refresherTriggered = true;
+            }, 1000);
         },
         onHide() {
-
+            this.stopCheckingUpdate();
+        },
+        onUnload() {
+            this.stopCheckingUpdate();
+        },
+        beforeDestroy() {
+            this.stopCheckingUpdate();
         }
     }
 </script>

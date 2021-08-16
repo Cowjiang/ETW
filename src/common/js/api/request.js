@@ -82,7 +82,6 @@ export const apiResquest = (url, pramsObject) => {
 				uni.redirectTo({
 					url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
 				});
-				// console.log(utils)
               // uni.showModal({
               //   title: '提示',
               //   content: '该功能需要登录才能使用，是否前往登录页面？',

@@ -4,7 +4,7 @@
     },
     "pages": [
         {
-            "path": "pages/chatDetail/chatDetail",
+            "path": "pages/chatList/chatList",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -12,7 +12,7 @@
             }
         },
         {
-            "path": "pages/chatList/chatList",
+            "path": "pages/chatDetail/chatDetail",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
