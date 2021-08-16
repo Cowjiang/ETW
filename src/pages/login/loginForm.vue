@@ -246,6 +246,10 @@
                                             text: res.data,
                                             type: "success",
                                         });
+                                        let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                                        uni.redirectTo({
+                                            url: `/${redirectPage === null ? 'pages/home/home' : redirectPage}`
+                                        });
                                     }
                                     else {
                                         this.$refs.toast.show({

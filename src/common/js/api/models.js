@@ -3,7 +3,7 @@ import {apiResquest} from "./request.js";
 let baseUrl = "/api"
 //#endif
 //#ifdef MP-WEIXIN
-let baseUrl = "http://us-or-cera-1.natfrp.cloud:21671"
+let baseUrl = "http://etw.free.svipss.top"
 //#endif
 // 获取作品列表
 export const getWorkList = (requestConfig) =>
@@ -58,7 +58,7 @@ export const sendMessage = (requestConfig) =>
 	apiResquest(`${baseUrl}/chat/user/${requestConfig.urlParam}`, {method: "POST", requestConfig});
 //删除私信记录
 export const deleteChatHistory = (requestConfig) =>
-	apiResquest(`${baseUrl}/chat/user`, {method: "DELETE", requestConfig});
+	apiResquest(`${baseUrl}/chat/${requestConfig.urlParam}`, {method: "DELETE", requestConfig});
 //获取用户简要信息（临时）
 export const getUserInfoTemp = (requestConfig) =>
 	apiResquest(`${baseUrl}/user/simple/info/${requestConfig.urlParam}`, {method: "GET", requestConfig});

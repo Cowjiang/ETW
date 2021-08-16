@@ -144,7 +144,13 @@
                             this.customBackFunc(); //执行自定义跳转行为
                         }
                         else {
-                            wx.navigateBack(); //返回上一页
+                            wx.navigateBack({
+                                fail: res => {
+                                    uni.redirectTo({
+                                        url: `/pages/home/home`
+                                    });
+                                }
+                            }); //返回上一页
                         }
                         break;
                     case 2:
@@ -165,12 +171,14 @@
              * 重置导航栏默认行为
              */
             resetNavigation() {
-                this.isShowButton = true;
-                this.isShowTitle = true;
-                this.titleText = '';
-                this.titleColor = '#333333'
-                this.backgroundColor = '';
-                this.customBackFunc = null;
+                setTimeout(() => {
+                    this.isShowButton = true;
+                    this.isShowTitle = true;
+                    this.titleText = '';
+                    this.titleColor = '#333333'
+                    this.backgroundColor = '';
+                    this.customBackFunc = null;
+                }, 1000);
             },
         },
         beforeMount() {

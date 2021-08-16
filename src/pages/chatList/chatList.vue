@@ -2,7 +2,10 @@
     <view>
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast" class="toast"/>
-        <button @click="toChatDetail">和 粽子 聊天</button>
+
+        <view class="chat-list-container">
+
+        </view>
     </view>
 </template>
 
@@ -19,17 +22,17 @@
         },
         methods: {
             toChatDetail() {
-                uni.navigateTo({
-                    url: '../chatDetail/chatDetail',
-                    success: res => {
-                        res.eventChannel.emit('chatList', {
-                            data:
-                                {
-                                    receiverId: 0
-                                }
-                        })
-                    }
-                })
+                // uni.navigateTo({
+                //     url: '../chatDetail/chatDetail',
+                //     success: res => {
+                //         res.eventChannel.emit('chatList', {
+                //             data:
+                //                 {
+                //                     receiverId: 0
+                //                 }
+                //         })
+                //     }
+                // })
             }
         },
         computed: {},

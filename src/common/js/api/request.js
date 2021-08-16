@@ -1,7 +1,7 @@
 import { Utils } from "@/common/js/utils/utils.js"
 /**
  *封装请求
- *@param {String} url 接口的地址
+ *@param {Object} url 接口的地址
  *@param {Object} pramsObject 自定义请求参数
  *@return {Promise} 请求结果
  **/
@@ -52,7 +52,8 @@ export const apiResquest = (url, pramsObject) => {
       method: method,
       header: headerData,
       success: (res) => {
-        console.log(`【${url}】请求响应：`, res);
+        // console.log(queryData,method,headerData);
+        // console.log(`【${url}】请求响应：`, res);
         // 和后端约定的状态码
         const { errorCode } = res.data;
         // 根据 code 进行判断
@@ -70,15 +71,30 @@ export const apiResquest = (url, pramsObject) => {
             case 999:
               if (res.data.data !== '用户登录过期') {
                 break;
-              }
+			  }
             case 3002:
               // 未登录
-              console.log('该功能需要登录才能使用');
-
-              let currentPage = utils.getCurrentPage();
-              uni.redirectTo({
-                url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-              });
+				console.log('该功能需要登录才能使用');
+				// uni.navigateTo({
+				// 	url: "/pages/login/login",
+				// });
+				let currentPage = utils.getCurrentPage();
+				uni.redirectTo({
+					url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+				});
+				// console.log(utils)
+              // uni.showModal({
+              //   title: '提示',
+              //   content: '该功能需要登录才能使用，是否前往登录页面？',
+              //   success: function (res) {
+              //     if (res.confirm) {
+              //       uni.navigateTo({
+              //         url: "/pages/login/login",
+              //       });
+              //     } else if (res.cancel) {
+              //     }
+              //   }
+              // });
               reject(res)
               break;
             default:
@@ -87,12 +103,8 @@ export const apiResquest = (url, pramsObject) => {
         }
       },
       fail: (err) => {
-        uni.showModal({
-          title: '请求失败',
-          content: '服务端连接错误，请检查网络后重试',
-        });
         console.log(`【${url}】请求失败：`, err);
-        reject(err.errMsg);
+        reject(err);
       },
       complete: () => {
         // console.log(`【${url}】请求完成`);
