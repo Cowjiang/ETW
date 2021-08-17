@@ -118,6 +118,7 @@ export default {
       this.trendData = data;
       this.loadTrendComment(true);
     });
+    this.loadTrendComment(true);
   },
   onReachBottom() {
     this.utils.debounce(() => {

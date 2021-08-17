@@ -50,16 +50,7 @@
       <i v-show="!isEnd" class="fa fa-spinner fa-pulse"></i>
       {{ loadText }}
     </view>
-    <!-- 底部按钮容器 -->
-    <!-- <view class="bottom-button-area">
-      <view class="left-area">
-        <view @tap.stop="commentByFirstComment()" class="comment-input-view">
-          <text class="fa fa-pencil"></text>
-          写个评论吧
-        </view>
-      </view>
-    </view> -->
-    <!-- 评论输入框 -->
+    <!-- 底部输入框 -->
     <commentTextarea
       ref="commentTextarea"
       @clickBottomBox="commentByFirstComment"
