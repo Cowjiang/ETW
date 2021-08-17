@@ -6,59 +6,81 @@
       v-for="(item, index) in commentList"
       :key="index"
     >
-      <!-- 评论者头像 -->
-      <view class="left-avatar-box">
-        <u-avatar :size="80"></u-avatar>
-      </view>
-      <!-- 评论内容 -->
-      <view class="right-content-box">
-        <view class="main-content-box">
+      <template v-if="!item.isDeleted">
+        <!-- 评论者头像 -->
+        <view class="left-avatar-box">
+          <u-avatar :size="80"></u-avatar>
+        </view>
+        <!-- 评论内容 -->
+        <view class="right-content-box">
+          <view class="main-content-box">
+            <view
+              class="main-info-box"
+              @tap.stop="
+                clickFirstComment(
+                  commentType === 'secondComment'
+                    ? item.scUserInfo.id
+                    : item.id,
+                  commentType === 'secondComment'
+                    ? item.scUserInfo.username
+                    : item.userInfo.username
+                )
+              "
+            >
+              <view class="comment-username">
+                {{
+                  commentType === "secondComment"
+                    ? item.scUserInfo.username
+                    : item.userInfo.username
+                }}
+                <text class="reply-text" v-if="item.toUserInfo">
+                  <text class="fa fa-caret-right"></text>
+                  {{ `${item.toUserInfo.username}` }}
+                </text>
+              </view>
+              <view class="comment-text">{{ item.content }}</view>
+              <view class="comment-date">{{
+                item.createdTime | dateFilter("yy-mm-dd hh:mm")
+              }}</view>
+            </view>
+            <view class="like-box">
+              <iconButtonBox
+                :showedNumber="item.likeNumber"
+                @clickIcon="clickFirstLike(item.id)"
+              ></iconButtonBox>
+            </view>
+          </view>
+          <!-- 二级评论容器 -->
+          <view class="second-comment-box" v-if="item.secondComment">
+            <view class="avatar-box">
+              <u-avatar :size="60"></u-avatar>
+            </view>
+            <view class="second-content-box">
+              <view class="comment-username">
+                {{ item.secondComment.scUserInfo.username }}
+              </view>
+              <view class="comment-text">
+                {{ item.secondComment.content }}
+              </view>
+            </view>
+            <view class="like-box">
+              <iconButtonBox
+                :showedNumber="item.secondComment.likeNumber"
+                @clickIcon="clickSecondLike(item.secondComment.id)"
+              ></iconButtonBox>
+            </view>
+          </view>
           <view
-            class="main-info-box"
-            @tap.stop="clickFirstComment(item.id, item.userInfo.username)"
+            class="more-comment"
+            @tap.stop="clickSecondComment(item)"
+            v-if="item.commentNumber >= 1 || item.secondComment"
           >
-            <view class="comment-username">
-              {{ item.userInfo.username }}
-            </view>
-            <view class="comment-text">{{ item.content }}</view>
-            <view class="comment-date">{{
-              item.createdTime | dateFilter("yy-mm-dd hh:mm")
-            }}</view>
-          </view>
-          <view class="like-box">
-            <likeButton @clickLike="likeComment(item.id)"></likeButton>
+            查看{{ item.commentNumber >= 1 ? item.commentNumber : "1" }}条回复
+            <text class="fa fa-angle-right"></text>
           </view>
         </view>
-        <!-- 二级评论容器 -->
-        <view class="second-comment-box" v-if="item.secondComment">
-          <view class="avatar-box">
-            <u-avatar :size="48"></u-avatar>
-          </view>
-          <view class="second-content-box">
-            <view class="comment-username">
-              {{ item.secondComment.scUserInfo.username }}
-            </view>
-            <view class="comment-text">
-              {{ item.secondComment.content }}
-            </view>
-          </view>
-          <view class="like-box">
-            <likeButton
-              @clickLike="likeComment(item.secondComment.id)"
-            ></likeButton>
-          </view>
-        </view>
-        <view
-          class="more-comment"
-          @tap.stop="clickSecondComment(item)"
-          v-if="item.commentNumber > 1"
-        >
-          查看{{ item.commentNumber }}条回复
-          <text class="fa fa-angle-right"></text>
-        </view>
-      </view>
+      </template>
     </view>
-    <view class="bottom-button-area-placeholder"></view>
   </view>
 </template>
 
@@ -68,6 +90,10 @@ export default {
   props: {
     commentList: {
       type: Array,
+    },
+    commentType: {
+      type: String,
+      default: "trend",
     },
   },
   methods: {
@@ -86,6 +112,20 @@ export default {
     clickSecondComment(commentId) {
       this.$emit("clickSecondComment", commentId);
     },
+    /**
+     * @description: 一级评论点赞
+     * @param {Number} targetId 目标id
+     */
+    clickFirstLike(targetId, isLike) {
+      this.$emit("clickFirstLike", targetId, isLike);
+    },
+    /**
+     * @description: 二级评论点赞
+     * @param {Number} targetId 目标id
+     */
+    clickSecondLike(targetId, isLike) {
+      this.$emit("clickSecondLike", targetId, isLike);
+    },
   },
 };
 </script>
@@ -93,7 +133,6 @@ export default {
 <style lang="scss" scoped>
 .comment-list-box {
   background-color: white;
-  padding: 0 4vw;
   .comment-item {
     display: flex;
     margin-bottom: 15rpx;
@@ -107,15 +146,21 @@ export default {
       .main-content-box {
         display: flex;
         .main-info-box {
+          font-size: 32rpx;
           width: 100%;
           .comment-username {
             font-weight: 600;
-            font-size: 32rpx;
+          }
+          .reply-text {
+            margin-left: 15rpx;
+            color: $uni-color-blue;
+            font-weight: 400;
+            .fa {
+              margin-right: 15rpx;
+            }
           }
           .comment-text {
             margin-top: 10rpx;
-
-            font-size: 32rpx;
           }
           .comment-date {
             margin-top: 10rpx;
@@ -134,18 +179,16 @@ export default {
         display: flex;
         .avatar-box {
           padding-top: 10rpx;
-          width: 48rpx;
-          font-size: 28;
+          width: 60rpx;
         }
         .second-content-box {
+          font-size: 30rpx;
           margin-left: 10rpx;
           width: 100%;
           .comment-username {
             font-weight: 600;
-            font-size: 28rpx;
           }
           .comment-text {
-            font-size: 28rpx;
             margin-top: 10rpx;
             font-weight: 300;
           }
@@ -167,10 +210,6 @@ export default {
         }
       }
     }
-  }
-  .bottom-button-area-placeholder {
-    height: 150rpx;
-    width: 100%;
   }
 }
 </style>

@@ -1,11 +1,7 @@
 <template>
-  <view
-    class="container"
-    :style="{
-      marginTop: `${containerMarginTop}px`,
-    }"
-  >
+  <view class="container">
     <navigationBar ref="navigationBar"></navigationBar>
+    <toast ref="toast"></toast>
     <!-- 动态容器 -->
     <view v-if="trendData" class="trend-box">
       <!-- 用户信息容器 -->
@@ -26,7 +22,12 @@
       </view>
       <!-- 动态文本 -->
       <view class="trend-text">
-        <u-read-more color="#808080" close-text="展开" :toggle="true">
+        <u-read-more
+          text-indent="20rpx"
+          color="#808080"
+          close-text="展开"
+          :toggle="true"
+        >
           {{ trendData.content }}
         </u-read-more>
       </view>
@@ -34,59 +35,55 @@
       <trendsImageGroup
         :imageDataList="trendData.dynamicImages"
       ></trendsImageGroup>
+      <view v-if="trendData.areaInfo" class="location-area">
+        <view class="location-box">
+          <text class="fa fa-map-marker fa-fw"></text>
+          {{ trendData.areaInfo.areaName }}
+        </view>
+      </view>
     </view>
-    <view class="comment-title-box"
-      ><text class="fa fa-window-minimize fa-rotate-90"></text> 评论
+    <view class="comment-title-box">
+      <text class="fa fa-window-minimize fa-rotate-90"></text>
+      评论
     </view>
-    <!-- 评论区容器 -->
+    <!-- 一级评论容器 -->
     <commentList
       :commentList="commentList"
       @clickSecondComment="toSecondCommentPage($event)"
       @clickFirstComment="commentByFirstComment(arguments)"
+      @clickFirstLike="likeComment(arguments, 3)"
+      @clickSecondLike="likeComment(arguments, 4)"
     ></commentList>
-    <!-- 底部按钮容器 -->
-    <view class="bottom-button-area">
-      <view class="left-area">
-        <view @tap.stop="commentByTrend()" class="comment-input-view">
-          <text class="fa fa-pencil"></text>
-          写个评论吧
-        </view>
-      </view>
-      <view class="right-area">
-        <view>
-          <text class="fa fa-star-o fa-lg"></text>
-        </view>
-        <view @click="likeTrend(trendData.id)">
-          <text class="fa fa-heart-o fa-lg"></text>
-        </view>
-        <view>
-          <text class="fa fa-share-square-o fa-lg"></text>
-        </view>
-      </view>
-    </view>
-    <!-- 评论输入框 -->
+    <!-- 没有评论的占位 -->
+    <noData v-if="commentList.length === 0"> </noData>
+    <!-- 底部输入框占位 -->
     <view
-      v-if="isShowCommentbox"
-      class="comment-box"
-      :style="'bottom:' + KeyboardHeight + 'px;'"
+      v-if="commentList.length !== 0"
+      class="bottom-button-area-placeholder"
     >
-      <textarea
-        v-model="commentPostText"
-        class="comment-textarea"
-        :focus="isShowCommentbox"
-        :auto-blur="true"
-        :fixed="true"
-        :adjust-position="false"
-        :show-confirm-bar="false"
-        :placeholder="commentTextareaPlaceholder"
-        @focus="focusTextarea"
-        @blur="blurTextarea"
-      />
-      <view class="button-area">
-        <view class="submit-button" @click="submitComment">发送</view>
-      </view>
+      <i v-show="!isEnd" class="fa fa-spinner fa-pulse"></i>
+      {{ loadText }}
     </view>
-    <toast ref="toast"></toast>
+    <!-- 底部输入框 -->
+    <commentTextarea
+      ref="commentTextarea"
+      @clickBottomBox="commentByTrend"
+      @submitComment="submitComment"
+    >
+      <template #right-area>
+        <view class="right-area">
+          <view>
+            <text class="fa fa-star-o fa-lg"></text>
+          </view>
+          <view @click="likeTrend(trendData.id)">
+            <text class="fa fa-heart-o fa-lg"></text>
+          </view>
+          <view>
+            <text class="fa fa-share-square-o fa-lg"></text>
+          </view>
+        </view>
+      </template>
+    </commentTextarea>
   </view>
 </template>
 
@@ -95,53 +92,57 @@ import {
   postTrendComment,
   postTrendSecondComment,
   getTrendComment,
+  like,
 } from "@/common/js/api/models.js";
 export default {
+  commentPostType: 0, //[0,1]分别是：在当前动态评论，在评论中回复
+  commentPostId: 0, // 回复其他评论的id
+  isLoading: false, //是否正在请求
   data() {
     return {
       trendData: null,
-      containerMarginTop: null,
-      windowHeight: null,
-      isShowCommentbox: false,
-      KeyboardHeight: 0,
-      commentList: [], //评论区列表
-      commentPostText: "",
-      commentPostType: 0, //[0,1]分别是：在当前动态评论，在评论中回复
-      commentPostId: 0, // 回复其他评论的id
-      commentToUser: "", //当前回复的人
-      commentTextareaPlaceholder: "写个评论吧",
+      commentList: null, //评论区列表
+      currentPage: 1, //当前页
+      pageSize: 8, //每页多少条
+      totalNumber: 0, //总页数
+      isEnd: false, //数据是否已经加载完
     };
   },
   onLoad() {
-    this.containerMarginTop = this.$refs.navigationBar.getNavigationHeight();
-    this.windowHeight = this.$refs.navigationBar.windowHeight;
+    this.$refs.navigationBar.setNavigation({
+      titleText: "动态详细",
+      backgroundColor: "white",
+    });
     const eventChannel = this.getOpenerEventChannel();
     eventChannel.on("acceptDataFromOpenerPage", (data) => {
       this.trendData = data;
-      this.loadTrendComment();
+      this.loadTrendComment(true);
     });
   },
-  methods: {
-    /**
-     * @description:输入框聚焦的回调
-     */
-    focusTextarea(e) {
-      if (this.isShowCommentbox === true) {
-        //键盘高度
-        this.KeyboardHeight = e.detail.height;
+  onReachBottom() {
+    this.utils.debounce(() => {
+      if (!this.isEnd) {
+        this.loadTrendComment(false);
+      }
+    });
+  },
+  computed: {
+    loadText() {
+      const { currentPage, totalNumber, pageSize } = this;
+      let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
+      if (currentPage < totalPages || totalPages === 0) {
+        return "正在加载";
       } else {
-        this.isShowCommentbox = true;
+        this.isEnd = true;
+        if (totalNumber > 8) {
+          return "—没有更多内容了—";
+        } else {
+          return "";
+        }
       }
     },
-    /**
-     * @description:输入框失去焦点的回调
-     */
-    blurTextarea() {
-      console.log("输入框失去焦点的回调");
-      this.KeyboardHeight = 0;
-      this.isShowCommentbox = false;
-      this.commentTextareaPlaceholder = `写个评论吧`;
-    },
+  },
+  methods: {
     /**
      * @description: 给一级评论回复二级评论
      * @param {Number} commentId  一级评论的id
@@ -152,21 +153,25 @@ export default {
       let toUser = arg[1];
       this.commentPostType = 1;
       this.commentPostId = commentId;
-      this.commentTextareaPlaceholder = `回复@${toUser}`;
-      this.isShowCommentbox = true;
+      this.$refs.commentTextarea.commentTextareaPlaceholder = `回复@${toUser}`;
+      this.$refs.commentTextarea.isShowTextarea(true);
     },
     /**
      * @description: 评论当前动态
      */
     commentByTrend() {
       this.commentPostType = 0;
-      this.isShowCommentbox = true;
+      this.$refs.commentTextarea.commentTextareaPlaceholder = `写个评论吧`;
+      this.$refs.commentTextarea.isShowTextarea(true);
     },
     /**
      * @description:提交评论
-     */ submitComment() {
+     */
+    submitComment() {
       this.utils.debounce(() => {
-        if (this.commentPostText.replace(/\s+/g, "") === "") {
+        if (
+          this.$refs.commentTextarea.commentPostText.replace(/\s+/g, "") === ""
+        ) {
           this.$refs.toast.show({
             text: "内容不能为空",
             type: "warning",
@@ -178,13 +183,13 @@ export default {
               postTrendComment({
                 urlParam: this.trendData.id,
                 queryData: {
-                  content: this.commentPostText,
+                  content: this.$refs.commentTextarea.commentPostText,
                 },
               })
                 .then((res) => {
                   if (res.success) {
-                    this.commentPostText = "";
-                    this.loadTrendComment();
+                    this.$refs.commentTextarea.commentPostText = "";
+                    this.loadTrendComment(true);
                     this.$refs.toast.show({
                       text: "评论成功",
                       type: "success",
@@ -213,13 +218,13 @@ export default {
                   commentId: this.commentPostId,
                 },
                 queryData: {
-                  content: this.commentPostText,
+                  content: this.$refs.commentTextarea.commentPostText,
                 },
               })
                 .then((res) => {
                   if (res.success) {
-                    this.commentPostText = "";
-                    this.loadTrendComment();
+                    this.$refs.commentTextarea.commentPostText = "";
+                    this.loadTrendComment(true);
                     this.$refs.toast.show({
                       text: "评论成功",
                       type: "success",
@@ -249,21 +254,60 @@ export default {
     },
     /**
      * @description:获取评论
+     * @param {Boolean} isRefresh  是否刷新
      */
-    loadTrendComment() {
-      getTrendComment({
-        urlParam: this.trendData.id,
-      })
-        .then((res) => {
-          this.commentList = res.data.records;
+    loadTrendComment(isRefresh) {
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+      if (isRefresh) {
+        console.log("刷新");
+        // this.currentPage = 1;
+        getTrendComment({
+          urlParam: this.trendData.id,
+          queryData: {
+            pageNumber: 1,
+            pageSize: this.pageSize * this.currentPage,
+          },
         })
-        .catch((err) => {
-          this.$refs.toast.show({
-            text: err.data,
-            type: "error",
-            direction: "top",
+          .then((res) => {
+            if (res.success) {
+              const data = res.data;
+              this.totalNumber = data.total; //获取总页数
+              this.commentList = data.records;
+            }
+          })
+          .catch((err) => {
+            throw err;
+          })
+          .finally(() => {
+            this.isLoading = false;
           });
-        });
+      } else {
+        console.log("加载");
+        // 请求下一页内容
+        this.currentPage += 1;
+        getTrendComment({
+          urlParam: this.trendData.id,
+          queryData: {
+            pageNumber: this.currentPage,
+            pageSize: this.pageSize,
+          },
+        })
+          .then((res) => {
+            if (res.success) {
+              const data = res.data;
+              this.commentList = this.commentList.concat(data.records);
+            }
+          })
+          .catch((err) => {
+            throw err;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+      }
     },
     /**
      * @description:跳转到二级评论详细页
@@ -277,6 +321,28 @@ export default {
         },
       });
     },
+    /**
+     * @description: 点赞一级评论
+     * @param {Number} targetId 目标id
+     * @param {Number} actionType 点赞类型 1 点赞 2 取消点赞
+     * @param {String} targetType 点赞对象类型： 1 作品 、 2 动态 、 3 动态评论 、 4 动态二级评论、5 作品评论、6 作品二级评论
+     */
+    likeComment(args, targetType) {
+      const targetId = args[0];
+      const isLike = args[1];
+      like({
+        urlParam: targetId,
+        queryData: { actionType: "1", targetType: targetType },
+      })
+        .then((res) => {})
+        .catch((err) => {
+          this.$refs.toast.show({
+            text: err,
+            type: "error",
+            direction: "top",
+          });
+        });
+    },
   },
 };
 </script>
@@ -285,9 +351,9 @@ export default {
 .container {
   display: flex;
   flex-direction: column;
+  padding: 4vw;
 }
 .trend-box {
-  padding: 6vw 4vw;
   border-bottom: 1rpx solid $uni-color-grey;
   background-color: white;
   .author-box {
@@ -399,85 +465,38 @@ export default {
       }
     }
   }
-  .bottom-button-area-placeholder {
-    height: 150rpx;
-    width: 100%;
-  }
 }
-.bottom-button-area {
-  background-color: white;
-  z-index: 100;
-  position: fixed;
-  bottom: 0;
-  height: 150rpx;
-  border-top: 1rpx solid $uni-color-grey;
-  display: flex;
+.location-area {
   width: 100%;
-  .left-area {
-    z-index: 101;
-    width: 100%;
-    height: 70rpx;
-    flex: 2;
-    margin: 25rpx 20rpx 0 20rpx;
-    .comment-input-view {
-      background-color: $uni-color-grey;
-      color: $uni-text-color-placeholder;
-      padding-left: 25rpx;
-      height: 70rpx;
-      line-height: 70rpx;
-      border-radius: 30rpx;
-      .fa {
-        margin-right: 10rpx;
-      }
-    }
-    .test-textarea {
-      background-color: $uni-color-grey;
-      color: $uni-text-color-placeholder;
-      padding-left: 25rpx;
-      height: 70rpx;
-      border-radius: 30rpx;
-      width: 100%;
-    }
-  }
-  .right-area {
-    z-index: 101;
-    margin-top: 25rpx;
-    height: 70rpx;
-    flex: 1;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    view {
-      text-align: center;
-    }
-  }
-}
-.comment-box {
-  z-index: 102;
-  border-top: 1rpx solid $uni-color-grey;
-  border-radius: 30rpx;
-  width: 100%;
-  height: 250rpx;
-  background-color: white;
-  position: fixed;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  padding: 20rpx 60rpx 0 60rpx;
-  .comment-textarea {
-    box-sizing: border-box;
-    padding: 30rpx;
+  padding: 0 10rpx;
+  overflow: hidden;
+  .location-box {
+    float: right;
     border-radius: 30rpx;
-    height: 150rpx;
-    width: 100%;
-    background-color: $uni-color-grey;
+    padding: 8rpx 16rpx;
+    background-color: $uni-color-primary;
+    color: white;
   }
-  .button-area {
-    width: 100%;
-    .submit-button {
-      color: $uni-color-primary;
-      float: right;
-    }
+}
+.bottom-button-area-placeholder {
+  color: $uni-text-color-placeholder;
+  height: 170rpx;
+  width: 100%;
+  text-align: center;
+  .fa {
+    margin-right: 15rpx;
+  }
+}
+.right-area {
+  z-index: 101;
+  margin-top: 25rpx;
+  height: 70rpx;
+  flex: 1;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  view {
+    text-align: center;
   }
 }
 </style>

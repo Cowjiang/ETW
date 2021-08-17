@@ -1,11 +1,8 @@
 <template>
-  <view
-    class="container"
-    :style="{
-      marginTop: `${containerMarginTop}px`,
-    }"
-  >
+  <view class="container">
     <navigationBar ref="navigationBar"></navigationBar>
+    <toast ref="toast"></toast>
+
     <!-- 一级评论容器 -->
     <view class="comment-item" v-if="firstCommentData">
       <!-- 评论者头像 -->
@@ -25,86 +22,51 @@
             <view class="comment-text">{{ firstCommentData.content }}</view>
           </view>
           <view class="like-box">
-            <likeButton
-              @clickLike="likeComment(firstCommentData.id)"
-            ></likeButton>
+            <iconButtonBox
+              :showedNumber="firstCommentData.likeNumber"
+              @clickIcon="likeComment([firstCommentData.id, true], 3)"
+            ></iconButtonBox>
           </view>
         </view>
       </view>
     </view>
+    <!-- 二级评论分隔栏 -->
     <view class="second-comment-title-box"
       ><text class="fa fa-window-minimize fa-rotate-90"></text> 回复
     </view>
     <!-- 二级评论列表 -->
-    <view class="second-comment-list-box" v-if="secondCommentList">
-      <view
-        v-for="(item, index) in secondCommentList"
-        :key="index"
-        class="comment-item"
-      >
-        <!-- 评论者头像 -->
-        <view class="left-avatar-box">
-          <u-avatar :size="80"></u-avatar>
-        </view>
-        <!-- 评论内容 -->
-        <view class="right-content-box">
-          <view class="main-content-box">
-            <view
-              class="main-info-box"
-              @tap.stop="commentBySecondComment(item.scUserInfo)"
-            >
-              <view class="comment-username">
-                {{ item.scUserInfo.username }}
-                <text class="reply-text" v-if="item.toUserInfo">
-                  <text class="fa fa-caret-right"></text>
-                  {{ `${item.toUserInfo.username}` }}
-                </text>
-              </view>
-              <text class="comment-date">
-                {{ item.createdTime | dateFilter("yy-mm-dd hh:mm") }}
-              </text>
-              <view class="comment-text">{{ item.content }}</view>
-            </view>
-            <view class="like-box">
-              <likeButton @clickLike="likeComment(item.id)"></likeButton>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view class="bottom-button-area-placeholder"></view>
+    <commentList
+      commentType="secondComment"
+      :commentList="secondCommentList"
+      @clickFirstLike="likeComment(arguments, 4)"
+      @clickFirstComment="commentBySecondComment(arguments)"
+    ></commentList>
+    <!-- 没有评论的占位 -->
+    <noData v-if="secondCommentList.length === 0"> </noData>
+    <!-- 底部输入框占位 -->
+    <view
+      v-if="secondCommentList.length !== 0"
+      class="bottom-button-area-placeholder"
+    >
+      <i v-show="!isEnd" class="fa fa-spinner fa-pulse"></i>
+      {{ loadText }}
     </view>
     <!-- 底部按钮容器 -->
-    <view class="bottom-button-area">
+    <!-- <view class="bottom-button-area">
       <view class="left-area">
         <view @tap.stop="commentByFirstComment()" class="comment-input-view">
           <text class="fa fa-pencil"></text>
           写个评论吧
         </view>
       </view>
-    </view>
+    </view> -->
     <!-- 评论输入框 -->
-    <view
-      v-if="isShowCommentbox"
-      class="comment-box"
-      :style="'bottom:' + KeyboardHeight + 'px;'"
+    <commentTextarea
+      ref="commentTextarea"
+      @clickBottomBox="commentByFirstComment"
+      @submitComment="submitComment"
     >
-      <textarea
-        v-model="commentPostText"
-        class="comment-textarea"
-        :focus="isShowCommentbox"
-        :auto-blur="true"
-        :fixed="true"
-        :adjust-position="false"
-        :show-confirm-bar="false"
-        :placeholder="commentTextareaPlaceholder"
-        @focus="focusTextarea"
-        @blur="blurTextarea"
-      />
-      <view class="button-area">
-        <view class="submit-button" @click="submitComment">发送</view>
-      </view>
-    </view>
-    <toast ref="toast"></toast>
+    </commentTextarea>
   </view>
 </template>
 
@@ -112,19 +74,21 @@
 import {
   getTrendSecondComment,
   postTrendSecondComment,
+  like,
 } from "@/common/js/api/models.js";
 export default {
+  commentPostType: 0, //[0,1,2]分别是：在当前动态发布一级评论，在一级评论中发布二级评论，二级评论之间互相回复
+  toSecondUsername: null, //被回复二级评论人的用户名
+  toSecondUsername: null, //被回复二级评论人的id
+  isLoading: false, //是否正在请求
   data() {
     return {
-      containerMarginTop: 0,
       firstCommentData: null,
       secondCommentList: null,
-      isShowCommentbox: false,
-      commentTextareaPlaceholder: `写个评论吧`,
-      KeyboardHeight: 0,
-      commentPostText: "",
-      commentPostType: 0, //[0,1,2]分别是：在当前动态发布一级评论，在一级评论中发布二级评论，二级评论之间互相回复
-      toSecondUserInfo: null, //被回复二级评论人的信息
+      currentPage: 1, //当前页
+      pageSize: 8, //每页多少条
+      totalNumber: 0, //总页数
+      isEnd: false, //数据是否已经加载完
     };
   },
   onLoad() {
@@ -132,69 +96,128 @@ export default {
     eventChannel.on("acceptDataFromOpenerPage", (data) => {
       this.firstCommentData = data;
       this.$refs.navigationBar.setNavigation({
-        titleText: `${this.firstCommentData.commentNumber}条回复`,
+        titleText: `${this.firstCommentData.userInfo.username}的回复`,
         backgroundColor: "white",
       });
       this.loadSecondComment(
         this.firstCommentData.dynamicId,
-        this.firstCommentData.id
+        this.firstCommentData.id,
+        true
       );
     });
   },
-  methods: {
-    loadSecondComment(trendId, commentId) {
-      getTrendSecondComment({
-        urlParam: {
-          trendId: trendId,
-          commentId: commentId,
-        },
-      })
-        .then((res) => {
-          this.secondCommentList = res.data.records;
-        })
-        .catch((err) => {
-          this.$refs.toast.show({
-            text: err,
-            type: "error",
-            direction: "top",
-          });
-        });
-    },
-    /**
-     * @description:输入框聚焦的回调
-     */
-    focusTextarea(e) {
-      if (this.isShowCommentbox === true) {
-        //键盘高度
-        this.KeyboardHeight = e.detail.height;
+  onReachBottom() {
+    this.utils.debounce(() => {
+      if (!this.isEnd) {
+        this.loadSecondComment(
+          this.firstCommentData.dynamicId,
+          this.firstCommentData.id,
+          false
+        );
+      }
+    });
+  },
+  computed: {
+    loadText() {
+      const { currentPage, totalNumber, pageSize } = this;
+      let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
+      if (currentPage < totalPages || totalPages === 0) {
+        return "正在加载";
       } else {
-        this.isShowCommentbox = true;
+        this.isEnd = true;
+        if (totalNumber > 8) {
+          return "—没有更多内容了—";
+        } else {
+          return "";
+        }
       }
     },
+  },
+  methods: {
     /**
-     * @description:输入框失去焦点的回调
+     * @description:获取二级评论
+     * @param {Number} trendId  动态id
+     * @param {Number} commentId  动态评论id
+     * @param {Boolean} isRefresh  是否刷新
      */
-    blurTextarea() {
-      console.log("输入框失去焦点的回调");
-      this.KeyboardHeight = 0;
-      this.isShowCommentbox = false;
-      this.commentTextareaPlaceholder = `写个评论吧`;
+    loadSecondComment(trendId, commentId, isRefresh) {
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+      if (isRefresh) {
+        this.isEnd = false;
+        getTrendSecondComment({
+          urlParam: {
+            trendId: trendId,
+            commentId: commentId,
+          },
+          queryData: {
+            pageNumber: 1,
+            pageSize: this.pageSize * this.currentPage,
+          },
+        })
+          .then((res) => {
+            if (res.success) {
+              this.totalNumber = res.data.total; //获取总页数
+              this.secondCommentList = res.data.records;
+              uni.pageScrollTo({
+                scrollTop: 0,
+                duration: 300,
+              });
+            }
+          })
+          .catch((err) => {
+            throw err;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+      } else {
+        // 请求下一页内容
+        this.currentPage += 1;
+        getTrendSecondComment({
+          urlParam: {
+            trendId: trendId,
+            commentId: commentId,
+          },
+          queryData: {
+            pageNumber: 1,
+            pageSize: this.pageSize * this.currentPage,
+          },
+        })
+          .then((res) => {
+            if (res.success) {
+              this.secondCommentList = this.secondCommentList.concat(
+                res.data.records
+              );
+            }
+          })
+          .catch((err) => {
+            throw err;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+      }
     },
     /**
      * @description:给当前页面下的一级评论回复二级评论
      */
     commentByFirstComment() {
       this.commentPostType = 1;
-      this.isShowCommentbox = true;
+      this.$refs.commentTextarea.commentTextareaPlaceholder = `写个评论吧`;
+      this.$refs.commentTextarea.isShowTextarea(true);
     },
     /**
      * @description:二级评论之间互相回复
      */
-    commentBySecondComment(secondUserInfo) {
+    commentBySecondComment(arg) {
       this.commentPostType = 2;
-      this.toSecondUserInfo = secondUserInfo;
-      this.commentTextareaPlaceholder = `回复@${this.toSecondUserInfo.username}`;
-      this.isShowCommentbox = true;
+      this.toSecondUserId = arg[0];
+      this.toSecondUsername = arg[1];
+      this.$refs.commentTextarea.commentTextareaPlaceholder = `回复@${this.toSecondUsername}`;
+      this.$refs.commentTextarea.isShowTextarea(true);
     },
     /**
      * @description:提交评论
@@ -202,8 +225,9 @@ export default {
      */
     submitComment() {
       this.utils.debounce(() => {
-        console.log(this.commentPostType);
-        if (this.commentPostText.replace(/\s+/g, "") === "") {
+        if (
+          this.$refs.commentTextarea.commentPostText.replace(/\s+/g, "") === ""
+        ) {
           this.$refs.toast.show({
             text: "内容不能为空",
             type: "warning",
@@ -218,15 +242,16 @@ export default {
                   commentId: this.firstCommentData.id,
                 },
                 queryData: {
-                  content: this.commentPostText,
+                  content: this.$refs.commentTextarea.commentPostText,
                 },
               })
                 .then((res) => {
                   if (res.success) {
-                    this.commentPostText = "";
+                    this.$refs.commentTextarea.commentPostText = "";
                     this.loadSecondComment(
                       this.firstCommentData.dynamicId,
-                      this.firstCommentData.id
+                      this.firstCommentData.id,
+                      true
                     );
                     this.$refs.toast.show({
                       text: "评论成功",
@@ -242,11 +267,7 @@ export default {
                   }
                 })
                 .catch((err) => {
-                  this.$refs.toast.show({
-                    text: err.data,
-                    type: "error",
-                    direction: "top",
-                  });
+                  throw err;
                 });
               break;
             case 2:
@@ -256,16 +277,17 @@ export default {
                   commentId: this.firstCommentData.id,
                 },
                 queryData: {
-                  content: this.commentPostText,
-                  toUserId: this.toSecondUserInfo.id,
+                  content: this.$refs.commentTextarea.commentPostText,
+                  toUserId: this.toSecondUserId,
                 },
               })
                 .then((res) => {
                   if (res.success) {
-                    this.commentPostText = "";
+                    this.$refs.commentTextarea.commentPostText = "";
                     this.loadSecondComment(
                       this.firstCommentData.dynamicId,
-                      this.firstCommentData.id
+                      this.firstCommentData.id,
+                      true
                     );
                     this.$refs.toast.show({
                       text: "评论成功",
@@ -281,17 +303,31 @@ export default {
                   }
                 })
                 .catch((err) => {
-                  this.$refs.toast.show({
-                    text: err.data,
-                    type: "error",
-                    direction: "top",
-                  });
+                  throw err;
                 });
             default:
               break;
           }
         }
       });
+    },
+    /**
+     * @description: 点赞一级评论
+     * @param {Number} targetId 目标id
+     * @param {Number} actionType 点赞类型 1 点赞 2 取消点赞
+     * @param {String} targetType 点赞对象类型： 1 作品 、 2 动态 、 3 动态评论 、 4 动态二级评论、5 作品评论、6 作品二级评论
+     */
+    likeComment(args, targetType) {
+      const targetId = args[0];
+      const isLike = args[1];
+      like({
+        urlParam: targetId,
+        queryData: { actionType: "1", targetType: targetType },
+      })
+        .then((res) => {})
+        .catch((err) => {
+          throw err;
+        });
     },
   },
 };
@@ -322,7 +358,7 @@ export default {
             margin-left: 15rpx;
             color: $uni-color-blue;
             font-weight: 400;
-            .fa{
+            .fa {
               margin-right: 15rpx;
             }
           }
@@ -415,6 +451,15 @@ export default {
       color: $uni-color-primary;
       float: right;
     }
+  }
+}
+.bottom-button-area-placeholder {
+  color: $uni-text-color-placeholder;
+  height: 220rpx;
+  width: 100%;
+  text-align: center;
+  .fa {
+    margin-right: 15rpx;
   }
 }
 </style>

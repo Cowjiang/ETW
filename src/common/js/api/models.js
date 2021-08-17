@@ -1,10 +1,18 @@
+/*
+ * @Author: your name
+ * @Date: 2021-07-17 16:52:12
+ * @LastEditTime: 2021-08-15 21:04:38
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \my-project\src\common\js\api\models.js
+ */
 import { apiResquest } from "./request.js";
 //#ifdef H5
 const baseUrl = "/api";
 //#endif
 //#ifdef MP-WEIXIN
 // const baseUrl = "http://us-or-cera-1.natfrp.cloud:21671";
-const baseUrl = "http://free.svipss.top:43480"
+const baseUrl = "http://etw.free.svipss.top"
 //#endif
 // 获取作品列表
 export const getWorkList = (requestConfig) =>

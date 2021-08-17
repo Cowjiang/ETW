@@ -1,5 +1,19 @@
 <template>
   <view>
+    <navigationBar ref="navigationBar">
+      <view
+        :style="{
+          width: `${submitTrendButtonWidth}px`,
+          height: `${submitTrendButtonHeight}px`,
+          lineHeight: `${submitTrendButtonHeight}px`,
+        }"
+        class="submitTrendButton"
+        @click="toTrendFromPage"
+      >
+        <text class="fa fa-pencil fa-fw" />
+        发布
+      </view>
+    </navigationBar>
     <loadRefresh
       ref="loadRefresh"
       :isRefresh="isLoading"
@@ -11,11 +25,11 @@
       @loadMore="loadTrendData(false)"
       @refresh="loadTrendData(true)"
     >
-      <button class="postButton" @click="toTrendFromPage">
+      <!-- <button class="postButton" @click="toTrendFromPage">
         <text>发布</text>
-      </button>
+      </button> -->
       <!-- 常访问博主列表 -->
-      <avatarScroll :infoList="authorlist"></avatarScroll>
+      <!-- <avatarScroll :infoList="authorlist"></avatarScroll> -->
       <!-- 动态列表 -->
       <trendList :trendList="trendList"></trendList>
     </loadRefresh>
@@ -28,6 +42,8 @@ import { getAuthorList, getMyTrend } from "@/common/js/api/models.js";
 export default {
   data() {
     return {
+      submitTrendButtonWidth: 0,
+      submitTrendButtonHeight: 0,
       authorlist: [], //常访问作者
       trendList: [], // 动态列表
       currentPage: 1, //当前页
@@ -36,7 +52,14 @@ export default {
       isLoading: false, //是否正在请求
     };
   },
-  mounted() {
+  onLoad() {
+    this.$refs.navigationBar.setNavigation({
+      isShowButton: false,
+      backgroundColor: "white",
+    });
+    this.submitTrendButtonWidth =
+      this.$refs.navigationBar.navigationButtonWidth - 12;
+    this.submitTrendButtonHeight = this.$refs.navigationBar.navigationBarHeight;
     // 获取常访问作者列表
     getAuthorList()
       .then((res) => {
@@ -46,29 +69,12 @@ export default {
         console.log("获取常访问作者列表", err);
       });
     this.loadTrendData(true);
-    // 获取动态列表
-    // getMyTrend({
-    //   queryData: {
-    //     pageNumber: this.currentPage,
-    //     pageSize: this.pageSize,
-    //   },
-    // })
-    //   .then((res) => {
-    //     // that.trendList = res.data;
-    //     console.log(res.data);
-    //     if (res.success) {
-    //       this.trendList = res.data.records;
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log("【getMyTrend】:", err);
-    //   });
   },
   methods: {
     //前往动态发布页面
     toTrendFromPage() {
       uni.navigateTo({
-        url: "./subpages/trendPostPage",
+        url: "/pages/trending/subpages/trendPostPage",
       });
     },
     //获取动态数据
@@ -127,9 +133,12 @@ export default {
 };
 </script>
 
-<style>
-page {
-  background-color: #f6f8fa;
+<style lang="scss" scoped>
+.submitTrendButton {
+  background: $uni-color-primary;
+  color: white;
+  text-align: center;
+  border-radius: 30rpx;
+  vertical-align: text-bottom;
 }
 </style>
-<style lang="scss" scoped></style>

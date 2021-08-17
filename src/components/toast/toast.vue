@@ -154,7 +154,7 @@
 
 <style lang="scss" scoped>
     .toast {
-        position: absolute;
+        position: fixed;
         z-index: -1;
         min-width: 30%;
         min-height: rpx(100);

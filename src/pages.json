@@ -4,14 +4,7 @@
     },
     "pages": [
         {
-<<<<<<< HEAD
             "path": "pages/trending/trending",
-=======
-<<<<<<< HEAD
-            "path": "pages/chatList/chatList",
-=======
-            "path": "pages/chatDetail/chatDetail",
->>>>>>> eea6043a56d8f8bee5bd4839b43e0feb7cdc3ebc
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -19,19 +12,23 @@
             }
         },
         {
-<<<<<<< HEAD
-            "path": "pages/chatDetail/chatDetail",
-=======
             "path": "pages/chatList/chatList",
->>>>>>> eea6043a56d8f8bee5bd4839b43e0feb7cdc3ebc
->>>>>>> Cowjiang
             "style": {
                 "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
             }
         },
         {
             "path": "pages/login/login",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/chatDetail/chatDetail",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,

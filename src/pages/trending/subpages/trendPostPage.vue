@@ -2,6 +2,7 @@
   <view class="container">
     <!-- 导航栏 -->
     <navigationBar ref="navigationBar"></navigationBar>
+    <toast ref="toast" />
     <!-- 文本框 -->
     <u-field
       v-model="trendContent"
@@ -14,22 +15,17 @@
     <uploadGroup ref="uploadGroup" @onImageUploaded="submitTrend"></uploadGroup>
     <!-- 菜单列表 -->
     <view class="menuList">
-      <menuItem title="话题" iconName="chat-fill"></menuItem>
-      <menuItem title="地点" iconName="map-fill" :isArrow="isArrowByMap">
-        <!-- 标签scroll -->
-        <tagScroll
-          slot="rowContent"
-          v-show="showTagBox"
-          :tagArray="tagArray"
-          textcolor="#f7fafd"
-          bgcolor="#f4756b"
-          @chooseTag="chooseTag"
-        ></tagScroll>
+      <menuItem
+        title="地点"
+        iconName="map-marker"
+        :isArrow="isArrowByMap"
+        @clickItem="toMapPage"
+      >
         <!-- 选中tag -->
         <u-tag
           slot="rightContent"
-          v-show="!showTagBox"
-          :text="chosenTag"
+          v-if="isShowTag"
+          :text="chosenTagName"
           bg-color="#f4756b"
           border-color="#f4756b"
           color="#f7fafd"
@@ -43,7 +39,7 @@
     <view class="button-area">
       <button
         :disabled="isShowLoading"
-        @click="submitTrendImage"
+        @click="clickSubmitButton"
         class="submit-button"
         :class="isShowLoading ? 'disabled-button' : ''"
       >
@@ -51,7 +47,6 @@
         发布动态
       </button>
     </view>
-    <toast ref="toast" />
   </view>
 </template>
 
@@ -66,19 +61,27 @@ export default {
       isShowLoading: false,
       //菜单列表
       isArrowByMap: true,
-      showTagBox: true,
-      chosenTag: "",
-      tagArray: [
-        "广州软件学院",
-        "广州软件学院（南门）",
-        "太平地铁站",
-        "百德广场",
-      ],
+      isShowTag: false,
+      chosenTagName: "",
+      locationData: null,
     };
   },
+  watch: {
+    isShowTag(n) {
+      console.log(n);
+    },
+  },
+  onLoad() {
+    this.$refs.navigationBar.setNavigation({
+      backgroundColor: "white",
+      titleText: "发布动态",
+    });
+  },
   methods: {
-    //发布动态
-    submitTrendImage() {
+    /**
+     * @description: 点击发布按钮
+     */
+    clickSubmitButton() {
       this.utils.debounce(() => {
         if (this.trendContent.replace(/\s+/g, "") === "") {
           this.$refs.toast.show({
@@ -92,12 +95,26 @@ export default {
         }
       });
     },
+    /**
+     * @description: 提交动态请求
+     */
     submitTrend() {
-      postTrend({
-        queryData: {
+      let postQueryData = {
+        content: this.trendContent,
+        imageJson: this.trendImageList,
+      };
+      if (this.locationData) {
+        postQueryData = {
           content: this.trendContent,
           imageJson: this.trendImageList,
-        },
+          areaCode: this.locationData.adcode,
+          latitude: this.locationData.latitude,
+          longitude: this.locationData.longitude,
+          areaName: this.locationData.locationName,
+        };
+      }
+      postTrend({
+        queryData: postQueryData,
       })
         .then((res) => {
           if (res.success) {
@@ -106,12 +123,16 @@ export default {
               type: "success",
               direction: "top",
             });
+            uni.navigateTo({
+              url: "/pages/trending/trending",
+            });
           } else {
             this.$refs.toast.show({
               text: "发生错误",
               type: "error",
               direction: "top",
             });
+            this.isShowLoading = false;
           }
         })
         .catch((err) => {
@@ -122,17 +143,32 @@ export default {
           });
         });
     },
-    // 选中标签
-    chooseTag(tag) {
-      this.showTagBox = false;
-      this.chosenTag = tag;
-      this.isArrowByMap = false;
-      console.log("选中的标签:" + this.chosenTag);
+    /**
+     * @description: 前往选择地图页面
+     */
+    toMapPage() {
+      const _this = this;
+      uni.navigateTo({
+        url: "/pages/amap/amap",
+        events: {
+          // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
+          acceptDataFromOpenedPage: function (data) {
+            if (data) {
+              _this.isShowTag = true;
+              _this.locationData = data;
+              _this.chosenTagName = data.locationName;
+              _this.isArrowByMap = false;
+            }
+          },
+        },
+      });
     },
     // 取消选中标签
     closeChosenTag() {
-      this.showTagBox = true;
+      this.isShowTag = false;
       this.isArrowByMap = true;
+      this.chosenTagName = "";
+      this.locationData = null;
     },
   },
 };
@@ -143,15 +179,17 @@ page {
   background-color: #fff;
 }
 .container {
-  height: 89vh;
-  margin-top: 11vh;
   padding: 0 20rpx;
   display: flex;
   flex-direction: column;
 }
+.menuList {
+  margin-top: 24rpx;
+}
 .disabled-button {
   color: rgba(255, 255, 255, 0.842) !important;
-  background-color: #ffd6d3 !important;
+  background-color: $uni-color-primary !important;
+  opacity: 0.5 !important;
 }
 .submit-button {
   width: 100%;
