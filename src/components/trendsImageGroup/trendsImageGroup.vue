@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="container">
     <!-- 一张图片 -->
     <view v-if="getLength === 1" class="one-image-box">
       <image
@@ -82,10 +82,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$box-length: 87vw;
-$image-margin: 0.5vw;
+$box-length: 680rpx;
+$image-margin: 4rpx;
 $image-border-radius: 20rpx;
-
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 20rpx 0;
+}
 .one-image-box {
   width: $box-length;
   image {
@@ -95,6 +100,7 @@ $image-border-radius: 20rpx;
 }
 .two-four-image-box {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   image {
     border-radius: $image-border-radius;
@@ -105,6 +111,7 @@ $image-border-radius: 20rpx;
 }
 .other-image-box {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   image {
     border-radius: $image-border-radius;

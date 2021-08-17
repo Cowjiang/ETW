@@ -1,16 +1,16 @@
 <template>
   <!-- 不带标签item -->
-  <view class="item-box">
+  <view class="item-box" @click="clickItem">
     <view class="item-content">
       <!-- 左边标题内容 -->
       <view class="item-left">
-        <u-icon v-if="iconName" :name="iconName"></u-icon>
-        <text>{{ title }}</text>
+        <text v-if="iconName" :class="[`fa fa-${iconName} fa-fw`]"></text>
+        {{ title }}
       </view>
       <!-- 右边内容 -->
       <view class="item-right">
         <slot name="rightContent"></slot>
-        <u-icon v-show="isArrow" name="arrow-right"></u-icon>
+        <text v-if="isArrow" class="fa fa-angle-right fa-fw"></text>
       </view>
     </view>
     <!-- 换行slot -->
@@ -34,15 +34,11 @@ export default {
     return {};
   },
   methods: {
-    // 选中标签
-    chooseTag(tag) {
-      this.showTagBox = false;
-      this.chosenTag = tag;
-      console.log(this.chosenTag);
-    },
-    // 取消选中标签
-    closeChosenTag() {
-      this.showTagBox = true;
+    /**
+     * @description: 点击菜单栏标签
+     */
+    clickItem() {
+      this.$emit("clickItem");
     },
   },
 };
@@ -64,7 +60,6 @@ export default {
     .item-left {
       font-size: 30rpx;
       text {
-        margin-left: 10rpx;
         text-align: center;
       }
     }

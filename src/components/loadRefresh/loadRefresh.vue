@@ -23,6 +23,7 @@
       >
         <!-- 刷新动画，可自定义，占高120rpx -->
         <view
+          v-if="ableToRefresh"
           class="animation"
           :style="[{ '--color': color, background: backgroundCover }]"
         >
@@ -40,7 +41,10 @@
         <!-- 数据集插槽 -->
         <slot></slot>
         <!-- 上拉加载 -->
-        <view v-show="isShowLoadText" class="load-more">{{ loadText }}</view>
+        <view v-show="isShowLoadText" class="load-more">
+          <i v-show="updating" class="fa fa-spinner fa-pulse fa-fw"></i>
+          {{ loadText }}
+        </view>
       </scroll-view>
     </view>
   </view>
@@ -50,6 +54,10 @@
 export default {
   name: "loadRefresh",
   props: {
+    ableToRefresh: {
+      type: Boolean,
+      default: true,
+    },
     isRefresh: {
       type: Boolean,
       default: true,
@@ -132,7 +140,7 @@ export default {
       this.isShowLoadText = true;
       const { currentPage, totalNumber, pageSize } = this;
       let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
-      if (!this.updating && currentPage <= totalPages) {
+      if (!this.updating && currentPage < totalPages) {
         // console.log(this.updating);
         this.updating = true;
         this.updateType = false;
@@ -141,7 +149,7 @@ export default {
     },
     // 回弹效果
     coverTouchstart(e) {
-      if (!this.isScrollY) {
+      if (!this.isScrollY || !this.ableToRefresh) {
         console.log("不允许scroll-view滑动 禁止 coverTouchstart");
         return;
       }
@@ -153,7 +161,7 @@ export default {
       this.startY = e.touches[0].clientY;
     },
     coverTouchmove(e) {
-      if (!this.isScrollY) {
+      if (!this.isScrollY || !this.ableToRefresh) {
         console.log("不允许scroll-view滑动 禁止 coverTouchmove");
         return;
       }
@@ -168,10 +176,10 @@ export default {
       // if (moveDistance <= 75 && moveDistance >= 0) {
       //   this.coverTransform = `translateY(${moveDistance}px)`;
       // }
-      this.moving = moveDistance >= 120;
+      this.moving = moveDistance >= 90;
     },
     coverTouchend() {
-      if (!this.isScrollY) {
+      if (!this.isScrollY || !this.ableToRefresh) {
         console.log("不允许scroll-view滑动 禁止 coverTouchend");
         return;
       }
@@ -228,10 +236,12 @@ $color: var(--color);
       width: 100%;
       position: fixed;
       .load-more {
-        font-size: 20rpx;
+        font-size: 32rpx;
+        height: 80rpx;
         text-align: center;
-        color: #aaaaaa;
-        padding: 16rpx;
+        width: 100%;
+        color: $uni-text-color-placeholder;
+        padding: 16rpx 0;
       }
     }
   }

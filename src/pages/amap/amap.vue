@@ -51,34 +51,36 @@
       @touchmove="isShowConfirmBtn = false"
     >
       <view class="address-tips-container">
-        <view
-          class="item"
-          v-for="(add, index) in addressTips"
-          :key="add.id"
-          @click="selectTips(index)"
-          v-if="add.id.length !== 0 && onLoadReady"
-        >
+        <template v-for="(add, index) in addressTips">
           <view
-            class="name"
-            :style="{ color: `${add.selected ? '#f4756b' : '#333'}` }"
-            >{{ add.name }}</view
+            class="item"
+            :key="add.id"
+            @click="selectTips(index)"
+            v-if="add.id.length !== 0 && onLoadReady"
           >
-          <view
-            class="address"
-            :style="{ color: `${add.selected ? '#f4756b' : '#ccc'}` }"
-          >
-            {{
-              distance(
-                currentLatitude,
-                currentLongitude,
-                add.location,
-                add.latitude,
-                add.longitude
-              )
-            }}
-            | {{ add.district || "" }}{{ add.address || "" }}
+            <view
+              class="name"
+              :style="{ color: `${add.selected ? '#f4756b' : '#333'}` }"
+              >{{ add.name }}</view
+            >
+            <view
+              class="address"
+              :style="{ color: `${add.selected ? '#f4756b' : '#ccc'}` }"
+            >
+              {{
+                distance(
+                  currentLatitude,
+                  currentLongitude,
+                  add.location,
+                  add.latitude,
+                  add.longitude
+                )
+              }}
+              | {{ add.district || "" }}{{ add.address || "" }}
+            </view>
           </view>
-        </view>
+        </template>
+
         <view
           class="no-result"
           v-if="addressTips.length === 0 || !onLoadReady"
@@ -258,6 +260,7 @@ export default {
         };
       } else {
         let poiResult = await this.getPositionInfo(location);
+        console.log("poiResult", poiResult);
         if (poiResult !== null) {
           this.onLoadReady = true;
           this.addressTips = poiResult.markers;
@@ -403,17 +406,13 @@ export default {
      * 取消按钮点击事件
      */
     handleCancel() {
-      this.$refs.toast.show({
-        text: "取消按钮点击",
-        type: "success",
-        direction: "top",
-      });
+      uni.navigateBack();
     },
 
     /**
      * 确定按钮点击事件
      */
-    handleConfirm() {
+    async handleConfirm() {
       let resultLatitude, resultLongitude;
       if (this.markers.length !== 0) {
         resultLatitude = this.markers[0].latitude;
@@ -422,11 +421,20 @@ export default {
         resultLatitude = this.currentLatitude;
         resultLongitude = this.currentLongitude;
       }
-      this.$refs.toast.show({
-        text: `经纬度：${resultLongitude},${resultLatitude}`,
-        type: "success",
-        direction: "top",
+      const eventChannel = this.getOpenerEventChannel();
+      let poiResult = await this.getPositionInfo(
+        `${resultLongitude},${resultLatitude}`
+      );
+      let currentCity = await this.getPositionInfo(null);
+      let adcode = currentCity[0].regeocodeData.addressComponent.adcode;
+      let locationName = poiResult.poisData[0].name;
+      eventChannel.emit("acceptDataFromOpenedPage", {
+        longitude: `${resultLongitude}`,
+        latitude: `${resultLatitude}`,
+        adcode,
+        locationName,
       });
+      uni.navigateBack();
     },
 
     /**

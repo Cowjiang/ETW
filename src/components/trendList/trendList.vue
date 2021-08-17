@@ -5,7 +5,7 @@
       <!-- 用户信息容器 -->
       <view class="author-box">
         <!-- 头像 -->
-        <u-avatar></u-avatar>
+        <u-avatar size="80"></u-avatar>
         <view class="author-name-box">
           <!-- 用户名 -->
           <view class="author-name">{{ item.userInfo.username }}</view>
@@ -20,28 +20,49 @@
       </view>
       <!-- 动态文本 -->
       <view class="trend-text">
-        <u-read-more color="#808080" close-text="展开" :toggle="true">
+        <u-read-more
+          font-size="36rpx"
+          text-indent="0"
+          color="#808080"
+          close-text="展开"
+          :toggle="true"
+        >
           {{ item.content }}
         </u-read-more>
       </view>
       <!-- 动态图片组 -->
       <trendsImageGroup :imageDataList="item.dynamicImages"></trendsImageGroup>
+      <!-- 地址栏信息 -->
+      <view v-if="item.areaInfo" class="location-area">
+        <view class="location-box">
+          <text class="fa fa-map-marker fa-fw"></text>
+          {{ item.areaInfo.areaName }}
+        </view>
+      </view>
+      <!-- 动态底部按钮 -->
       <view class="bottom-button-area">
-        <!-- 转发 -->
-        <!-- <view>
-          <text class="fa fa-share-square-o fa-lg"></text>{{ item.shareNumber }}
-        </view> -->
-        <!-- 收藏 -->
-        <view>
-          <text class="fa fa-star-o fa-lg"></text>{{ item.browseNumber }}
+        <view class="button-box">
+          <iconButtonBox
+            @clickIcon="likeTrend(item.id)"
+            :showedNumber="item.likeNumber"
+            direction="row"
+            size="40"
+          >
+          </iconButtonBox>
         </view>
-        <!-- 点赞 -->
-        <view @click="likeTrend(item.id)">
-          <text class="fa fa-heart-o fa-lg"></text>{{ item.likeNumber }}
+        <view class="button-box">
+          <iconButtonBox iconName="fa-star-o" direction="row" size="40">
+          </iconButtonBox>
         </view>
-        <!-- 评论 -->
-        <view @click="toDetailPage(item)">
-          <text class="fa fa-commenting-o fa-lg"></text>{{ item.commentNumber }}
+        <view class="button-right-box">
+          <iconButtonBox
+            @clickIcon="toDetailPage(item)"
+            iconName="fa-commenting-o"
+            :showedNumber="item.commentNumber"
+            direction="row"
+            size="40"
+          >
+          </iconButtonBox>
         </view>
       </view>
     </view>
@@ -85,8 +106,6 @@ export default {
 
 <style lang="scss" scoped>
 .container {
-  margin: 5vw 0 2.5vw 2.5vw;
-  width: 95vw;
   background-color: #ffffff;
   border-radius: 30rpx 30rpx 0 0;
 }
@@ -97,7 +116,6 @@ export default {
     display: flex;
     justify-content: flex-start;
     height: 13vw;
-    width: 87vw;
     .author-name-box {
       margin-left: 2vw;
       margin-right: auto;
@@ -124,20 +142,33 @@ export default {
     }
   }
   .trend-text {
-    margin: 20rpx 0;
+    margin-top: 20rpx;
+    padding: 0 20rpx;
   }
 }
-
-.bottom-button-area {
-  margin-top: 30rpx;
-  display: flex;
+.location-area {
   width: 100%;
-  view {
-    flex: 1;
-    text-align: center;
-    .fa {
-      margin-right: 10rpx;
-    }
+  padding: 0 10rpx;
+  overflow: hidden;
+  .location-box {
+    float: right;
+    border-radius: 30rpx;
+    padding: 8rpx 16rpx;
+    background-color: $uni-color-primary;
+    color: white;
+  }
+}
+.bottom-button-area {
+  margin-top: 20rpx;
+  padding: 0 10rpx;
+  overflow: hidden;
+  width: 100%;
+  .button-box {
+    float: left;
+    margin-right: 46rpx;
+  }
+  .button-right-box {
+    float: right;
   }
 }
 </style>
