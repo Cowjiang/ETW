@@ -2,7 +2,6 @@
   <view class="container">
     <navigationBar ref="navigationBar"></navigationBar>
     <toast ref="toast"></toast>
-
     <!-- 一级评论容器 -->
     <view class="comment-item" v-if="firstCommentData">
       <!-- 评论者头像 -->
