@@ -153,6 +153,7 @@
             setTimeout(() => {
                 this.splashScreenExit();
             }, this.splashScreenDuration); //在启动界面持续时间结束后进入登录界面
+            console.log(this.utils.getCurrentPage())
         },
     };
 </script>

@@ -241,10 +241,20 @@
                                 },
                             })
                                 .then((res) => {
-                                    if (res.success) {
-                                        this.$refs.toast.show({
-                                            text: res.data,
-                                            type: "success",
+                                    if (res.success && res.data.id !== null) {
+                                        uni.setStorage({
+                                            key: 'uid',
+                                            data: res.data.id,
+                                            success: () => {
+                                                this.$refs.toast.show({
+                                                    text: res.data,
+                                                    type: "success",
+                                                });
+                                                let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                                                uni.redirectTo({
+                                                    url: `/${redirectPage === null ? 'pages/home/home' : redirectPage}`
+                                                });
+                                            }
                                         });
                                     }
                                     else {
