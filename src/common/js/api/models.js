@@ -65,6 +65,6 @@ export const deleteChatHistory = (requestConfig) =>
 //获取用户简要信息（临时）
 export const getUserInfoTemp = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam}`, {method: "GET", requestConfig});
-//获取登录websocket的临时令牌
+//获取登录websocket的令牌
 export const getUserToken = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/socket/connection`, {method: "GET", requestConfig});

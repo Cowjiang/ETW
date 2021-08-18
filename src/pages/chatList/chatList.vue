@@ -1,24 +1,22 @@
 <template>
     <view>
         <navigationBar ref="navigationBar" class="navigation-bar"/>
-        <toast ref="toast" class="toast"/>
-
+        <toast ref="toast"/>
+        <!-- 可滑动区域 -->
         <scroll-view
             class="chat-list-container"
             :style="{height: `${windowHeight - navigationHeight}px`}"
             :scroll-y="true"
             :scroll-with-animation="true"
-            :lower-threshold="2"
             :refresher-enabled="true"
             refresher-threshold="300"
             :refresher-triggered="refresherTriggered"
-            @scroll="handleScroll"
             @refresherrefresh="handleRefreshStart"
             @refresherrestore="handleRefreshEnd"
-            @scrolltolower="handleScrollToBottom"
-        >
+            @scrolltolower="handleScrollToBottom">
             <view class="list-scroll-view">
                 <view class="top-list-container">
+                    <!-- 顶部通知按钮区域 -->
                     <view
                         class="btn-container first-btn"
                         :data-name="`btn0`"
@@ -26,8 +24,7 @@
                         @touchend="handleTouchEnd"
                         @touchcancel="handleTouchEnd"
                         @click="stopCheckingUpdate"
-                        :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                    >
+                        :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
                         <view class="btn-icon-container">
                             <view class="btn-icon"></view>
                             <view
@@ -43,8 +40,7 @@
                         @touchstart="handleTouchStart"
                         @touchend="handleTouchEnd"
                         @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                    >
+                        :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
                         <view class="btn-icon-container">
                             <view class="btn-icon"></view>
                             <view
@@ -60,8 +56,7 @@
                         @touchstart="handleTouchStart"
                         @touchend="handleTouchEnd"
                         @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                    >
+                        :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
                         <view class="btn-icon-container">
                             <view class="btn-icon"></view>
                             <view
@@ -77,14 +72,12 @@
                         @touchstart="handleTouchStart"
                         @touchend="handleTouchEnd"
                         @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn3' ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                    >
+                        :style="{filter: `${messageTouchingId === 'btn3' ? 'brightness(90%)' : 'brightness(100%)'}`}">
                         <view
                             class="btn-icon-container"
                             @touchstart="handleTouchStart"
                             @touchend="handleTouchEnd"
-                            @touchcancel="handleTouchEnd"
-                        >
+                            @touchcancel="handleTouchEnd">
                             <view class="btn-icon"></view>
                             <view
                                 class="btn-unread"
@@ -94,6 +87,7 @@
                         <view class="btn-title">通知消息</view>
                     </view>
                 </view>
+                <!-- 聊天记录列表容器 -->
                 <view class="main-list-container">
                     <view
                         class="message-container"
@@ -105,8 +99,7 @@
                         @longpress="handleLongPress"
                         @touchstart="handleTouchStart"
                         @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                    >
+                        @touchcancel="handleTouchEnd">
                         <view class="avatar-container">
                             <view class="avatar"></view>
                         </view>
@@ -129,9 +122,16 @@
                             </view>
                         </view>
                     </view>
-                </view>
-                <view class="no-more-chats" v-if="chatMessages.length > 90">
-                    仅显示最近 {{ pageSize }} 条聊天记录
+                    <view v-if="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
+                        <text>下拉加载更多</text>
+                    </view>
+                    <view v-if="loadingMore && chatMessages.length !== 0" class="load-more">
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                        <text>加载中</text>
+                    </view>
+                    <view v-if="!existMore && chatMessages.length !== 0" class="load-more">
+                        <text>没有更多了哦 ~</text>
+                    </view>
                 </view>
             </view>
         </scroll-view>
@@ -141,7 +141,8 @@
 <script>
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {getMyChatList, getUserToken, wsBaseUrl} from "../../common/js/api/models.js";
+    import {getMyChatList} from "../../common/js/api/models.js";
+    import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
         components: {
@@ -153,85 +154,72 @@
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
                 btnMessageIsRead: [true, true, false, true],
-                pageSize: 15,
-                currentPage: 1,
-                totalPage: NaN,
-                chatMessages: [],
-                messageTouchingId: '',
-                checkUpdateTimer: null,
-                refresherTriggered: false,
-                isBottom: null,
+                pageSize: 15, //请求聊天记录每页数据的数量
+                chatMessages: [], //聊天列表信息数组
+                messageTouchingId: '', //当前触摸元素的id
+                refresherTriggered: false, //scroll-view下拉刷新触发状态
+                loadingMore: false, //正在加载更多消息
+                existMore: true, //是否存在更多消息记录
             }
         },
         methods: {
-            getChatList() {
-                getUserToken({})
-                    .then(res => {
-                        // console.log(res)
-                        this.token = res.data;
-                        console.log(this.$root)
-                        uni.getStorage({
-                            key: 'uid',
-                            success: uidStorage => {
-                                uni.connectSocket({
-                                    url: `${wsBaseUrl}/${this.token}/${uidStorage.data}`,
-                                    header: {
-                                        'content-type': 'application/json'
-                                    },
-                                    method: 'GET',
-                                    success: res => {
-                                        uni.onSocketMessage(function (res) {
-                                            console.log(JSON.parse(res.data));
-                                        });
-                                    },
-                                    fail: err => {
-                                        console.log(err)
-                                    }
-                                });
-                            },
-                            fail: () => {
-                                let currentPage = utils.getCurrentPage();
-                                uni.redirectTo({
-                                    url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-                                });
-                            }
-                        });
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
-
-                let nowTime = Date.now();
+            /**
+             * 查询当前用户的聊天记录列表
+             * @param {string|null} time 查询的时间戳，为空则查询第一页
+             */
+            getChatList(time = null) {
+                let queryTime = time === null ? Date.now() : time;
                 getMyChatList({
                     queryData: {
-                        time: nowTime,
+                        time: queryTime,
                         pageSize: this.pageSize
                     },
                 })
                     .then(res => {
                         console.log(res.data)
-                        let recordsTemp = [];
-                        for (const records of res.data.records) {
-                            recordsTemp.push({
-                                senderName: records.friendInfo.username, //用户名称
-                                senderId: records.friendId, //用户ID
-                                senderAvatar: records.friendInfo.avgPath, //用户头像地址
-                                messageId: records.id, //消息ID
-                                content: records.content, //消息内容
-                                isPhoto: !records.isText, //是否为图片消息
-                                time: records.createdTime, //消息发送时间
-                                isRead: records.isRead, //消息是否已读
-                                unreadCount: records.unread //当前对话消息未读数量
-                            })
-                            // console.log(this.$options.filters['formatTime'](new Date(records.createdTime)))
+                        if (time === null) {
+                            let recordsTemp = [];
+                            for (const records of res.data.records) {
+                                recordsTemp.push({
+                                    senderName: records.friendInfo.username, //用户名称
+                                    senderId: records.friendId, //用户ID
+                                    senderAvatar: records.friendInfo.avgPath, //用户头像地址
+                                    messageId: records.id, //消息ID
+                                    content: records.content, //消息内容
+                                    isPhoto: !records.isText, //是否为图片消息
+                                    time: records.createdTime, //消息发送时间
+                                    isRead: records.isRead, //消息是否已读
+                                    unreadCount: records.unread //当前对话消息未读数量
+                                })
+                            }
+                            this.chatMessages = [];
+                            this.chatMessages = recordsTemp;
+                            this.existMore = recordsTemp.length > 14;
+                            this.refresherTriggered = false;
+                            this._freshing = false;
                         }
-                        // if (this.chatMessages.sort().toString() !== recordsTemp.sort().toString()) {
-                        //     this.chatMessages = recordsTemp;
-                        //     console.log(this.chatMessages)
-                        // }
-                        this.chatMessages = recordsTemp;
-                        this.refresherTriggered = false;
-                        this._freshing = false;
+                        else {
+                            for (const records of res.data.records) {
+                                if (records.id !== this.chatMessages[this.chatMessages.length - 2].messageId) {
+                                    this.chatMessages.push({
+                                        senderName: records.friendInfo.username, //用户名称
+                                        senderId: records.friendId, //用户ID
+                                        senderAvatar: records.friendInfo.avgPath, //用户头像地址
+                                        messageId: records.id, //消息ID
+                                        content: records.content, //消息内容
+                                        isPhoto: !records.isText, //是否为图片消息
+                                        time: records.createdTime, //消息发送时间
+                                        isRead: records.isRead, //消息是否已读
+                                        unreadCount: records.unread //当前对话消息未读数量
+                                    })
+                                }
+                                else {
+                                    this.existMore = false;
+                                    break;
+                                }
+                            }
+                            this.loadingMore = false;
+                        }
                         this.$forceUpdate();
                     })
                     .catch(err => {
@@ -241,6 +229,49 @@
                         this.$forceUpdate();
                     })
             },
+            /**
+             * 监听接收到新消息
+             * @param {Object} data 接收到的新消息
+             */
+            receiveNewMessage(data) {
+                console.log(data);
+                if (data.errorCode === 120) {
+                    let data = data.data;
+                    console.log(data)
+                    let findIndex = this.chatMessages.findIndex(message => {
+                        return message.senderId === data.friendId
+                    });
+                    if (findIndex !== -1) {
+                        let messageTemp = this.chatMessages[findIndex];
+                        this.chatMessages.splice(findIndex, 1);
+                        this.chatMessages.unshift({
+                            senderName: messageTemp.senderName, //用户名称
+                            senderId: messageTemp.senderId, //用户ID
+                            senderAvatar: messageTemp.senderAvatar, //用户头像地址
+                            messageId: data.id, //消息ID
+                            content: data.content, //消息内容
+                            isPhoto: !data.isText, //是否为图片消息
+                            time: data.createdTime, //消息发送时间
+                            isRead: data.isRead, //消息是否已读
+                            unreadCount: messageTemp.unreadCount + 1 //当前对话消息未读数量
+                        });
+                    }
+                    else {
+                        this.chatMessages.unshift({
+                            senderName: '', //用户名称
+                            senderId: data.friendId, //用户ID
+                            senderAvatar: '', //用户头像地址
+                            messageId: data.id, //消息ID
+                            content: data.content, //消息内容
+                            isPhoto: !data.isText, //是否为图片消息
+                            time: data.createdTime, //消息发送时间
+                            isRead: data.isRead, //消息是否已读
+                            unreadCount: 1 //当前对话消息未读数量
+                        });
+                    }
+                }
+            },
+            // 跳转聊天详情页
             toChatDetail(e) {
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}`;
@@ -248,6 +279,7 @@
                     url: `/pages/chatDetail/chatDetail?${senderInfo}`,
                 })
             },
+            // 监听长按事件
             handleLongPress(e) {
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
@@ -273,53 +305,82 @@
                 this.messageTouchingId = '';
                 this.$forceUpdate();
             },
+            // 监听下拉刷新事件触发
             handleRefreshStart() {
                 if (this._freshing) return;
                 this._freshing = true;
                 setTimeout(() => {
                     this.getChatList();
                 }, 300);
-                this.stopCheckingUpdate();
             },
+            // 监听下拉刷新事件结束
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
             },
-            stopCheckingUpdate() {
-                if (this.checkUpdateTimer !== null) {
-                    clearInterval(this.checkUpdateTimer);
-                    this.checkUpdateTimer = null;
-                }
-            },
-            handleScrollToBottom(e) {
+            // 监听scroll-view滚动到底部
+            handleScrollToBottom() {
                 this.utils.throttle(() => {
-                    console.log(e)
+                    if (!this.loadingMore && this.existMore) {
+                        this.loadingMore = true;
+                        this.getChatList(this.chatMessages[this.chatMessages.length - 1].time);
+                    }
                 }, 1000);
-                // if (this.isBottom !== null) {
-                //     return;
-                // }
-                // console.log(e)
-                // this.$refs.toast.show({
-                //     text: 'bottom',
-                //     type: success
-                // });
-                // this.isBottom = setTimeout(() => {
-                //     clearTimeout(this.isBottom);
-                //     this.isBottom = null;
-                // }, 1000)
             },
-            handleScroll(e) {
-                // let info = uni.createSelectorQuery().select(".list-scroll-view");
-                // info.boundingClientRect(data => { //data - 各种参数
-                //     console.log(e.target.scrollTop, data.height)  // 获取元素宽度
-                // }).exec()
-            }
+            // 开启Socket连接
+            startCheckingUpdate() {
+                this._freshing = false; //还原下拉刷新状态
+                setTimeout(() => {
+                    this.refresherTriggered = true; //开启下拉刷新
+                }, 0);
+                //开启Socket连接
+                uni.getStorage({
+                    key: 'uid',
+                    success: res => {
+                        connectSocket(res.data)
+                            .then(res => {
+                                uni.onSocketMessage(res => {
+                                    this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                                });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            })
+                    },
+                    fail: err => {
+                        console.log(err);
+                        let currentPage = utils.getCurrentPage();
+                        uni.redirectTo({
+                            url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                        });
+                    }
+                });
+            },
+            // 关闭Socket连接
+            stopCheckingUpdate() {
+                uni.onSocketClose(res => {
+                    console.log('已关闭')
+                });
+                closeSocket()
+                    .then(res => {
+                        this.$refs.toast.show({
+                            text: '已断开socket',
+                            type: 'success'
+                        })
+                    })
+                    .catch(err => {
+                        if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
+                            return;
+                        }
+                        console.error(err)
+                    })
+            },
         },
         computed: {},
         filters: {
             /**
              * 格式化时间
-             * @param time [String] 传入的时间字符串
-             * @return formattedTime 格式化后的时间
+             * @param {string} time 传入的时间字符串
+             * @return {string} 格式化后的时间字符串
              */
             formatTime(time) {
                 let messageDate = new Date(time);
@@ -347,6 +408,11 @@
                     return `${messageTime.year}年${messageTime.month}月${messageTime.day}日`;
                 }
             },
+            /**
+             * 格式化未读消息数
+             * @param {number} count 未读消息数
+             * @return {string|number} 返回格式化后的结果
+             */
             unreadCount(count) {
                 if (count > 99) {
                     return '99+';
@@ -365,18 +431,13 @@
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
         },
         onLoad() {
-
         },
         onShow() {
+            this.startCheckingUpdate();
             this.$refs.navigationBar.setNavigation({
                 titleText: '消息',
                 backgroundColor: '#f6f6f6'
             });
-            this.stopCheckingUpdate();
-            this._freshing = false;
-            setTimeout(() => {
-                this.refresherTriggered = true;
-            }, 1000);
         },
         onHide() {
             this.stopCheckingUpdate();
@@ -457,6 +518,7 @@
                 border-radius: rpx(30);
 
                 .message-container:first-child {
+                    border-top: none;
                     border-radius: rpx(30) rpx(30) 0 0;
                 }
 
@@ -471,7 +533,7 @@
                     padding: 0 rpx(30);
                     display: flex;
                     flex-direction: row;
-                    border-bottom: rpx(1) solid #f6f6f6;
+                    border-top: rpx(1) solid #f6f6f6;
 
                     .avatar-container {
                         width: rpx(120);
@@ -542,6 +604,21 @@
                             height: rpx(40);
                             float: right;
                         }
+                    }
+                }
+
+                .load-more {
+                    font-size: rpx(28);
+                    height: fit-content;
+                    text-align: center;
+                    width: 100%;
+                    color: $uni-text-color-placeholder;
+                    background-color: #fff;
+                    margin-top: rpx(50);
+                    padding-bottom: rpx(100);
+
+                    text {
+                        margin-left: rpx(10);
                     }
                 }
             }

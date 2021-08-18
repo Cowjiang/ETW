@@ -4,21 +4,20 @@
         <navigationBar ref="navigationBar"></navigationBar>
         <!-- 背景占位 -->
         <view class="background-placeholder"></view>
-        <!-- S 启动界面 -->
+        <!-- 启动界面 -->
         <view
             class="splash-screen"
             :class="splashScreenAnimation"
             :style="{
-        display: showSplashScreen,
-        animationDuration: splashScreenDuration,
-      }"
-        >
-            <!-- /启动界面背景图 -->
+                display: showSplashScreen,
+                animationDuration: splashScreenDuration,
+            }">
+            <!-- 启动界面背景图 -->
             <image
                 src="../../static/images/background/background@splashScreen.png"
                 class="bg-image"
             ></image>
-            <!-- /LOGO容器 -->
+            <!-- LOGO容器 -->
             <view class="logo-container">
                 <image
                     src="../../static/images/logo-white.png"
@@ -27,25 +26,21 @@
                 ></image>
             </view>
         </view>
-        <!-- E 启动界面 -->
-
-        <!-- S 登录界面 -->
+        <!-- 登录界面 -->
         <view class="login-screen">
-            <!-- /登录界面背景图 -->
+            <!-- 登录界面背景图 -->
             <image
                 src="../../static/images/background/background@loginScreen.png"
                 class="bg-image"
                 :class="loginScreenAnimation"
             ></image>
-
-            <!-- /登录表单 -->
+            <!-- 登录表单 -->
             <loginForm ref="loginForm"></loginForm>
-            <!-- /注册表单 -->
+            <!-- 注册表单 -->
             <registerForm ref="registerForm"></registerForm>
-            <!-- /验证码表单 -->
+            <!-- 验证码表单 -->
             <captchaForm ref="captchaForm"></captchaForm>
         </view>
-        <!-- E 登录界面 -->
     </view>
 </template>
 
@@ -76,9 +71,7 @@
         onLoad() {
         },
         methods: {
-            /**
-             * 启动界面退出
-             */
+            // 启动界面退出
             splashScreenExit() {
                 this.splashScreenAnimation = "animate__animated animate__fadeOut";
                 this.loginScreenAnimation = "animate__animated animate__fadeInUp";
@@ -108,6 +101,7 @@
                         break;
                 }
             },
+            // 显示登陆界面
             toLoginScreen() {
                 this.$refs["registerForm"].clear();
                 this.$refs["captchaForm"].clear();
@@ -122,6 +116,7 @@
                     }, 300);
                 }, 300);
             },
+            // 显示注册界面
             toRegisterScreen() {
                 this.$refs["loginForm"].clear();
                 this.$refs["captchaForm"].clear();
@@ -136,6 +131,7 @@
                     }, 300);
                 }, 300);
             },
+            // 显示验证码界面
             toCaptchaScreen() {
                 this.$refs["registerForm"].setAnimation('fadeOutLeft');
                 this.$refs["loginForm"].setAnimation('fadeOutLeft');

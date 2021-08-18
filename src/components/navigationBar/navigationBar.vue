@@ -1,63 +1,55 @@
 <template>
-    <view
-        :style="{
-            marginBottom: `${backgroundColor === '' ? 0 : topAreaHeight + navigationButtonHorizontalMargin}px`
-        }"
-    >
+    <view :style="{marginBottom: `${backgroundColor === '' ? 0 : topAreaHeight + navigationButtonHorizontalMargin}px`}">
+        <!-- 导航栏背景 -->
         <view
             class="navigation-background"
             :style="{
                 height: `${topAreaHeight + navigationButtonHorizontalMargin}px`,
                 backgroundColor: `${backgroundColor === '' ? 'transparent' : backgroundColor}`
-            }"
-        >
+            }">
         </view>
-
+        <!-- 导航栏主体 -->
         <view
             class="navigation-bar"
             :style="{
                 top: `${navigationBarTop}px`,
                 height: `${navigationBarHeight}px`
-            }"
-        >
+            }">
             <view
                 :style="{
                     width: `${navigationButtonWidth}px`,
                     marginLeft: `${navigationButtonHorizontalMargin}px`,
-                }"
-            >
+                }">
+                <!-- 导航栏左侧胶囊按钮插槽 -->
                 <slot>
-                    <view
-                        class="navigation-menu-button"
-                        v-if="isShowButton"
-                    >
+                    <!-- 胶囊按钮模板 -->
+                    <view class="navigation-menu-button" v-if="isShowButton">
                         <view
                             class="navigation-menu-button-content"
                             :style="{
-                        height: `${0.54 * navigationBarHeight}px`,
-                        margin: `${0.23 * navigationBarHeight}px 0`,
-                    }"
-                        >
+                                height: `${0.54 * navigationBarHeight}px`,
+                                margin: `${0.23 * navigationBarHeight}px 0`,
+                            }">
                             <view class="navigation-back" @click="backButtonClickEvent">
                                 <image
                                     src="../../static/images/navigation/navigation@back.png"
                                     class="navigation-back-image"
-                                    mode="heightFix"
-                                ></image>
+                                    mode="heightFix">
+                                </image>
                             </view>
                             <view class="navigation-home" @click="homeButtonClickEvent">
                                 <image
                                     src="../../static/images/navigation/navigation@home.png"
                                     class="navigation-home-image"
-                                    mode="heightFix"
-                                ></image>
-                                <!--                        <i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
+                                    mode="heightFix">
+                                </image>
+                                <!--<i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
                             </view>
                         </view>
                     </view>
                 </slot>
             </view>
-
+            <!-- 导航栏标题 -->
             <view
                 class="navigation-title"
                 v-if="isShowTitle"
@@ -65,8 +57,7 @@
                     lineHeight: `${navigationBarHeight}px`,
                     width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin}px`,
                     color: `${titleColor}`
-                }"
-            >
+                }">
                 <text class="title">{{ titleText }}</text>
             </view>
         </view>
@@ -94,7 +85,10 @@
             };
         },
         methods: {
-            // 设置导航栏行为  options  [Object]  导航栏设置
+            /**
+             * 设置导航栏行为
+             * @param {Object} options 导航栏设置
+             */
             setNavigation(options) {
                 let config = {
                     isShowButton: true, //是否显示左侧胶囊按钮
@@ -124,18 +118,18 @@
                 this.isShowButton = config.isShowButton;
                 this.titleText = config.titleText;
             },
-
             // 导航栏返回按钮点击事件
             backButtonClickEvent() {
                 this.navigationTo(1);
             },
-
             // 导航栏主页按钮点击事件
             homeButtonClickEvent() {
                 this.navigationTo(2);
             },
-
-            // 页面跳转方法  mode  [Number]  跳转模式，[1:返回上一页, 2:跳转首页]
+            /**
+             * 页面跳转方法
+             * @param {number} mode 跳转模式 1:返回上一页, 2:跳转首页
+             */
             navigationTo(mode) {
                 switch (mode) {
                     case 1:
@@ -160,12 +154,10 @@
                 }
                 this.resetNavigation();
             },
-
             // 返回导航栏总高度
             getNavigationHeight() {
                 return this.topAreaHeight;
             },
-
             // 重置导航栏默认行为
             resetNavigation() {
                 setTimeout(() => {
@@ -203,7 +195,6 @@
         position: fixed;
         top: 0;
         left: 0;
-        //background-color: orange;
         width: 100%;
         height: rpx(300);
         z-index: 999;

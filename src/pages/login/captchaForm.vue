@@ -3,11 +3,10 @@
     <view
         class="captcha-form"
         :class="captchaFormAnimation"
-        :style="{ display: showCaptchaForm }"
-    >
+        :style="{ display: showCaptchaForm }">
         <text class="title" v-if="captchaUsernameType === 1">电子邮箱验证</text>
         <text class="title" v-else>手机号验证</text>
-        <!-- S 输入框区域 -->
+        <!-- 输入框区域 -->
         <view class="input-area">
             <input
                 class="captcha-raw-input"
@@ -17,8 +16,7 @@
                 adjust-position="false"
                 v-model="captchaRawInputValue"
                 :focus="captchaRawInputFocusState"
-                @blur="captchaInputBlur"
-            />
+                @blur="captchaInputBlur"/>
             <view class="captcha-info">
                 <text>验证码已发送至 {{ captchaUsername }}</text>
             </view>
@@ -28,28 +26,25 @@
                     :key="item"
                     class="show-content"
                     :style="{ borderBottomColor: captchaInputShowColor[item] }"
-                    @click="captchaInputFocus"
-                >
+                    @click="captchaInputFocus">
                     {{ captchaInputShowValue[item] || "" }}
                 </view>
             </view>
         </view>
-        <!-- E 输入框区域 -->
-
+        <!-- 重新发送验证码按钮 -->
         <view class="resend-captcha">
             <text v-if="captchaResendDelay === 0" @click="resendCaptcha">
                 重新发送
             </text>
             <text v-else>{{ captchaResendDelay }} 秒后可重新发送</text>
         </view>
-
-        <!-- S 下方按钮区域 -->
+        <!-- 下方按钮区域 -->
         <view class="button-area">
             <view class="register-button" @click="registerCheck">
                 <text>注 册</text>
             </view>
         </view>
-        <!-- E 下方按钮区域 -->
+
         <toast ref="toast"/>
     </view>
 </template>
@@ -78,16 +73,17 @@
                 captchaRawInputFocusState: false, //验证码原始输入框的焦点状态
             };
         },
-        onLoad() {
-        },
         methods: {
+            /**
+             * 设置用户信
+             * @param {string} captchaUsernameType 用户名类型，email/phone
+             * @param {string} captchaUsername 用户名
+             */
             setUserInfo(captchaUsernameType, captchaUsername) {
                 captchaUsernameType === 'email' ? this.captchaUsernameType = 1 : this.captchaUsernameType = 0;
                 this.captchaUsername = captchaUsername;
             },
-            /**
-             * 发送验证码
-             */
+            // 发送验证码
             sendCaptcha() {
                 if (this.captchaUsername === "") {
                     this.$parent.toRegisterScreen();
@@ -118,9 +114,7 @@
                     }, 100);
                 }
             },
-            /**
-             * 计算重新发送验证码的剩余时间
-             */
+            // 计算重新发送验证码的剩余时间
             computeCaptchaResendDelay() {
                 if (this.captchaResendDelay !== 0) {
                     this.captchaResendTimer = setTimeout(() => {
@@ -135,9 +129,7 @@
                     }
                 }
             },
-            /**
-             * 重新发送验证码
-             */
+            // 重新发送验证码
             resendCaptcha() {
                 this.utils.throttle(() => {
                     if (this.captchaResendDelay === 0) {
@@ -152,17 +144,13 @@
                     }
                 });
             },
-            /**
-             * 验证码输入监听事件
-             */
+            // 验证码输入监听事件
             captchaInputWatcher(e) {
                 this.captchaInputShowValue = e.detail.value.toString().split("");
                 this.captchaInputShowColor.fill("#EDEDED");
                 this.captchaInputShowColor[this.captchaInputShowValue.length] = "#f4756b";
             },
-            /**
-             * 验证码输入框聚焦事件
-             */
+            // 验证码输入框聚焦事件
             captchaInputFocus() {
                 //使验证码原始输入框获得焦点
                 this.captchaRawInputFocusState = false;
@@ -173,16 +161,12 @@
                 this.captchaInputShowColor[this.captchaInputShowValue.length] = "#f4756b";
                 this.$forceUpdate();
             },
-            /**
-             * 验证码输入框失焦事件
-             */
+            // 验证码输入框失焦事件
             captchaInputBlur() {
                 this.captchaInputShowColor.fill("#EDEDED");
                 this.$forceUpdate();
             },
-            /**
-             * 注册前检查
-             */
+            // 注册前检查，注册按钮点击事件
             registerCheck() {
                 this.utils.throttle(() => {
                     if (this.captchaRawInputValue.length === 6) {
@@ -212,11 +196,16 @@
                     }
                 });
             },
+            /**
+             * 设置验证码界面动画效果
+             * @param {null|string} animation 动画
+             */
             setAnimation(animation) {
                 if (animation !== null) {
                     this.captchaFormAnimation = `animate__animated animate__${animation}`;
                 }
             },
+            // 清除输入信息
             clear() {
                 if (this.captchaResendTimer !== null) {
                     clearTimeout(this.captchaResendTimer);
@@ -227,6 +216,8 @@
             }
         },
         mounted() {
+        },
+        onLoad() {
         },
     };
 </script>

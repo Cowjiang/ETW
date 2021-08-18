@@ -3,16 +3,14 @@
     <view
         class="register-form"
         :class="registerFormAnimation"
-        :style="{ display: showRegisterForm }"
-    >
+        :style="{ display: showRegisterForm }">
         <text class="title">注 册</text>
-        <!-- S 输入框区域 -->
+        <!-- 输入框区域 -->
         <view class="input-area">
             <view
                 class="username-container"
                 :class="usernameContainerStyle"
-                v-if="isEmailInput"
-            >
+                v-if="isEmailInput">
                 <view class="input-placeholder" :class="usernamePlaceholderStyle">
                     电子邮箱
                 </view>
@@ -42,8 +40,7 @@
                     @input="usernameWatcher"
                     maxlength="11"
                     @confirm="usernameConfirm"
-                    confirm-type="next"
-                />
+                    confirm-type="next"/>
             </view>
             <view class="password-container" :class="passwordContainerStyle">
                 <view class="input-placeholder" :class="passwordPlaceholderStyle">
@@ -58,18 +55,15 @@
                     @blur="inputBlur"
                     @input="passwordWatcher"
                     @confirm="passwordConfirm"
-                    confirm-type="done"
-                />
+                    confirm-type="done"/>
             </view>
         </view>
-        <!-- E 输入框区域 -->
-
+        <!-- 更改注册方式按钮 -->
         <view class="change-username">
             <text v-if="!isEmailInput" @click="changeUsername">使用电子邮箱注册</text>
             <text v-else @click="changeUsername">使用手机号注册</text>
         </view>
-
-        <!-- S 下方按钮区域 -->
+        <!-- 下方按钮区域 -->
         <view class="button-area">
             <view class="register-button" @click="registerCheck">
                 <text>注 册</text>
@@ -79,10 +73,8 @@
                 <text class="login-now" @click="loginNow">立即登录</text>
             </view>
         </view>
-        <!-- E 下方按钮区域 -->
 
         <toast ref="toast"/>
-
         <mask :isShow="isShowImageVerify" @click="isShowImageVerify = false">
             <imageVerify ref="imageVerify"></imageVerify>
         </mask>
@@ -116,12 +108,10 @@
                 isShowImageVerify: false, //是否显示图片拖拽验证
             };
         },
-        onLoad() {
-        },
         methods: {
             /**
              * 输入框聚焦事件
-             * @param sel 触发目标，值为1是用户名输入框，值为2是密码输入框
+             * @param {number} sel 触发目标，值为1是用户名输入框，值为2是密码输入框
              */
             inputFocus(sel) {
                 switch (sel) {
@@ -143,10 +133,7 @@
                         break;
                 }
             },
-
-            /**
-             * 输入框失焦事件
-             */
+            // 输入框失焦事件
             inputBlur() {
                 this.usernameContainerStyle = "";
                 this.passwordContainerStyle = "";
@@ -157,23 +144,17 @@
                     this.passwordPlaceholderStyle = "";
                 }
             },
-            /**
-             * 用户名输入框监听器（后续若不使用可以删除）
-             */
+            // 用户名输入框监听器（后续若不使用可以删除）
             usernameWatcher(e) {
                 //Username Watcher
                 this.$parent.username = this.email || this.phone;
             },
-            /**
-             * 密码输入框输入监听器（后续若不使用可以删除）
-             */
+            // 密码输入框输入监听器（后续若不使用可以删除）
             passwordWatcher(e) {
                 //Password Watcher
                 this.$parent.password = this.password;
             },
-            /**
-             * 用户名输入框确认事件
-             */
+            // 用户名输入框确认事件
             usernameConfirm(e) {
                 if (e.detail.value !== "") {
                     //使密码输入框重新获得焦点
@@ -198,9 +179,7 @@
                     }
                 }
             },
-            /**
-             * 密码输入框确认事件
-             */
+            // 密码输入框确认事件
             passwordConfirm(e) {
                 if (e.detail.value === "") {
                     //使密码输入框重新获得焦点
@@ -213,9 +192,7 @@
                     this.registerCheck(); //注册检查
                 }
             },
-            /**
-             * 切换电子邮箱/手机号输入框
-             */
+            // 切换电子邮箱/手机号输入框
             changeUsername() {
                 this.utils.throttle(() => {
                     this.isEmailInput === true ? (this.email = "") : (this.phone = "");
@@ -224,9 +201,7 @@
                     this.inputBlur();
                 });
             },
-            /**
-             * 注册检查
-             */
+            // 注册检查，注册按钮点击事件
             registerCheck() {
                 this.utils.throttle(() => {
                     let data, rules;
@@ -312,9 +287,7 @@
                     }
                 }, 2500);
             },
-            /**
-             * 立即登录按钮点击事件
-             */
+            // 立即登录按钮点击事件
             loginNow() {
                 this.utils.throttle(() => {
                     [
@@ -330,11 +303,19 @@
                     this.$parent.toLoginScreen();
                 });
             },
+            /**
+             * 设置注册界面动画效果
+             * @param {null|string} animation 动画
+             */
             setAnimation(animation) {
                 if (animation !== null) {
                     this.registerFormAnimation = `animate__animated animate__${animation}`;
                 }
             },
+            /**
+             * 清除输入信息
+             * @param {null|string} animation 动画
+             */
             clear(animation) {
                 this.email = '';
                 this.phone = '';
@@ -346,6 +327,8 @@
             }
         },
         mounted() {
+        },
+        onLoad() {
         },
     };
 </script>
