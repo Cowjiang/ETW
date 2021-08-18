@@ -103,7 +103,7 @@ export default {
       trendData: null,
       commentList: null, //评论区列表
       currentPage: 1, //当前页
-      pageSize: 8, //每页多少条
+      pageSize: 2, //每页多少条
       totalNumber: 0, //总页数
       isEnd: false, //数据是否已经加载完
     };
@@ -135,7 +135,7 @@ export default {
         return "正在加载";
       } else {
         this.isEnd = true;
-        if (totalNumber > 8) {
+        if (totalNumber > pageSize) {
           return "—没有更多内容了—";
         } else {
           return "";

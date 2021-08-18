@@ -63,7 +63,7 @@ export const apiResquest = (url, pramsObject) => {
               }
               resolve(res.data);
               break;
-            case 3002:
+            case 2001:
               // 未登录
               uni.showModal({
                 title: '提示',
