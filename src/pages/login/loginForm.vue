@@ -244,7 +244,7 @@
                                     if (res.success && res.data.id !== null) {
                                         uni.setStorage({
                                             key: 'uid',
-                                            data: res.data.id,
+                                            data: res.data.userId,
                                             success: () => {
                                                 this.$refs.toast.show({
                                                     text: res.data,

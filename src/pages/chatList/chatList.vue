@@ -8,11 +8,14 @@
             :style="{height: `${windowHeight - navigationHeight}px`}"
             :scroll-y="true"
             :scroll-with-animation="true"
+            :lower-threshold="2"
             :refresher-enabled="true"
             refresher-threshold="300"
             :refresher-triggered="refresherTriggered"
+            @scroll="handleScroll"
             @refresherrefresh="handleRefreshStart"
             @refresherrestore="handleRefreshEnd"
+            @scrolltolower="handleScrollToBottom"
         >
             <view class="list-scroll-view">
                 <view class="top-list-container">
@@ -138,7 +141,7 @@
 <script>
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {wsBaseUrl, getUserToken, getMyChatList} from "../../common/js/api/models.js";
+    import {getMyChatList, getUserToken, wsBaseUrl} from "../../common/js/api/models.js";
 
     export default {
         components: {
@@ -151,21 +154,22 @@
                 navigationHeight: 0, //导航栏高度
                 btnMessageIsRead: [true, true, false, true],
                 pageSize: 15,
-                currentPage: -1,
+                currentPage: 1,
                 totalPage: NaN,
                 chatMessages: [],
                 messageTouchingId: '',
                 checkUpdateTimer: null,
                 refresherTriggered: false,
-
+                isBottom: null,
             }
         },
         methods: {
             getChatList() {
                 getUserToken({})
                     .then(res => {
-                        console.log(res)
-                        this.token = res.data
+                        // console.log(res)
+                        this.token = res.data;
+                        console.log(this.$root)
                         uni.getStorage({
                             key: 'uid',
                             success: uidStorage => {
@@ -176,7 +180,9 @@
                                     },
                                     method: 'GET',
                                     success: res => {
-                                        console.log('Socket连接成功')
+                                        uni.onSocketMessage(function (res) {
+                                            console.log(JSON.parse(res.data));
+                                        });
                                     },
                                     fail: err => {
                                         console.log(err)
@@ -194,11 +200,8 @@
                     .catch(err => {
                         console.log(err)
                     })
-                uni.onSocketMessage(function (res) {
-                    console.log(JSON.parse(res.data));
-                });
+
                 let nowTime = Date.now();
-                console.log(nowTime)
                 getMyChatList({
                     queryData: {
                         time: nowTime,
@@ -210,17 +213,17 @@
                         let recordsTemp = [];
                         for (const records of res.data.records) {
                             recordsTemp.push({
-                                senderName: records.friendInfo.username,
-                                senderId: records.friendId,
-                                senderAvatar: records.friendInfo.avgPath,
-                                messageId: records.id,
-                                content: records.content,
-                                isPhoto: !records.isText,
-                                time: records.createdTime,
-                                isRead: records.isRead,
-                                unreadCount: records.unread
+                                senderName: records.friendInfo.username, //用户名称
+                                senderId: records.friendId, //用户ID
+                                senderAvatar: records.friendInfo.avgPath, //用户头像地址
+                                messageId: records.id, //消息ID
+                                content: records.content, //消息内容
+                                isPhoto: !records.isText, //是否为图片消息
+                                time: records.createdTime, //消息发送时间
+                                isRead: records.isRead, //消息是否已读
+                                unreadCount: records.unread //当前对话消息未读数量
                             })
-                            console.log(this.$options.filters['formatTime'](new Date(records.createdTime)))
+                            // console.log(this.$options.filters['formatTime'](new Date(records.createdTime)))
                         }
                         // if (this.chatMessages.sort().toString() !== recordsTemp.sort().toString()) {
                         //     this.chatMessages = recordsTemp;
@@ -287,6 +290,29 @@
                     this.checkUpdateTimer = null;
                 }
             },
+            handleScrollToBottom(e) {
+                this.utils.throttle(() => {
+                    console.log(e)
+                }, 1000);
+                // if (this.isBottom !== null) {
+                //     return;
+                // }
+                // console.log(e)
+                // this.$refs.toast.show({
+                //     text: 'bottom',
+                //     type: success
+                // });
+                // this.isBottom = setTimeout(() => {
+                //     clearTimeout(this.isBottom);
+                //     this.isBottom = null;
+                // }, 1000)
+            },
+            handleScroll(e) {
+                // let info = uni.createSelectorQuery().select(".list-scroll-view");
+                // info.boundingClientRect(data => { //data - 各种参数
+                //     console.log(e.target.scrollTop, data.height)  // 获取元素宽度
+                // }).exec()
+            }
         },
         computed: {},
         filters: {

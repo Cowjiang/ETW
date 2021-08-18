@@ -12,6 +12,7 @@
             }"
         >
         </view>
+
         <view
             class="navigation-bar"
             :style="{
@@ -20,36 +21,41 @@
             }"
         >
             <view
-                class="navigation-menu-button"
-                v-if="isShowButton"
                 :style="{
                     width: `${navigationButtonWidth}px`,
                     marginLeft: `${navigationButtonHorizontalMargin}px`,
                 }"
             >
-                <view
-                    class="navigation-menu-button-content"
-                    :style="{
+                <slot>
+                    <view
+                        class="navigation-menu-button"
+                        v-if="isShowButton"
+                    >
+                        <view
+                            class="navigation-menu-button-content"
+                            :style="{
                         height: `${0.54 * navigationBarHeight}px`,
                         margin: `${0.23 * navigationBarHeight}px 0`,
                     }"
-                >
-                    <view class="navigation-back" @click="backButtonClickEvent">
-                        <image
-                            src="../../static/images/navigation/navigation@back.png"
-                            class="navigation-back-image"
-                            mode="heightFix"
-                        ></image>
+                        >
+                            <view class="navigation-back" @click="backButtonClickEvent">
+                                <image
+                                    src="../../static/images/navigation/navigation@back.png"
+                                    class="navigation-back-image"
+                                    mode="heightFix"
+                                ></image>
+                            </view>
+                            <view class="navigation-home" @click="homeButtonClickEvent">
+                                <image
+                                    src="../../static/images/navigation/navigation@home.png"
+                                    class="navigation-home-image"
+                                    mode="heightFix"
+                                ></image>
+                                <!--                        <i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
+                            </view>
+                        </view>
                     </view>
-                    <view class="navigation-home" @click="homeButtonClickEvent">
-                        <image
-                            src="../../static/images/navigation/navigation@home.png"
-                            class="navigation-home-image"
-                            mode="heightFix"
-                        ></image>
-<!--                        <i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
-                    </view>
-                </view>
+                </slot>
             </view>
 
             <view
@@ -88,10 +94,7 @@
             };
         },
         methods: {
-            /**
-             * 设置导航栏行为
-             * @param options 导航栏设置
-             */
+            // 设置导航栏行为  options  [Object]  导航栏设置
             setNavigation(options) {
                 let config = {
                     isShowButton: true, //是否显示左侧胶囊按钮
@@ -107,7 +110,7 @@
                     this.customBackFunc = config.customBackFunc;
                 }
                 this.isShowTitle = `${(config.titleText !== '')}`;
-                switch(config.titleColor) {
+                switch (config.titleColor) {
                     case 'dark':
                         this.titleColor = '#333333';
                         break;
@@ -121,22 +124,18 @@
                 this.isShowButton = config.isShowButton;
                 this.titleText = config.titleText;
             },
-            /**
-             * 导航栏返回按钮点击事件
-             */
+
+            // 导航栏返回按钮点击事件
             backButtonClickEvent() {
                 this.navigationTo(1);
             },
-            /**
-             * 导航栏主页按钮点击事件
-             */
+
+            // 导航栏主页按钮点击事件
             homeButtonClickEvent() {
                 this.navigationTo(2);
             },
-            /**
-             * 页面跳转方法
-             * @param mode 跳转模式，[1:返回上一页, 2:跳转首页]
-             */
+
+            // 页面跳转方法  mode  [Number]  跳转模式，[1:返回上一页, 2:跳转首页]
             navigationTo(mode) {
                 switch (mode) {
                     case 1:
@@ -161,15 +160,13 @@
                 }
                 this.resetNavigation();
             },
-            /**
-             * 返回导航栏总高度
-             */
+
+            // 返回导航栏总高度
             getNavigationHeight() {
                 return this.topAreaHeight;
             },
-            /**
-             * 重置导航栏默认行为
-             */
+
+            // 重置导航栏默认行为
             resetNavigation() {
                 setTimeout(() => {
                     this.isShowButton = true;
@@ -182,12 +179,13 @@
             },
         },
         beforeMount() {
+            //获取设备信息
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
                     this.windowHeight = res.windowHeight;
                 },
-            }); //获取设备信息
+            });
             let {width, height, left, right, top, bottom} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
             [
                 this.navigationBarTop,
