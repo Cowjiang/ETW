@@ -138,7 +138,7 @@
 <script>
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {getMyChatList} from "../../common/js/api/models.js";
+    import {wsBaseUrl, getUserToken, getMyChatList} from "../../common/js/api/models.js";
 
     export default {
         components: {
@@ -150,7 +150,7 @@
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
                 btnMessageIsRead: [true, true, false, true],
-                pageSize: 100,
+                pageSize: 15,
                 currentPage: -1,
                 totalPage: NaN,
                 chatMessages: [],
@@ -161,10 +161,47 @@
             }
         },
         methods: {
-            getChatList(queryPage = NaN, isCheckUpdate = false) {
+            getChatList() {
+                getUserToken({})
+                    .then(res => {
+                        console.log(res)
+                        this.token = res.data
+                        uni.getStorage({
+                            key: 'uid',
+                            success: uidStorage => {
+                                uni.connectSocket({
+                                    url: `${wsBaseUrl}/${this.token}/${uidStorage.data}`,
+                                    header: {
+                                        'content-type': 'application/json'
+                                    },
+                                    method: 'GET',
+                                    success: res => {
+                                        console.log('Socket连接成功')
+                                    },
+                                    fail: err => {
+                                        console.log(err)
+                                    }
+                                });
+                            },
+                            fail: () => {
+                                let currentPage = utils.getCurrentPage();
+                                uni.redirectTo({
+                                    url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                                });
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                uni.onSocketMessage(function (res) {
+                    console.log(JSON.parse(res.data));
+                });
+                let nowTime = Date.now();
+                console.log(nowTime)
                 getMyChatList({
                     queryData: {
-                        pageNumber: isCheckUpdate ? 1 : queryPage || this.currentPage + 1,
+                        time: nowTime,
                         pageSize: this.pageSize
                     },
                 })
@@ -172,7 +209,7 @@
                         console.log(res.data)
                         let recordsTemp = [];
                         for (const records of res.data.records) {
-                            recordsTemp.unshift({
+                            recordsTemp.push({
                                 senderName: records.friendInfo.username,
                                 senderId: records.friendId,
                                 senderAvatar: records.friendInfo.avgPath,
@@ -183,6 +220,7 @@
                                 isRead: records.isRead,
                                 unreadCount: records.unread
                             })
+                            console.log(this.$options.filters['formatTime'](new Date(records.createdTime)))
                         }
                         // if (this.chatMessages.sort().toString() !== recordsTemp.sort().toString()) {
                         //     this.chatMessages = recordsTemp;
@@ -239,9 +277,6 @@
                     this.getChatList();
                 }, 300);
                 this.stopCheckingUpdate();
-                this.checkUpdateTimer = setInterval(() => {
-                    this.getChatList();
-                }, 3000);
             },
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';

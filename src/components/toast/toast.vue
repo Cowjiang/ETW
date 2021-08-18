@@ -154,7 +154,7 @@
 
 <style lang="scss" scoped>
     .toast {
-        position: absolute;
+        position: fixed;
         z-index: -1;
         min-width: 30%;
         min-height: rpx(100);
@@ -171,6 +171,7 @@
         padding: rpx(18) rpx(40);
         transition-property: margin-top;
     }
+
     .title-text {
         @include ellipsis(2);
         text-indent: rpx(10);
@@ -228,6 +229,7 @@
             transform: translate3d(0, 0, 0);
         }
     }
+
     .animate__slideInRight {
         -webkit-animation-name: slideInRight;
         animation-name: slideInRight;
@@ -245,6 +247,7 @@
             transform: translate3d(0, 0, 0);
         }
     }
+
     .animate__slideInLeft {
         -webkit-animation-name: slideInLeft;
         animation-name: slideInLeft;

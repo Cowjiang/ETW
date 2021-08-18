@@ -215,6 +215,7 @@
         width: 100vw;
         position: fixed;
         display: flex;
+        left: 0;
         z-index: 99999;
 
         .navigation-menu-button {
