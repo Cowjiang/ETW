@@ -239,12 +239,25 @@ export default {
             })
               .then((res) => {
                 if (res.success) {
-                  this.$refs.toast.show({
-                    text: res.data,
-                    type: "success",
-                  });
-                  uni.navigateTo({
-                    url: "/pages/trending/trending",
+                  uni.setStorage({
+                    key: "uid",
+                    data: res.data.id,
+                    success: () => {
+                      this.$refs.toast.show({
+                        text: res.data,
+                        type: "success",
+                      });
+                      let redirectPage =
+                        this.utils.getCurrentPage().curParam.redirectPath ||
+                        null;
+                      uni.redirectTo({
+                        url: `/${
+                          redirectPage === null
+                            ? "pages/home/home"
+                            : redirectPage
+                        }`,
+                      });
+                    },
                   });
                 } else {
                   this.$refs.toast.show({

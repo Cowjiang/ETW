@@ -1,3 +1,4 @@
+import { Utils } from "@/common/js/utils/utils.js"
 /**
  *封装请求
  *@param {String} url 接口的地址
@@ -5,8 +6,11 @@
  *@return {Promise} 请求结果
  **/
 export const apiResquest = (url, pramsObject) => {
-  //方法、请求query数据header,cookies,query等参数
-  const { method, requestConfig } = pramsObject
+  let utils = new Utils; //创建工具集对象
+  //header,cookies,query等参数
+  const requestConfig = pramsObject.requestConfig  //方法
+  let method = pramsObject.method
+  //请求query数据
   let queryData = {};
   //请求头
   let headerData = {};
@@ -63,19 +67,17 @@ export const apiResquest = (url, pramsObject) => {
               }
               resolve(res.data);
               break;
-            case 2001:
+            case 999:
+              if (res.data.data !== '用户登录过期') {
+                break;
+              }
+            case 3002:
               // 未登录
-              uni.showModal({
-                title: '提示',
-                content: '该功能需要登录才能使用，是否前往登录页面？',
-                success: function (res) {
-                  if (res.confirm) {
-                    uni.navigateTo({
-                      url: "/pages/login/login",
-                    });
-                  } else if (res.cancel) {
-                  }
-                }
+              console.log('该功能需要登录才能使用');
+
+              let currentPage = utils.getCurrentPage();
+              uni.redirectTo({
+                url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
               });
               reject(res)
               break;

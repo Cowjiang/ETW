@@ -28,6 +28,8 @@ Vue.prototype.amap = new amap.AMapWX({
 	key: 'fa473dbfe448587f7903db9b0b3a4725'
 })
 
+Vue.config.warnHandler = function(msg, vm, trace) {}
+
 App.mpType = 'app'
 
 const app = new Vue({

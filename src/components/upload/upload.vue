@@ -583,6 +583,10 @@ export default {
       if (!noArrowExt) this.showToast(`不允许选择${fileExt}格式的文件`);
       return noArrowExt;
     },
+    // 改变sourceType的值
+    changeSourceType(sourceType) {
+      this.sourceType = sourceType;
+    }
   },
 };
 </script>
