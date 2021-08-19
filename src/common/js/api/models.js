@@ -3,7 +3,7 @@ import { apiResquest } from "./request.js";
 // let baseUrl = "/api"
 //#endif
 //#ifdef MP-WEIXIN
-let host = "free.svipss.top:21199"; //服务器主机域名
+let host = "agitator.free.svipss.top"; //服务器主机域名
 export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
 export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
 //#endif

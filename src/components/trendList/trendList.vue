@@ -5,7 +5,7 @@
       <!-- 用户信息容器 -->
       <view class="author-box">
         <!-- 头像 -->
-        <u-avatar size="80"></u-avatar>
+        <u-avatar :src="item.userInfo.avgPath" size="80"></u-avatar>
         <view class="author-name-box">
           <!-- 用户名 -->
           <view class="author-name">{{ item.userInfo.username }}</view>
@@ -31,7 +31,10 @@
         </u-read-more>
       </view>
       <!-- 动态图片组 -->
-      <trendsImageGroup :imageDataList="item.dynamicImages"></trendsImageGroup>
+      <trendsImageGroup
+        v-if="item.dynamicImages.length !== 0"
+        :imageDataList="item.dynamicImages"
+      ></trendsImageGroup>
       <!-- 地址栏信息 -->
       <view v-if="item.areaInfo" class="location-area">
         <view class="location-box">

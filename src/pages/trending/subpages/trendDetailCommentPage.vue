@@ -6,7 +6,7 @@
     <view class="comment-item" v-if="firstCommentData">
       <!-- 评论者头像 -->
       <view class="left-avatar-box">
-        <u-avatar :size="80"></u-avatar>
+        <u-avatar :src="firstCommentData.userInfo.avgPath" :size="80"></u-avatar>
       </view>
       <!-- 评论内容 -->
       <view class="right-content-box">

@@ -7,7 +7,7 @@
       <!-- 用户信息容器 -->
       <view class="author-box">
         <!-- 头像 -->
-        <u-avatar></u-avatar>
+        <u-avatar :src="trendData.userInfo.avgPath" size="80"></u-avatar>
         <view class="author-name-box">
           <!-- 用户名 -->
           <view class="author-name">{{ trendData.userInfo.username }}</view>
@@ -33,6 +33,7 @@
       </view>
       <!-- 动态图片组 -->
       <trendsImageGroup
+        v-if="trendData.dynamicImages.length !== 0"
         :imageDataList="trendData.dynamicImages"
       ></trendsImageGroup>
       <view v-if="trendData.areaInfo" class="location-area">
@@ -106,6 +107,7 @@ export default {
       pageSize: 2, //每页多少条
       totalNumber: 0, //总页数
       isEnd: false, //数据是否已经加载完
+      upadtingCommentIndex: null, //需要更新的下标
     };
   },
   onLoad() {
@@ -148,10 +150,17 @@ export default {
      * @description: 给一级评论回复二级评论
      * @param {Number} commentId  一级评论的id
      * @param {String} toUser  一级评论的用户
+     * @param {Boolean} isHaveSecondComment  是否已经有二级评论
+     * @param {Boolean} commentListIndex  一级评论下标
      */
-    commentByFirstComment(arg) {
-      let commentId = arg[0];
-      let toUser = arg[1];
+    commentByFirstComment(args) {
+      let [[commentId, toUser, isHaveSecondComment, commentListIndex]] = args;
+      console.log(commentId, toUser, isHaveSecondComment, commentListIndex);
+      if (!isHaveSecondComment) {
+        this.upadtingCommentIndex = commentListIndex;
+      } else {
+        this.upadtingCommentIndex = null;
+      }
       this.commentPostType = 1;
       this.commentPostId = commentId;
       this.$refs.commentTextarea.commentTextareaPlaceholder = `回复@${toUser}`;
@@ -161,6 +170,7 @@ export default {
      * @description: 评论当前动态
      */
     commentByTrend() {
+      this.upadtingCommentIndex = null;
       this.commentPostType = 0;
       this.$refs.commentTextarea.commentTextareaPlaceholder = `写个评论吧`;
       this.$refs.commentTextarea.isShowTextarea(true);
@@ -189,8 +199,8 @@ export default {
               })
                 .then((res) => {
                   if (res.success) {
+                    this.commentList.unshift(res.data);
                     this.$refs.commentTextarea.commentPostText = "";
-                    this.loadTrendComment(true);
                     this.$refs.toast.show({
                       text: "评论成功",
                       type: "success",
@@ -224,8 +234,15 @@ export default {
               })
                 .then((res) => {
                   if (res.success) {
+                    if (this.upadtingCommentIndex !== null) {
+                      // console.log(this.commentList[this.upadtingCommentIndex]);
+                      this.commentList[
+                        this.upadtingCommentIndex
+                      ].secondComment = res.data;
+                      this.$forceUpdate();
+                    }
                     this.$refs.commentTextarea.commentPostText = "";
-                    this.loadTrendComment(true);
+                    // this.loadTrendComment(true);
                     this.$refs.toast.show({
                       text: "评论成功",
                       type: "success",
@@ -240,11 +257,7 @@ export default {
                   }
                 })
                 .catch((err) => {
-                  this.$refs.toast.show({
-                    text: err.data,
-                    type: "error",
-                    direction: "top",
-                  });
+                  throw err;
                 });
               break;
             default:
@@ -264,11 +277,11 @@ export default {
       this.isLoading = true;
       if (isRefresh) {
         console.log("刷新");
-        // this.currentPage = 1;
+        this.currentPage = 1;
         getTrendComment({
           urlParam: this.trendData.id,
           queryData: {
-            pageNumber: 1,
+            pageNumber: this.currentPage,
             pageSize: this.pageSize * this.currentPage,
           },
         })
@@ -355,6 +368,7 @@ export default {
   padding: 4vw;
 }
 .trend-box {
+  padding-bottom: 32rpx;
   border-bottom: 1rpx solid $uni-color-grey;
   background-color: white;
   .author-box {
@@ -388,7 +402,7 @@ export default {
     }
   }
   .trend-text {
-    margin: 20rpx 0;
+    margin-top: 20rpx;
   }
 }
 .comment-title-box {

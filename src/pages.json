@@ -4,6 +4,14 @@
     },
     "pages": [
         {
+            "path": "pages/login/login",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/trending/trending",
             "style": {
                 "navigationBarTitleText": "",
@@ -19,14 +27,7 @@
                 "navigationStyle": "custom"
             }
         },
-        {
-            "path": "pages/login/login",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
+
         {
             "path": "pages/chatDetail/chatDetail",
             "style": {

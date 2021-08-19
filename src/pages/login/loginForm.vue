@@ -230,7 +230,7 @@ export default {
         ];
         //判断是否经过邮箱/手机格式验证
         if (usernameValidatedInfo.required && passwordValidatedInfo.required) {
-          if (usernameValidatedInfo.regExp.length < 2) {
+          if (usernameValidatedInfo.regExp.length <= 2) {
             loginTest({
               queryData: {
                 username: this.username,
@@ -269,7 +269,7 @@ export default {
               .catch((err) => {
                 console.log(err);
               });
-          } else if (usernameValidatedInfo.regExp.length >= 2) {
+          } else if (usernameValidatedInfo.regExp.length > 2) {
             this.$refs.toast.show({
               text: "邮箱/手机格式错误",
               type: "warning",

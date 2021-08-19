@@ -136,7 +136,8 @@ export default {
   },
   methods: {
     // 根据currentPage和totalNumber的值来判断 是否触发@loadMore
-    loadMore() {
+    loadMore(e) {
+      console.log(e);
       this.isShowLoadText = true;
       const { currentPage, totalNumber, pageSize } = this;
       let totalPages = this.utils.getTotalPages(totalNumber, pageSize);

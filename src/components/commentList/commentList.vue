@@ -9,7 +9,14 @@
       <template v-if="!item.isDeleted">
         <!-- 评论者头像 -->
         <view class="left-avatar-box">
-          <u-avatar :size="80"></u-avatar>
+          <u-avatar
+            :src="
+              commentType === 'secondComment'
+                ? item.scUserInfo.avgPath
+                : item.userInfo.avgPath
+            "
+            :size="80"
+          ></u-avatar>
         </view>
         <!-- 评论内容 -->
         <view class="right-content-box">
@@ -23,7 +30,9 @@
                     : item.id,
                   commentType === 'secondComment'
                     ? item.scUserInfo.username
-                    : item.userInfo.username
+                    : item.userInfo.username,
+                  item.secondComment !== undefined ? true : false,
+                  index
                 )
               "
             >
@@ -53,7 +62,10 @@
           <!-- 二级评论容器 -->
           <view class="second-comment-box" v-if="item.secondComment">
             <view class="avatar-box">
-              <u-avatar :size="60"></u-avatar>
+              <u-avatar
+                :src="item.secondComment.scUserInfo.avgPath"
+                :size="60"
+              ></u-avatar>
             </view>
             <view class="second-content-box">
               <view class="comment-username">
@@ -101,9 +113,11 @@ export default {
      * @description: 点击主评论
      * @param {Number} commentId 主评论的id
      * @param {String} toUser 主评论用户
+     * @param {Boolean} isHaveSecondComment  是否已经有二级评论
+     * @param {Boolean} commentListIndex  一级评论下标
      */
-    clickFirstComment(commentId, toUser) {
-      this.$emit("clickFirstComment", commentId, toUser);
+    clickFirstComment(...args) {
+      this.$emit("clickFirstComment", args);
     },
     /**
      * @description: 点击二级评论
