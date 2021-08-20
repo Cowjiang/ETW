@@ -5,7 +5,7 @@
             :class="fullscreen ? 'full-screen' : ''"
             :style="{
                 '--loading-color': loadingColor,
-                '--mask-color': maskColor,
+                '--mask-color': `${showMask ? maskColor : 'transparent'}`,
                 width: `${positionConfig.width}px`,
                 height: `${positionConfig.height}px`,
                 top: `${positionConfig.top}px`,
@@ -76,22 +76,46 @@
         methods: {
             /**
              * 开始Loading动画
-             * @param {Object} positionOptions 手动配置的位置尺寸信息，为空时必须设置组件属性fullscreen或parentClass
+             * @param {null|Object} positionOptions 手动配置的位置尺寸信息，为空时必须设置组件属性fullscreen或parentClass
              * @return {Promise<Boolean>} 以Promise形式返回执行情况
              */
-            startLoading(positionOptions = {}) {
+            startLoading(positionOptions = null) {
                 return new Promise((resolve, reject) => {
-                    if (positionOptions !== {}) {
+                    if (positionOptions !== null) {
                         this.positionConfig.width = positionOptions.width || 0;
                         this.positionConfig.height = positionOptions.height || 0;
                         this.positionConfig.top = positionOptions.top || 0;
                         this.positionConfig.left = positionOptions.left || 0;
+                        if (!this.isLoading) {
+                            this.isLoading = true;
+                            this.$forceUpdate();
+                            resolve();
+                            return true;
+                        }
+                        else {
+                            //loading已在运行，重复开始loading
+                            reject('Loading Error: Cannot start loading because the load animation is already running.');
+                            return false;
+                        }
                     }
                     else {
                         if (this.fullscreen) {
                             if (this.parentClass !== '') {
                                 //同时设置了fullscreen和parentClass属性
                                 console.warn(`Loading Warn: Do not set the fullscreen property and the parentClass property at the same time.`);
+                            }
+                            else {
+                                if (!this.isLoading) {
+                                    this.isLoading = true;
+                                    this.$forceUpdate();
+                                    resolve();
+                                    return true;
+                                }
+                                else {
+                                    //loading已在运行，重复开始loading
+                                    reject('Loading Error: Cannot start loading because the load animation is already running.');
+                                    return false;
+                                }
                             }
                         }
                         else {
@@ -112,18 +136,29 @@
                                                     if (parentData.width > this.windowWidth - parentData.left) {
                                                         this.positionConfig.width = this.windowWidth - parentData.left / 2;
                                                     }
-                                                    if (this.positionConfig.width < 80 || this.positionConfig.height < 80) {
+                                                    if (this.positionConfig.width < 80) {
                                                         this.positionConfig.width = 45;
+                                                    }
+                                                    if (this.positionConfig.height < 80) {
                                                         this.positionConfig.height = 45;
                                                     }
+                                                    if (!this.isLoading) {
+                                                        this.isLoading = true;
+                                                        this.$forceUpdate();
+                                                        resolve();
+                                                        return true;
+                                                    }
+                                                    else {
+                                                        //loading已在运行，重复开始loading
+                                                        reject('Loading Error: Cannot start loading because the load animation is already running.');
+                                                        return false;
+                                                    }
                                                 } catch (e) {
-                                                    this.errorState = true;
                                                     console.error('Loading Error:', e);
                                                 }
                                             }
                                             else {
                                                 console.error(`Loading Error: Unable to query a node that matches the selector '.${this.parentClass}'.`); //无法查询到节点
-                                                this.errorState = true;
                                             }
                                         }).exec();
                                     },
@@ -138,17 +173,6 @@
                                 return false;
                             }
                         }
-                    }
-                    if (!this.isLoading) {
-                        this.isLoading = true;
-                        this.$forceUpdate();
-                        resolve();
-                        return true;
-                    }
-                    else {
-                        //loading已在运行，重复开始loading
-                        reject('Loading Error: Cannot start loading because the load animation is already running.');
-                        return false;
                     }
                 });
             },
@@ -199,6 +223,8 @@
         mounted() {
         },
         onLoad() {
+        },
+        created() {
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;

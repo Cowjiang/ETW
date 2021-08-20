@@ -287,6 +287,11 @@
                         }
                         this.refresherTriggered = false;
                         this._freshing = false;
+                        this.$refs.toast.show({
+                            text: '网络异常',
+                            type: 'error',
+                            direction: 'top'
+                        });
                     })
                     .catch(err => {
                         this.refresherTriggered = false;

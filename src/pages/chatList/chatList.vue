@@ -2,6 +2,10 @@
     <view>
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast"/>
+        <loading
+            ref="loading"
+            fullscreen
+            maskColor="#f6f6f6"></loading>
         <!-- 可滑动区域 -->
         <scroll-view
             class="chat-list-container"
@@ -15,6 +19,7 @@
             @refresherrestore="handleRefreshEnd"
             @scrolltolower="handleScrollToBottom">
             <view class="list-scroll-view">
+                <!-- 顶部按钮列表容器 -->
                 <view class="top-list-container">
                     <!-- 顶部通知按钮区域 -->
                     <view
@@ -124,14 +129,15 @@
                             </view>
                         </view>
                     </view>
-                    <view v-if="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
+                    <view v-show="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
                         <text>下拉加载更多</text>
                     </view>
-                    <view v-if="loadingMore && chatMessages.length !== 0" class="load-more">
-                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                        <text>加载中</text>
+                    <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
+                        <loading ref="loadingMore"></loading>
+                        <!--<i class="fa fa-spinner fa-pulse fa-fw"></i>-->
+                        <!--<text>加载中</text>-->
                     </view>
-                    <view v-if="!existMore && chatMessages.length !== 0" class="load-more">
+                    <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
                         <text>没有更多了哦 ~</text>
                     </view>
                 </view>
@@ -225,17 +231,26 @@
                             }
                             this.loadingMore = false;
                         }
+                        if (this.$refs.loading.isLoading) {
+                            this.$refs.loading.stopLoading();
+                        }
                         this.$forceUpdate();
                     })
                     .catch(err => {
                         console.log(err)
                         this.refresherTriggered = false;
                         this._freshing = false;
-                        this.$refs.toast.show({
-                            text: '网络异常',
-                            type: 'error',
-                            direction: 'top'
-                        });
+                        this.utils.throttle(() => {
+                            this.$refs.toast.show({
+                                text: '网络异常',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }, 2500);
+                        if (this.$refs.loading.isLoading) {
+                            this.$refs.loading.stopLoading();
+                        }
+                        this.loadingMore = false;
                         this.$forceUpdate();
                     })
             },
@@ -326,6 +341,7 @@
             // 监听下拉刷新事件结束
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
+                // this.$refs.loading.stopLoading();
             },
             // 监听scroll-view滚动到底部
             handleScrollToBottom() {
@@ -346,6 +362,11 @@
                     },
                     fail: err => {
                         console.log(err)
+                    },
+                    complete: res => {
+                        if (this.chatMessages.length === 0) {
+                            this.$refs.loading.startLoading();
+                        }
                     }
                 });
                 this._freshing = false; //还原下拉刷新状态
@@ -446,8 +467,22 @@
                 else return count;
             }
         },
-        watch: {},
+        watch: {
+            loadingMore(nval, oval) {
+                if (nval && !oval && this.chatMessages.length !== 0) {
+                    this.$refs.loadingMore.startLoading({
+                        width: this.windowWidth,
+                        height: 54
+                    });
+                }
+                if (!nval && oval) {
+                    this.$refs.loadingMore.stopLoading();
+                }
+            }
+        },
         mounted() {
+        },
+        onLoad() {
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -455,8 +490,6 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
-        },
-        onLoad() {
         },
         onShow() {
             this.startCheckingUpdate();
@@ -651,6 +684,12 @@
                     text {
                         margin-left: rpx(10);
                     }
+                }
+
+                .loading-more {
+                    height: rpx(150);
+                    padding-bottom: 0;
+                    margin-top: 0;
                 }
             }
 
