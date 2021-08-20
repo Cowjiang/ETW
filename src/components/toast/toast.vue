@@ -12,7 +12,7 @@
             ]"
             :id="`toast${index}`"
             :style="{
-                top: `${navigationHeight * 0.5}rpx`,
+                top: `${navigationHeight + 5}px`,
                 zIndex: `${item.isShow ? '999999' : '-1'}`,
                 display: item.isShow ? 'flex' : 'none',
                 animationDuration: `${item.animationDuration}ms`,
@@ -32,7 +32,9 @@
                 class="fa fa-lg fa-exclamation-circle"
                 v-else-if="item.type === 'error'"
             ></text>
-            <text class="title-text">{{ item.text }}</text>
+            <text class="title-text">
+                {{ item.text }}
+            </text>
         </view>
     </view>
 </template>
@@ -42,7 +44,7 @@
         name: "toast",
         data() {
             return {
-                navigationHeight: 0,
+                navigationHeight: 0, //导航栏高度
                 showDuration: 2500, //消息显示的时间，毫秒
                 toastQueue: [], //消息队列
                 pushReady: true, //允许新消息推送进入消息队列
@@ -52,7 +54,7 @@
         methods: {
             /**
              * 显示新消息
-             * @param options 消息的选项设置
+             * @param {object} options 消息的选项设置
              */
             show(options) {
                 let config = {
@@ -87,8 +89,7 @@
                 let waitTimer = setInterval(() => {
                     if (this.pushReady === true) {
                         clearInterval(waitTimer);
-                        config.marginTop =
-                            this.toastQueue.length === 0 ? 0 : this.toastQueue.length * 120;
+                        config.marginTop = this.toastQueue.length === 0 ? 0 : this.toastQueue.length * 120;
                         this.toastQueue.push(config);
                         let toastTemp = this.toastQueue[this.toastQueue.length - 1];
                         toastTemp.timer = setTimeout(() => {
@@ -109,10 +110,9 @@
                     }
                 }, 100);
             },
-
             /**
              * 改变消息队列的顶部外边距
-             * @param index 要删除的消息的索引值
+             * @param {number} index 删除消息的索引值
              */
             changeMarginTop(index) {
                 for (const item of this.toastQueue) {
@@ -129,10 +129,10 @@
                     }
                 }
             },
-
             /**
-             * 选择消息显示的反向，用于设置样式
-             * @param direction 消息显示方向
+             * 选择消息显示的方向，用于设置样式
+             * @param {string} direction 消息的显示方向
+             * @return {string} 类名
              */
             selDirection(direction) {
                 switch (direction) {
@@ -147,7 +147,7 @@
             },
         },
         mounted() {
-            this.navigationHeight = this.utils.getNavigationHeight();
+            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
         },
     };
 </script>

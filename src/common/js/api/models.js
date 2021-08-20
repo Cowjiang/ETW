@@ -3,10 +3,12 @@ import { apiResquest } from "./request.js";
 // let baseUrl = "/api"
 //#endif
 //#ifdef MP-WEIXIN
-let host = "agitator.free.svipss.top"; //服务器主机域名
+// let baseUrl = "http://free.svipss.top:21199"
+//#endif
+
+let host = `agitator.free.svipss.top`; //服务器主机域名
 export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
 export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
-//#endif
 
 // mock
 // 获取作品列表
@@ -19,7 +21,7 @@ export const getAuthorList = (requestConfig) =>
 export const getTrendList = (requestConfig) =>
 	apiResquest("mockApi/trendsList", { method: "GET", requestConfig });
 
-// 用户相关
+//用户相关
 //登录
 export const loginTest = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/login`, { method: "POST", requestConfig });
@@ -79,12 +81,12 @@ export const deleteChatHistory = (requestConfig) =>
 //获取用户简要信息（临时）
 export const getUserInfoTemp = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam}`, { method: "GET", requestConfig });
-//获取登录websocket的临时令牌
+//获取登录websocket的令牌
 export const getUserToken = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/socket/connection`, { method: "GET", requestConfig });
 
 
 //店铺相关
-// 店铺申请
+//店铺申请
 export const postStoreArchives = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });

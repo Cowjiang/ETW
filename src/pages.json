@@ -19,17 +19,8 @@
                 "navigationStyle": "custom"
             }
         },
-
         {
             "path": "pages/chatList/chatList",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/login/login",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -45,7 +36,7 @@
             }
         },
         {
-            "path": "pages/amap/amap",
+            "path": "pages/login/login",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -61,23 +52,15 @@
             }
         },
         {
-            "path": "pages/trending/subpages/trendDetailPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/trending/subpages/trendDetailCommentPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/trending/subpages/trendPostPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/trending/subpages/trendDetailPage",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,

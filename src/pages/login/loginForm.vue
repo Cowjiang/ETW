@@ -6,7 +6,7 @@
     :style="{ display: showLoginForm }"
   >
     <text class="title">登 录</text>
-    <!-- S 输入框区域 -->
+    <!-- 输入框区域 -->
     <view class="input-area">
       <view class="username-container" :class="usernameContainerStyle">
         <view class="input-placeholder" :class="usernamePlaceholderStyle">
@@ -41,13 +41,11 @@
         />
       </view>
     </view>
-    <!-- E 输入框区域 -->
-
+    <!-- 忘记密码 -->
     <view class="forget-password" @click="forgetPassword">
       <text>忘记密码 ?</text>
     </view>
-
-    <!-- S 下方按钮区域 -->
+    <!-- 下方按钮区域 -->
     <view class="button-area">
       <view class="login-button" @click="loginCheck">
         <text>登 录</text>
@@ -60,7 +58,7 @@
         <text class="register-now" @click="registerNow">立即注册</text>
       </view>
     </view>
-    <!-- E 下方按钮区域 -->
+
     <toast ref="toast"></toast>
     <mask :isShow="isShow" @click="isShow = false">
       <imageVerify></imageVerify>
@@ -91,23 +89,13 @@ export default {
       passwordFocusState: false, //密码输入框焦点状态
       username: "", //用户名输入框中的值
       password: "", //密码输入框中的值
-      isShow: false,
+      isShow: false, //是否显示图片拖拽验证码
     };
-  },
-  onLoad() {},
-  watch: {
-    showLoginForm(nval, oval) {
-      if (nval === "") {
-        this.$parent.$refs.navigationBar.setNavigation({
-          titleText: "登录",
-        });
-      }
-    },
   },
   methods: {
     /**
      * 输入框聚焦事件
-     * @param sel 触发目标，值为1是用户名输入框，值为2是密码输入框
+     * @param {number} sel 触发目标，值为1是用户名输入框，值为2是密码输入框
      */
     inputFocus(sel) {
       switch (sel) {
@@ -129,9 +117,7 @@ export default {
           break;
       }
     },
-    /**
-     * 输入框失焦事件
-     */
+    // 输入框失焦事件
     inputBlur() {
       this.usernameContainerStyle = "";
       this.passwordContainerStyle = "";
@@ -142,21 +128,15 @@ export default {
         this.passwordPlaceholderStyle = "";
       }
     },
-    /**
-     * 用户名输入框监听器（后续若不使用可以删除）
-     */
+    // 用户名输入框监听器（后续若不使用可以删除）
     usernameWatcher(e) {
       // this.username = e.detail.value.replace(/\s+/g, '')
     },
-    /**
-     * 密码输入框输入监听器（后续若不使用可以删除）
-     */
+    // 密码输入框输入监听器（后续若不使用可以删除）
     passwordWatcher(e) {
       // this.password = e.detail.value.replace(/\s+/g, '');
     },
-    /**
-     * 用户名输入框确认事件
-     */
+    // 用户名输入框确认事件
     usernameConfirm(e) {
       if (e.detail.value !== "") {
         //使密码输入框重新获得焦点
@@ -172,9 +152,7 @@ export default {
         });
       }
     },
-    /**
-     * 密码输入框确认事件
-     */
+    // 密码输入框确认事件
     passwordConfirm(e) {
       if (e.detail.value === "") {
         //使密码输入框重新获得焦点
@@ -186,9 +164,7 @@ export default {
         this.loginCheck(); //登录检查
       }
     },
-    /**
-     * 忘记密码按钮点击事件
-     */
+    // 忘记密码按钮点击事件
     forgetPassword() {
       //Forget Password
       this.utils.throttle(() => {
@@ -198,19 +174,17 @@ export default {
         });
       });
     },
-    /**
-     * 登录检查
-     */
+    // 登录检查，登录按钮点击事件
     loginCheck() {
       this.utils.throttle(() => {
         this.$parent.username = this.username;
         this.$parent.password = this.password;
-        const data = {
+        let data = {
           username: this.username,
           password: this.password,
         };
         // 验证规则
-        const rules = [
+        let rules = [
           {
             key: "username",
             regExp: ["email", "phone"],
@@ -221,16 +195,15 @@ export default {
             required: true,
           },
         ];
-        const validator = new Validator();
-        const validatedInfo = validator.validate(data, rules);
-        console.log("验证信息", validatedInfo);
-        const [usernameValidatedInfo, passwordValidatedInfo] = [
+        let validator = new Validator();
+        let validatedInfo = validator.validate(data, rules);
+        let [usernameValidatedInfo, passwordValidatedInfo] = [
           validatedInfo.username,
           validatedInfo.password,
         ];
         //判断是否经过邮箱/手机格式验证
         if (usernameValidatedInfo.required && passwordValidatedInfo.required) {
-          if (usernameValidatedInfo.regExp.length <= 2) {
+          if (usernameValidatedInfo.regExp.length < 2) {
             loginTest({
               queryData: {
                 username: this.username,
@@ -238,10 +211,10 @@ export default {
               },
             })
               .then((res) => {
-                if (res.success) {
+                if (res.success && res.data.id !== null) {
                   uni.setStorage({
-                    key:"userInfo",
-                    data:res.data,
+                    key: "userInfo",
+                    data: res.data,
                     success: () => {
                       this.$refs.toast.show({
                         text: res.data,
@@ -269,7 +242,7 @@ export default {
               .catch((err) => {
                 console.log(err);
               });
-          } else if (usernameValidatedInfo.regExp.length > 2) {
+          } else if (usernameValidatedInfo.regExp.length >= 2) {
             this.$refs.toast.show({
               text: "邮箱/手机格式错误",
               type: "warning",
@@ -290,9 +263,7 @@ export default {
         }
       }, 2500);
     },
-    /**
-     * 立即注册按钮触发事件
-     */
+    // 立即注册按钮点击事件
     registerNow() {
       this.utils.throttle(() => {
         [
@@ -308,9 +279,7 @@ export default {
         this.$parent.toRegisterScreen();
       });
     },
-    /**
-     * 微信登陆按钮点击事件
-     */
+    // 微信登陆按钮点击事件
     wechatLogin() {
       this.utils.throttle(() => {
         //Wechat Login
@@ -331,17 +300,32 @@ export default {
         // });
       });
     },
+    /**
+     * 设置登陆界面动画效果
+     * @param {null|string} animation 动画
+     */
     setAnimation(animation) {
       if (animation !== null) {
         this.loginFormAnimation = `animate__animated animate__${animation}`;
       }
     },
+    // 清除输入信息
     clear() {
       this.username = "";
       this.password = "";
     },
   },
+  watch: {
+    showLoginForm(nval, oval) {
+      if (nval === "") {
+        this.$parent.$refs.navigationBar.setNavigation({
+          titleText: "登录",
+        });
+      }
+    },
+  },
   mounted() {},
+  onLoad() {},
 };
 </script>
 
