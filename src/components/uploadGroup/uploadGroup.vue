@@ -7,10 +7,11 @@
       :auto-upload="false"
       :before-upload="beforeUpload"
       :max-size="5242880"
-      :max-count="9"
+      :max-count="maxImageCount"
       @on-choose-complete="onChooseComplete"
       @on-success="onUploadSuccess"
       @on-uploaded="onUploaded"
+      @on-error="onError"
     ></upload>
   </view>
 </template>
@@ -19,6 +20,18 @@
 import { getUploadSignature } from "@/common/js/api/models.js";
 export default {
   name: "uploadGroup",
+  props: {
+    maxImageCount: {
+      type: Number,
+      default: 9,
+    },
+    uploadImageDir: {
+      type: String,
+    },
+    uploadId: {
+      type: String,
+    },
+  },
   data() {
     return {
       lists: [],
@@ -34,29 +47,34 @@ export default {
   methods: {
     onChooseComplete(list, index) {},
     /**
-     * 单个文件上传成功后回调
+     * @description 单个文件上传成功后回调
      * @param data 上传文件成功后的响应
      * @param listsIndex 上传文件信息列表下标
      * @param lists  上传文件信息列表
      */
     onUploadSuccess(data, listsIndex, lists) {
       this.imageList[listsIndex] = this.tempFinalSrc;
-      this.$parent.trendImageList = JSON.stringify(this.imageList);
-      console.log("图片上传成功，云端访问路径为：", this.tempFinalSrc);
-    },
-    onUploaded(lists) {
-      console.log("全部图片上传成功");
-      this.$emit("onImageUploaded");
+      console.log(
+        `下标【${listsIndex}】的图片上传成功，云端访问路径为：`,
+        this.tempFinalSrc
+      );
     },
     /**
-     * 上传文件前回调
+     * @description: 所有图片上传成功后的回调
+     */
+    onUploaded(lists) {
+      console.log("所有图片上传成功");
+      this.$emit("onImageUploaded", this.imageList, this.uploadId);
+    },
+    /**
+     * @description 上传文件前回调
      * @param listsIndex 上传文件信息列表下标
      * @param lists  上传文件信息列表
      */
     beforeUpload(listsIndex, lists) {
       console.log("上传前回调", listsIndex);
       return new Promise((resolve, reject) => {
-        let dir = "user-avatar";
+        const dir = this.uploadImageDir;
         let tempPath = lists[listsIndex].file.path;
         let fileSuffix = tempPath.substr(tempPath.lastIndexOf("."));
         getUploadSignature({ urlParam: dir })
@@ -84,8 +102,19 @@ export default {
           });
       });
     },
+    onError(err, index) {
+      uni.showModal({
+        title: "警告",
+        content: `上传图片出现错误，出现在下标【${index}】：${err}`,
+        success: function (res) {
+          if (res.confirm) {
+          } else if (res.cancel) {
+          }
+        },
+      });
+      throw err;
+    },
   },
-  onReady() {},
 };
 </script>
 

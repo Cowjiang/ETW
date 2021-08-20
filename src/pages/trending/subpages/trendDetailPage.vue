@@ -58,11 +58,11 @@
     <!-- 没有评论的占位 -->
     <noData v-if="commentList.length === 0"> </noData>
     <!-- 底部输入框占位 -->
-    <view
-      v-if="commentList.length !== 0"
-      class="bottom-button-area-placeholder"
-    >
-      <i v-show="!isEnd" class="fa fa-spinner fa-pulse"></i>
+    <view class="bottom-button-area-placeholder">
+      <i
+        v-show="commentList.length >= pageSize && !isEnd"
+        class="fa fa-spinner fa-pulse"
+      ></i>
       {{ loadText }}
     </view>
     <!-- 底部输入框 -->
@@ -104,13 +104,21 @@ export default {
       trendData: null,
       commentList: null, //评论区列表
       currentPage: 1, //当前页
-      pageSize: 2, //每页多少条
+      pageSize: 5, //每页多少条
       totalNumber: 0, //总页数
       isEnd: false, //数据是否已经加载完
       upadtingCommentIndex: null, //需要更新的下标
+      userInfo: {}, //本机用户信息
+      endSpliceNumber: 0, //加载到底时移除静态评论
     };
   },
   onLoad() {
+    uni.getStorage({
+      key: "userInfo",
+      success: (res) => {
+        this.userInfo = res.data;
+      },
+    });
     this.$refs.navigationBar.setNavigation({
       titleText: "动态详细",
       backgroundColor: "white",
@@ -133,14 +141,17 @@ export default {
     loadText() {
       const { currentPage, totalNumber, pageSize } = this;
       let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
-      if (currentPage < totalPages || totalPages === 0) {
+      console.log(totalPages);
+      if (currentPage < totalPages) {
         return "正在加载";
+      } else if (totalPages === 0) {
+        return "";
       } else {
-        this.isEnd = true;
-        if (totalNumber > pageSize) {
+        if (totalNumber >= pageSize) {
+          this.isEnd = true;
+          this.commentList.splice(0, this.endSpliceNumber);
+          this.endSpliceNumber = 0;
           return "—没有更多内容了—";
-        } else {
-          return "";
         }
       }
     },
@@ -155,7 +166,6 @@ export default {
      */
     commentByFirstComment(args) {
       let [[commentId, toUser, isHaveSecondComment, commentListIndex]] = args;
-      console.log(commentId, toUser, isHaveSecondComment, commentListIndex);
       if (!isHaveSecondComment) {
         this.upadtingCommentIndex = commentListIndex;
       } else {
@@ -199,7 +209,17 @@ export default {
               })
                 .then((res) => {
                   if (res.success) {
-                    this.commentList.unshift(res.data);
+                    let newCommentData = res.data;
+                    let userInfo = this.userInfo;
+                    newCommentData.userInfo = {
+                      userId: userInfo.userId,
+                      username: userInfo.username,
+                      avgPath: userInfo.avgPath,
+                    };
+                    this.commentList.unshift(newCommentData);
+                    if (!this.isEnd) {
+                      this.endSpliceNumber += 1;
+                    }
                     this.$refs.commentTextarea.commentPostText = "";
                     this.$refs.toast.show({
                       text: "评论成功",
@@ -235,14 +255,20 @@ export default {
                 .then((res) => {
                   if (res.success) {
                     if (this.upadtingCommentIndex !== null) {
-                      // console.log(this.commentList[this.upadtingCommentIndex]);
-                      this.commentList[
-                        this.upadtingCommentIndex
-                      ].secondComment = res.data;
-                      this.$forceUpdate();
+                      let newSecondCommenttData = res.data;
+                      let userInfo = this.userInfo;
+                      newSecondCommenttData.scUserInfo = {
+                        userId: userInfo.userId,
+                        username: userInfo.username,
+                        avgPath: userInfo.avgPath,
+                      };
+                      this.$set(
+                        this.commentList[this.upadtingCommentIndex],
+                        "secondComment",
+                        newSecondCommenttData
+                      );
                     }
                     this.$refs.commentTextarea.commentPostText = "";
-                    // this.loadTrendComment(true);
                     this.$refs.toast.show({
                       text: "评论成功",
                       type: "success",
@@ -365,7 +391,7 @@ export default {
 .container {
   display: flex;
   flex-direction: column;
-  padding: 4vw;
+  padding: 32rpx;
 }
 .trend-box {
   padding-bottom: 32rpx;

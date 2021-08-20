@@ -20,7 +20,6 @@
         v-model="commentPostText"
         class="comment-textarea"
         :focus="isShowCommentbox"
-        :auto-blur="true"
         :fixed="true"
         :adjust-position="false"
         :show-confirm-bar="false"
@@ -148,6 +147,11 @@ export default {
   .button-area {
     width: 100%;
     .submit-button {
+      font-size: 32rpx;
+      width: 100rpx;
+      height: 50rpx;
+      line-height: 50rpx;
+      text-align: center;
       color: $uni-color-primary;
       float: right;
     }
