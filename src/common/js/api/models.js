@@ -5,9 +5,11 @@ import {apiResquest} from "./request.js";
 //#ifdef MP-WEIXIN
 // let baseUrl = "http://free.svipss.top:21199"
 //#endif
-let host = "free.svipss.top:21199"; //服务器主机域名
+
+let host = `172.16.1.17:8887`; //服务器主机域名
 export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
 export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
+
 // 获取作品列表
 export const getWorkList = (requestConfig) =>
 	apiResquest("mockApi/test", {method: "GET", requestConfig});

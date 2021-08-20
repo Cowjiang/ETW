@@ -334,9 +334,9 @@
                 }, 0);
                 //开启Socket连接
                 uni.getStorage({
-                    key: 'uid',
+                    key: 'userInfo',
                     success: res => {
-                        connectSocket(res.data)
+                        connectSocket(res.data.userId)
                             .then(res => {
                                 uni.onSocketMessage(res => {
                                     this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
