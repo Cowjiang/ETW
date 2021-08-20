@@ -4,14 +4,6 @@
     },
     "pages": [
         {
-            "path": "pages/login/login",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/trending/trending",
             "style": {
                 "navigationBarTitleText": "",
@@ -20,7 +12,7 @@
             }
         },
         {
-            "path": "pages/chatList/chatList",
+            "path": "pages/store/subpages/storeApplyPage",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -28,6 +20,22 @@
             }
         },
 
+        {
+            "path": "pages/chatList/chatList",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/login/login",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
         {
             "path": "pages/chatDetail/chatDetail",
             "style": {
