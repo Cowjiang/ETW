@@ -8,6 +8,7 @@ export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
 export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
 //#endif
 
+// mock
 // 获取作品列表
 export const getWorkList = (requestConfig) =>
 	apiResquest("mockApi/test", { method: "GET", requestConfig });
@@ -18,8 +19,7 @@ export const getAuthorList = (requestConfig) =>
 export const getTrendList = (requestConfig) =>
 	apiResquest("mockApi/trendsList", { method: "GET", requestConfig });
 
-
-
+// 用户相关
 //登录
 export const loginTest = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/login`, { method: "POST", requestConfig });
@@ -35,6 +35,8 @@ export const getUser = (requestConfig) =>
 //登出
 export const logout = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/logout`, { method: "GET", requestConfig });
+
+//动态相关
 //获取目录上传签名
 export const getUploadSignature = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/signature-oss/${requestConfig.urlParam}`, { method: "GET", requestConfig });
@@ -59,6 +61,9 @@ export const postTrendSecondComment = (requestConfig) =>
 //获取动态评论的二级评论
 export const getTrendSecondComment = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "GET", requestConfig });
+
+
+//私信相关
 //获取我的私信列表
 export const getMyChatList = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/chat/list`, { method: "GET", requestConfig });
@@ -77,3 +82,9 @@ export const getUserInfoTemp = (requestConfig) =>
 //获取登录websocket的临时令牌
 export const getUserToken = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/socket/connection`, { method: "GET", requestConfig });
+
+
+//店铺相关
+// 店铺申请
+export const postStoreArchives = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });

@@ -12,7 +12,11 @@
       type="textarea"
     ></u-field>
     <!-- 图片上传 -->
-    <uploadGroup ref="uploadGroup" @onImageUploaded="submitTrend"></uploadGroup>
+    <uploadGroup
+      ref="uploadGroup"
+      uploadImageDir="dynamic"
+      @onImageUploaded="submitTrend(arguments)"
+    ></uploadGroup>
     <!-- 菜单列表 -->
     <view class="menuList">
       <menuItem
@@ -56,7 +60,6 @@ export default {
   data() {
     return {
       //动态发布
-      trendImageList: "",
       trendContent: "",
       isShowLoading: false,
       //菜单列表
@@ -98,15 +101,16 @@ export default {
     /**
      * @description: 提交动态请求
      */
-    submitTrend() {
+    submitTrend(args) {
+      const uploadedImageList = JSON.stringify(args[0]);
       let postQueryData = {
         content: this.trendContent,
-        imageJson: this.trendImageList,
+        imageJson: uploadedImageList,
       };
       if (this.locationData) {
         postQueryData = {
           content: this.trendContent,
-          imageJson: this.trendImageList,
+          imageJson: uploadedImageList,
           areaCode: this.locationData.adcode,
           latitude: this.locationData.latitude,
           longitude: this.locationData.longitude,
@@ -123,7 +127,7 @@ export default {
               type: "success",
               direction: "top",
             });
-            uni.navigateTo({
+            uni.redirectTo({
               url: "/pages/trending/trending",
             });
           } else {
@@ -187,7 +191,7 @@ page {
   margin-top: 24rpx;
 }
 .disabled-button {
-  color: rgba(255, 255, 255, 0.842) !important;
+  color: white !important;
   background-color: $uni-color-primary !important;
   opacity: 0.5 !important;
 }

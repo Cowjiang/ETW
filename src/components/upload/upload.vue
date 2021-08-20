@@ -15,7 +15,7 @@
           class="u-delete-icon"
           @tap.stop="deleteItem(index)"
         >
-          <text class="fa fa-close"></text>
+          X
         </view>
         <u-line-progress
           v-if="showProgress && item.progress > 0 && !item.error"
@@ -644,11 +644,13 @@ export default {
   top: 10rpx;
   right: 10rpx;
   z-index: 10;
-  color: $uni-text-color-placeholder;
-  background-color: rgba(255, 255, 255, 0);
-  border-radius: 100rpx;
-  width: 44rpx;
-  height: 44rpx;
+  color: white;
+  background-color: $uni-color-primary;
+  border-radius: 50%;
+  font-size: 22rpx;
+  width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;

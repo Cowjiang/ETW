@@ -18,7 +18,7 @@
       ref="loadRefresh"
       :isRefresh="isLoading"
       refreshType="halfCircle"
-      backgroundCover="#f4f5f6"
+      backgroundCover="#FFFFFF"
       :currentPage="currentPage"
       :totalNumber="totalPages"
       :pageSize="pageSize"

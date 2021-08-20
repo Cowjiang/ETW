@@ -6,7 +6,10 @@
     <view class="comment-item" v-if="firstCommentData">
       <!-- 评论者头像 -->
       <view class="left-avatar-box">
-        <u-avatar :src="firstCommentData.userInfo.avgPath" :size="80"></u-avatar>
+        <u-avatar
+          :src="firstCommentData.userInfo.avgPath"
+          :size="80"
+        ></u-avatar>
       </view>
       <!-- 评论内容 -->
       <view class="right-content-box">
@@ -44,7 +47,7 @@
     <noData v-if="secondCommentList.length === 0"> </noData>
     <!-- 底部输入框占位 -->
     <view
-      v-if="secondCommentList.length !== 0"
+      v-if="secondCommentList.length >= pageSize"
       class="bottom-button-area-placeholder"
     >
       <i v-show="!isEnd" class="fa fa-spinner fa-pulse"></i>
@@ -76,12 +79,18 @@ export default {
       firstCommentData: null,
       secondCommentList: null,
       currentPage: 1, //当前页
-      pageSize: 8, //每页多少条
+      pageSize: 5, //每页多少条
       totalNumber: 0, //总页数
       isEnd: false, //数据是否已经加载完
     };
   },
   onLoad() {
+    uni.getStorage({
+      key: "userInfo",
+      success: (res) => {
+        this.userInfo = res.data;
+      },
+    });
     const eventChannel = this.getOpenerEventChannel();
     eventChannel.on("acceptDataFromOpenerPage", (data) => {
       this.firstCommentData = data;
@@ -111,14 +120,14 @@ export default {
     loadText() {
       const { currentPage, totalNumber, pageSize } = this;
       let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
-      if (currentPage < totalPages || totalPages === 0) {
+      if (currentPage < totalPages) {
         return "正在加载";
+      } else if (totalPages === 0) {
+        return "";
       } else {
         this.isEnd = true;
-        if (totalNumber > 8) {
+        if (totalNumber > pageSize) {
           return "—没有更多内容了—";
-        } else {
-          return "";
         }
       }
     },
@@ -137,14 +146,15 @@ export default {
       this.isLoading = true;
       if (isRefresh) {
         this.isEnd = false;
+        this.currentPage = 1;
         getTrendSecondComment({
           urlParam: {
             trendId: trendId,
             commentId: commentId,
           },
           queryData: {
-            pageNumber: 1,
-            pageSize: this.pageSize * this.currentPage,
+            pageNumber: this.currentPage,
+            pageSize: this.pageSize,
           },
         })
           .then((res) => {
@@ -172,8 +182,8 @@ export default {
             commentId: commentId,
           },
           queryData: {
-            pageNumber: 1,
-            pageSize: this.pageSize * this.currentPage,
+            pageNumber: this.currentPage,
+            pageSize: this.pageSize,
           },
         })
           .then((res) => {
@@ -204,8 +214,7 @@ export default {
      */
     commentBySecondComment(arg) {
       this.commentPostType = 2;
-      this.toSecondUserId = arg[0];
-      this.toSecondUsername = arg[1];
+      [[this.toSecondUserId, this.toSecondUsername]] = arg;
       this.$refs.commentTextarea.commentTextareaPlaceholder = `回复@${this.toSecondUsername}`;
       this.$refs.commentTextarea.isShowTextarea(true);
     },
@@ -237,12 +246,12 @@ export default {
               })
                 .then((res) => {
                   if (res.success) {
-                    this.$refs.commentTextarea.commentPostText = "";
                     this.loadSecondComment(
                       this.firstCommentData.dynamicId,
                       this.firstCommentData.id,
                       true
                     );
+                    this.$refs.commentTextarea.commentPostText = "";
                     this.$refs.toast.show({
                       text: "评论成功",
                       type: "success",

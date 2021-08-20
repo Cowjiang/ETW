@@ -205,12 +205,12 @@ export default {
       this.utils.throttle(() => {
         this.$parent.username = this.username;
         this.$parent.password = this.password;
-        let data = {
+        const data = {
           username: this.username,
           password: this.password,
         };
         // 验证规则
-        let rules = [
+        const rules = [
           {
             key: "username",
             regExp: ["email", "phone"],
@@ -221,10 +221,10 @@ export default {
             required: true,
           },
         ];
-        let validator = new Validator();
-        let validatedInfo = validator.validate(data, rules);
+        const validator = new Validator();
+        const validatedInfo = validator.validate(data, rules);
         console.log("验证信息", validatedInfo);
-        let [usernameValidatedInfo, passwordValidatedInfo] = [
+        const [usernameValidatedInfo, passwordValidatedInfo] = [
           validatedInfo.username,
           validatedInfo.password,
         ];
@@ -240,8 +240,8 @@ export default {
               .then((res) => {
                 if (res.success) {
                   uni.setStorage({
-                    key: "uid",
-                    data: res.data.id,
+                    key:"userInfo",
+                    data:res.data,
                     success: () => {
                       this.$refs.toast.show({
                         text: res.data,
