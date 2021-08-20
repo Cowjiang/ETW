@@ -92,7 +92,7 @@
         methods: {
             /**
              * 输入框聚焦事件
-             * @param {number} sel 触发目标，值为1是用户名输入框，值为2是密码输入框
+             * @param {Number} sel 触发目标，值为1是用户名输入框，值为2是密码输入框
              */
             inputFocus(sel) {
                 switch (sel) {
@@ -301,7 +301,7 @@
             },
             /**
              * 设置登陆界面动画效果
-             * @param {null|string} animation 动画
+             * @param {null|String} animation 动画
              */
             setAnimation(animation) {
                 if (animation !== null) {

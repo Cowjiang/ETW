@@ -55,10 +55,10 @@
                 v-if="isShowTitle"
                 :style="{
                     lineHeight: `${navigationBarHeight}px`,
-                    width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin}px`,
+                    width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin - 20}px`,
                     color: `${titleColor}`
                 }">
-                <text class="title">{{ titleText }}</text>
+                <view class="title">{{ titleText }}</view>
             </view>
         </view>
     </view>
@@ -197,7 +197,7 @@
         left: 0;
         width: 100%;
         height: rpx(300);
-        z-index: 999;
+        z-index: 99999999;
     }
 
     .navigation-bar {
@@ -205,7 +205,7 @@
         position: fixed;
         display: flex;
         left: 0;
-        z-index: 99999;
+        z-index: 99999999;
 
         .navigation-menu-button {
             height: 100%;
@@ -241,9 +241,17 @@
 
         .navigation-title {
             height: 100%;
+            margin-left: 10px;
             text-align: center;
             font-size: rpx(36);
             color: $uni-text-color;
+            white-space: nowrap;
+            overflow: hidden;
+
+            .title {
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
     }
 </style>
