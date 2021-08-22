@@ -105,11 +105,12 @@ export default {
       commentList: null, //评论区列表
       currentPage: 1, //当前页
       pageSize: 5, //每页多少条
-      totalNumber: 0, //总页数
+      totalNumber: 0, //总共几条数据
+      totalPages: 0, //总共多少页
       isEnd: false, //数据是否已经加载完
       upadtingCommentIndex: null, //需要更新的下标
       userInfo: {}, //本机用户信息
-      endSpliceNumber: 0, //加载到底时移除静态评论
+      isAddStaticComment: false, //是否静态添加过评论
     };
   },
   onLoad() {
@@ -139,18 +140,15 @@ export default {
   },
   computed: {
     loadText() {
-      const { currentPage, totalNumber, pageSize } = this;
-      let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
-      console.log(totalPages);
+      const { currentPage, totalPages } = this;
       if (currentPage < totalPages) {
+        this.isEnd = false;
         return "正在加载";
-      } else if (totalPages === 0) {
-        return "";
-      } else {
-        if (totalNumber >= pageSize) {
-          this.isEnd = true;
-          this.commentList.splice(0, this.endSpliceNumber);
-          this.endSpliceNumber = 0;
+      } else if (currentPage >= totalPages) {
+        this.isEnd = true;
+        if (totalPages === 0) {
+          return "";
+        } else {
           return "—没有更多内容了—";
         }
       }
@@ -217,9 +215,7 @@ export default {
                       avgPath: userInfo.avgPath,
                     };
                     this.commentList.unshift(newCommentData);
-                    if (!this.isEnd) {
-                      this.endSpliceNumber += 1;
-                    }
+                    this.isAddStaticComment = true;
                     this.$refs.commentTextarea.commentPostText = "";
                     this.$refs.toast.show({
                       text: "评论成功",
@@ -314,7 +310,8 @@ export default {
           .then((res) => {
             if (res.success) {
               const data = res.data;
-              this.totalNumber = data.total; //获取总页数
+              // this.totalNumber = data.total; //获取总页数
+              this.totalPages = data.pages;
               this.commentList = data.records;
             }
           })
@@ -325,20 +322,42 @@ export default {
             this.isLoading = false;
           });
       } else {
-        console.log("加载");
         // 请求下一页内容
+        console.log("加载");
         this.currentPage += 1;
+        let currentPage, pageSize;
+        if (this.isAddStaticComment) {
+          currentPage = 1;
+          pageSize = this.currentPage * this.pageSize;
+        } else {
+          currentPage = this.currentPage;
+          pageSize = this.pageSize;
+        }
         getTrendComment({
           urlParam: this.trendData.id,
           queryData: {
-            pageNumber: this.currentPage,
-            pageSize: this.pageSize,
+            pageNumber: currentPage,
+            pageSize: pageSize,
           },
         })
           .then((res) => {
+            console.log(
+              "当前页",
+              this.currentPage,
+              "请求数",
+              pageSize,
+              "总页数",
+              this.totalPages
+            );
             if (res.success) {
               const data = res.data;
-              this.commentList = this.commentList.concat(data.records);
+              if (this.isAddStaticComment) {
+                this.isAddStaticComment = false;
+                this.commentList = data.records;
+              } else {
+                this.totalPages = data.pages;
+                this.commentList = this.commentList.concat(data.records);
+              }
             }
           })
           .catch((err) => {
@@ -356,8 +375,12 @@ export default {
       uni.navigateTo({
         url: "/pages/trending/subpages/trendDetailCommentPage",
         success: function (res) {
+          console.log(res);
           // 通过eventChannel向被打开页面传送数据
           res.eventChannel.emit("acceptDataFromOpenerPage", mainCommentData);
+        },
+        fail: function (err) {
+          console.log(err);
         },
       });
     },

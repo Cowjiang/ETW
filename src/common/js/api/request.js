@@ -53,7 +53,7 @@ export const apiResquest = (url, pramsObject) => {
       header: headerData,
       success: (res) => {
         // console.log(queryData,method,headerData);
-        // console.log(`【${url}】请求响应：`, res);
+        console.log(`【${url}】请求响应：`, res);
         // 和后端约定的状态码
         const { errorCode } = res.data;
         // 根据 code 进行判断
@@ -71,29 +71,14 @@ export const apiResquest = (url, pramsObject) => {
             case 999:
               if (res.data.data !== '用户登录过期') {
                 break;
-			  }
+              }
             case 3002:
               // 未登录
-				console.log('该功能需要登录才能使用');
-				// uni.navigateTo({
-				// 	url: "/pages/login/login",
-				// });
-				let currentPage = utils.getCurrentPage();
-				uni.redirectTo({
-					url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-				});
-              // uni.showModal({
-              //   title: '提示',
-              //   content: '该功能需要登录才能使用，是否前往登录页面？',
-              //   success: function (res) {
-              //     if (res.confirm) {
-              //       uni.navigateTo({
-              //         url: "/pages/login/login",
-              //       });
-              //     } else if (res.cancel) {
-              //     }
-              //   }
-              // });
+              console.log('该功能需要登录才能使用');
+              let currentPage = utils.getCurrentPage();
+              uni.redirectTo({
+                url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+              });
               reject(res)
               break;
             default:

@@ -36,7 +36,7 @@ export default {
   name: "tfgg-verify",
   data() {
     return {
-      imgUrl: "../../static/images/imgVerifyTest/2.jpg",
+      imgUrl: "",
       movableViewX: 0, //初始距离
       movedX: 0, //已移动的距离
       left: "", //拼图的最终X轴距离

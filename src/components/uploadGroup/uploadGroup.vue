@@ -77,7 +77,7 @@ export default {
         const dir = this.uploadImageDir;
         let tempPath = lists[listsIndex].file.path;
         let fileSuffix = tempPath.substr(tempPath.lastIndexOf("."));
-        getUploadSignature({ urlParam: dir })
+        getUploadSignature({ queryData: { dir: dir } })
           .then((res) => {
             let signData = res.data; // 拿到后端返回数据
             this.action = signData.host; //上传的url
@@ -99,6 +99,15 @@ export default {
           })
           .catch((err) => {
             console.log("getUploadSignature错误", err);
+            uni.showModal({
+              title: "警告",
+              content: `获取签名发生错误：${err}`,
+              success: function (res) {
+                if (res.confirm) {
+                } else if (res.cancel) {
+                }
+              },
+            });
           });
       });
     },

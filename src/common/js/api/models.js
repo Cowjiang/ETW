@@ -6,7 +6,7 @@ import { apiResquest } from "./request.js";
 // let baseUrl = "http://free.svipss.top:21199"
 //#endif
 
-let host = `agitator.free.svipss.top`; //服务器主机域名
+let host = `112.74.19.170:8887`; //服务器主机域名
 export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
 export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
 
@@ -41,7 +41,7 @@ export const logout = (requestConfig) =>
 //动态相关
 //获取目录上传签名
 export const getUploadSignature = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/signature-oss/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+	apiResquest(`${httpBaseUrl}/signature-oss`, { method: "GET", requestConfig });
 //发布动态
 export const postTrend = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/dynamic`, { method: "POST", requestConfig });
@@ -59,10 +59,10 @@ export const getTrendComment = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, { method: "GET", requestConfig });
 //在动态评论下回复二级评论
 export const postTrendSecondComment = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "POST", requestConfig });
+	apiResquest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "POST", requestConfig });
 //获取动态评论的二级评论
 export const getTrendSecondComment = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "GET", requestConfig });
+	apiResquest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "GET", requestConfig });
 
 
 //私信相关
@@ -90,3 +90,5 @@ export const getUserToken = (requestConfig) =>
 //店铺申请
 export const postStoreArchives = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });
+export const putStoreInfo = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/user`, { method: "PUT", requestConfig });

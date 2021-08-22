@@ -60,9 +60,15 @@
       "urlCheck": false
     },
     "usingComponents": true,
-    "permission": {"scope.userLocation" : {
-        "desc" : "你的描述信息"
-    }}
+    "permission": {
+      "scope.userLocation": {
+        "desc": "你的描述信息"
+      }
+    },
+    //开启分包优化
+    "optimization": {
+      "subPackages": true
+    }
   },
   "mp-alipay": {
     "usingComponents": true

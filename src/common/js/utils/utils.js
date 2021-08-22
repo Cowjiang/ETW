@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-08-09 19:02:12
+ * @LastEditTime: 2021-08-22 19:25:38
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \my-project\src\common\js\utils\utils.js
+ */
 export class Utils {
     constructor() {
         this.throttleBackTime = 0;
@@ -65,7 +73,7 @@ export class Utils {
         wx.getSystemInfo({
             success: res => windowWidth = res.windowWidth,
         });
-        let {height, top, right} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+        let { height, top, right } = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
         return height + top + windowWidth - right;
     }
 
@@ -83,6 +91,16 @@ export class Utils {
             curUrl: curRoute,
             curParam: curParam
         };
+    }
+    isObjectSomeKeyEmpty(obj) {
+        let isSomeKeyEmpty = false
+        for (const key in obj) {
+            if (!obj[key] || obj[key] === {} || obj[key] === []) {
+                isSomeKeyEmpty = true;
+                break
+            }
+        }
+        return isSomeKeyEmpty
     }
 }
 
