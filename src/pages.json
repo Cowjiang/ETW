@@ -10,15 +10,7 @@
     },
     "pages": [
         {
-            "path": "pages/testPage/testPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "disableScroll": true
-            }
-        },
-        {
-            "path": "pages/trending/trending",
+            "path": "pages/amap/amap",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -30,11 +22,27 @@
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
+                "disableScroll": true,
                 "navigationStyle": "custom"
             }
         },
         {
-            "path": "pages/amap/amap",
+            "path": "pages/testPage/testPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "disableScroll": true
+            }
+        },
+        {
+            "path": "pages/home/subpages/upload-file",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/trending/trending",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -87,13 +95,6 @@
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/home/subpages/upload-file",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
             }
         },
         {

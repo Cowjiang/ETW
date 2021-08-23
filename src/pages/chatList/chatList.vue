@@ -306,6 +306,7 @@
             },
             // 监听长按事件
             handleLongPress(e) {
+                wx.vibrateShort();
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', '加入黑名单'],

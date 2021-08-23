@@ -287,11 +287,6 @@
                         }
                         this.refresherTriggered = false;
                         this._freshing = false;
-                        this.$refs.toast.show({
-                            text: '网络异常',
-                            type: 'error',
-                            direction: 'top'
-                        });
                     })
                     .catch(err => {
                         this.refresherTriggered = false;
@@ -496,6 +491,7 @@
             },
             // 监听消息长按事件
             handleLongPress(e) {
+                wx.vibrateShort();
                 this.utils.throttle(() => {
                     if (e.target.dataset.name !== undefined) {
                         let targetId = parseInt(e.target.dataset.name.replace('message', ''));
@@ -624,6 +620,13 @@
                     success: res => {
                         connectSocket(res.data.userId)
                             .then(res => {
+                                console.log(res);
+
+                                // this.$refs.toast.show({
+                                //     text: '网络异常',
+                                //     type: 'error',
+                                //     direction: 'top'
+                                // });
                                 uni.onSocketMessage(res => {
                                     this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
                                 });
