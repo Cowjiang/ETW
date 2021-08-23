@@ -2,7 +2,7 @@
   <view class="select-position">
     <!-- 顶部半透明蒙版 -->
     <view class="top-mask">
-      <view class="cancel-btn" @click="handleCancel"> 取消 </view>
+      <view class="cancel-btn" @click="handleCancel"> 取消</view>
     </view>
     <!-- 地图主体 -->
     <map
@@ -143,18 +143,21 @@
       :style="{ pointerEvents: `${onLoadReady ? 'all' : 'none'}` }"
     >
       <view class="confirm-mask"></view>
-      <view class="confirm-btn" @click="handleConfirm"> 确定 </view>
+      <view class="confirm-btn" @click="handleConfirm"> 确定</view>
     </view>
     <toast ref="toast" class="toast" />
+    <loading ref="loading" fullscreen></loading>
   </view>
 </template>
 
 <script>
 import { toast } from "../../components/toast/toast.vue";
+import { loading } from "../../components/loading/loading.vue";
 
 export default {
   components: {
     toast,
+    loading,
   },
   data() {
     return {
@@ -170,6 +173,7 @@ export default {
       longitude: 116.397451, //初始化精度
       currentCity: "", //当前城市
       addressTips: [], //附近推荐POI
+      addressTipsDetail: [], //附近推荐POI的详细信息
       currentAddressTips: [], //用户当前位置附近推荐POI
       markers: [], //地图标记数组
       isScrollChange: false, //是否产生滚动变化
@@ -224,7 +228,7 @@ export default {
               this.markers[0] = {
                 latitude: res.latitude,
                 longitude: res.longitude,
-                alpha: 0,
+                alpha: 1,
               }; //在地图上显示当前位置标记
               this.positioningTimer = Date.now();
               this.currentLatitude = res.latitude;
@@ -256,7 +260,7 @@ export default {
         this.markers[0] = {
           latitude: this.currentLatitude,
           longitude: this.currentLongitude,
-          alpha: 0,
+          alpha: 1,
         }; //在地图上显示当前位置标记
       } else {
         let poiResult = await this.getPositionInfo(location); //获取位置信息
@@ -266,15 +270,13 @@ export default {
         }
       }
       if (this.onLoadReady === true) {
-        wx.hideLoading({
-          fail: (e) => {
-            // console.log(e)
-          },
-        });
+        if (this.$refs.loading.isLoading) {
+          this.$refs.loading.stopLoading();
+        }
       } else {
-        wx.showLoading({
-          title: "加载中",
-        });
+        if (!this.$refs.loading.isLoading) {
+          this.$refs.loading.startLoading();
+        }
       }
       this.$forceUpdate();
     },
@@ -285,6 +287,7 @@ export default {
     getPositionInfo(location) {
       return new Promise((resolve, reject) => {
         if (location !== null) {
+          //获取指定经纬度的POI信息
           this.amap.getPoiAround({
             location: location,
             querytypes: "050000|060100|120000|150500|150200|150104|141200", //餐饮服务|商场|商务住宅|地铁站|火车站|机场|学校
@@ -292,6 +295,7 @@ export default {
               if (data !== null) {
                 this.onLoadReady = true;
                 this.addressTips = data.markers;
+                this.addressTipsDetail = data.poisData;
                 this.currentAddressTips = this.addressTips;
               }
               resolve(data);
@@ -301,6 +305,7 @@ export default {
             },
           });
         } else {
+          //获取当前位置的附近信息（暂无用到，后续可删）
           this.amap.getRegeo({
             success: (data) => {
               if (data !== null) {
@@ -348,7 +353,7 @@ export default {
     },
     /**
      * 附近位置列表点击事件
-     * @param {number} index 列表索引
+     * @param {Number} index 列表索引
      */
     selectTips(index) {
       this.clearSelected();
@@ -383,41 +388,66 @@ export default {
     },
     // 清除选择列表
     clearSelected() {
-      for (const add of this.addressTips) {
+      this.addressTips.forEach((add) => {
         add.selected = false;
-      }
+      });
     },
     // 取消按钮点击事件
     handleCancel() {
       uni.navigateBack();
     },
     // 确定按钮点击事件
-    async handleConfirm() {
-      let resultLatitude, resultLongitude;
-      if (this.markers.length !== 0) {
-        resultLatitude = this.markers[0].latitude;
-        resultLongitude = this.markers[0].longitude;
+    handleConfirm() {
+      let resultDetails = {};
+      if (this.currentSelect >= 0) {
+        //结果列表有已选择的地点
+        resultDetails = this.addressTipsDetail[this.currentSelect];
+        if (this.markers.length !== 0) {
+          //地图标记数组不为空
+          resultDetails.location = this.markers[0];
+        } else {
+          resultDetails.location = {
+            latitude: this.currentLatitude,
+            longitude: this.currentLongitude,
+          };
+        }
       } else {
-        resultLatitude = this.currentLatitude;
-        resultLongitude = this.currentLongitude;
+        //结果列表无已选择的点（用户点击地图选点）
+        if (this.addressTipsDetail.length !== 0) {
+          //结果列表不为空
+          resultDetails = this.addressTipsDetail[0];
+          resultDetails.location = {
+            latitude: this.currentLatitude,
+            longitude: this.currentLongitude,
+          };
+        } else {
+          //结果列表为空
+        }
       }
+      //   console.log([
+      //     resultDetails.name,
+      //     resultDetails.location.latitude,
+      //     resultDetails.location.longitude,
+      //     resultDetails.cityname,
+      //     resultDetails.adcode,
+      //     resultDetails.tel.length === 0 ? null : resultDetails.tel,
+      //     resultDetails.pname +
+      //       resultDetails.cityname +
+      //       resultDetails.adname +
+      //       resultDetails.address,
+      //   ]);
       const eventChannel = this.getOpenerEventChannel();
-      let poiResult = await this.getPositionInfo(
-        `${resultLongitude},${resultLatitude}`
-      );
-      const currentCity = await this.getPositionInfo(null);
-      const poisData = poiResult.poisData[0];
-      const adcode = currentCity[0].regeocodeData.addressComponent.adcode;
-      const locationName = poisData.name;
-      const locationDetail = `${poisData.pname}${poisData.cityname}${poisData.adname}${poisData.address}`;
-      const locationPhone = `${poisData.tel}`;
       eventChannel.emit("acceptDataFromOpenedPage", {
-        longitude: `${resultLongitude}`,
-        latitude: `${resultLatitude}`,
-        adcode,
-        locationName,
-        locationDetail,
-        locationPhone,
+        longitude: resultDetails.location.longitude,
+        latitude: resultDetails.location.latitude,
+        adcode: resultDetails.adcode,
+        locationName: resultDetails.name,
+        locationDetail:
+          resultDetails.pname +
+          resultDetails.cityname +
+          resultDetails.adname +
+          resultDetails.address,
+        locationPhone: resultDetails.tel.length === 0 ? "" : resultDetails.tel,
       });
       uni.navigateBack();
     },
@@ -475,6 +505,7 @@ export default {
     // 重新获取用户授权
     reGetAuthorization() {
       if (this.userAuthorization !== 1) {
+        //开启小程序用户授权页
         wx.openSetting({
           success: (res) => {
             if (res.authSetting["scope.userLocation"] === false) {
@@ -584,34 +615,31 @@ export default {
     // 加载完毕状态变化
     onLoadReady(nval, oval) {
       if (nval === true) {
-        this.$nextTick(() => {
-          wx.hideLoading();
-        });
+        if (this.$refs.loading.isLoading) {
+          this.$refs.loading.stopLoading();
+        }
       } else if (nval === false) {
-        wx.showLoading({
-          title: "加载中",
-        });
+        if (!this.$refs.loading.isLoading) {
+          this.$refs.loading.startLoading();
+        }
       }
     },
   },
-  mounted() {
+  created() {
     wx.getSystemInfo({
       success: (res) => {
         this.windowWidth = res.screenWidth;
         this.windowHeight = res.screenHeight;
       },
-      fail: (res) => {
-        console.log(res);
-      },
     });
   },
-  onLoad() {},
+  mounted() {},
+  onLoad() {
+    this.$refs.loading.startLoading();
+  },
   onShow() {
     this.$nextTick(() => {
       this.onLoadReady = false;
-      wx.showLoading({
-        title: "加载中",
-      });
       this.getCurrentPosition(); //获取当前位置
     });
     this.mapContext = wx.createMapContext("mapContext"); //初始化地图对象

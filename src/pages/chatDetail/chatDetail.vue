@@ -3,67 +3,87 @@
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast" class="toast"/>
 
-        <view class="chat-container"
-              :style="{height: `${windowHeight - navigationHeight}px`}"
-        >
+        <view
+            class="chat-container"
+            :style="{height: `${windowHeight - navigationHeight}px`}">
             <!-- 顶部功能按钮区域 -->
-            <view class="top-btn-area"
-                  :style="{top: `${navigationHeight}px`}">
+            <view
+                class="top-btn-area"
+                :style="{top: `${navigationHeight}px`}">
                 <view>关注TA</view>
                 <view @click="stopCheckingUpdate">加入黑名单</view>
             </view>
             <!-- 聊天消息区域 -->
-            <view class="message-area"
-                  :style="{height: `${windowHeight - navigationHeight - 60}px`, transform: `translateY(-${keyboardHeight}px)`}"
-            >
-                <scroll-view class="message-scroll-view"
-                             ref="scrollView"
-                             :scroll-y="true"
-                             @scroll="handleScroll"
-                             :scroll-into-view="scrollToViewId"
-                             scroll-with-animation="true"
-                             refresher-enabled="true"
-                             refresher-threshold="300"
-                             :refresher-triggered="refresherTriggered"
-                             @refresherrefresh="handleRefreshStart"
-                             @refresherrestore="handleRefreshEnd"
-                >
+            <view
+                class="message-area"
+                :style="{
+                    height: `${windowHeight - navigationHeight - 60}px`,
+                    transform: `translateY(-${keyboardHeight}px)`
+                }">
+                <loading
+                    ref="loading"
+                    :parentClass="'message-area'"/>
+                <scroll-view
+                    class="message-scroll-view"
+                    ref="scrollView"
+                    :scroll-y="true"
+                    @scroll="handleScroll"
+                    :scroll-into-view="scrollToViewId"
+                    scroll-with-animation="true"
+                    refresher-enabled="true"
+                    refresher-threshold="300"
+                    :refresher-triggered="refresherTriggered"
+                    @refresherrefresh="handleRefreshStart"
+                    @refresherrestore="handleRefreshEnd">
                     <!-- 滚动区域顶部 -->
                     <view id="scrollTopView"></view>
                     <!-- 每条消息的容器 -->
-                    <view class="message-container"
-                          v-for="(message, index) in messageRecords"
-                          :key="message.id"
-                          :id="`message${message.id}`"
-                    >
+                    <view
+                        class="message-container"
+                        v-for="(message, index) in messageRecords"
+                        :key="message.id"
+                        :id="`message${message.id}`">
                         <!-- 消息发送时间容器 -->
-                        <view class="datetime-container"
-                              v-if="computeDatetime(messageRecords[index - 1] === undefined ? 0 : messageRecords[index - 1].time, message.time)">
+                        <view
+                            class="datetime-container"
+                            v-if="computeDatetime(messageRecords[index - 1] === undefined ? 0 : messageRecords[index - 1].time, message.time)">
                             {{ message.time | formatTime }}
                         </view>
                         <!-- 用户头像容器 -->
-                        <view class="avatar-container"
-                              :class="message.isMe === false ? 'avatar-container-left' : 'avatar-container-right'">
+                        <view
+                            class="avatar-container"
+                            :class="message.isMe === false ? 'avatar-container-left' : 'avatar-container-right'">
+                            <image
+                                v-if="message.isMe"
+                                :src="myInfo.avgPath"
+                                mode="widthFix"
+                            ></image>
+                            <image
+                                v-if="!message.isMe"
+                                :src="friendInfo.avgPath"
+                                mode="widthFix"
+                            ></image>
                         </view>
                         <!-- 消息内容 -->
-                        <view class="message-content"
-                              @longpress="handleLongPress"
-                              :data-name="`message${index}`"
-                              @touchstart="handleTouchStart"
-                              @touchend="handleTouchEnd"
-                              @touchcancel="handleTouchEnd"
-                              :class="message.isMe === false ? 'message-content-left' : 'message-content-right'"
-                              :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                        >
+                        <view
+                            class="message-content"
+                            :data-name="`message${index}`"
+                            @touchstart="handleTouchStart"
+                            @touchend="handleTouchEnd"
+                            @touchcancel="handleTouchEnd"
+                            @longpress="handleLongPress"
+                            :class="message.isMe === false ? 'message-content-left' : 'message-content-right'"
+                            :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}">
                             <view v-if="!message.isPhoto">
                                 {{ message.content }}
                             </view>
-                            <image v-if="message.isPhoto"
-                                   :src="message.content"
-                                   mode="widthFix"
-                                   @longpress="handleLongPress"
-                                   :data-name="`message${index}`"
-                                   @click="previewImage(message.content)"
+                            <image
+                                v-if="message.isPhoto"
+                                :src="message.content"
+                                :data-name="`message${index}`"
+                                mode="widthFix"
+                                @longpress="handleLongPress"
+                                @click="previewImage(message.content)"
                             ></image>
                         </view>
                     </view>
@@ -72,48 +92,59 @@
                 </scroll-view>
             </view>
             <!-- 底部输入区域 -->
-            <view class="input-area"
-                  :style="{transform: `translateY(-${keyboardHeight}px)`}">
+            <view
+                class="input-area"
+                :style="{transform: `translateY(-${keyboardHeight}px)`}">
                 <!-- 输入框左侧按钮容器 -->
-                <view class="more-btn-container"
-                      :style="{transform: `translateX(${inputFocusStatus ? '-120': '0'}rpx)`}">
-                    <i class="fa fa-picture-o"
-                       aria-hidden="true"
-                       :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
-                       @click="chooseImage(0)"></i>
-                    <i class="fa fa-camera"
-                       aria-hidden="true"
-                       :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
-                       @click="chooseImage(1)"></i>
-                    <i class="fa fa-chevron-right"
-                       aria-hidden="true"
-                       :style="{opacity: `${inputFocusStatus ? '1': '0'}`}"></i>
+                <view
+                    class="more-btn-container"
+                    :style="{transform: `translateX(${inputFocusStatus ? '-120': '0'}rpx)`}">
+                    <i
+                        class="fa fa-picture-o"
+                        aria-hidden="true"
+                        :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
+                        @click="chooseImage(0)"></i>
+                    <i
+                        class="fa fa-camera"
+                        aria-hidden="true"
+                        :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
+                        @click="chooseImage(1)"></i>
+                    <i
+                        class="fa fa-chevron-right"
+                        aria-hidden="true"
+                        :style="{opacity: `${inputFocusStatus ? '1': '0'}`}"></i>
                 </view>
                 <!-- 输入框容器 -->
                 <view class="input-container">
-                    <view class="input-inner-container"
-                          @click="showRawInput"
-                          :style="{width: `${inputFocusStatus ? 'calc(100vw - 200rpx)' : 'calc(100vw - 220rpx - 80rpx)'}`}"
-                    >
-                        <input type="text"
-                               class="raw-input"
-                               v-model="rawInputValue"
-                               :focus="inputFocusStatus"
-                               :adjust-position="false"
-                               v-if="inputFocusStatus"
-                               @focus="handleInputFocus"
-                               @blur="handleInputBlur"
-                               @confirm="sendMessage"
-                               :confirm-hold="true"
-                               :confirm-type="`发送`"
-                               @keyboardheightchange="handleKeyboardHeightChange"
-                               :auto-blur="true">
-                        <view class="show-input" v-if="!inputFocusStatus">{{ rawInputValue }}</view>
+                    <view
+                        class="input-inner-container"
+                        @click="showRawInput"
+                        :style="{width: `${inputFocusStatus ? 'calc(100vw - 200rpx)' : 'calc(100vw - 220rpx - 80rpx)'}`}">
+                        <input
+                            type="text"
+                            class="raw-input"
+                            v-model="rawInputValue"
+                            :focus="inputFocusStatus"
+                            :adjust-position="false"
+                            v-if="inputFocusStatus"
+                            @focus="handleInputFocus"
+                            @blur="handleInputBlur"
+                            @confirm="sendMessage"
+                            :confirm-hold="true"
+                            :confirm-type="`发送`"
+                            @keyboardheightchange="handleKeyboardHeightChange"
+                            :auto-blur="true">
+                        <view
+                            class="show-input"
+                            v-if="!inputFocusStatus">
+                            {{ rawInputValue }}
+                        </view>
                     </view>
                     <!-- 输入框右侧发送按钮容器 -->
-                    <view class="send-btn-container"
-                          @click="sendMessage"
-                          :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
+                    <view
+                        class="send-btn-container"
+                        @click="sendMessage"
+                        :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
                         <i class="fa fa-paper-plane" aria-hidden="true"></i>
                     </view>
                 </view>
@@ -137,23 +168,28 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {upload} from '../../components/upload/upload.vue';
-    // import {getUserInfoTemp} from "../../common/js/api/models.js";
+    import {loading} from '../../components/loading/loading.vue';
     import {deleteChatHistory, getChatHistory, getUploadSignature, sendMessage} from "../../common/js/api/models.js";
+    import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
         components: {
-            toast, navigationBar, upload
+            toast, navigationBar, upload, loading
         },
         data() {
             return {
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                receiverInfo: {
-                    userId: '0',
+                myInfo: {
+                    userId: '',
                     avgPath: '',
-                    realName: '',
-                    username: '粽子',
+                    username: '',
+                }, //自己的个人信息
+                friendInfo: {
+                    userId: '',
+                    avgPath: '',
+                    username: '',
                 }, //信息发送对象的信息
                 rawInputValue: '', //消息输入框的数据
                 inputFocusStatus: false, //输入框聚焦状态
@@ -169,59 +205,125 @@
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 currentPage: -1, //当前消息记录的页码
                 pageSize: 15, //每次请求获取聊天记录的单页数据总数
-                checkUpdateTimer: null, //检查消息更新的计时器
+                existMore: true, //是否存在更多历史消息
+                isReadyToShow: false, //是否加载消息记录完毕
             }
         },
         methods: {
             // 设置私聊会话基本信息
             setChatBaseInfo() {
+                this.friendInfo.username = this.utils.getCurrentPage().curParam.senderName || null;
+                this.friendInfo.userId = this.utils.getCurrentPage().curParam.senderId || null;
+                this.friendInfo.avgPath = this.utils.getCurrentPage().curParam.senderAvatar || null;
+                if (this.friendInfo.username === null || this.friendInfo.userId === null) {
+                    this.redirectToChatList();
+                    return;
+                }
+                uni.getStorage({
+                    key: 'userInfo',
+                    success: res => {
+                        console.log(res)
+                        this.myInfo.userId = res.data.userId;
+                        this.myInfo.username = res.data.username;
+                        this.myInfo.avgPath = res.data.avgPath;
+                    }
+                });
                 this.$refs.navigationBar.setNavigation({
-                    titleText: this.receiverInfo.username,
+                    titleText: this.friendInfo.username,
                     backgroundColor: '#ffffff',
                     customBackFunc: this.redirectToChatList
                 });
             },
             /**
              * 获取聊天消息记录
-             * @param queryPage      [Number]   查询页码
-             * @param isCheckUpdate  [Boolean]  当前调用是否为检查更新
+             * @param {null|String} time 查询时间戳，为空时则查询第一页
              */
-            getChatHistory(queryPage = NaN, isCheckUpdate = false) {
+            getChatHistory(time = null) {
+                let queryTime = time === null ? Date.now() : time;
                 getChatHistory({
-                    urlParam: `${this.receiverInfo.userId}?pageSize=${this.pageSize}&&pageNumber=${isCheckUpdate ? 1 : queryPage || this.currentPage + 1}`,
+                    urlParam: `${this.friendInfo.userId}?pageSize=${this.pageSize}&time=${queryTime}`,
                 })
                     .then(res => {
-                        if (isCheckUpdate) {
-                            if (res.data.total !== this.recordsLength) {
-                                this.recordsLength = res.data.total;
-                                this.messageRecordsTemp = [];
-                                this.getChatHistory(queryPage = 1);
+                        console.log(res.data)
+                        if (time === null) {
+                            let recordsTemp = [];
+                            for (const records of res.data.records) {
+                                recordsTemp.unshift({
+                                    id: records.id,
+                                    content: records.content,
+                                    isPhoto: !records.isText,
+                                    isMe: records.senderId.toString() !== this.friendInfo.userId,
+                                    time: records.createdTime
+                                });
                             }
-                            return;
+                            this.messageRecords = [];
+                            this.messageRecords = recordsTemp;
+                            this.scrollToViewId = `message${this.messageRecords.length - 1}`;
+                            this.recordsLength = res.data.total;
+                            if (this.recordsLength <= this.pageSize) {
+                                this.existMore = false;
+                            }
+                            setTimeout(() => {
+                                this.isReadyToShow = true;
+                                this.$refs.loading.stopLoading();
+                            }, 500);
                         }
-                        for (const messageRecordsTempElement of res.data.records) {
-                            this.messageRecordsTemp.unshift({
-                                id: messageRecordsTempElement.id,
-                                content: messageRecordsTempElement.content,
-                                isPhoto: !messageRecordsTempElement.isText,
-                                isMe: messageRecordsTempElement.senderId.toString() !== this.receiverInfo.userId,
-                                time: messageRecordsTempElement.createdTime
-                            })
+                        else {
+                            if (res.data.records.length !== 0) {
+                                for (const records of res.data.records) {
+                                    this.messageRecords.unshift({
+                                        id: records.id,
+                                        content: records.content,
+                                        isPhoto: !records.isText,
+                                        isMe: records.senderId.toString() !== this.friendInfo.userId,
+                                        time: records.createdTime
+                                    });
+                                }
+                            }
+                            this.recordsLength = res.data.total;
+                            if (this.recordsLength <= this.pageSize) {
+                                this.existMore = false;
+                            }
                         }
-                        this.messageRecords = this.messageRecordsTemp;
-                        this.recordsLength = res.data.total;
-                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
                         this.refresherTriggered = false;
                         this._freshing = false;
-                        // console.log(this.messageRecords)
+                    })
+                    .catch(err => {
+                        this.refresherTriggered = false;
+                        this._freshing = false;
+                        this.$refs.toast.show({
+                            text: '网络异常',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    })
+            },
+            /**
+             * 监听接收到新消息
+             * @param {Object} data Socket接收到的新消息
+             */
+            receiveNewMessage(data) {
+                console.log(data);
+                if (data.errorCode === 120) {
+                    let newMessage = data.data;
+                    if (newMessage.senderId.toString() === this.friendInfo.userId) {
+                        this.scrollToViewId = `messageTopView`;
+                        setTimeout(() => {
+                            this.messageRecords.push({
+                                id: newMessage.id,
+                                content: newMessage.content,
+                                isPhoto: !newMessage.isText,
+                                isMe: false,
+                                time: newMessage.createdTime
+                            });
+                        }, 0);
+                        this.recordsLength += 1;
+                        if (this.recordsLength <= this.pageSize) {
+                            this.existMore = false;
+                        }
                         this.$forceUpdate();
-                    })
-                    .catch((err) => {
-                        clearInterval(this.checkUpdateTimer);
-                        this.checkUpdateTimer = null;
-                        this.refresherTriggered = false;
-                        this._freshing = false;
-                    })
+                    }
+                }
             },
             // 显示消息输入框
             showRawInput() {
@@ -254,7 +356,7 @@
                         title: '正在发送'
                     });
                     sendMessage({
-                        urlParam: this.receiverInfo.userId,
+                        urlParam: this.friendInfo.userId,
                         queryData: {
                             content: this.rawInputValue,
                             isText: true
@@ -288,7 +390,10 @@
                     this.inputFocusStatus = true;
                 }
             },
-            // 选择图片  mode  [Number]  选择图片模式（0: 从相册选择图片, 1: 相机拍摄图片）
+            /**
+             * 选择图片
+             * @param {Number} mode 选择图片模式，0: 从相册选择图片, 1: 相机拍摄图片
+             */
             chooseImage(mode) {
                 switch (mode) {
                     case 0:
@@ -343,7 +448,7 @@
                     title: '正在发送'
                 });
                 sendMessage({
-                    urlParam: this.receiverInfo.userId,
+                    urlParam: this.friendInfo.userId,
                     queryData: {
                         content: this.tempFinalSrc,
                         isText: false
@@ -352,7 +457,7 @@
                     .then(res => {
                         if (res.success) {
                             wx.hideLoading();
-                            this.scrollToViewId = `messageTopView`
+                            this.scrollToViewId = `messageTopView`;
                             setTimeout(() => {
                                 this.messageRecords.push({
                                     id: res.data.id,
@@ -386,6 +491,7 @@
             },
             // 监听消息长按事件
             handleLongPress(e) {
+                wx.vibrateShort();
                 this.utils.throttle(() => {
                     if (e.target.dataset.name !== undefined) {
                         let targetId = parseInt(e.target.dataset.name.replace('message', ''));
@@ -421,13 +527,19 @@
                 this.messageTouchingId = '';
                 this.$forceUpdate();
             },
-            // 全屏预览图片  url  [String]  图片Url
+            /**
+             * 全屏预览图片
+             * @param {String} url 图片Url
+             */
             previewImage(url) {
                 wx.previewImage({
                     urls: [url]
                 })
             },
-            // 删除聊天消息  targetId  [Number]  目标ID
+            /**
+             * 删除聊天消息
+             * @param {Number} targetId 消息ID
+             */
             deleteMessage(targetId) {
                 wx.showLoading({
                     title: '正在删除'
@@ -463,33 +575,90 @@
             },
             // scroll-view下拉刷新开始事件
             handleRefreshStart() {
-                if (this._freshing) return;
-                this._freshing = true;
-                setTimeout(() => {
-                    this.getChatHistory(this.currentPage + 1);
-                }, 300);
-                this.stopCheckingUpdate();
-                this.checkUpdateTimer = setInterval(() => {
-                    this.getChatHistory(NaN, true);
-                }, 3000);
-                this.currentPage += 1;
+                if (this.existMore) {
+                    if (this._freshing) return;
+                    this._freshing = true;
+                    setTimeout(() => {
+                        if (this.messageRecords.length === 0) {
+                            this.getChatHistory();
+                        }
+                        else {
+                            this.getChatHistory(this.messageRecords[0].time);
+                        }
+                    }, 300);
+                }
+                else {
+                    this.refresherTriggered = false;
+                    this._freshing = false;
+                    this.$forceUpdate();
+                }
             },
             // scroll-view下拉刷新结束事件
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
             },
-            // 停止检查聊天消息更新
-            stopCheckingUpdate() {
-                if (this.checkUpdateTimer !== null) {
-                    clearInterval(this.checkUpdateTimer);
-                    this.checkUpdateTimer = null;
-                }
-            },
+            // 重定向至聊天列表页
             redirectToChatList() {
                 uni.redirectTo({
                     url: `/pages/chatList/chatList`
                 });
-            }
+            },
+            // 开启Socket连接
+            startCheckingUpdate() {
+                if (this.messageRecords.length === 0) {
+                    this._freshing = false; //还原下拉刷新状态
+                    setTimeout(() => {
+                        this.refresherTriggered = true; //开启下拉刷新
+                    }, 0);
+                }
+                else {
+                    this.$refs.loading.stopLoading();
+                }
+                //开启Socket连接
+                uni.getStorage({
+                    key: 'userInfo',
+                    success: res => {
+                        connectSocket(res.data.userId)
+                            .then(res => {
+                                console.log(res);
+
+                                // this.$refs.toast.show({
+                                //     text: '网络异常',
+                                //     type: 'error',
+                                //     direction: 'top'
+                                // });
+                                uni.onSocketMessage(res => {
+                                    this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                                });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            })
+                    },
+                    fail: err => {
+                        console.log(err);
+                        let currentPage = utils.getCurrentPage();
+                        uni.redirectTo({
+                            url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                        });
+                    }
+                });
+            },
+            // 关闭Socket连接
+            stopCheckingUpdate() {
+                uni.onSocketClose(res => {
+                    console.log('已关闭Socket');
+                });
+                closeSocket()
+                    .then(res => {
+                    })
+                    .catch(err => {
+                        if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
+                            return;
+                        }
+                        console.error(err);
+                    })
+            },
         },
         computed: {
             // 计算时间差
@@ -502,8 +671,8 @@
         filters: {
             /**
              * 格式化时间
-             * @param time [String] 传入的时间字符串
-             * @return formattedTime 格式化后的时间
+             * @param {String} time 时间字符串
+             * @return {String} 格式化后的时间
              */
             formatTime(time) {
                 let messageDate = new Date(time);
@@ -530,9 +699,11 @@
             }
         },
         watch: {
+            // 消息原始输入框的值
             rawInputValue(nval, oval) {
                 this.isSendReady = nval.replace(/\s*/g, "") !== ''; //判断输入框中是否为空白内容
             },
+            // 消息记录数组
             messageRecords(nval, oval) {
                 this.scrollToViewId = `scrollBottomView`; //将scroll-view移动到底部
                 // this.scrollToViewId = `message${nval.length - 1}`;
@@ -540,12 +711,8 @@
             }
         },
         mounted() {
-            this.receiverInfo.username = this.utils.getCurrentPage().curParam.senderName || null;
-            this.receiverInfo.userId = this.utils.getCurrentPage().curParam.senderId || null;
-            if (this.receiverInfo.username === null || this.receiverInfo.userId === null) {
-                this.redirectToChatList();
-            }
-            else this.setChatBaseInfo();
+        },
+        onLoad() {
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -554,30 +721,23 @@
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
         },
-        onLoad() {
-            // this.getOpenerEventChannel().on('chatList', res => {
-            //     this.receiverId = res.data.receiverId;
-            //     if (this.receiverId !== '') {
-            //         this.setChatBaseInfo();
-            //     }
-            // })
-        },
         onShow() {
-            this.setChatBaseInfo();
-            this.stopCheckingUpdate();
-            this._freshing = false;
-            setTimeout(() => {
-                this.refresherTriggered = true;
-            }, 1000);
+            this.setChatBaseInfo(); //设置会话信息
+            this.stopCheckingUpdate(); //关闭Socket连接
+            this.$refs.loading.startLoading({
+                width: this.windowWidth,
+                height: this.windowHeight - this.navigationHeight - 60
+            }); //开启loading动画
+            this.startCheckingUpdate(); //重新开启Socket连接
         },
         onHide() {
-            this.stopCheckingUpdate();
+            this.stopCheckingUpdate(); //关闭Socket连接
         },
         onUnload() {
-            this.stopCheckingUpdate();
+            this.stopCheckingUpdate(); //关闭Socket连接
         },
         beforeDestroy() {
-            this.stopCheckingUpdate();
+            this.stopCheckingUpdate(); //关闭Socket连接
         }
     }
 </script>
@@ -665,6 +825,11 @@
                         width: rpx(80);
                         height: rpx(80);
                         border-radius: 50%;
+                        overflow: hidden;
+
+                        image {
+                            width: 100%;
+                        }
                     }
 
                     .message-content {
@@ -687,7 +852,7 @@
                     .avatar-container-left {
                         float: left;
                         margin-left: rpx(40);
-                        background-color: orange;
+                        //background-color: orange;
                     }
 
                     .message-content-left {
@@ -699,7 +864,7 @@
                     .avatar-container-right {
                         float: right;
                         margin-right: rpx(40);
-                        background-color: deepskyblue;
+                        //background-color: deepskyblue;
                     }
 
                     .message-content-right {

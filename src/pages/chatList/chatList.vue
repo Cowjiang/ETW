@@ -2,6 +2,10 @@
     <view>
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast"/>
+        <loading
+            ref="loading"
+            fullscreen
+            maskColor="#f6f6f6"></loading>
         <!-- 可滑动区域 -->
         <scroll-view
             class="chat-list-container"
@@ -15,6 +19,7 @@
             @refresherrestore="handleRefreshEnd"
             @scrolltolower="handleScrollToBottom">
             <view class="list-scroll-view">
+                <!-- 顶部按钮列表容器 -->
                 <view class="top-list-container">
                     <!-- 顶部通知按钮区域 -->
                     <view
@@ -101,7 +106,9 @@
                         @touchend="handleTouchEnd"
                         @touchcancel="handleTouchEnd">
                         <view class="avatar-container">
-                            <view class="avatar"></view>
+                            <view class="avatar">
+                                <image :src="message.senderAvatar" mode="widthFix"></image>
+                            </view>
                         </view>
                         <view class="content-container">
                             <view class="sender-name">
@@ -122,14 +129,15 @@
                             </view>
                         </view>
                     </view>
-                    <view v-if="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
+                    <view v-show="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
                         <text>下拉加载更多</text>
                     </view>
-                    <view v-if="loadingMore && chatMessages.length !== 0" class="load-more">
-                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                        <text>加载中</text>
+                    <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
+                        <loading ref="loadingMore"></loading>
+                        <!--<i class="fa fa-spinner fa-pulse fa-fw"></i>-->
+                        <!--<text>加载中</text>-->
                     </view>
-                    <view v-if="!existMore && chatMessages.length !== 0" class="load-more">
+                    <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
                         <text>没有更多了哦 ~</text>
                     </view>
                 </view>
@@ -141,12 +149,13 @@
 <script>
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
+    import {loading} from '../../components/loading/loading.vue';
     import {getMyChatList} from "../../common/js/api/models.js";
     import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
         components: {
-            toast, navigationBar
+            toast, navigationBar, loading
         },
         data() {
             return {
@@ -165,7 +174,7 @@
         methods: {
             /**
              * 查询当前用户的聊天记录列表
-             * @param {string|null} time 查询的时间戳，为空则查询第一页
+             * @param {null|String} time 查询的时间戳，为空则查询第一页
              */
             getChatList(time = null) {
                 let queryTime = time === null ? Date.now() : time;
@@ -176,7 +185,7 @@
                     },
                 })
                     .then(res => {
-                        console.log(res.data)
+                        console.log(res.data);
                         if (time === null) {
                             let recordsTemp = [];
                             for (const records of res.data.records) {
@@ -199,8 +208,8 @@
                             this._freshing = false;
                         }
                         else {
-                            for (const records of res.data.records) {
-                                if (records.id !== this.chatMessages[this.chatMessages.length - 2].messageId) {
+                            if (res.data.records.length !== 0) {
+                                for (const records of res.data.records) {
                                     this.chatMessages.push({
                                         senderName: records.friendInfo.username, //用户名称
                                         senderId: records.friendId, //用户ID
@@ -212,13 +221,18 @@
                                         isRead: records.isRead, //消息是否已读
                                         unreadCount: records.unread //当前对话消息未读数量
                                     })
-                                }
-                                else {
-                                    this.existMore = false;
-                                    break;
+                                    if (res.data.records.length < this.pageSize) {
+                                        this.existMore = false;
+                                    }
                                 }
                             }
+                            else {
+                                this.existMore = false;
+                            }
                             this.loadingMore = false;
+                        }
+                        if (this.$refs.loading.isLoading) {
+                            this.$refs.loading.stopLoading();
                         }
                         this.$forceUpdate();
                     })
@@ -226,6 +240,17 @@
                         console.log(err)
                         this.refresherTriggered = false;
                         this._freshing = false;
+                        this.utils.throttle(() => {
+                            this.$refs.toast.show({
+                                text: '网络异常',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }, 2500);
+                        if (this.$refs.loading.isLoading) {
+                            this.$refs.loading.stopLoading();
+                        }
+                        this.loadingMore = false;
                         this.$forceUpdate();
                     })
             },
@@ -236,10 +261,9 @@
             receiveNewMessage(data) {
                 console.log(data);
                 if (data.errorCode === 120) {
-                    let data = data.data;
-                    console.log(data)
+                    let newMessage = data.data;
                     let findIndex = this.chatMessages.findIndex(message => {
-                        return message.senderId === data.friendId
+                        return message.senderId === newMessage.friendId
                     });
                     if (findIndex !== -1) {
                         let messageTemp = this.chatMessages[findIndex];
@@ -248,12 +272,12 @@
                             senderName: messageTemp.senderName, //用户名称
                             senderId: messageTemp.senderId, //用户ID
                             senderAvatar: messageTemp.senderAvatar, //用户头像地址
-                            messageId: data.id, //消息ID
-                            content: data.content, //消息内容
-                            isPhoto: !data.isText, //是否为图片消息
-                            time: data.createdTime, //消息发送时间
-                            isRead: data.isRead, //消息是否已读
-                            unreadCount: messageTemp.unreadCount + 1 //当前对话消息未读数量
+                            messageId: newMessage.id, //消息ID
+                            content: newMessage.content, //消息内容
+                            isPhoto: !newMessage.isText, //是否为图片消息
+                            time: newMessage.createdTime, //消息发送时间
+                            isRead: newMessage.isRead, //消息是否已读
+                            unreadCount: messageTemp.unreadCount + 1 || 1 //当前对话消息未读数量
                         });
                     }
                     else {
@@ -274,13 +298,15 @@
             // 跳转聊天详情页
             toChatDetail(e) {
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
-                let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}`;
+                let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
+                this.chatMessages[targetId].isRead = true;
                 uni.redirectTo({
                     url: `/pages/chatDetail/chatDetail?${senderInfo}`,
                 })
             },
             // 监听长按事件
             handleLongPress(e) {
+                wx.vibrateShort();
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', '加入黑名单'],
@@ -316,6 +342,7 @@
             // 监听下拉刷新事件结束
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
+                // this.$refs.loading.stopLoading();
             },
             // 监听scroll-view滚动到底部
             handleScrollToBottom() {
@@ -328,6 +355,21 @@
             },
             // 开启Socket连接
             startCheckingUpdate() {
+                //从本地缓存加载聊天列表
+                uni.getStorage({
+                    key: 'chatList',
+                    success: res => {
+                        this.chatMessages = res.data;
+                    },
+                    fail: err => {
+                        console.log(err)
+                    },
+                    complete: res => {
+                        if (this.chatMessages.length === 0) {
+                            this.$refs.loading.startLoading();
+                        }
+                    }
+                });
                 this._freshing = false; //还原下拉刷新状态
                 setTimeout(() => {
                     this.refresherTriggered = true; //开启下拉刷新
@@ -358,20 +400,26 @@
             // 关闭Socket连接
             stopCheckingUpdate() {
                 uni.onSocketClose(res => {
-                    console.log('已关闭')
+                    console.log('已关闭Socket');
                 });
                 closeSocket()
                     .then(res => {
-                        this.$refs.toast.show({
-                            text: '已断开socket',
-                            type: 'success'
-                        })
+                        //存放聊天列表到本地缓存
+                        uni.setStorage({
+                            key: "chatList",
+                            data: this.chatMessages.slice(0, 14),
+                            success: res => {
+                            },
+                            fail: err => {
+                                console.error(err);
+                            }
+                        });
                     })
                     .catch(err => {
                         if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
                             return;
                         }
-                        console.error(err)
+                        console.error(err);
                     })
             },
         },
@@ -379,8 +427,8 @@
         filters: {
             /**
              * 格式化时间
-             * @param {string} time 传入的时间字符串
-             * @return {string} 格式化后的时间字符串
+             * @param {String} time 传入的时间字符串
+             * @return {String} 格式化后的时间字符串
              */
             formatTime(time) {
                 let messageDate = new Date(time);
@@ -410,8 +458,8 @@
             },
             /**
              * 格式化未读消息数
-             * @param {number} count 未读消息数
-             * @return {string|number} 返回格式化后的结果
+             * @param {Number} count 未读消息数
+             * @return {String|Number} 返回格式化后的结果
              */
             unreadCount(count) {
                 if (count > 99) {
@@ -420,8 +468,22 @@
                 else return count;
             }
         },
-        watch: {},
+        watch: {
+            loadingMore(nval, oval) {
+                if (nval && !oval && this.chatMessages.length !== 0) {
+                    this.$refs.loadingMore.startLoading({
+                        width: this.windowWidth,
+                        height: 54
+                    });
+                }
+                if (!nval && oval) {
+                    this.$refs.loadingMore.stopLoading();
+                }
+            }
+        },
         mounted() {
+        },
+        onLoad() {
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -429,8 +491,6 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
-        },
-        onLoad() {
         },
         onShow() {
             this.startCheckingUpdate();
@@ -545,7 +605,12 @@
                             width: rpx(90);
                             height: rpx(90);
                             border-radius: rpx(150);
-                            background-color: orange;
+                            //background-color: orange;
+                            overflow: hidden;
+
+                            image {
+                                width: 100%;
+                            }
                         }
                     }
 
@@ -614,12 +679,18 @@
                     width: 100%;
                     color: $uni-text-color-placeholder;
                     background-color: #fff;
-                    margin-top: rpx(50);
-                    padding-bottom: rpx(100);
+                    margin-top: rpx(30);
+                    padding-bottom: rpx(70);
 
                     text {
                         margin-left: rpx(10);
                     }
+                }
+
+                .loading-more {
+                    height: rpx(150);
+                    padding-bottom: 0;
+                    margin-top: 0;
                 }
             }
 

@@ -146,7 +146,8 @@ AmapUni.prototype.getWxLocation = function (a, b) {
 			platform: c.platform,
 			appname: b.key,
 			sdkversion: c.sdkversion,
-			logversion: c.logversion
+			logversion: c.logversion,
+            extensions: 'all'
 		};
 		a.querytypes && (e["types"] = a.querytypes), a.querykeywords && (e["keywords"] = a.querykeywords), uni.request({
 			url: "https://restapi.amap.com/v3/place/around",

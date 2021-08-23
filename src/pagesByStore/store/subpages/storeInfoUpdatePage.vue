@@ -201,9 +201,7 @@ export default {
               this.storeInfoForm.areaCode = data.adcode;
               this.storeInfoForm.longitude = data.longitude;
               this.storeInfoForm.latitude = data.latitude;
-              if (this.storeInfoForm.addressDetails === "") {
-                this.storeInfoForm.addressDetails = data.locationDetail;
-              }
+              this.storeInfoForm.addressDetails = data.locationDetail;
               if (this.storeInfoForm.phone === "") {
                 this.storeInfoForm.phone = data.locationPhone;
               }

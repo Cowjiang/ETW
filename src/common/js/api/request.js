@@ -52,6 +52,7 @@ export const apiResquest = (url, pramsObject) => {
       method: method,
       header: headerData,
       success: (res) => {
+        // console.log(res.data.errorCode)
         // console.log(queryData,method,headerData);
         console.log(`【${url}】请求响应：`, res);
         // 和后端约定的状态码
@@ -60,7 +61,8 @@ export const apiResquest = (url, pramsObject) => {
         if (errorCode === undefined) {
           reject(res);
           return
-        } else {
+        }
+        else {
           switch (errorCode) {
             case 200:
               if (res.header["Set-Cookie"] != undefined) {
@@ -70,17 +72,26 @@ export const apiResquest = (url, pramsObject) => {
               break;
             case 999:
               if (res.data.data !== '用户登录过期') {
+                if (res.data.errorMsg === '失败') {
+                  reject(res.data);
+                }
                 break;
               }
             case 3002:
               // 未登录
               console.log('该功能需要登录才能使用');
               let currentPage = utils.getCurrentPage();
-              uni.redirectTo({
-                url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-              });
-              reject(res)
-              break;
+              if (currentPage.curUrl === 'pages/login/login') {
+                reject(res);
+                break;
+              }
+              else {
+                uni.redirectTo({
+                  url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                });
+                reject(res);
+                break;
+              }
             default:
               break;
           }
