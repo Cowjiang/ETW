@@ -3,17 +3,17 @@
     <navigationBar ref="navigationBar"></navigationBar>
     <toast ref="toast"></toast>
     <u-form :model="applyForm" ref="uForm">
-      <u-form-item label-position="top" label="真实姓名">
+      <u-form-item label-position="top" label="真实姓名" maxlength="8">
         <u-input v-model="applyForm.realName" />
       </u-form-item>
       <u-form-item label-position="top" label="手机号码">
-        <u-input v-model="applyForm.phone" />
+        <u-input v-model="applyForm.phone" type="number" maxlength="11" />
       </u-form-item>
       <u-form-item label-position="top" label="营业执照">
         <uploadGroup
           ref="businessLicenseUpload"
           :maxImageCount="1"
-          uploadImageDir="businessLicense"
+          uploadImageDir="sotre/business-license"
           uploadId="businessLicense"
           @onImageUploaded="submitForm(arguments)"
         ></uploadGroup>
@@ -22,7 +22,7 @@
         <uploadGroup
           ref="idCardFrontUpload"
           :maxImageCount="1"
-          uploadImageDir="idCardFront"
+          uploadImageDir="sotre/idCard-front"
           uploadId="idCardFront"
           @onImageUploaded="submitForm(arguments)"
         ></uploadGroup>
@@ -31,7 +31,7 @@
         <uploadGroup
           ref="idCardBackUpload"
           :maxImageCount="1"
-          uploadImageDir="idCardBack"
+          uploadImageDir="sotre/idCard-back"
           uploadId="idCardBack"
           @onImageUploaded="submitForm(arguments)"
         ></uploadGroup>
@@ -40,7 +40,7 @@
         <uploadGroup
           ref="licenseUpload"
           :maxImageCount="1"
-          uploadImageDir="license"
+          uploadImageDir="sotre/license"
           uploadId="license"
           @onImageUploaded="submitForm(arguments)"
         ></uploadGroup>
@@ -59,12 +59,10 @@
 </template>
 
 <script>
-import upload from "../../../components/upload/upload.vue";
 import { Validator } from "@/common/js/validate/validate.js";
 import { postStoreArchives } from "@/common/js/api/models.js";
 
 export default {
-  components: { upload },
   data() {
     return {
       applyForm: {
@@ -83,6 +81,10 @@ export default {
     this.$refs.navigationBar.setNavigation({
       backgroundColor: "white",
       titleText: "店铺申请",
+    });
+    const eventChannel = this.getOpenerEventChannel();
+    eventChannel.on("acceptDataFromOpenerPage", (data) => {
+      console.log(data);
     });
   },
   methods: {
@@ -142,12 +144,7 @@ export default {
       applyForm[uploadId] = imageList[0];
       this.uploadedImageNumber += 1;
       if (this.uploadedImageNumber === 4) {
-        if (
-          applyForm.businessLicense &&
-          applyForm.idCardFront &&
-          applyForm.idCardBack &&
-          applyForm.license
-        ) {
+        if (!this.utils.isObjectSomeKeyEmpty(applyForm)) {
           postStoreArchives({
             queryData: this.applyForm,
           }).then((res) => {
@@ -176,19 +173,6 @@ export default {
 <style lang="scss" scoped>
 .contanier {
   padding: 0 32rpx;
-}
-.slot-btn {
-  width: 100rpx;
-  height: 100rpx;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgb(244, 245, 246);
-  border-radius: 10rpx;
-}
-
-.slot-btn__hover {
-  background-color: rgb(235, 236, 238);
 }
 .disabled-button {
   color: white !important;

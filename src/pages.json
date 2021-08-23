@@ -2,9 +2,39 @@
     "easycom": {
         "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
     },
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "demo",
+        "navigationBarBackgroundColor": "#F8F8F8",
+        "backgroundColor": "#F8F8F8"
+    },
     "pages": [
         {
+            "path": "pages/testPage/testPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "disableScroll": true
+            }
+        },
+        {
+            "path": "pages/trending/trending",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/chatList/chatList",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/amap/amap",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -36,13 +66,6 @@
             }
         },
         {
-            "path": "pages/trending/trending",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-        },
-        {
             "path": "pages/trending/subpages/trendPostPage",
             "style": {
                 "navigationBarTitleText": "",
@@ -59,18 +82,18 @@
             }
         },
         {
+            "path": "pages/trending/subpages/trendDetailCommentPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/home/subpages/upload-file",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false
-            }
-        },
-        {
-            "path": "pages/testPage/testPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "disableScroll": true
             }
         },
         {
@@ -88,10 +111,41 @@
             }
         }
     ],
-    "globalStyle": {
-        "navigationBarTextStyle": "black",
-        "navigationBarTitleText": "demo",
-        "navigationBarBackgroundColor": "#F8F8F8",
-        "backgroundColor": "#F8F8F8"
-    }
+    "subPackages": [
+        {
+            "root": "pagesByStore",
+            "pages": [
+                {
+                    "path": "store/subpages/storeInfoUpdatePage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "store/subpages/storeApplyPage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "dish/dishPostPage",
+                    "style": {
+                        "navigationStyle": "custom"
+                    }
+                }
+                // {
+                //     "path": "dish/dishPostPage",
+                //     "style": {
+                //         "navigationBarTitleText": "",
+                //         "enablePullDownRefresh": false,
+                //         "navigationStyle": "custom"
+                //     }
+                // }
+            ]
+        }
+    ]
 }

@@ -25,9 +25,6 @@
       @loadMore="loadTrendData(false)"
       @refresh="loadTrendData(true)"
     >
-      <!-- <button class="postButton" @click="toTrendFromPage">
-        <text>发布</text>
-      </button> -->
       <!-- 常访问博主列表 -->
       <!-- <avatarScroll :infoList="authorlist"></avatarScroll> -->
       <!-- 动态列表 -->

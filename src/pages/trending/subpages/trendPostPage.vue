@@ -151,17 +151,16 @@ export default {
      * @description: 前往选择地图页面
      */
     toMapPage() {
-      const _this = this;
       uni.navigateTo({
         url: "/pages/amap/amap",
         events: {
           // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
-          acceptDataFromOpenedPage: function (data) {
+          acceptDataFromOpenedPage: (data) => {
             if (data) {
-              _this.isShowTag = true;
-              _this.locationData = data;
-              _this.chosenTagName = data.locationName;
-              _this.isArrowByMap = false;
+              this.isShowTag = true;
+              this.locationData = data;
+              this.chosenTagName = data.locationName;
+              this.isArrowByMap = false;
             }
           },
         },

@@ -121,12 +121,13 @@ export default {
       const { currentPage, totalNumber, pageSize } = this;
       let totalPages = this.utils.getTotalPages(totalNumber, pageSize);
       if (currentPage < totalPages) {
+        this.isEnd = false;
         return "正在加载";
-      } else if (totalPages === 0) {
-        return "";
-      } else {
+      } else if (currentPage >= totalPages) {
         this.isEnd = true;
-        if (totalNumber > pageSize) {
+        if (totalPages === 0) {
+          return "";
+        } else {
           return "—没有更多内容了—";
         }
       }
