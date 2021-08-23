@@ -89,6 +89,7 @@
 
 <script>
 import { putStoreInfo } from "@/common/js/api/models.js";
+import Vue from "vue";
 export default {
   data() {
     return {
@@ -104,6 +105,14 @@ export default {
         weChatAccount: "", //微信联系方式
         longitude: "", //经度
         latitude: "", //纬度
+      },
+      storeMainForm: {
+        id: "",
+        likeNumber: "",
+        browseNumber: "",
+        score: "",
+        sales: "",
+        userId: "",
       },
       nextOpeningTimeInputValue: "", //下次外卖营业时间输入框的的值
       nextOpeningTimeTakeOutInputValue: "", //下次营业时间输入框的的值
@@ -129,6 +138,25 @@ export default {
       backgroundColor: "white",
       titleText: "编辑店铺信息",
     });
+    const eventChannel = this.getOpenerEventChannel();
+    eventChannel.on("acceptDataFromOpenerPage", (storeAllInfo) => {
+      for (const key in storeAllInfo) {
+        if (Object.hasOwnProperty.call(this.storeInfoForm, key)) {
+          this.storeInfoForm[key] = storeAllInfo[key];
+        } else {
+          this.storeMainForm[key] = storeAllInfo[key];
+        }
+      }
+      let f = Vue.filter("dateFilter");
+      this.nextOpeningTimeInputValue = f(
+        this.storeInfoForm.nextOpeningTime,
+        "yy-mm-dd hh:mm"
+      );
+      this.nextOpeningTimeTakeOutInputValue = f(
+        this.storeInfoForm.nextOpeningTimeTakeOut,
+        "yy-mm-dd hh:mm"
+      );
+    });
   },
   methods: {
     /**
@@ -137,7 +165,7 @@ export default {
      */
     confirmNextOpenTime(e) {
       console.log(e);
-      this.storeInfoForm.nextOpeningTime = e.timestamp;
+      this.storeInfoForm.nextOpeningTime = e.timestamp + "000";
       this.nextOpeningTimeInputValue = `${e.year}-${e.month}-${e.day} ${e.hour}:${e.minute}`;
     },
     /**
@@ -146,7 +174,7 @@ export default {
      */
     confirmTakeOutTime(e) {
       console.log(e);
-      this.storeInfoForm.nextOpeningTimeTakeOut = e.timestamp;
+      this.storeInfoForm.nextOpeningTimeTakeOut = e.timestamp + "000";
       this.nextOpeningTimeTakeOutInputValue = `${e.year}-${e.month}-${e.day} ${e.hour}:${e.minute}`;
     },
     /**
@@ -189,10 +217,10 @@ export default {
      */
     clickSubmitButton() {
       this.utils.debounce(() => {
-        const storeInfoForm = this.storeInfoForm;
-        if (!this.utils.isObjectSomeKeyEmpty(storeInfoForm)) {
+        if (!this.utils.isObjectSomeKeyEmpty(this.storeInfoForm)) {
           putStoreInfo({
-            queryData: storeInfoForm,
+            urlParam: this.storeMainForm.id,
+            queryData: this.storeInfoForm,
           })
             .then((res) => {
               if (res.success) {

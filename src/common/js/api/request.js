@@ -23,7 +23,7 @@ export const apiResquest = (url, pramsObject) => {
       headerData = { "Content-type": "application/x-www-form-urlencoded" };
       break;
     case "PUT":
-      headerData = {};
+      headerData = { "Content-type": "application/x-www-form-urlencoded" };
       break;
     case "DELETE":
       headerData = {};

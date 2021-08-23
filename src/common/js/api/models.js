@@ -92,3 +92,5 @@ export const postStoreArchives = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });
 export const putStoreInfo = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/user`, { method: "PUT", requestConfig });
+export const getMyStoreInfo = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/info`, { method: "GET", requestConfig });

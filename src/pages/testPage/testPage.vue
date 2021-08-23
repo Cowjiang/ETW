@@ -7,15 +7,65 @@
       店铺信息编辑
     </button>
     <button @click="toPage('/pagesByStore/dish/dishPostPage')">添加菜品</button>
+    <view class="bottom">
+      <view>我的店铺id：{{ storeAllInfo.id }} </view>
+      <view>我的店铺名：{{ storeAllInfo.name }} </view>
+      <view
+        >我的店铺下次营业时间：{{
+          storeAllInfo.nextOpeningTime | dateFilter("yy-mm-dd hh:mm")
+        }}
+      </view>
+      <view
+        >我的店铺下次外卖营业时间：{{
+          storeAllInfo.nextOpeningTimeTakeOut | dateFilter("yy-mm-dd hh:mm")
+        }}
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
+import { getMyStoreInfo } from "@/common/js/api/models.js";
+import Vue from "vue";
 export default {
   data() {
     return {
       testData: { test: "testdata" },
+      // storeInfoForm: {},
+      storeAllInfo: {
+        characteristic: "",
+        name: "",
+        nextOpeningTime: "",
+        nextOpeningTimeTakeOut: "",
+        perCost: "",
+        addressDetails: "",
+        phone: "",
+        weChatAccount: "",
+        areaCode: "",
+        longitude: "",
+        latitude: "",
+        //上面是可编辑的表单区域
+        id: "",
+        likeNumber: "",
+        browseNumber: "",
+        score: "",
+        sales: "",
+        userId: "",
+      },
     };
+  },
+  onLoad() {
+    getMyStoreInfo().then((res) => {
+      if (res.success) {
+        for (const key in res.data) {
+          if (Object.hasOwnProperty.call(this.storeAllInfo, key)) {
+            this.storeAllInfo[key] = res.data[key];
+          }
+        }
+        let f = Vue.filter("dateFilter");
+        console.log(f(this.storeAllInfo.nextOpeningTime, "yy-mm-dd hh:mm"));
+      }
+    });
   },
   methods: {
     toPage(url) {
@@ -27,7 +77,7 @@ export default {
         },
         success: (res) => {
           // 通过eventChannel向被打开页面传送数据
-          // res.eventChannel.emit("acceptDataFromOpenerPage", this.testData);
+          res.eventChannel.emit("acceptDataFromOpenerPage", this.storeAllInfo);
         },
       });
     },
@@ -36,4 +86,7 @@ export default {
 </script>
 
 <style>
+.bottom {
+  margin-top: 240rpx;
+}
 </style>
