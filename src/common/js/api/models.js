@@ -62,6 +62,20 @@ export const getAddress = (requestConfig) =>
 export const deleteAddressBook = (requestConfig) =>
     apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 
+//地区查询相关
+//获取省份
+export const getProvince = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/area/province`, { method: "GET", requestConfig });
+//获取城市
+export const getCity = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city`, { method: "GET", requestConfig });
+//获取县级(区/县)
+export const getArea = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area`, { method: "GET", requestConfig });
+//获取乡级(乡镇/街)
+export const getTown = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area/${requestConfig.urlParam.townId}/town`, { method: "GET", requestConfig });
+
 //动态相关
 //获取目录上传签名
 export const getUploadSignature = (requestConfig) =>
