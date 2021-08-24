@@ -1,6 +1,6 @@
 <template>
     <view>
-        <navigationBar ref="navigationBar" class="navigation-bar"/>
+        <navigationBar ref="navigationBar"/>
         <toast ref="toast"/>
         <loading
             ref="loading"
@@ -112,7 +112,12 @@
                         </view>
                         <view class="content-container">
                             <view class="sender-name">
-                                {{ message.senderName }}
+                                <view class="name">
+                                    {{ message.senderName }}
+                                </view>
+                                <view class="blacklist-user">
+                                    黑名单
+                                </view>
                             </view>
                             <view class="message-content">
                                 {{ message.isPhoto ? '[图片]' : message.content }}
@@ -134,8 +139,6 @@
                     </view>
                     <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
                         <loading ref="loadingMore"></loading>
-                        <!--<i class="fa fa-spinner fa-pulse fa-fw"></i>-->
-                        <!--<text>加载中</text>-->
                     </view>
                     <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
                         <text>没有更多了哦 ~</text>
@@ -150,7 +153,7 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    import {getMyChatList} from "../../common/js/api/models.js";
+    import {getBlockList, getMyChatList} from "../../common/js/api/models.js";
     import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
@@ -362,7 +365,7 @@
                         this.chatMessages = res.data;
                     },
                     fail: err => {
-                        console.log(err)
+                        // console.log(err)
                     },
                     complete: res => {
                         if (this.chatMessages.length === 0) {
@@ -389,8 +392,8 @@
                             })
                     },
                     fail: err => {
-                        console.log(err);
-                        let currentPage = utils.getCurrentPage();
+                        // console.log(err);
+                        let currentPage = this.utils.getCurrentPage();
                         uni.redirectTo({
                             url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
                         });
@@ -498,6 +501,10 @@
                 titleText: '消息',
                 backgroundColor: '#f6f6f6'
             });
+            // getBlockList({})
+            //     .then(res => {
+            //         console.log(res)
+            //     })
         },
         onHide() {
             this.stopCheckingUpdate();
@@ -622,14 +629,35 @@
                         pointer-events: none;
 
                         .sender-name {
-                            font-size: rpx(32);
-                            line-height: rpx(50);
-                            color: #333;
+                            display: flex;
+                            flex-direction: row;
+
+                            .name {
+                                font-size: rpx(32);
+                                line-height: rpx(50);
+                                color: #333;
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                                max-width: calc(100% - 110rpx);
+                            }
+
+                            .blacklist-user {
+                                position: relative;
+                                top: rpx(12);
+                                width: fit-content;
+                                height: rpx(28);
+                                margin-left: rpx(15);
+                                padding: 0 rpx(10);
+                                font-size: rpx(20);
+                                line-height: rpx(28);
+                                color: #fff;
+                                border-radius: rpx(30);
+                                background-color: #f4756b;
+                            }
                         }
 
                         .message-content {
                             overflow: hidden;
-                            text-overflow: ellipsis;
                             font-size: rpx(26);
                             line-height: rpx(50);
                             color: #999999;

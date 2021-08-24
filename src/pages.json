@@ -10,15 +10,7 @@
     },
     "pages": [
         {
-            "path": "pages/testPage/testPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "disableScroll": true
-            }
-        },
-        {
-            "path": "pages/amap/amap",
+            "path": "pages/addressBook/addressBook",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -32,6 +24,22 @@
                 "enablePullDownRefresh": false,
                 "disableScroll": true,
                 "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/amap/amap",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/testPage/testPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "disableScroll": true
             }
         },
         {

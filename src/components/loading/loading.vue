@@ -22,17 +22,22 @@
 </template>
 
 <script>
+    /**
+     * @description loading组件
+     * @property {String} parentClass 父节点的样式名，当需要局部显示Loading时需设置该属性，亦可使用startLoading()方法传入参数手动设置
+     * @property {Boolean} fullscreen 是否全屏显示Loading，默认为false，优先度排行：startLoading()自定义参数 > fullscreen > parentClass
+     * @property {Boolean} showMask 是否显示Loading背景，默认为true
+     * @property {String} maskColor Loading背景颜色，默认为白色，仅当showMask为true时生效
+     * @property {String} loadingColor Loading主体颜色，默认为'#f4756b'
+     * @property {Boolean} allowTouch 是否允许触摸穿透遮罩层，默认为false
+     * @property {Boolean} isShowRepeatedError 是否抛出重复开启/关闭错误，默认为false
+     * @example <loading parentClass="parent" maskColor="#111111" showMask loadingColor="#cccccc" allowTouch fullscreen isShowRepeatedError></loading>
+     * @method startLoading(null|Object) 开始Loading动画
+     * @method stopLoading() 停止Loading动画
+     */
     export default {
         name: "loading",
         props: {
-            /**
-             * @property {String} parentClass 父节点的样式名，当需要局部显示Loading时需设置该属性，亦可使用startLoading()方法传入参数手动设置
-             * @property {Boolean} fullscreen 是否全屏显示Loading，默认为false，优先度排行：startLoading()自定义参数 > fullscreen > parentClass
-             * @property {Boolean} showMask 是否显示Loading背景，默认为true
-             * @property {String} maskColor Loading背景颜色，默认为白色，仅当showMask为true时生效
-             * @property {String} loadingColor Loading主体颜色，默认为'#f4756b'
-             * @property {Boolean} allowTouch 是否允许触摸穿透遮罩层，默认为false
-             */
             parentClass: {
                 type: String,
                 default: '',
@@ -56,6 +61,10 @@
             allowTouch: {
                 type: Boolean,
                 default: false,
+            },
+            isShowRepeatedError: {
+                type: Boolean,
+                default: false
             }
         },
         data() {
@@ -76,8 +85,9 @@
         methods: {
             /**
              * 开始Loading动画
-             * @param {null|Object} positionOptions 手动配置的位置尺寸信息，为空时必须设置组件属性fullscreen或parentClass
+             * @param {null|Object} positionOptions 手动配置的位置尺寸信息，参数可选，为空对象时必须设置组件属性fullscreen或parentClass
              * @return {Promise<Boolean>} 以Promise形式返回执行情况
+             * @example startLoading({width=100,height=100,top=0,left=0})
              */
             startLoading(positionOptions = null) {
                 return new Promise((resolve, reject) => {
@@ -86,6 +96,7 @@
                         this.positionConfig.height = positionOptions.height || 0;
                         this.positionConfig.top = positionOptions.top || 0;
                         this.positionConfig.left = positionOptions.left || 0;
+                        this.isShowRepeatedError = positionOptions.isShowRepeatedError || false;
                         if (!this.isLoading) {
                             this.isLoading = true;
                             this.$forceUpdate();
@@ -94,8 +105,14 @@
                         }
                         else {
                             //loading已在运行，重复开始loading
-                            reject('Loading Error: Cannot start loading because the load animation is already running.');
-                            return false;
+                            if (this.isShowRepeatedError) {
+                                reject('Loading Error: Cannot start loading because the load animation is already running.');
+                                return true;
+                            }
+                            else {
+                                resolve();
+                                return false;
+                            }
                         }
                     }
                     else {
@@ -113,8 +130,14 @@
                                 }
                                 else {
                                     //loading已在运行，重复开始loading
-                                    reject('Loading Error: Cannot start loading because the load animation is already running.');
-                                    return false;
+                                    if (this.isShowRepeatedError) {
+                                        reject('Loading Error: Cannot start loading because the load animation is already running.');
+                                        return true;
+                                    }
+                                    else {
+                                        resolve();
+                                        return false;
+                                    }
                                 }
                             }
                         }
@@ -150,8 +173,14 @@
                                                     }
                                                     else {
                                                         //loading已在运行，重复开始loading
-                                                        reject('Loading Error: Cannot start loading because the load animation is already running.');
-                                                        return false;
+                                                        if (this.isShowRepeatedError) {
+                                                            reject('Loading Error: Cannot start loading because the load animation is already running.');
+                                                            return true;
+                                                        }
+                                                        else {
+                                                            resolve();
+                                                            return false;
+                                                        }
                                                     }
                                                 } catch (e) {
                                                     console.error('Loading Error:', e);
@@ -179,6 +208,7 @@
             /**
              * 开始Loading动画
              * @return {Promise<Boolean>} 以Promise形式返回执行情况
+             * @example stopLoading()
              */
             stopLoading() {
                 return new Promise((resolve, reject) => {
@@ -190,8 +220,14 @@
                     }
                     else {
                         //loading未在运行，无法停止loading
-                        reject('Loading Error: Cannot stop loading because the loading animation is not running.');
-                        return false;
+                        if (this.isShowRepeatedError) {
+                            reject('Loading Error: Cannot stop loading because the loading animation is not running.');
+                            return true;
+                        }
+                        else {
+                            resolve();
+                            return false;
+                        }
                     }
                 })
             }

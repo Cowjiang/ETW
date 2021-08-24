@@ -1,17 +1,26 @@
 <template>
     <view>
-        <navigationBar ref="navigationBar" class="navigation-bar"/>
+        <navigationBar ref="navigationBar"/>
         <toast ref="toast" class="toast"/>
-
+        <!-- 私信聊天页面容器 -->
         <view
             class="chat-container"
             :style="{height: `${windowHeight - navigationHeight}px`}">
             <!-- 顶部功能按钮区域 -->
             <view
                 class="top-btn-area"
-                :style="{top: `${navigationHeight}px`}">
+                :style="{top: `${navigationHeight}px`}"
+                v-if="!isBlocked && isReadyToShow">
                 <view>关注TA</view>
-                <view @click="stopCheckingUpdate">加入黑名单</view>
+                <view @click="handleBlockBtnClick">加入黑名单</view>
+            </view>
+            <view
+                class="top-btn-area"
+                :style="{height: `80rpx`}"
+                v-if="isBlocked && isReadyToShow">
+                <view class="delete-blacklist" @click="handleBlockBtnClick">
+                    你已屏蔽该用户，点此移出黑名单
+                </view>
             </view>
             <!-- 聊天消息区域 -->
             <view
@@ -25,6 +34,10 @@
                     :parentClass="'message-area'"/>
                 <scroll-view
                     class="message-scroll-view"
+                    :style="{
+                        top: `${isBlocked ? '80rpx' : '100rpx'}`,
+                        height: `${isBlocked ? 'calc(100% - 80rpx)' : 'calc(100% - 100rpx)'}`
+                    }"
                     ref="scrollView"
                     :scroll-y="true"
                     @scroll="handleScroll"
@@ -93,12 +106,20 @@
             </view>
             <!-- 底部输入区域 -->
             <view
+                class="block-mask"
+                v-if="isBlocked">
+                你已屏蔽该用户
+            </view>
+            <view
                 class="input-area"
                 :style="{transform: `translateY(-${keyboardHeight}px)`}">
                 <!-- 输入框左侧按钮容器 -->
                 <view
                     class="more-btn-container"
-                    :style="{transform: `translateX(${inputFocusStatus ? '-120': '0'}rpx)`}">
+                    :style="{
+                        transform: `translateX(${inputFocusStatus ? '-120': '0'}rpx)`,
+                        opacity: `${isBlocked ? 0.7 : 1}`
+                    }">
                     <i
                         class="fa fa-picture-o"
                         aria-hidden="true"
@@ -207,6 +228,7 @@
                 pageSize: 15, //每次请求获取聊天记录的单页数据总数
                 existMore: true, //是否存在更多历史消息
                 isReadyToShow: false, //是否加载消息记录完毕
+                isBlocked: false, //是否屏蔽该用户（黑名单）
             }
         },
         methods: {
@@ -222,7 +244,6 @@
                 uni.getStorage({
                     key: 'userInfo',
                     success: res => {
-                        console.log(res)
                         this.myInfo.userId = res.data.userId;
                         this.myInfo.username = res.data.username;
                         this.myInfo.avgPath = res.data.avgPath;
@@ -384,6 +405,15 @@
                                     direction: 'top'
                                 });
                             }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            wx.hideLoading();
+                            this.$refs.toast.show({
+                                text: '发送失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
                         })
                 }
                 else {
@@ -597,6 +627,15 @@
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
             },
+            handleBlockBtnClick() {
+                this.isReadyToShow = false;
+                this.rawInputValue = '';
+                setTimeout(() => {
+                    this.isBlocked = !this.isBlocked;
+                    this.isReadyToShow = true;
+                }, 1000);
+                this.$forceUpdate();
+            },
             // 重定向至聊天列表页
             redirectToChatList() {
                 uni.redirectTo({
@@ -621,7 +660,6 @@
                         connectSocket(res.data.userId)
                             .then(res => {
                                 console.log(res);
-
                                 // this.$refs.toast.show({
                                 //     text: '网络异常',
                                 //     type: 'error',
@@ -708,6 +746,14 @@
                 this.scrollToViewId = `scrollBottomView`; //将scroll-view移动到底部
                 // this.scrollToViewId = `message${nval.length - 1}`;
                 this.$forceUpdate();
+            },
+            isReadyToShow(nval, oval) {
+                if (!nval && oval) {
+                    this.$refs.loading.startLoading();
+                }
+                else if (nval && !oval) {
+                    this.$refs.loading.stopLoading();
+                }
             }
         },
         mounted() {
@@ -767,15 +813,15 @@
         .top-btn-area {
             display: flex;
             width: 100%;
-            height: rpx(100);
+            height: fit-content;
             position: fixed;
-            background-color: #fff;
             z-index: 99;
+            background-color: #fff;
 
             view {
                 width: 100%;
                 height: rpx(70);
-                margin: rpx(15) rpx(40) rpx(30);
+                margin: rpx(15) rpx(40);
                 text-align: center;
                 font-size: rpx(28);
                 line-height: rpx(70);
@@ -790,6 +836,16 @@
             view:nth-child(2) {
                 margin-left: rpx(10);
             }
+
+            .delete-blacklist {
+                margin-left: rpx(60) !important;
+                margin-right: rpx(60) !important;
+                //background-color: #f4756b;
+                background-color: #fff;
+                font-size: rpx(28);
+                line-height: rpx(50);
+                color: #f4756b;
+            }
         }
 
         .message-area {
@@ -801,8 +857,8 @@
             .message-scroll-view {
                 position: relative;
                 width: 100%;
-                height: calc(100% - 120rpx);
-                top: rpx(120);
+                height: calc(100% - 80rpx);
+                top: rpx(80);
 
                 .message-container {
                     width: 100%;
@@ -880,6 +936,21 @@
                     margin-top: rpx(30);
                 }
             }
+        }
+
+        .block-mask {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: rpx(120);
+            padding-left: rpx(85);
+            z-index: 2;
+            font-size: rpx(30);
+            text-align: center;
+            line-height: rpx(120);
+            color: #f4756b;
+            //background-color: rgba(255, 255, 255, 0.7);
         }
 
         .input-area {

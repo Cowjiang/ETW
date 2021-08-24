@@ -18,8 +18,7 @@
                 animationDuration: `${item.animationDuration}ms`,
                 marginTop: `${item.marginTop}rpx`,
                 transitionDuration: `${item.marginTransitionDuration}ms`,
-            }"
-        >
+            }">
             <text
                 class="fa fa-lg fa-check-circle"
                 v-if="item.type === 'success'"
@@ -40,6 +39,11 @@
 </template>
 
 <script>
+    /**
+     * @description 消息提醒组件
+     * @example <toast></toast>
+     * @method show(Object) 显示新消息
+     */
     export default {
         name: "toast",
         data() {
@@ -54,7 +58,8 @@
         methods: {
             /**
              * 显示新消息
-             * @param {object} options 消息的选项设置
+             * @param {Object} options 消息的选项设置，必须设置：type、text，可选设置：showDuration、direction、animationDuration，具体见config变量说明
+             * @example show({type: 'success', text: '成功', ...})
              */
             show(options) {
                 let config = {

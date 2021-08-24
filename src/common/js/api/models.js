@@ -37,6 +37,30 @@ export const getUser = (requestConfig) =>
 //登出
 export const logout = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/logout`, { method: "GET", requestConfig });
+//获取黑名单
+export const getBlockList = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/block-list`, { method: "GET", requestConfig });
+//添加到黑名单
+export const addBlockList = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+//从黑名单中移除
+export const deleteBlockList = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+//获取我的地址簿
+export const getAddressBook = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+//添加地址到地址簿
+export const addAddressBook = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+//修改地址簿中的地址
+export const updateAddressBook = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "PUT", requestConfig });
+//获取一个地址簿中的地址
+export const getAddress = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+//删除地址簿中的地址
+export const deleteAddressBook = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 
 //动态相关
 //获取目录上传签名
@@ -87,6 +111,8 @@ export const getUserToken = (requestConfig) =>
 
 
 //店铺相关
+
+
 //店铺申请
 export const postStoreArchives = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });
