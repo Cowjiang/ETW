@@ -1,4 +1,5 @@
 <template>
+    <!-- u-popup弹出框 -->
     <u-popup
         :maskCloseAble="maskCloseAble"
         mode="bottom"
@@ -7,6 +8,7 @@
         length="auto"
         :safeAreaInsetBottom="safeAreaInsetBottom"
         @close="close">
+        <!-- 标题栏区域 -->
         <view
             class="u-picker-header"
             @touchmove.stop.prevent="">
@@ -27,6 +29,7 @@
                 {{ confirmText }}
             </view>
         </view>
+        <!-- 热门城市 -->
         <view
             class="popular-city"
             v-if="showPopularCity">
@@ -43,6 +46,7 @@
             </view>
             <view class="title">选择地区</view>
         </view>
+        <!-- 地区选择器 -->
         <view class="u-datetime-picker">
             <view
                 class="u-picker-body"
