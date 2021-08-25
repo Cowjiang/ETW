@@ -216,6 +216,7 @@
                                         `${this.currentLongitude},${this.currentLatitude}`
                                     ); //获取当前位置信息
                                 }, 3000);
+                                wx.offLocationChange();
                                 wx.stopLocationUpdate();
                                 this.$forceUpdate();
                             });
@@ -285,10 +286,8 @@
                     else {
                         //获取当前位置的附近信息（暂无用到，后续可删）
                         this.amap.getRegeo({
+                            location: location,
                             success: (data) => {
-                                if (data !== null) {
-                                    this.currentCity = data[0].regeocodeData.addressComponent.city;
-                                }
                                 resolve(data);
                             },
                             fail: (error) => {
@@ -338,20 +337,12 @@
                 this.addressTips[index].selected = true;
                 this.isShowConfirmBtn = true;
                 let selLatitude, selLongitude;
-                if (
-                    this.addressTips[index].location !== null &&
-                    this.addressTips[index].location !== undefined
-                ) {
+                if (this.addressTips[index].location !== null && this.addressTips[index].location !== undefined) {
                     selLatitude = parseFloat(
-                        this.addressTips[index].location.substring(
-                            this.addressTips[index].location.indexOf(",") + 1
-                        )
+                        this.addressTips[index].location.substring(this.addressTips[index].location.indexOf(",") + 1)
                     );
                     selLongitude = parseFloat(
-                        this.addressTips[index].location.substring(
-                            0,
-                            this.addressTips[index].location.indexOf(",")
-                        )
+                        this.addressTips[index].location.substring(0, this.addressTips[index].location.indexOf(","))
                     );
                 }
                 else {
@@ -370,57 +361,6 @@
                 this.addressTips.forEach((add) => {
                     add.selected = false;
                 });
-            },
-            // 取消按钮点击事件
-            handleCancel() {
-                uni.navigateBack();
-            },
-            // 确定按钮点击事件
-            handleConfirm() {
-                let resultDetails = {};
-                if (this.currentSelect >= 0) {
-                    //结果列表有已选择的地点
-                    resultDetails = this.addressTipsDetail[this.currentSelect];
-                    if (this.markers.length !== 0) {
-                        //地图标记数组不为空
-                        resultDetails.location = this.markers[0];
-                    }
-                    else {
-                        resultDetails.location = {
-                            latitude: this.currentLatitude,
-                            longitude: this.currentLongitude,
-                        };
-                    }
-                }
-                else {
-                    //结果列表无已选择的点（用户点击地图选点）
-                    if (this.addressTipsDetail.length !== 0) {
-                        //结果列表不为空
-                        resultDetails = this.addressTipsDetail[0];
-                        resultDetails.location = {
-                            latitude: this.currentLatitude,
-                            longitude: this.currentLongitude,
-                        };
-                    }
-                    else {
-                        //结果列表为空
-                    }
-                }
-                const eventChannel = this.getOpenerEventChannel();
-                eventChannel.emit("acceptDataFromOpenedPage", {
-                    longitude: resultDetails.location.longitude,
-                    latitude: resultDetails.location.latitude,
-                    adcode: resultDetails.adcode,
-                    locationName: resultDetails.name,
-                    locationDetail:
-                        resultDetails.pname +
-                        resultDetails.cityname +
-                        resultDetails.adname +
-                        resultDetails.address,
-                    locationPhone: resultDetails.tel.length === 0 ? "" : resultDetails.tel,
-                    resultDetails: resultDetails
-                });
-                uni.navigateBack();
             },
             // 用户点击搜索区域
             showSearch() {
@@ -488,6 +428,71 @@
                     });
                 }
             },
+            // 取消按钮点击事件
+            handleCancel() {
+                uni.navigateBack();
+            },
+            // 确定按钮点击事件
+            handleConfirm() {
+                let resultDetails = {};
+                if (this.currentSelect >= 0) {
+                    //结果列表有已选择的地点
+                    if (this.searchRawInput !== "") {
+                        //当前处于搜索状态
+                        resultDetails = this.addressTips[this.currentSelect];
+                        resultDetails.location = this.markers[0];
+                    }
+                    else {
+                        //当前未处于搜索状态
+                        resultDetails = this.addressTipsDetail[this.currentSelect];
+                        if (this.markers.length !== 0) {
+                            //地图标记数组不为空
+                            resultDetails.location = this.markers[0];
+                        }
+                        else {
+                            //地图标记数组为空
+                            resultDetails.location = {
+                                latitude: this.currentLatitude,
+                                longitude: this.currentLongitude,
+                            };
+                        }
+                    }
+                }
+                else {
+                    //结果列表无已选择的点（用户点击地图选点）
+                    if (this.addressTipsDetail.length !== 0) {
+                        //结果列表不为空
+                        resultDetails = this.addressTipsDetail[0];
+                        resultDetails.location = {
+                            latitude: this.currentLatitude,
+                            longitude: this.currentLongitude,
+                        };
+                    }
+                    else {
+                        //结果列表为空
+                    }
+                }
+                try {
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.emit("acceptDataFromOpenedPage", {
+                        // longitude: resultDetails.location.longitude,
+                        // latitude: resultDetails.location.latitude,
+                        // adcode: resultDetails.adcode,
+                        // locationName: resultDetails.name,
+                        // locationDetail:
+                        //     resultDetails.pname +
+                        //     resultDetails.cityname +
+                        //     resultDetails.adname +
+                        //     resultDetails.address,
+                        // locationPhone: resultDetails.tel.length === 0 ? "" : resultDetails.tel,
+                        resultDetails: resultDetails
+                    });
+                    uni.navigateBack();
+                }
+                catch (e) {
+                    console.log(resultDetails);
+                }
+            },
         },
         onPageScroll(res) {
             if (res.scrollTop !== 0) {
@@ -509,45 +514,50 @@
              */
             distance() {
                 return (la1, lo1, newLocation, newLa, newLo) => {
-                    let la2, lo2;
-                    if (newLocation !== null && newLocation !== undefined) {
-                        la2 = parseFloat(newLocation.substring(newLocation.indexOf(",") + 1));
-                        lo2 = parseFloat(newLocation.substring(0, newLocation.indexOf(",")));
+                    try {
+                        let la2, lo2;
+                        if (newLocation !== null && newLocation !== undefined) {
+                            la2 = parseFloat(newLocation.substring(newLocation.indexOf(",") + 1));
+                            lo2 = parseFloat(newLocation.substring(0, newLocation.indexOf(",")));
+                        }
+                        else {
+                            la2 = newLa;
+                            lo2 = newLo;
+                        }
+                        let La1 = (la1 * Math.PI) / 180.0;
+                        let La2 = (la2 * Math.PI) / 180.0;
+                        let La3 = La1 - La2;
+                        let Lb3 = (lo1 * Math.PI) / 180.0 - (lo2 * Math.PI) / 180.0;
+                        let s =
+                            2 *
+                            Math.asin(
+                                Math.sqrt(
+                                    Math.pow(Math.sin(La3 / 2), 2) +
+                                    Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)
+                                )
+                            );
+                        s = s * 6378.137; //地球半径
+                        s = Math.round(s * 10000) / 10000;
+                        let returnValue = ""; //返回运算后的结果字符串
+                        switch (true) {
+                            case (s * 1000).toFixed(0) <= 100:
+                                returnValue = "100m内";
+                                break;
+                            case (s * 1000).toFixed(0) > 100 && (s * 1000).toFixed(0) < 1000:
+                                returnValue = `${(s * 1000).toFixed(0)}m`;
+                                break;
+                            case (s * 1000).toFixed(0) >= 1000 && (s * 1000).toFixed(0) < 100000:
+                                returnValue = `${s.toFixed(1)}km`;
+                                break;
+                            case (s * 1000).toFixed(0) >= 100000:
+                                returnValue = "大于100km";
+                                break;
+                        }
+                        return returnValue;
                     }
-                    else {
-                        la2 = newLa;
-                        lo2 = newLo;
+                    catch (e) {
+                        // console.log(e)
                     }
-                    let La1 = (la1 * Math.PI) / 180.0;
-                    let La2 = (la2 * Math.PI) / 180.0;
-                    let La3 = La1 - La2;
-                    let Lb3 = (lo1 * Math.PI) / 180.0 - (lo2 * Math.PI) / 180.0;
-                    let s =
-                        2 *
-                        Math.asin(
-                            Math.sqrt(
-                                Math.pow(Math.sin(La3 / 2), 2) +
-                                Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)
-                            )
-                        );
-                    s = s * 6378.137; //地球半径
-                    s = Math.round(s * 10000) / 10000;
-                    let returnValue = ""; //返回运算后的结果字符串
-                    switch (true) {
-                        case (s * 1000).toFixed(0) <= 100:
-                            returnValue = "100m内";
-                            break;
-                        case (s * 1000).toFixed(0) > 100 && (s * 1000).toFixed(0) < 1000:
-                            returnValue = `${(s * 1000).toFixed(0)}m`;
-                            break;
-                        case (s * 1000).toFixed(0) >= 1000 && (s * 1000).toFixed(0) < 100000:
-                            returnValue = `${s.toFixed(1)}km`;
-                            break;
-                        case (s * 1000).toFixed(0) >= 100000:
-                            returnValue = "大于100km";
-                            break;
-                    }
-                    return returnValue;
                 };
             },
         },
@@ -609,20 +619,19 @@
         mounted() {
         },
         onLoad() {
+            this.utils.resetThrottle();
             this.$refs.loading.startLoading();
         },
         onShow() {
-            this.$nextTick(() => {
-                this.onLoadReady = false;
-                this.getCurrentPosition(); //获取当前位置
-            });
+            this.onLoadReady = false;
+            this.getCurrentPosition(); //获取当前位置
             this.mapContext = wx.createMapContext("mapContext"); //初始化地图对象
             this.$forceUpdate();
         },
         onHide() {
             wx.stopLocationUpdate({
                 fail: (e) => {
-                    // console.log(e)
+                    console.log(e)
                 },
             });
         },

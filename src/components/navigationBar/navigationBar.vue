@@ -154,7 +154,7 @@
                         break;
                     case 2:
                         wx.navigateTo({
-                            url: "../home/home",
+                            url: "/pages/home/home",
                         }); //跳转首页
                         break;
                 }

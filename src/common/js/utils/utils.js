@@ -3,7 +3,6 @@ export class Utils {
         this.throttleBackTime = 0;
         this.throttleGapTime = 0;
         this.throttleEnterTime = 0;
-        this.throttleFn = null;
         this.debounceTimer;
         this.debounceGapTime = 0;
     }
@@ -17,15 +16,18 @@ export class Utils {
         this.throttleGapTime = interval || 500;
         (() => {
             this.throttleBackTime = new Date();
-            if (String(fn) !== String(this.throttleFn)) {
-                this.throttleEnterTime = 0;
-                if (this.throttleBackTime - this.throttleEnterTime > this.throttleGapTime) {
-                    fn.call(this, arguments);
-                    this.throttleEnterTime = this.throttleBackTime;
-                    this.throttleFn = fn;
-                }
+            if (this.throttleBackTime - this.throttleEnterTime > this.throttleGapTime) {
+                fn.call(this, arguments);
+                this.throttleEnterTime = this.throttleBackTime;
             }
         })();
+    }
+
+    // 重置节流函数（仅供特殊情况使用）
+    resetThrottle() {
+        this.throttleBackTime = 0;
+        this.throttleGapTime = 0;
+        this.throttleEnterTime = 0;
     }
 
     /**

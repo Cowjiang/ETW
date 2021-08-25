@@ -3,8 +3,133 @@
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast"/>
         <loading ref="loading" fullscreen></loading>
+        <selectArea
+            ref="selectArea"
+            maskCloseAble
+            v-model="openPicker"
+            :defaultAreaCode="addressAdCode"
+            @confirm="pickerConfirm"></selectArea>
         <view class="address-container">
-            <selectArea ref="selectArea" v-model="show" @cancel="pickerConfirm" @confirm="pickerConfirm"></selectArea>
+            <image
+                src="../../../static/images/background/background@loginScreen.png"
+                class="bg-image"
+            ></image>
+            <view class="title-container">
+                <view class="title-text">
+                    {{ isNewAddress ? '新增地址' : '编辑地址' }}
+                </view>
+            </view>
+            <view class="address-container">
+                <view class="address-form">
+                    <view class="name-container">
+                        <view class="name-left">
+                            <view>联系人</view>
+                            <view></view>
+                        </view>
+                        <view class="name-right">
+                            <view class="name-input-container">
+                                <input
+                                    type="text"
+                                    data-name="contactName"
+                                    v-model="contactName">
+                                <view
+                                    class="name-placeholder"
+                                    v-show="contactName === ''">收货人姓名
+                                </view>
+                            </view>
+                            <view class="gender-container">
+                                <view
+                                    data-name="gentleman"
+                                    class="gender-btn gender-btn--default"
+                                    :class="contactGender === 1 ? 'gender-btn--selected' : ''"
+                                    @click="handleGenderClick">先生
+                                </view>
+                                <view
+                                    data-name="lady"
+                                    class="gender-btn gender-btn--default"
+                                    :class="contactGender === 2 ? 'gender-btn--selected' : ''"
+                                    @click="handleGenderClick">女士
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="phone-container">
+                        <view class="phone-left">
+                            <view>电话</view>
+                        </view>
+                        <view class="phone-right">
+                            <input
+                                type="number"
+                                data-name="contactPhone"
+                                v-model="contactPhone"
+                                maxlength="11">
+                            <view
+                                class="phone-placeholder"
+                                v-show="contactPhone === ''">联系手机号
+                            </view>
+                        </view>
+                    </view>
+                    <view class="area-container">
+                        <view class="area-left">
+                            <view>地区</view>
+                        </view>
+                        <view class="area-right">
+                            <view
+                                class="input"
+                                @click="handleAreaClick">
+                                {{ addressArea[0] || '' }} {{ addressArea[1] || '' }} {{ addressArea[2] || '' }}
+                            </view>
+                            <view
+                                class="area-placeholder"
+                                :style="{opacity: `${addressArea === null ? 1 : 0 }`}">
+                                选择地区
+                            </view>
+                            <view
+                                class="picker-btn"
+                                @click="handleAreaClick">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="detail-container">
+                        <view class="detail-left">
+                            <view>门牌号</view>
+                        </view>
+                        <view class="detail-right">
+                            <input
+                                type="text"
+                                data-name="addressDetail"
+                                v-model="addressDetail">
+                            <view
+                                class="detail-placeholder"
+                                :style="{opacity: `${addressDetail === '' ? 1 :0}`}">
+                                例：中山五路98号301室
+                            </view>
+                            <view
+                                class="map-btn"
+                                @click="handleMapBtnClick">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="set-default-container">
+                        <u-checkbox
+                            v-model="isDefaultAddress"
+                            name="defaultAddress"
+                            shape="circle"
+                            active-color="#f4756b"
+                            size="28"
+                            label-size="28"
+                        >设为默认地址
+                        </u-checkbox>
+                    </view>
+                </view>
+                <view
+                    class="confirm-btn"
+                    @click="handleConfirm">
+                    保 存
+                </view>
+            </view>
         </view>
     </view>
 </template>
@@ -13,8 +138,8 @@
     import {toast} from '../../../components/toast/toast.vue';
     import {navigationBar} from '../../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../../components/loading/loading.vue';
-    import {getArea} from "../../../common/js/api/models.js";
     import {selectArea} from '../../../components/selectArea/selectArea.vue';
+    import {Validator} from "../../../common/js/validate/validate.js";
 
     export default {
         components: {
@@ -22,62 +147,149 @@
         },
         data() {
             return {
-                windowWidth: 0, //窗口宽度
-                windowHeight: 0, //窗口高度
-                navigationHeight: 0, //导航栏高度
-                show: true,
+                isNewAddress: true, //是否为新增地址，为false时为编辑地址，用于改变标题内容
+                openPicker: false, //selectArea组件的双向绑定值，为true时打开Picker
+                contactName: '', //联系人姓名
+                contactGender: 0, //联系人性别，[0: 未选择, 1: 先生, 2: 女士]
+                contactPhone: '', //联系人手机号
+                addressArea: null, //地区名称数组
+                addressAdCode: ['44', '4401', '440103'], //行政区编码数组，已绑定为selectArea组件的Picker初始值
+                addressDetail: '', //门牌号（详细地址）
+                isDefaultAddress: false, //是否设为默认地址
             }
         },
         methods: {
-            mapLocation() {
+            // 地图按钮点击监听事件
+            handleMapBtnClick() {
+                //跳转到amap页面，并接收回传数据
                 uni.navigateTo({
                     url: "/pages/amap/amap",
                     events: {
-                        // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
                         acceptDataFromOpenedPage: (data) => {
                             if (data) {
-                                console.log(data)
+                                this.addressAdCode = [data.resultDetails.adcode.slice(0, 2), data.resultDetails.adcode.slice(0, 4), data.resultDetails.adcode];
+                                this.addressDetail = `${data.resultDetails.address}${data.resultDetails.name}`;
+                                let addressAreaTemp;
+                                if ((addressAreaTemp = this.$refs.selectArea.queryAreaName(this.addressAdCode[2])) !== false) {
+                                    //查询行政区域名称成功
+                                    this.addressArea = addressAreaTemp;
+                                }
+                                else {
+                                    //查询失败
+                                    this.openPicker = true;
+                                }
                             }
                         },
                     },
                 });
             },
+            // selectArea组件的Picker确认事件
             pickerConfirm(e) {
-                console.log(e)
+                this.addressArea = [e.province.label, e.city.label, e.area.label];
+                this.addressAdCode = [e.province.value, e.city.value, e.area.value];
+            },
+            // 地区输入框点击事件
+            handleAreaClick() {
+                this.$refs.selectArea.init();
+                this.openPicker = true;
+            },
+            // 联系人性别点击事件
+            handleGenderClick(e) {
+                switch (e.currentTarget.dataset.name) {
+                    case 'gentleman':
+                        this.contactGender = 1;
+                        break;
+                    case 'lady':
+                        this.contactGender = 2;
+                        break;
+                }
+            },
+            // 保存按钮点击事件
+            handleConfirm() {
+                this.utils.throttle(() => {
+                    if (this.checkInfo()) {
+                        console.log(this.contactName, this.contactGender, this.contactPhone, this.addressArea, this.addressDetail, this.isDefaultAddress);
+                    }
+                }, 2000);
+            },
+            /**
+             * 检验地址表单内容是否符合要求
+             * @return {Boolean} 是否验证通过
+             */
+            checkInfo() {
+                if (this.contactName.replace(/\s*/g, "") !== "") {
+                    let validatorRule = [{
+                        key: "contactPhone",
+                        regExp: ["phone"],
+                        required: true,
+                    }]; //手机号验证规则
+                    let validator = new Validator();
+                    let validatedInfo = validator.validate({contactPhone: this.contactPhone}, validatorRule).contactPhone;
+                    if (validatedInfo.required) {
+                        if (validatedInfo.regExp.length === 0) {
+                            if (this.addressArea !== null) {
+                                if (this.addressDetail !== '') {
+                                    return true;
+                                }
+                                else {
+                                    //门牌号为空
+                                    this.$refs.toast.show({
+                                        text: '门牌号不能为空',
+                                        type: 'warning'
+                                    });
+                                    return false;
+                                }
+                            }
+                            else {
+                                //地区为空
+                                this.$refs.toast.show({
+                                    text: '地区不能为空',
+                                    type: 'warning'
+                                });
+                                return false;
+                            }
+                        }
+                        else {
+                            //联系电话格式错误
+                            this.$refs.toast.show({
+                                text: '手机号格式错误',
+                                type: 'warning'
+                            });
+                            return false;
+                        }
+                    }
+                    else {
+                        //联系电话为空
+                        this.$refs.toast.show({
+                            text: '手机号不能为空',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                }
+                else {
+                    //联系人名称为空
+                    this.$refs.toast.show({
+                        text: '联系人不能为空',
+                        type: 'warning'
+                    });
+                    this.contactName = '';
+                    return false;
+                }
             }
         },
         computed: {},
         filters: {},
         watch: {},
         mounted() {
-            // this.mapLocation();
-            // getArea({
-            //     urlParam: {
-            //         provinceId: 44,
-            //         cityId: 1
-            //     }
-            // })
-            //     .then(res => {
-            //         console.log(res)
-            //     })
-            //     .catch(err => {
-            //         console.log(err)
-            //     });
             this.$refs.selectArea.init();
         },
         onLoad() {
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
-                titleText: '编辑地址',
-                backgroundColor: '#ffffff'
+                // titleText: '编辑地址',
+                backgroundColor: '#fff'
             });
         },
         onHide() {
@@ -93,217 +305,297 @@
 </script>
 
 <style lang="scss" scoped>
-    .chat-list-container {
+    .address-container {
         width: 100vw;
         height: 100vh;
-        background-color: #f6f6f6;
 
-        .list-scroll-view {
-            width: 100vw;
-            height: fit-content;
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
 
-            .top-list-container {
-                width: 100vw;
-                height: fit-content;
-                background-color: #fff;
-                border-radius: rpx(30);
-                margin-bottom: rpx(20);
-                padding: rpx(40) rpx(20);
-                display: flex;
-                flex-direction: row;
+        .title-container {
+            width: 100%;
+            height: rpx(180);
+            padding: rpx(50) rpx(50) rpx(30);
+            //background-color: orange;
 
-                .btn-container {
-                    flex: 1;
-                    margin: 0 rpx(30);
-                    text-align: center;
-
-                    .btn-icon-container {
-                        width: rpx(80);
-                        height: rpx(80);
-                        margin: 0 auto rpx(20);
-                        pointer-events: none;
-
-                        .btn-icon {
-                            width: 100%;
-                            height: 100%;
-                            background-color: deepskyblue;
-                            border-radius: rpx(150);
-                        }
-
-                        .btn-unread {
-                            width: rpx(25);
-                            height: rpx(25);
-                            position: relative;
-                            top: rpx(-80);
-                            left: rpx(55);
-                            background-color: #f35b56;
-                            color: #fff;
-                            text-align: center;
-                            font-size: rpx(22);
-                            line-height: rpx(40);
-                            border-radius: rpx(150);
-                        }
-                    }
-
-                    .btn-title {
-                        font-size: rpx(26);
-                        color: #333;
-                    }
-                }
+            .title-text {
+                font-size: rpx(54);
+                font-weight: bold;
+                color: $uni-text-color;
             }
+        }
 
-            .main-list-container {
-                width: 100vw;
+        .address-container {
+            width: 100%;
+            height: fit-content;
+            padding: 0 rpx(50);
+
+            .address-form {
+                width: 100%;
                 height: fit-content;
-                background-color: #fff;
-                border-radius: rpx(30);
 
-                .message-container:first-child {
-                    border-top: none;
-                    border-radius: rpx(30) rpx(30) 0 0;
-                }
-
-                .message-container:last-child {
-                    border-radius: 0 0 rpx(30) rpx(30);
-                }
-
-                .message-container {
-                    width: 100vw;
-                    height: rpx(150);
-                    background-color: #fff;
-                    padding: 0 rpx(30);
+                .name-container {
                     display: flex;
                     flex-direction: row;
-                    border-top: rpx(1) solid #f6f6f6;
+                    width: 100%;
+                    height: rpx(200);
+                    border-bottom: rpx(1) solid #ededed;
+                    //background-color: aqua;
 
-                    .avatar-container {
-                        width: rpx(120);
-                        height: 100%;
-                        margin-top: rpx(30);
-                        pointer-events: none;
+                    .name-left {
+                        display: flex;
+                        flex-direction: column;
+                        width: rpx(150);
+                        color: $uni-text-color;
+                        //background-color: greenyellow;
 
-                        .avatar {
-                            width: rpx(90);
-                            height: rpx(90);
-                            border-radius: rpx(150);
-                            //background-color: orange;
-                            overflow: hidden;
-
-                            image {
-                                width: 100%;
-                            }
+                        view {
+                            flex: 1;
+                            width: 100%;
+                            height: 100%;
+                            font-size: rpx(30);
+                            font-weight: bold;
+                            line-height: rpx(100);
                         }
                     }
 
-                    .content-container {
-                        flex: 1;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        margin: auto 0;
-                        pointer-events: none;
+                    .name-right {
+                        display: flex;
+                        flex-direction: column;
+                        width: calc(100% - 150rpx);
+                        height: 100%;
 
-                        .sender-name {
+                        .name-input-container {
+                            width: 100%;
+                            height: 50%;
+                            font-size: rpx(30);
+                            line-height: rpx(100);
+                            border-bottom: rpx(1) solid #efefef;
+
+                            input {
+                                width: 100%;
+                                height: 100%;
+                                color: $uni-text-color;
+                            }
+
+                            .name-placeholder {
+                                width: 100%;
+                                height: 100%;
+                                position: relative;
+                                top: -100%;
+                                pointer-events: none;
+                                color: #c0c0c0;
+                            }
+                        }
+
+                        .gender-container {
                             display: flex;
                             flex-direction: row;
+                            width: 100%;
+                            height: 50%;
 
-                            .name {
-                                font-size: rpx(32);
-                                line-height: rpx(50);
-                                color: #333;
-                                text-overflow: ellipsis;
-                                overflow: hidden;
-                                max-width: calc(100% - 110rpx);
+                            .gender-btn {
+                                width: rpx(140);
+                                height: rpx(60);
+                                margin-top: rpx(20);
+                                margin-right: rpx(20);
+                                border-radius: rpx(14);
+                                text-align: center;
+                                line-height: rpx(58);
+                                transition-property: border, color;
+                                transition-duration: 300ms;
                             }
 
-                            .blacklist-user {
-                                position: relative;
-                                top: rpx(12);
-                                width: fit-content;
-                                height: rpx(28);
-                                margin-left: rpx(15);
-                                padding: 0 rpx(10);
-                                font-size: rpx(20);
-                                line-height: rpx(28);
-                                color: #fff;
-                                border-radius: rpx(30);
-                                background-color: #f4756b;
+                            .gender-btn--default {
+                                border: rpx(1) solid #e3e3e3;
+                                color: #808080;
                             }
-                        }
 
-                        .message-content {
-                            overflow: hidden;
-                            font-size: rpx(26);
-                            line-height: rpx(50);
-                            color: #999999;
-                        }
-                    }
-
-                    .time-container {
-                        width: fit-content;
-                        height: fit-content;
-                        margin-top: rpx(30);
-                        margin-left: auto;
-                        pointer-events: none;
-
-                        .time {
-                            font-size: rpx(24);
-                            color: #999999;
-                            margin-bottom: rpx(20);
-                        }
-
-                        .unread {
-                            width: fit-content;
-                            min-width: rpx(32);
-                            height: rpx(32);
-                            padding: 0 rpx(8);
-                            background-color: #f35b56;
-                            color: #fff;
-                            text-align: center;
-                            font-size: rpx(22);
-                            line-height: rpx(32);
-                            border-radius: rpx(150);
-                            font-weight: bold;
-                            float: right;
-                        }
-
-                        .isread {
-                            min-width: rpx(40);
-                            height: rpx(40);
-                            float: right;
+                            .gender-btn--selected {
+                                border: rpx(1) solid #f4756b !important;
+                                color: #f4756b !important;
+                            }
                         }
                     }
                 }
 
-                .load-more {
-                    font-size: rpx(28);
-                    height: fit-content;
-                    text-align: center;
+                .phone-container {
+                    display: flex;
+                    flex-direction: row;
                     width: 100%;
-                    color: $uni-text-color-placeholder;
-                    background-color: #fff;
-                    margin-top: rpx(30);
-                    padding-bottom: rpx(70);
+                    height: rpx(100);
+                    border-bottom: rpx(1) solid #efefef;
 
-                    text {
-                        margin-left: rpx(10);
+                    .phone-left {
+                        width: rpx(150);
+                        height: 100%;
+                        color: $uni-text-color;
+
+                        view {
+                            width: 100%;
+                            height: 100%;
+                            font-size: rpx(30);
+                            font-weight: bold;
+                            line-height: rpx(100);
+                        }
+                    }
+
+                    .phone-right {
+                        width: calc(100% - 150rpx);
+                        height: 100%;
+                        font-size: rpx(30);
+                        line-height: rpx(100);
+
+                        input {
+                            width: 100%;
+                            height: 100%;
+                            color: $uni-text-color;
+                        }
+
+                        .phone-placeholder {
+                            width: 100%;
+                            height: 100%;
+                            position: relative;
+                            top: -100%;
+                            pointer-events: none;
+                            color: #c0c0c0;
+                        }
                     }
                 }
 
-                .loading-more {
-                    height: rpx(150);
-                    padding-bottom: 0;
-                    margin-top: 0;
+                .area-container {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    height: rpx(100);
+                    border-bottom: rpx(1) solid #efefef;
+
+                    .area-left {
+                        width: rpx(150);
+                        height: 100%;
+                        color: $uni-text-color;
+
+                        view {
+                            width: 100%;
+                            height: 100%;
+                            font-size: rpx(30);
+                            font-weight: bold;
+                            line-height: rpx(100);
+                        }
+                    }
+
+                    .area-right {
+                        width: calc(100% - 150rpx);
+                        height: 100%;
+                        font-size: rpx(30);
+                        line-height: rpx(100);
+
+                        .input {
+                            width: calc(100% - 80rpx);
+                            height: 100%;
+                            color: $uni-text-color;
+                        }
+
+                        .area-placeholder {
+                            width: calc(100% - 80rpx);
+                            height: 100%;
+                            position: relative;
+                            top: -100%;
+                            pointer-events: none;
+                            color: #c0c0c0;
+                        }
+
+                        .picker-btn {
+                            width: rpx(80);
+                            height: 100%;
+                            float: right;
+                            position: relative;
+                            top: -200%;
+                            color: #555555;
+                            text-align: center;
+                            font-size: rpx(48);
+                        }
+                    }
+                }
+
+                .detail-container {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    height: rpx(100);
+                    border-bottom: rpx(1) solid #efefef;
+
+                    .detail-left {
+                        width: rpx(150);
+                        height: 100%;
+                        color: $uni-text-color;
+
+                        view {
+                            width: 100%;
+                            height: 100%;
+                            font-size: rpx(30);
+                            font-weight: bold;
+                            line-height: rpx(100);
+                        }
+                    }
+
+                    .detail-right {
+                        width: calc(100% - 150rpx);
+                        height: 100%;
+                        font-size: rpx(30);
+                        line-height: rpx(100);
+
+                        input {
+                            width: calc(100% - 80rpx);
+                            height: 100%;
+                            color: $uni-text-color;
+                        }
+
+                        .detail-placeholder {
+                            width: calc(100% - 80rpx);
+                            height: 100%;
+                            position: relative;
+                            top: -100%;
+                            pointer-events: none;
+                            color: #c0c0c0;
+                        }
+
+                        .map-btn {
+                            width: rpx(80);
+                            height: 100%;
+                            float: right;
+                            position: relative;
+                            top: -200%;
+                            color: #555555;
+                            text-align: center;
+                            font-size: rpx(42);
+                        }
+                    }
+                }
+
+                .set-default-container {
+                    width: 100%;
+                    height: rpx(120);
+                    margin-top: rpx(30);
                 }
             }
 
-            .no-more-chats {
-                width: 100vw;
-                height: rpx(100);
-                font-size: rpx(24);
-                color: #999999;
-                line-height: rpx(100);
+            .confirm-btn {
+                width: 100%;
+                height: rpx(94);
                 text-align: center;
-                background-color: #f6f6f6;
+                font-size: rpx(35);
+                font-weight: bold;
+                line-height: rpx(94);
+                color: $uni-text-color-inverse;
+                background-color: $uni-color-primary;
+                border-radius: rpx(14);
             }
         }
     }
