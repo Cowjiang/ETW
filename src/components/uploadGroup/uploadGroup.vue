@@ -41,7 +41,7 @@ export default {
       formData: {},
       signData: {}, //获取签名的数据
       tempFinalSrc: {}, //
-      imageList: {},
+      imageList: [],
     };
   },
   methods: {
@@ -53,7 +53,7 @@ export default {
      * @param lists  上传文件信息列表
      */
     onUploadSuccess(data, listsIndex, lists) {
-      this.imageList[listsIndex] = this.tempFinalSrc;
+      this.imageList.push(this.tempFinalSrc);
       console.log(
         `下标【${listsIndex}】的图片上传成功，云端访问路径为：`,
         this.tempFinalSrc

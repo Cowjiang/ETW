@@ -3,15 +3,15 @@
     <navigationBar ref="navigationBar"></navigationBar>
     <toast ref="toast"></toast>
     <u-form :model="storeInfoForm" ref="uForm">
-      <!-- <u-form-item label-position="top" label="店铺照">
+      <u-form-item label-position="top" label="店铺照">
         <uploadGroup
-          ref="storeInfo"
+          ref="storeInfoImageUpload"
           :maxImageCount="6"
-          uploadImageDir="sotre/store-info
-          uploadId="storeInfo"
-          @onImageUploaded="submitForm(arguments)"
+          uploadImageDir="sotre/store-info"
+          uploadId="storeInfoImageUpload"
+          @onImageUploaded="allImageUploaded(arguments)"
         ></uploadGroup>
-      </u-form-item> -->
+      </u-form-item>
       <u-form-item label-position="top" label="店铺名称">
         <u-input v-model="storeInfoForm.name" maxlength="15" />
       </u-form-item>
@@ -88,11 +88,12 @@
 </template>
 
 <script>
-import { putStoreInfo } from "@/common/js/api/models.js";
+import { putStoreInfo, postMyStoreInfoImage } from "@/common/js/api/models.js";
 import Vue from "vue";
 export default {
   data() {
     return {
+      //店铺要上传的的表单信息
       storeInfoForm: {
         name: "", //店铺名称
         characteristic: "", //店铺特色描述
@@ -106,6 +107,7 @@ export default {
         longitude: "", //经度
         latitude: "", //纬度
       },
+      //店铺的主要信息
       storeMainForm: {
         id: "",
         likeNumber: "",
@@ -120,8 +122,8 @@ export default {
       locationValue: "", //定位输入框的值
       isShowPickerNextOpen: false, //是否显示下次营业时间选择器
       isShowPickerTakeOut: false, //是否显示下次外卖营业时间选择器
-      isShowPickerArea: false, //是否显示地区选择器
       pickerTimeParams: {
+        //时间选择器的配置对象
         year: true,
         month: true,
         day: true,
@@ -178,16 +180,6 @@ export default {
       this.nextOpeningTimeTakeOutInputValue = `${e.year}-${e.month}-${e.day} ${e.hour}:${e.minute}`;
     },
     /**
-     * @description: 地区选择器的回调
-     * @param {*} e 选择的参数
-     */
-    // confirmArea(e) {
-    //   console.log(e);
-    //   this.areaInputValue = `${e.province.label}-${
-    //     e.city.label === "市辖区" ? "" : e.city.label + "-"
-    //   }${e.area.label}`;
-    // },
-    /**
      * @description: 点击定位按钮
      */
     toMapPage() {
@@ -216,22 +208,7 @@ export default {
     clickSubmitButton() {
       this.utils.debounce(() => {
         if (!this.utils.isObjectSomeKeyEmpty(this.storeInfoForm)) {
-          putStoreInfo({
-            urlParam: this.storeMainForm.id,
-            queryData: this.storeInfoForm,
-          })
-            .then((res) => {
-              if (res.success) {
-                this.$refs.toast.show({
-                  text: "提交成功,请等待审核",
-                  type: "success",
-                });
-                uni.navigateBack();
-              }
-            })
-            .catch((err) => {
-              console.log("err", err);
-            });
+          this.$refs.storeInfoImageUpload.$refs.upload.upload();
         } else {
           this.$refs.toast.show({
             text: "有信息还未填写",
@@ -245,7 +222,34 @@ export default {
      * @param {Object} imageList 每个上传组件上传的图片
      * @param {String} uploadId 每个上传组件的标识
      */
-    submitForm(args) {},
+    async allImageUploaded(args) {
+      let imageList = args;
+      await putStoreInfo({
+        urlParam: this.storeMainForm.id,
+        queryData: this.storeInfoForm,
+      })
+        .then((res) => {
+          if (res.success) {
+            console.log(1);
+            this.$refs.toast.show({
+              text: "提交成功,请等待审核",
+              type: "success",
+            });
+            // uni.navigateBack();
+          }
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
+      console.log(2);
+      await postMyStoreInfoImage({
+        urlParam: this.storeMainForm.id,
+        queryData: {
+          imgUrl: imageList,
+        },
+        headerData: { "Content-type": "application/json" },
+      }).then((res) => {});
+    },
   },
 };
 </script>

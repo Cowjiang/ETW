@@ -53,7 +53,7 @@ export const apiResquest = (url, pramsObject) => {
       header: headerData,
       success: (res) => {
         // console.log(res.data.errorCode)
-        // console.log(queryData,method,headerData);
+        console.log(queryData,method,headerData);
         console.log(`【${url}】请求响应：`, res);
         // 和后端约定的状态码
         const { errorCode } = res.data;

@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-07-17 16:52:12
+ * @LastEditTime: 2021-08-25 02:30:03
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \my-project\src\common\js\api\models.js
+ */
 import { apiResquest } from "./request.js";
 //#ifdef H5
 // let baseUrl = "/api"
@@ -94,3 +102,5 @@ export const putStoreInfo = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/user`, { method: "PUT", requestConfig });
 export const getMyStoreInfo = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/info`, { method: "GET", requestConfig });
+export const postMyStoreInfoImage = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/image`, { method: "POST", requestConfig });
