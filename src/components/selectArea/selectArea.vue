@@ -103,6 +103,7 @@
          * @property {Boolean} showPopularCity 是否显示热门城市，默认为true
          * @example <selectArea v-model="showPicker" @confirm="handleConfirm"></selectArea>
          * @method init() 初始化Picker
+         * @method queryAreaName(String) 根据行政编码查询地区名称
          * @event {Function} confirm 用户点击确认按钮，返回当前选择地区的结果集
          * @event {Function} cancel 用户点击取消按钮或点击遮罩层关闭Picker，返回当前选择地区的结果集
          */
@@ -341,8 +342,8 @@
                 this.$emit('input', false);
             },
             /**
-             * 根据地区编码查询地区名称
-             * @param {String} adCode 地区编码，例："440104"
+             * 根据行政编码查询地区名称
+             * @param {String} adCode 行政编码，例："440104"
              * @return {Boolean | Array} 查询失败返回false，查询成功返回名称数组，格式：[省份, 城市, 区县]
              */
             queryAreaName(adCode) {

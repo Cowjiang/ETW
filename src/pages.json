@@ -10,19 +10,19 @@
     },
     "pages": [
         {
+            "path": "pages/addressBook/addressBook",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/addressBook/subpages/editAddress",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
                 "disableScroll": true,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/addressBook/addressBook",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
             }
         },

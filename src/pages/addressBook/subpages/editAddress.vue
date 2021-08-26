@@ -18,6 +18,13 @@
                 <view class="title-text">
                     {{ isNewAddress ? '新增地址' : '编辑地址' }}
                 </view>
+                <view
+                    class="delete-btn"
+                    v-show="!isNewAddress"
+                    @click="handleDeleteClick">
+                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    删除
+                </view>
             </view>
             <view class="address-container">
                 <view class="address-form">
@@ -153,7 +160,7 @@
                 contactGender: 0, //联系人性别，[0: 未选择, 1: 先生, 2: 女士]
                 contactPhone: '', //联系人手机号
                 addressArea: null, //地区名称数组
-                addressAdCode: ['44', '4401', '440103'], //行政区编码数组，已绑定为selectArea组件的Picker初始值
+                addressAdCode: ['44', '4401', '440103'], //行政编码数组，已绑定为selectArea组件的Picker初始值
                 addressDetail: '', //门牌号（详细地址）
                 isDefaultAddress: false, //是否设为默认地址
             }
@@ -204,11 +211,31 @@
                         break;
                 }
             },
+            // 删除按钮点击事件
+            handleDeleteClick() {
+                uni.showActionSheet({
+                    alertText: '删除地址后将无法恢复',
+                    itemList: ['确定删除'],
+                    itemColor: '#f35b56',
+                    success: res => {
+                        if (res.tapIndex === 0) {
+                            //确定删除地址
+                            console.log('确定删除地址');
+                        }
+                    }
+                });
+            },
             // 保存按钮点击事件
             handleConfirm() {
                 this.utils.throttle(() => {
                     if (this.checkInfo()) {
-                        console.log(this.contactName, this.contactGender, this.contactPhone, this.addressArea, this.addressDetail, this.isDefaultAddress);
+                        let contacts = `${this.contactName}${this.contactGender === 0 ? '' : (this.contactGender === 1 ? '{#先生}' : '{#女士}')}`;
+                        let areaCode = this.addressAdCode[2];
+                        let addressDetail = this.addressDetail;
+                        // let addressDetail = `${this.addressArea[0]}${this.addressArea[1]}${this.addressArea[2]}${this.addressDetail}`;
+                        let phone = this.contactPhone;
+                        console.log(contacts, areaCode, addressDetail, phone);
+
                     }
                 }, 2000);
             },
@@ -229,6 +256,7 @@
                         if (validatedInfo.regExp.length === 0) {
                             if (this.addressArea !== null) {
                                 if (this.addressDetail !== '') {
+                                    //验证通过
                                     return true;
                                 }
                                 else {
@@ -284,7 +312,23 @@
         mounted() {
             this.$refs.selectArea.init();
         },
-        onLoad() {
+        onLoad(options) {
+            try {
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.on('editAddress', data => {
+                    this.isNewAddress = false;
+                    this.contactName = data.data.contactName;
+                    this.contactGender = data.data.contactGender;
+                    this.contactPhone = data.data.contactPhone;
+                    this.addressAdCode = data.data.areaCode;
+                    this.addressDetail = data.data.addressDetail;
+                    this.addressArea = [data.data.areaName[0], data.data.areaName[1], data.data.areaName[2]];
+                    this.isDefaultAddress = data.data.isDefaultAddress;
+                    this.$forceUpdate();
+                });
+            } catch (e) {
+                this.isNewAddress = true;
+            }
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
@@ -322,12 +366,25 @@
             width: 100%;
             height: rpx(180);
             padding: rpx(50) rpx(50) rpx(30);
-            //background-color: orange;
 
             .title-text {
+                width: fit-content;
+                height: fit-content;
+                display: inline;
                 font-size: rpx(54);
                 font-weight: bold;
                 color: $uni-text-color;
+            }
+
+            .delete-btn {
+                float: right;
+                margin-top: rpx(32);
+                font-size: rpx(30);
+                color: #555555;
+
+                .fa {
+                    margin-right: rpx(6);
+                }
             }
         }
 
@@ -346,14 +403,12 @@
                     width: 100%;
                     height: rpx(200);
                     border-bottom: rpx(1) solid #ededed;
-                    //background-color: aqua;
 
                     .name-left {
                         display: flex;
                         flex-direction: column;
                         width: rpx(150);
                         color: $uni-text-color;
-                        //background-color: greenyellow;
 
                         view {
                             flex: 1;
