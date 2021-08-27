@@ -147,6 +147,7 @@
     import {loading} from '../../../components/loading/loading.vue';
     import {selectArea} from '../../../components/selectArea/selectArea.vue';
     import {Validator} from "../../../common/js/validate/validate.js";
+    import {addAddressBook, deleteAddressBook, updateAddressBook} from "../../../common/js/api/models.js";
 
     export default {
         components: {
@@ -156,6 +157,7 @@
             return {
                 isNewAddress: true, //是否为新增地址，为false时为编辑地址，用于改变标题内容
                 openPicker: false, //selectArea组件的双向绑定值，为true时打开Picker
+                addressId: null, //编辑地址时，当前地址的id
                 contactName: '', //联系人姓名
                 contactGender: 0, //联系人性别，[0: 未选择, 1: 先生, 2: 女士]
                 contactPhone: '', //联系人手机号
@@ -220,7 +222,37 @@
                     success: res => {
                         if (res.tapIndex === 0) {
                             //确定删除地址
-                            console.log('确定删除地址');
+                            deleteAddressBook({
+                                urlParam: this.addressId
+                            })
+                                .then(res => {
+                                    if (res.success) {
+                                        this.$refs.loading.stopLoading();
+                                        this.$refs.toast.show({
+                                            text: '删除成功',
+                                            type: 'success'
+                                        });
+                                        setTimeout(() => {
+                                            this.navigateToAddressBook();
+                                        }, 1000);
+                                    }
+                                    else {
+                                        this.$refs.loading.stopLoading();
+                                        this.$refs.toast.show({
+                                            text: '删除失败',
+                                            type: 'error'
+                                        });
+                                    }
+                                    console.log(res);
+                                })
+                                .catch(err => {
+                                    this.$refs.loading.stopLoading();
+                                    this.$refs.toast.show({
+                                        text: '删除失败',
+                                        type: 'error'
+                                    });
+                                    console.error(err);
+                                });
                         }
                     }
                 });
@@ -229,13 +261,20 @@
             handleConfirm() {
                 this.utils.throttle(() => {
                     if (this.checkInfo()) {
-                        let contacts = `${this.contactName}${this.contactGender === 0 ? '' : (this.contactGender === 1 ? '{#先生}' : '{#女士}')}`;
-                        let areaCode = this.addressAdCode[2];
-                        let addressDetail = this.addressDetail;
+                        // let contacts = `${this.contactName}${this.contactGender === 0 ? '' : (this.contactGender === 1 ? '{#先生}' : '{#女士}')}`;
+                        // let areaCode = this.addressAdCode[2];
+                        // let addressDetail = this.addressDetail;
                         // let addressDetail = `${this.addressArea[0]}${this.addressArea[1]}${this.addressArea[2]}${this.addressDetail}`;
-                        let phone = this.contactPhone;
-                        console.log(contacts, areaCode, addressDetail, phone);
-
+                        // let phone = this.contactPhone;
+                        // console.log(contacts, areaCode, addressDetail, phone);
+                        let newAddress = {
+                            contacts: `${this.contactName}${this.contactGender === 0 ? '' : (this.contactGender === 1 ? '{#先生}' : '{#女士}')}`,
+                            areaCode: this.addressAdCode[2],
+                            addressDetail: this.addressDetail,
+                            phone: this.contactPhone,
+                            isDefault: this.isDefaultAddress
+                        }
+                        this.isNewAddress ? this.postAddresses(1, newAddress) : this.postAddresses(2, newAddress);
                     }
                 }, 2000);
             },
@@ -304,6 +343,95 @@
                     this.contactName = '';
                     return false;
                 }
+            },
+            /**
+             * 提交地址修改
+             * @param {Number} mode 编辑模式，[1: 新增地址, 2: 修改地址]
+             * @param {Object} newAddress 地址信息
+             */
+            postAddresses(mode, newAddress) {
+                return new Promise((resolve, reject) => {
+                    if (mode === 1) {
+                        //新增地址
+                        addAddressBook({
+                            queryData: {
+                                contacts: newAddress.contacts,
+                                phone: newAddress.phone,
+                                areaCode: newAddress.areaCode,
+                                addressDetail: newAddress.addressDetail,
+                                isDefault: newAddress.isDefault
+                            }
+                        })
+                            .then(res => {
+                                if (res.success) {
+                                    this.$refs.toast.show({
+                                        text: '保存成功',
+                                        type: 'success',
+                                    });
+                                    this.navigateToAddressBook();
+                                }
+                                else {
+                                    this.$refs.toast.show({
+                                        text: '保存失败',
+                                        type: 'error',
+                                    });
+                                    console.log(res);
+                                }
+                            })
+                            .catch(err => {
+                                this.$refs.toast.show({
+                                    text: '保存失败',
+                                    type: 'error',
+                                });
+                                console.log(err);
+                            })
+                    }
+                    else {
+                        //修改地址
+                        updateAddressBook({
+                            urlParam: this.addressId,
+                            queryData: {
+                                contacts: newAddress.contacts,
+                                phone: newAddress.phone,
+                                areaCode: newAddress.areaCode,
+                                addressDetail: newAddress.addressDetail,
+                                isDefault: newAddress.isDefault
+                            }
+                        })
+                            .then(res => {
+                                if (res.success) {
+                                    this.$refs.toast.show({
+                                        text: '保存成功',
+                                        type: 'success',
+                                    });
+                                    this.navigateToAddressBook();
+                                }
+                                else {
+                                    this.$refs.toast.show({
+                                        text: '保存失败',
+                                        type: 'error',
+                                    });
+                                    console.log(res);
+                                }
+                            })
+                            .catch(err => {
+                                this.$refs.toast.show({
+                                    text: '保存失败',
+                                    type: 'error',
+                                });
+                                console.log(err);
+                            })
+                    }
+                });
+            },
+            // 页面跳转方法，返回上一页或重定向至地址簿页面
+            navigateToAddressBook() {
+                wx.navigateBack()
+                    .catch(e => {
+                        uni.redirectTo({
+                            url: '/pages/addressBook/addressBook'
+                        });
+                    });
             }
         },
         computed: {},
@@ -317,6 +445,7 @@
                 const eventChannel = this.getOpenerEventChannel();
                 eventChannel.on('editAddress', data => {
                     this.isNewAddress = false;
+                    this.addressId = data.data.id;
                     this.contactName = data.data.contactName;
                     this.contactGender = data.data.contactGender;
                     this.contactPhone = data.data.contactPhone;
@@ -333,7 +462,8 @@
         onShow() {
             this.$refs.navigationBar.setNavigation({
                 // titleText: '编辑地址',
-                backgroundColor: '#fff'
+                backgroundColor: '#fff',
+                customBackFunc: this.navigateToAddressBook
             });
         },
         onHide() {

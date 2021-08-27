@@ -721,16 +721,6 @@
                     margin-top: 0;
                 }
             }
-
-            .no-more-chats {
-                width: 100vw;
-                height: rpx(100);
-                font-size: rpx(24);
-                color: #999999;
-                line-height: rpx(100);
-                text-align: center;
-                background-color: #f6f6f6;
-            }
         }
     }
 </style>

@@ -3,10 +3,14 @@
         :style="{
             backgroundColor: '#f6f6f6',
             height: `calc(100vh - ${navigationHeight}px)`
-        }">
+        }"
+        id="page"
+        @touchstart="handleScreenTouchStart"
+        @touchend="handleScreenTouchEnd"
+        @touchcancel="handleScreenTouchEnd">
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast"/>
-        <loading ref="loading" fullscreen></loading>
+        <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
         <view class="address-book-container">
             <view class="address-records">
                 <view
@@ -42,10 +46,27 @@
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                     </view>
                 </view>
-                <view class="bottom-space"></view>
+                <view class="load-more-container">
+                    <view v-show="existMore && !loadingMore && addressRecords.length !== 0" class="load-more">
+                        <text>{{ releaseToLoadMore ? '松开加载更多' : '下拉加载更多' }}</text>
+                    </view>
+                    <view
+                        v-show="loadingMore && addressRecords.length !== 0"
+                        class="load-more loading-more">
+                        <loading
+                            ref="loadingMore"
+                            maskColor="#f6f6f6"></loading>
+                    </view>
+                    <view
+                        v-show="!existMore && addressRecords.length !== 0"
+                        class="load-more">
+                        <text>没有更多了哦 ~</text>
+                    </view>
+                </view>
             </view>
             <view
                 class="new-address-btn"
+                :style="{opacity: `${isShowBottomBtn && !loadingMore ? 1 : 0}`}"
                 @click="handleAddAddress">
                 <view class="btn-text">
                     新增地址
@@ -59,7 +80,7 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    // import {getBlockList, getMyChatList} from "../../common/js/api/models.js";
+    import {getAddressBook, setDefaultAddress, deleteAddressBook} from "../../common/js/api/models.js";
 
     export default {
         components: {
@@ -70,100 +91,79 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                addressRecords: [
-                    {
-                        contactName: 'Cowjiang{#先生}',
-                        contactPhone: '13711401096',
-                        areaCode: '440104',
-                        areaName: ['广东省', '广州市', '越秀区'],
-                        addressDetail: '中山五路捷登都汇201优电风扇犯犯得上士大夫犯得上犯得上得上发射点发衣库',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '粽子',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '荔湾区'],
-                        addressDetail: '康王北路康王阁301室',
-                        isDefaultAddress: true,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                    {
-                        contactName: '小庞',
-                        contactPhone: '17728108553',
-                        areaCode: '440103',
-                        areaName: ['广东省', '广州市', '从化区'],
-                        addressDetail: '广从南路548号广州软件学院',
-                        isDefaultAddress: false,
-                    },
-                ],
+                isReadyToShow: false, //是否准备显示页面内容
+                addressRecords: [], //我的地址数组
                 addressTouchingId: '', //当前触摸地址记录的数据名
+                pageSize: 15, //分页大小
+                currentPage: 1, //当前页码
+                loadingMore: false, //是否处于加载更多状态
+                existMore: true, //是否存在更多地址记录
+                scrolling: false, //页面是否正在滑动
+                isShowBottomBtn: true, //是否显示底部按钮区域
+                waitingLoadMore: false, //是否等待加载更多地址记录
+                releaseToLoadMore: false, //是否显示“松开加载更多”提示
+                screenTouching: false, //是否正在触摸屏幕
             }
         },
         methods: {
+            /**
+             * 获取我的地址数据
+             * @param {Number} pageNumber 分页查询页码，不传参数默认为查询第一页
+             */
+            getMyAddress(pageNumber = 1) {
+                getAddressBook({
+                    queryData: {
+                        pageSize: this.pageSize,
+                        pageNumber: pageNumber
+                    }
+                })
+                    .then(res => {
+                        console.log(res);
+                        let addressTemp = [];
+                        for (const addressRecords of res.data.records) {
+                            addressTemp.push(
+                                {
+                                    id: addressRecords.id,
+                                    contactName: addressRecords.contacts,
+                                    contactPhone: addressRecords.phone,
+                                    areaCode: addressRecords.areaCode,
+                                    areaName: [addressRecords.province, addressRecords.city, addressRecords.area],
+                                    addressDetail: addressRecords.addressDetail,
+                                    isDefaultAddress: addressRecords.isDefault
+                                }
+                            )
+                        }
+                        if (pageNumber === 1) {
+                            this.addressRecords = addressTemp;
+                        }
+                        else {
+                            for (const addressTempElement of addressTemp) {
+                                this.addressRecords.push(addressTempElement);
+                            }
+                        }
+                        if (res.data.pages <= this.currentPage) {
+                            if (pageNumber !== 1) {
+                                this.existMore = false;
+                            }
+                            this.currentPage = res.data.pages;
+                            if (res.data.total <= this.pageSize) {
+                                this.existMore = false;
+                            }
+                        }
+                        setTimeout(() => {
+                            this.loadingMore = false;
+                            if (pageNumber !== 1) {
+
+                            }
+                            this.$refs.loading.stopLoading();
+                        }, 500);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        this.loadingMore = false;
+                        this.$refs.loading.stopLoading();
+                    })
+            },
             // 监听地址触摸开始事件
             handleTouchStart(e) {
                 this.addressTouchingId = e.currentTarget.dataset.name;
@@ -191,6 +191,40 @@
                         }
                         else if (res.tapIndex === 1) {
                             //设为默认地址
+                            this.$refs.loading.startLoading();
+                            setDefaultAddress({
+                                urlParam: address.id
+                            })
+                                .then(res => {
+                                    this.getMyAddress();
+                                    if (res.success) {
+                                        setTimeout(() => {
+                                            this.$refs.toast.show({
+                                                text: '设置成功',
+                                                type: 'success'
+                                            });
+                                        }, 500);
+                                    }
+                                    else {
+                                        setTimeout(() => {
+                                            this.$refs.toast.show({
+                                                text: '设置失败',
+                                                type: 'error'
+                                            });
+                                        }, 500);
+                                        console.log(res);
+                                    }
+                                })
+                                .catch(err => {
+                                    this.$refs.loading.stopLoading();
+                                    setTimeout(() => {
+                                        this.$refs.toast.show({
+                                            text: '设置失败',
+                                            type: 'error'
+                                        });
+                                    }, 500);
+                                    console.error(err);
+                                })
                         }
                         else if (res.tapIndex === 2) {
                             //删除地址
@@ -200,7 +234,39 @@
                                 success: res => {
                                     if (res.confirm) {
                                         //确定删除地址
-                                        console.log('确定删除地址');
+                                        deleteAddressBook({
+                                            urlParam: address.id
+                                        })
+                                            .then(res => {
+                                                this.getMyAddress();
+                                                if (res.success) {
+                                                    setTimeout(() => {
+                                                        this.$refs.toast.show({
+                                                            text: '删除成功',
+                                                            type: 'success'
+                                                        });
+                                                    }, 500);
+                                                }
+                                                else {
+                                                    setTimeout(() => {
+                                                        this.$refs.toast.show({
+                                                            text: '删除失败',
+                                                            type: 'error'
+                                                        });
+                                                    }, 500);
+                                                    console.log(res);
+                                                }
+                                            })
+                                            .catch(err => {
+                                                this.$refs.loading.stopLoading();
+                                                setTimeout(() => {
+                                                    this.$refs.toast.show({
+                                                        text: '删除失败',
+                                                        type: 'error'
+                                                    });
+                                                }, 500);
+                                                console.error(err);
+                                            })
                                     }
                                 }
                             });
@@ -210,7 +276,7 @@
             },
             // 地址编辑按钮点击事件
             handleEdit(e) {
-                wx.vibrateShort();
+                // wx.vibrateShort();
                 if (e.currentTarget.dataset.name != null) {
                     let addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
                     let address = JSON.parse(JSON.stringify(this.addressRecords[addressIndex])); //强制深拷贝
@@ -230,6 +296,18 @@
                 uni.navigateTo({
                     url: '/pages/addressBook/subpages/editAddress',
                 });
+            },
+            // 监听屏幕触摸开始事件
+            handleScreenTouchStart() {
+                this.screenTouching = true;
+            },
+            //监听屏幕触摸结束事件
+            handleScreenTouchEnd() {
+                this.screenTouching = false;
+                this.releaseToLoadMore = false;
+                if (this.scrolling && !this.releaseToLoadMore) {
+                    this.isShowBottomBtn = true;
+                }
             }
         },
         computed: {},
@@ -278,12 +356,58 @@
                 }
             }
         },
-        watch: {},
+        watch: {
+            loadingMore(nval, oval) {
+                if (nval && !oval && this.addressRecords.length !== 0) {
+                    this.$refs.loadingMore.startLoading({
+                        width: this.windowWidth,
+                        height: 54
+                    });
+                }
+                if (!nval && oval) {
+                    this.$refs.loadingMore.stopLoading();
+                }
+            },
+            waitingLoadMore(nval, oval) {
+                if (nval && !oval) {
+                    this.waitTimer = setInterval(() => {
+                        if (this.isShowBottomBtn) {
+                            this.loadingMore = true;
+                            this.currentPage += 1;
+                            this.getMyAddress(this.currentPage);
+                            this.waitingLoadMore = false;
+                            clearInterval(this.waitTimer);
+                        }
+                        setTimeout(() => {
+                            this.waitingLoadMore = false;
+                            clearInterval(this.waitTimer);
+                        }, 2000);
+                    }, 300);
+                }
+            }
+        },
         onPageScroll(e) {
-            // console.log(e)
+            if (this.isShowBottomBtn) {
+                this.isShowBottomBtn = false;
+            }
+            this.scrollTop = e.scrollTop;
+            this.scrolling = true;
+            let timer = setTimeout(() => {
+                if (this.scrollTop === e.scrollTop && !this.screenTouching) {
+                    this.scrollTop = e.scrollTop;
+                    this.scrolling = false;
+                    if (!this.releaseToLoadMore) {
+                        this.isShowBottomBtn = true;
+                    }
+                    clearTimeout(timer);
+                }
+            }, 300);
         },
         onReachBottom() {
-            console.log('ReachBottom')
+            this.releaseToLoadMore = true;
+            if (this.existMore) {
+                this.waitingLoadMore = true;
+            }
         },
         mounted() {
             // this.mapLocation();
@@ -296,12 +420,15 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.$refs.loading.startLoading();
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
                 titleText: '我的地址',
                 backgroundColor: '#f6f6f6'
             });
+            this.$refs.loading.startLoading();
+            this.getMyAddress();
         },
         onHide() {
 
@@ -387,9 +514,32 @@
                 filter: brightness(90%);
             }
 
+            .load-more-container {
+                .load-more {
+                    font-size: rpx(28);
+                    height: fit-content;
+                    text-align: center;
+                    width: 100%;
+                    color: $uni-text-color-placeholder;
+                    //background-color: #fff;
+                    margin-top: rpx(40);
+                    padding-bottom: rpx(140);
+
+                    text {
+                        margin-left: rpx(10);
+                    }
+                }
+
+                .loading-more {
+                    height: rpx(150);
+                    padding-bottom: rpx(20);
+                    margin-top: 0;
+                }
+            }
+
             .bottom-space {
                 width: 100vw;
-                height: rpx(150);
+                height: rpx(120);
             }
         }
 
@@ -399,9 +549,12 @@
             left: 0;
             width: 100vw;
             height: rpx(120);
+            z-index: 99999;
             box-shadow: 0 0 rpx(16) rpx(-10) #888888;
             background-color: #fff;
             border-radius: rpx(30) rpx(30) 0;
+            transition-property: opacity;
+            transition-duration: 300ms;
 
             .btn-text {
                 width: 50%;

@@ -48,10 +48,10 @@ export const deleteBlockList = (requestConfig) =>
     apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 //获取我的地址簿
 export const getAddressBook = (requestConfig) =>
-    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+    apiResquest(`${httpBaseUrl}/user/address`, { method: "GET", requestConfig });
 //添加地址到地址簿
 export const addAddressBook = (requestConfig) =>
-    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+    apiResquest(`${httpBaseUrl}/user/address`, { method: "POST", requestConfig });
 //修改地址簿中的地址
 export const updateAddressBook = (requestConfig) =>
     apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "PUT", requestConfig });
@@ -61,6 +61,9 @@ export const getAddress = (requestConfig) =>
 //删除地址簿中的地址
 export const deleteAddressBook = (requestConfig) =>
     apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+//设置某地址为默认地址
+export const setDefaultAddress = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}/default`, { method: "Put", requestConfig });
 
 //地区查询相关
 //获取省份

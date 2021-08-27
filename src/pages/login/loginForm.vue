@@ -219,9 +219,8 @@
                                                     text: res.data,
                                                     type: "success",
                                                 });
-                                                let redirectPage =
-                                                    this.utils.getCurrentPage().curParam.redirectPath ||
-                                                    null;
+                                                let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                                                console.log(redirectPage)
                                                 uni.redirectTo({
                                                     url: `/${redirectPage === null ? "pages/home/home" : redirectPage}`,
                                                 });
