@@ -43,6 +43,7 @@
         </view>
       </view>
     </view>
+    <!-- 分隔栏 -->
     <view class="comment-title-box">
       <text class="fa fa-window-minimize fa-rotate-90"></text>
       评论

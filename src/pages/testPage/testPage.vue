@@ -1,37 +1,25 @@
 <template>
   <view>
-    <button @click="toPage('/pagesByStore/store/subpages/storeApplyPage')">
-      店铺申请
+    <button @click="toPage('/pagesByStore/store/subpages/MyStorePage')">
+      我的店铺
     </button>
-    <button @click="toPage('/pagesByStore/store/subpages/storeInfoUpdatePage')">
-      店铺信息编辑
-    </button>
-    <button @click="toPage('/pagesByStore/dish/dishPostPage')">添加菜品</button>
-    <view class="bottom">
-      <view>我的店铺id：{{ storeAllInfo.id }} </view>
-      <view>我的店铺名：{{ storeAllInfo.name }} </view>
-      <view
-        >我的店铺下次营业时间：{{
-          storeAllInfo.nextOpeningTime | dateFilter("yy-mm-dd hh:mm")
-        }}
-      </view>
-      <view
-        >我的店铺下次外卖营业时间：{{
-          storeAllInfo.nextOpeningTimeTakeOut | dateFilter("yy-mm-dd hh:mm")
-        }}
-      </view>
-    </view>
   </view>
 </template>
 
 <script>
-import { getMyStoreInfo } from "@/common/js/api/models.js";
-import Vue from "vue";
+import { getMyStoreInfo, getDishType } from "@/common/js/api/models.js";
 export default {
   data() {
     return {
       testData: { test: "testdata" },
-      // storeInfoForm: {},
+      storeMainInfo: {
+        id: "",
+        likeNumber: "",
+        browseNumber: "",
+        score: "",
+        sales: "",
+        userId: "",
+      },
       storeAllInfo: {
         characteristic: "",
         name: "",
@@ -44,28 +32,12 @@ export default {
         areaCode: "",
         longitude: "",
         latitude: "",
-        //上面是可编辑的表单区域
-        id: "",
-        likeNumber: "",
-        browseNumber: "",
-        score: "",
-        sales: "",
-        userId: "",
       },
+      dishTypeInfo: [],
     };
   },
   onLoad() {
-    getMyStoreInfo().then((res) => {
-      if (res.success) {
-        for (const key in res.data) {
-          if (Object.hasOwnProperty.call(this.storeAllInfo, key)) {
-            this.storeAllInfo[key] = res.data[key];
-          }
-        }
-        let f = Vue.filter("dateFilter");
-        console.log(f(this.storeAllInfo.nextOpeningTime, "yy-mm-dd hh:mm"));
-      }
-    });
+    // this.getAllData();
   },
   methods: {
     toPage(url) {
@@ -77,16 +49,41 @@ export default {
         },
         success: (res) => {
           // 通过eventChannel向被打开页面传送数据
-          res.eventChannel.emit("acceptDataFromOpenerPage", this.storeAllInfo);
+          res.eventChannel.emit(
+            "acceptDataFromOpenerPage",
+            this.storeMainInfo,
+            this.storeAllInfo
+          );
         },
       });
+    },
+    async getAllData() {
+      try {
+        await getMyStoreInfo().then((res) => {
+          if (res.success) {
+            for (const key in res.data) {
+              if (Object.hasOwnProperty.call(this.storeAllInfo, key)) {
+                this.storeAllInfo[key] = res.data[key];
+              } else {
+                this.storeMainInfo[key] = res.data[key];
+              }
+            }
+          }
+        });
+        await getDishType({ urlParam: this.storeMainInfo.id }).then((res) => {
+          if (res.success) {
+            console.log(res.data);
+          }
+        });
+      } catch (error) {}
     },
   },
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
 .bottom {
   margin-top: 240rpx;
 }
+
 </style>

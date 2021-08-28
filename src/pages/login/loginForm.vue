@@ -20,7 +20,7 @@
                     @blur="inputBlur"
                     @input="usernameWatcher"
                     @confirm="usernameConfirm"
-                    confirm-type="next"/>
+                    :confirm-type="`next`"/>
             </view>
             <view class="password-container" :class="passwordContainerStyle">
                 <view class="input-placeholder" :class="passwordPlaceholderStyle">
@@ -35,7 +35,7 @@
                     @blur="inputBlur"
                     @input="passwordWatcher"
                     @confirm="passwordConfirm"
-                    confirm-type="done"/>
+                    :confirm-type="`done`"/>
             </view>
         </view>
         <!-- 忘记密码 -->
@@ -290,8 +290,8 @@
 
                     // this.isShow = true;
 
-                    wx.navigateTo({
-                        url: '../amap/amap'
+                    uni.navigateTo({
+                        url: '/pages/amap/amap',
                     })
 
                     // uni.navigateTo({

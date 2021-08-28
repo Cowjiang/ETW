@@ -88,7 +88,10 @@
 </template>
 
 <script>
-import { putStoreInfo, postMyStoreInfoImage } from "@/common/js/api/models.js";
+import {
+  putMyStoreInfo,
+  postMyStoreInfoImage,
+} from "@/common/js/api/models.js";
 import Vue from "vue";
 export default {
   data() {
@@ -108,7 +111,7 @@ export default {
         latitude: "", //纬度
       },
       //店铺的主要信息
-      storeMainForm: {
+      storeMainInfo: {
         id: "",
         likeNumber: "",
         browseNumber: "",
@@ -141,24 +144,22 @@ export default {
       titleText: "编辑店铺信息",
     });
     const eventChannel = this.getOpenerEventChannel();
-    eventChannel.on("acceptDataFromOpenerPage", (storeAllInfo) => {
-      for (const key in storeAllInfo) {
-        if (Object.hasOwnProperty.call(this.storeInfoForm, key)) {
-          this.storeInfoForm[key] = storeAllInfo[key];
-        } else {
-          this.storeMainForm[key] = storeAllInfo[key];
-        }
+    eventChannel.on(
+      "acceptDataFromOpenerPage",
+      (storeMainInfo, storeAllInfo) => {
+        this.storeMainInfo = storeMainInfo;
+        this.storeInfoForm = storeAllInfo;
+        let f = Vue.filter("dateFilter");
+        this.nextOpeningTimeInputValue = f(
+          this.storeInfoForm.nextOpeningTime,
+          "yy-mm-dd hh:mm"
+        );
+        this.nextOpeningTimeTakeOutInputValue = f(
+          this.storeInfoForm.nextOpeningTimeTakeOut,
+          "yy-mm-dd hh:mm"
+        );
       }
-      let f = Vue.filter("dateFilter");
-      this.nextOpeningTimeInputValue = f(
-        this.storeInfoForm.nextOpeningTime,
-        "yy-mm-dd hh:mm"
-      );
-      this.nextOpeningTimeTakeOutInputValue = f(
-        this.storeInfoForm.nextOpeningTimeTakeOut,
-        "yy-mm-dd hh:mm"
-      );
-    });
+    );
   },
   methods: {
     /**
@@ -222,33 +223,24 @@ export default {
      * @param {Object} imageList 每个上传组件上传的图片
      * @param {String} uploadId 每个上传组件的标识
      */
+
     async allImageUploaded(args) {
-      let imageList = args;
-      await putStoreInfo({
-        urlParam: this.storeMainForm.id,
-        queryData: this.storeInfoForm,
-      })
-        .then((res) => {
-          if (res.success) {
-            console.log(1);
-            this.$refs.toast.show({
-              text: "提交成功,请等待审核",
-              type: "success",
-            });
-            // uni.navigateBack();
-          }
-        })
-        .catch((err) => {
-          console.log("err", err);
+      const uploadedImageList = args[0];
+      try {
+        await postMyStoreInfoImage({
+          urlParam: this.storeMainInfo.id,
+          queryData: {
+            imgUrl: uploadedImageList,
+          },
+          headerData: { "Content-type": "application/json" },
         });
-      console.log(2);
-      await postMyStoreInfoImage({
-        urlParam: this.storeMainForm.id,
-        queryData: {
-          imgUrl: imageList,
-        },
-        headerData: { "Content-type": "application/json" },
-      }).then((res) => {});
+        await putMyStoreInfo({
+          urlParam: this.storeMainInfo.id,
+          queryData: this.storeInfoForm,
+        });
+      } catch (error) {
+        console.log(error.data.errorMsg);
+      }
     },
   },
 };

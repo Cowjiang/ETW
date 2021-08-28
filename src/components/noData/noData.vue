@@ -1,6 +1,6 @@
 <template>
-  <view class="contanier">
-    <text class="fa fa-comments fa-fw"></text>
+  <view class="contanier" :style="{ height: `${height}` }">
+    <text :class="[`fa fa-${iconName} fa-fw`]"></text>
     <view>{{ text }}</view>
   </view>
 </template>
@@ -9,9 +9,17 @@
 export default {
   name: "noData",
   props: {
+    height: {
+      type: Number,
+      default: 300,
+    },
     text: {
       type: String,
       default: "写个评论吧",
+    },
+    iconName: {
+      type: String,
+      default: "comments",
     },
   },
 };
@@ -24,11 +32,12 @@ export default {
   text-align: center;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   font-size: 32rpx;
   color: $uni-text-color-placeholder;
-  .fa{
-      font-size: 42rpx;
+  .fa {
+    font-size: 42rpx;
   }
 }
 </style>

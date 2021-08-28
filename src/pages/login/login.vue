@@ -6,6 +6,7 @@
         <view class="background-placeholder"></view>
         <!-- 启动界面 -->
         <view
+            v-if="splashScreenDuration !== 0"
             class="splash-screen"
             :class="splashScreenAnimation"
             :style="{
@@ -68,36 +69,34 @@
                 password: "",
             };
         },
-        onLoad() {
-        },
         methods: {
             // 启动界面退出
             splashScreenExit() {
-                this.splashScreenAnimation = "animate__animated animate__fadeOut";
-                this.loginScreenAnimation = "animate__animated animate__fadeInUp";
-                setTimeout(() => {
-                    this.showSplashScreen = "none"; //隐藏启动界面
-                }, this.splashScreenDuration);
+                if (this.splashScreenDuration !== 0) {
+                    this.splashScreenAnimation = "animate__animated animate__fadeOut";
+                    this.loginScreenAnimation = "animate__animated animate__fadeInUp";
+                    setTimeout(() => {
+                        this.showSplashScreen = "none"; //隐藏启动界面
+                    }, this.splashScreenDuration);
+                }
                 switch (this.initialScreen) {
                     case 0:
                         setTimeout(() => {
                             this.$refs["loginForm"].showLoginForm = "";
                             this.$refs["loginForm"].loginFormAnimation = "animate__animated animate__fadeIn";
-                        }, 500);
+                        }, 0);
                         break;
                     case 1:
                         setTimeout(() => {
                             this.$refs["registerForm"].showRegisterForm = "";
-                            this.$refs["registerForm"].registerFormAnimation =
-                                "animate__animated animate__fadeIn";
-                        }, 500);
+                            this.$refs["registerForm"].registerFormAnimation = "animate__animated animate__fadeIn";
+                        }, 0);
                         break;
                     case 2:
                         setTimeout(() => {
                             this.$refs["captchaForm"].showCaptchaForm = "";
-                            this.$refs["captchaForm"].captchaFormAnimation =
-                                "animate__animated animate__fadeIn";
-                        }, 500);
+                            this.$refs["captchaForm"].captchaFormAnimation = "animate__animated animate__fadeIn";
+                        }, 0);
                         break;
                 }
             },
@@ -145,12 +144,19 @@
                 }, 300);
             },
         },
+        onLoad() {
+        },
         mounted() {
+            wx.clearStorage();
             setTimeout(() => {
                 this.splashScreenExit();
             }, this.splashScreenDuration); //在启动界面持续时间结束后进入登录界面
-            console.log(this.utils.getCurrentPage())
         },
+        created() {
+            if (this.splashScreenDuration === 0) {
+                this.showSplashScreen = 'none';
+            }
+        }
     };
 </script>
 

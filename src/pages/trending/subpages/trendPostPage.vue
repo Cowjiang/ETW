@@ -102,15 +102,15 @@ export default {
      * @description: 提交动态请求
      */
     submitTrend(args) {
-      const uploadedImageList = JSON.stringify(args[0]);
+      const uploadedImageList = args[0];
       let postQueryData = {
         content: this.trendContent,
-        imageJson: uploadedImageList,
+        images: uploadedImageList,
       };
       if (this.locationData) {
         postQueryData = {
           content: this.trendContent,
-          imageJson: uploadedImageList,
+          images: uploadedImageList,
           areaCode: this.locationData.adcode,
           latitude: this.locationData.latitude,
           longitude: this.locationData.longitude,

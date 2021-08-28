@@ -1,16 +1,9 @@
-/*
- * @Author: your name
- * @Date: 2021-08-09 19:02:12
- * @LastEditTime: 2021-08-22 19:25:38
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \my-project\src\common\js\utils\utils.js
- */
 export class Utils {
     constructor() {
         this.throttleBackTime = 0;
         this.throttleGapTime = 0;
         this.throttleEnterTime = 0;
+        this.throttleFn = null;
         this.debounceTimer;
         this.debounceGapTime = 0;
     }
@@ -24,9 +17,13 @@ export class Utils {
         this.throttleGapTime = interval || 500;
         (() => {
             this.throttleBackTime = new Date();
-            if (this.throttleBackTime - this.throttleEnterTime > this.throttleGapTime) {
-                fn.call(this, arguments);
-                this.throttleEnterTime = this.throttleBackTime;//赋值给第一次触发的时间，这样就保存了第二次触发的时间
+            if (String(fn) !== String(this.throttleFn)) {
+                this.throttleEnterTime = 0;
+                if (this.throttleBackTime - this.throttleEnterTime > this.throttleGapTime) {
+                    fn.call(this, arguments);
+                    this.throttleEnterTime = this.throttleBackTime;
+                    this.throttleFn = fn;
+                }
             }
         })();
     }

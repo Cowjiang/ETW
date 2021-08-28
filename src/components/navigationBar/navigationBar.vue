@@ -66,6 +66,11 @@
 </template>
 
 <script>
+    /**
+     * @description 自定义导航栏组件
+     * @example <navigationBar ref="nav"></navigationBar>
+     * @method setNavigation(Object) 设置导航栏信息
+     */
     export default {
         data() {
             return {
@@ -88,6 +93,7 @@
             /**
              * 设置导航栏行为
              * @param {Object} options 导航栏设置
+             * @example setNavigation({isShowButton: true, titleText: '标题', titleColor: '#999999', backgroundColor: '#ffffff', customBackFunc: function() {...}})
              */
             setNavigation(options) {
                 let config = {

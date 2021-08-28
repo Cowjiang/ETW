@@ -18,7 +18,15 @@
             }
         },
         {
-            "path": "pages/amap/amap",
+            "path": "pages/addressBook/subpages/editAddress",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/addressBook/addressBook",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -31,6 +39,14 @@
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
                 "disableScroll": true,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/amap/amap",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
             }
         },
@@ -133,19 +149,29 @@
                     }
                 },
                 {
-                    "path": "dish/dishPostPage",
+                    "path": "dish/dishFormPage",
                     "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "dish/dishTypePage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "store/subpages/MyStorePage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
                         "navigationStyle": "custom"
                     }
                 }
-                // {
-                //     "path": "dish/dishPostPage",
-                //     "style": {
-                //         "navigationBarTitleText": "",
-                //         "enablePullDownRefresh": false,
-                //         "navigationStyle": "custom"
-                //     }
-                // }
             ]
         }
     ]

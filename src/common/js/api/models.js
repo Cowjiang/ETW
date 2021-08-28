@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-07-17 16:52:12
- * @LastEditTime: 2021-08-25 02:30:03
- * @LastEditors: your name
- * @Description: In User Settings Edit
- * @FilePath: \my-project\src\common\js\api\models.js
- */
 import { apiResquest } from "./request.js";
 //#ifdef H5
 // let baseUrl = "/api"
@@ -13,11 +5,9 @@ import { apiResquest } from "./request.js";
 //#ifdef MP-WEIXIN
 // let baseUrl = "http://free.svipss.top:21199"
 //#endif
-
 let host = `112.74.19.170:8887`; //服务器主机域名
 export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
 export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
-
 // mock
 // 获取作品列表
 export const getWorkList = (requestConfig) =>
@@ -45,6 +35,44 @@ export const getUser = (requestConfig) =>
 //登出
 export const logout = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/logout`, { method: "GET", requestConfig });
+//获取黑名单
+export const getBlockList = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/block-list`, { method: "GET", requestConfig });
+//添加到黑名单
+export const addBlockList = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+//从黑名单中移除
+export const deleteBlockList = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+//获取我的地址簿
+export const getAddressBook = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+//添加地址到地址簿
+export const addAddressBook = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+//修改地址簿中的地址
+export const updateAddressBook = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "PUT", requestConfig });
+//获取一个地址簿中的地址
+export const getAddress = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+//删除地址簿中的地址
+export const deleteAddressBook = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+
+//地区查询相关
+//获取省份
+export const getProvince = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/area/province`, { method: "GET", requestConfig });
+//获取城市
+export const getCity = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city`, { method: "GET", requestConfig });
+//获取县级(区/县)
+export const getArea = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area`, { method: "GET", requestConfig });
+//获取乡级(乡镇/街)
+export const getTown = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area/${requestConfig.urlParam.townId}/town`, { method: "GET", requestConfig });
 
 //动态相关
 //获取目录上传签名
@@ -98,9 +126,24 @@ export const getUserToken = (requestConfig) =>
 //店铺申请
 export const postStoreArchives = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });
-export const putStoreInfo = (requestConfig) =>
+//修改店铺信息
+export const putMyStoreInfo = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/user`, { method: "PUT", requestConfig });
+//获取店铺信息
 export const getMyStoreInfo = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/info`, { method: "GET", requestConfig });
+//提交店铺图片
 export const postMyStoreInfoImage = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/image`, { method: "POST", requestConfig });
+//添加菜品
+export const postDishInfo = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/dishes`, { method: "POST", requestConfig });
+//获取菜品列表
+export const getDishList = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type/dishes`, { method: "GET", requestConfig });
+//添加菜品类型 
+export const postDishType = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type`, { method: "POST", requestConfig });
+//获取菜品类型 
+export const getDishType = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/dishes/type`, { method: "GET", requestConfig });
