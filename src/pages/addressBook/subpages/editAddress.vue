@@ -228,13 +228,7 @@
                                 .then(res => {
                                     if (res.success) {
                                         this.$refs.loading.stopLoading();
-                                        this.$refs.toast.show({
-                                            text: '删除成功',
-                                            type: 'success'
-                                        });
-                                        setTimeout(() => {
-                                            this.navigateToAddressBook();
-                                        }, 1000);
+                                        this.navigateToAddressBook();
                                     }
                                     else {
                                         this.$refs.loading.stopLoading();
@@ -261,12 +255,6 @@
             handleConfirm() {
                 this.utils.throttle(() => {
                     if (this.checkInfo()) {
-                        // let contacts = `${this.contactName}${this.contactGender === 0 ? '' : (this.contactGender === 1 ? '{#先生}' : '{#女士}')}`;
-                        // let areaCode = this.addressAdCode[2];
-                        // let addressDetail = this.addressDetail;
-                        // let addressDetail = `${this.addressArea[0]}${this.addressArea[1]}${this.addressArea[2]}${this.addressDetail}`;
-                        // let phone = this.contactPhone;
-                        // console.log(contacts, areaCode, addressDetail, phone);
                         let newAddress = {
                             contacts: `${this.contactName}${this.contactGender === 0 ? '' : (this.contactGender === 1 ? '{#先生}' : '{#女士}')}`,
                             areaCode: this.addressAdCode[2],
@@ -364,10 +352,6 @@
                         })
                             .then(res => {
                                 if (res.success) {
-                                    this.$refs.toast.show({
-                                        text: '保存成功',
-                                        type: 'success',
-                                    });
                                     this.navigateToAddressBook();
                                 }
                                 else {
@@ -400,10 +384,6 @@
                         })
                             .then(res => {
                                 if (res.success) {
-                                    this.$refs.toast.show({
-                                        text: '保存成功',
-                                        type: 'success',
-                                    });
                                     this.navigateToAddressBook();
                                 }
                                 else {

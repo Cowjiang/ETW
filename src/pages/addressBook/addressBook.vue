@@ -1,18 +1,20 @@
 <template>
     <view
+        id="page"
         :style="{
             backgroundColor: '#f6f6f6',
             height: `calc(100vh - ${navigationHeight}px)`
         }"
-        id="page"
         @touchstart="handleScreenTouchStart"
         @touchend="handleScreenTouchEnd"
         @touchcancel="handleScreenTouchEnd">
         <navigationBar ref="navigationBar" class="navigation-bar"/>
         <toast ref="toast"/>
         <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+        <!-- 地址簿容器 -->
         <view class="address-book-container">
             <view class="address-records">
+                <!-- 批量渲染地址记录 -->
                 <view
                     class="address"
                     :class="addressTouchingId === `address${index}` ? 'address--touching' : ''"
@@ -46,12 +48,13 @@
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                     </view>
                 </view>
+                <!-- 加载更多容器 -->
                 <view class="load-more-container">
-                    <view v-show="existMore && !loadingMore && addressRecords.length !== 0" class="load-more">
+                    <view v-show="existMore && !loadingMore" class="load-more">
                         <text>{{ releaseToLoadMore ? '松开加载更多' : '下拉加载更多' }}</text>
                     </view>
                     <view
-                        v-show="loadingMore && addressRecords.length !== 0"
+                        v-show="loadingMore"
                         class="load-more loading-more">
                         <loading
                             ref="loadingMore"
@@ -64,6 +67,7 @@
                     </view>
                 </view>
             </view>
+            <!-- 底部按钮区域 -->
             <view
                 class="new-address-btn"
                 :style="{opacity: `${isShowBottomBtn && !loadingMore ? 1 : 0}`}"
@@ -80,7 +84,7 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    import {getAddressBook, setDefaultAddress, deleteAddressBook} from "../../common/js/api/models.js";
+    import {deleteAddressBook, getAddressBook, setDefaultAddress} from "../../common/js/api/models.js";
 
     export default {
         components: {
@@ -150,6 +154,9 @@
                                 this.existMore = false;
                             }
                         }
+                        else {
+                            this.existMore = true;
+                        }
                         setTimeout(() => {
                             this.loadingMore = false;
                             if (pageNumber !== 1) {
@@ -198,33 +205,39 @@
                                 .then(res => {
                                     this.getMyAddress();
                                     if (res.success) {
+                                        //设置成默认地址成功
                                         setTimeout(() => {
                                             this.$refs.toast.show({
                                                 text: '设置成功',
-                                                type: 'success'
+                                                type: 'success',
+                                                direction: 'top'
                                             });
                                         }, 500);
                                     }
                                     else {
+                                        //设置成默认地址失败
                                         setTimeout(() => {
                                             this.$refs.toast.show({
                                                 text: '设置失败',
-                                                type: 'error'
+                                                type: 'error',
+                                                direction: 'top'
                                             });
                                         }, 500);
                                         console.log(res);
                                     }
                                 })
                                 .catch(err => {
+                                    //设置成默认地址失败
                                     this.$refs.loading.stopLoading();
                                     setTimeout(() => {
                                         this.$refs.toast.show({
                                             text: '设置失败',
-                                            type: 'error'
+                                            type: 'error',
+                                            direction: 'top'
                                         });
                                     }, 500);
                                     console.error(err);
-                                })
+                                });
                         }
                         else if (res.tapIndex === 2) {
                             //删除地址
@@ -240,33 +253,39 @@
                                             .then(res => {
                                                 this.getMyAddress();
                                                 if (res.success) {
+                                                    //删除地址成功
                                                     setTimeout(() => {
                                                         this.$refs.toast.show({
                                                             text: '删除成功',
-                                                            type: 'success'
+                                                            type: 'success',
+                                                            direction: 'top'
                                                         });
                                                     }, 500);
                                                 }
                                                 else {
+                                                    //删除地址失败
                                                     setTimeout(() => {
                                                         this.$refs.toast.show({
                                                             text: '删除失败',
-                                                            type: 'error'
+                                                            type: 'error',
+                                                            direction: 'top'
                                                         });
                                                     }, 500);
                                                     console.log(res);
                                                 }
                                             })
                                             .catch(err => {
+                                                //删除地址失败
                                                 this.$refs.loading.stopLoading();
                                                 setTimeout(() => {
                                                     this.$refs.toast.show({
                                                         text: '删除失败',
-                                                        type: 'error'
+                                                        type: 'error',
+                                                        direction: 'top'
                                                     });
                                                 }, 500);
                                                 console.error(err);
-                                            })
+                                            });
                                     }
                                 }
                             });
@@ -357,6 +376,7 @@
             }
         },
         watch: {
+            // 监听加载更多的状态变化
             loadingMore(nval, oval) {
                 if (nval && !oval && this.addressRecords.length !== 0) {
                     this.$refs.loadingMore.startLoading({
@@ -368,6 +388,7 @@
                     this.$refs.loadingMore.stopLoading();
                 }
             },
+            // 监听等待加载更多的状态
             waitingLoadMore(nval, oval) {
                 if (nval && !oval) {
                     this.waitTimer = setInterval(() => {
@@ -386,6 +407,7 @@
                 }
             }
         },
+        // 页面滚动
         onPageScroll(e) {
             if (this.isShowBottomBtn) {
                 this.isShowBottomBtn = false;
@@ -403,6 +425,7 @@
                 }
             }, 300);
         },
+        // 页面滚动到底部
         onReachBottom() {
             this.releaseToLoadMore = true;
             if (this.existMore) {
@@ -410,7 +433,7 @@
             }
         },
         mounted() {
-            // this.mapLocation();
+
         },
         onLoad() {
             wx.getSystemInfo({

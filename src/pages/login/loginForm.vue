@@ -220,9 +220,8 @@
                                                     type: "success",
                                                 });
                                                 let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
-                                                console.log(redirectPage)
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "pages/home/home" : redirectPage}`,
+                                                    url: `/${redirectPage === null ? "/pages/addressBook/addressBook" : redirectPage}`,
                                                 });
                                             },
                                         });
