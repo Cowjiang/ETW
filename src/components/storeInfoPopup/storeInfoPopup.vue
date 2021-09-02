@@ -198,7 +198,7 @@
                     margin: 0 auto;
                     width: 20vw;
                     height: 20vw;
-                    background-color: orange;
+                    background-color: #e9e9e9;
                     border-radius: rpx(30);
                     text-align: center;
                     line-height: 20vw;

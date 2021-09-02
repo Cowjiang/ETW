@@ -115,9 +115,9 @@
                                 <view class="name">
                                     {{ message.senderName }}
                                 </view>
-                                <view class="blacklist-user">
-                                    黑名单
-                                </view>
+<!--                                <view class="blacklist-user">-->
+<!--                                    黑名单-->
+<!--                                </view>-->
                             </view>
                             <view class="message-content">
                                 {{ message.isPhoto ? '[图片]' : message.content }}
@@ -153,7 +153,7 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    import {getBlockList, getMyChatList} from "../../common/js/api/models.js";
+    import {getBlockList, getMyChatList, deleteChatWithFriend} from "../../common/js/api/models.js";
     import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
@@ -313,12 +313,50 @@
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', '加入黑名单'],
-                    itemColor: '#f35b56',
                     success: res => {
                         if (res.tapIndex === 0) {
-
+                            //用户点击删除记录
+                            uni.showModal({
+                                title: '',
+                                content: '删除私信记录后将无法恢复，确定删除？',
+                                success: res => {
+                                    if (res.confirm) {
+                                        deleteChatWithFriend({
+                                            urlParam: this.chatMessages[targetId].senderId
+                                        })
+                                            .then(res => {
+                                                if (res.success) {
+                                                    this.chatMessages.forEach((v, k) => {
+                                                        if (v.senderId === this.chatMessages[targetId].senderId) {
+                                                            this.chatMessages.splice(k, 1);
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    console.log(res);
+                                                    this.$refs.toast.show({
+                                                        text: '删除失败',
+                                                        type: 'error',
+                                                        direction: 'top'
+                                                    });
+                                                    this.getChatList();
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.log(err);
+                                                this.$refs.toast.show({
+                                                    text: '删除失败',
+                                                    type: 'error',
+                                                    direction: 'top'
+                                                });
+                                                this.getChatList();
+                                            });
+                                    }
+                                }
+                            });
                         }
                         else {
+                            //用户点击加入黑名单
 
                         }
                     }

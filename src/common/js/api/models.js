@@ -119,9 +119,9 @@ export const sendMessage = (requestConfig) =>
 //删除私信记录
 export const deleteChatHistory = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/chat/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
-//获取用户简要信息（临时）
-export const getUserInfoTemp = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+//删除私信列表中的私信记录
+export const deleteChatWithFriend = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/chat/friend/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 //获取登录websocket的令牌
 export const getUserToken = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/socket/connection`, { method: "GET", requestConfig });

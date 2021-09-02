@@ -21,6 +21,7 @@
                     v-for="(address, index) in addressRecords"
                     :key="index"
                     :data-name="`address${index}`"
+                    @click="handleClick"
                     @touchstart="handleTouchStart"
                     @touchend="handleTouchEnd"
                     @touchcancel="handleTouchEnd"
@@ -43,6 +44,7 @@
                     </view>
                     <view
                         class="btn"
+                        v-if="!isSelectMode"
                         :data-name="`address${index}`"
                         @click="handleEdit">
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
@@ -70,6 +72,7 @@
             <!-- 底部按钮区域 -->
             <view
                 class="new-address-btn"
+                v-if="!isSelectMode"
                 :style="{opacity: `${isShowBottomBtn && !loadingMore ? 1 : 0}`}"
                 @click="handleAddAddress">
                 <view class="btn-text">
@@ -107,6 +110,7 @@
                 waitingLoadMore: false, //是否等待加载更多地址记录
                 releaseToLoadMore: false, //是否显示“松开加载更多”提示
                 screenTouching: false, //是否正在触摸屏幕
+                isSelectMode: false, //是否为选择地址模式
             }
         },
         methods: {
@@ -171,6 +175,26 @@
                         this.$refs.loading.stopLoading();
                     })
             },
+            handleClick(e) {
+                if (this.isSelectMode) {
+                    let addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
+                    let address = JSON.parse(JSON.stringify(this.addressRecords[addressIndex])); //强制深拷贝
+                    try {
+                        const eventChannel = this.getOpenerEventChannel();
+                        eventChannel.emit("acceptDataFromOpenedPage", {
+                            address: address
+                        });
+                        uni.navigateBack();
+                    }
+                    catch (e) {
+                        this.$refs.toast.show({
+                            text: '网络异常',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    }
+                }
+            },
             // 监听地址触摸开始事件
             handleTouchStart(e) {
                 this.addressTouchingId = e.currentTarget.dataset.name;
@@ -184,38 +208,59 @@
             // 监听地址长按事件
             handleLongPress(e) {
                 wx.vibrateShort();
-                let addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
-                let address = JSON.parse(JSON.stringify(this.addressRecords[addressIndex])); //强制深拷贝
-                uni.showActionSheet({
-                    itemList: ['复制', '设为默认地址', '删除地址'],
-                    // itemColor: '#f35b56',
-                    success: res => {
-                        if (res.tapIndex === 0) {
-                            //复制地址
-                            uni.setClipboardData({
-                                data: `${this.$options.filters['formatContactName'](address.contactName)} ${address.contactPhone} ${this.$options.filters['formatAddressDetail'](address.addressDetail, address.areaName)}`
-                            });
-                        }
-                        else if (res.tapIndex === 1) {
-                            //设为默认地址
-                            this.$refs.loading.startLoading();
-                            setDefaultAddress({
-                                urlParam: address.id
-                            })
-                                .then(res => {
-                                    this.getMyAddress();
-                                    if (res.success) {
-                                        //设置成默认地址成功
-                                        setTimeout(() => {
-                                            this.$refs.toast.show({
-                                                text: '设置成功',
-                                                type: 'success',
-                                                direction: 'top'
-                                            });
-                                        }, 500);
-                                    }
-                                    else {
+                if (this.isSelectMode) {
+                    //当前为选择地址模式
+                    uni.setClipboardData({
+                        data: `${this.$options.filters['formatContactName'](address.contactName)} ${address.contactPhone} ${this.$options.filters['formatAddressDetail'](address.addressDetail, address.areaName)}`
+                    });
+                }
+                else {
+                    //当前不为选择地址模式
+                    let addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
+                    let address = JSON.parse(JSON.stringify(this.addressRecords[addressIndex])); //强制深拷贝
+                    uni.showActionSheet({
+                        itemList: ['复制', '设为默认地址', '删除地址'],
+                        // itemColor: '#f35b56',
+                        success: res => {
+                            if (res.tapIndex === 0) {
+                                //复制地址
+                                uni.setClipboardData({
+                                    data: `${this.$options.filters['formatContactName'](address.contactName)} ${address.contactPhone} ${this.$options.filters['formatAddressDetail'](address.addressDetail, address.areaName)}`
+                                });
+                            }
+                            else if (res.tapIndex === 1) {
+                                //设为默认地址
+                                this.$refs.loading.startLoading();
+                                setDefaultAddress({
+                                    urlParam: address.id
+                                })
+                                    .then(res => {
+                                        this.getMyAddress();
+                                        if (res.success) {
+                                            //设置成默认地址成功
+                                            setTimeout(() => {
+                                                this.$refs.toast.show({
+                                                    text: '设置成功',
+                                                    type: 'success',
+                                                    direction: 'top'
+                                                });
+                                            }, 500);
+                                        }
+                                        else {
+                                            //设置成默认地址失败
+                                            setTimeout(() => {
+                                                this.$refs.toast.show({
+                                                    text: '设置失败',
+                                                    type: 'error',
+                                                    direction: 'top'
+                                                });
+                                            }, 500);
+                                            console.log(res);
+                                        }
+                                    })
+                                    .catch(err => {
                                         //设置成默认地址失败
+                                        this.$refs.loading.stopLoading();
                                         setTimeout(() => {
                                             this.$refs.toast.show({
                                                 text: '设置失败',
@@ -223,47 +268,47 @@
                                                 direction: 'top'
                                             });
                                         }, 500);
-                                        console.log(res);
-                                    }
-                                })
-                                .catch(err => {
-                                    //设置成默认地址失败
-                                    this.$refs.loading.stopLoading();
-                                    setTimeout(() => {
-                                        this.$refs.toast.show({
-                                            text: '设置失败',
-                                            type: 'error',
-                                            direction: 'top'
-                                        });
-                                    }, 500);
-                                    console.error(err);
-                                });
-                        }
-                        else if (res.tapIndex === 2) {
-                            //删除地址
-                            uni.showModal({
-                                title: '',
-                                content: '删除地址后将无法恢复，确定删除？',
-                                success: res => {
-                                    if (res.confirm) {
-                                        //确定删除地址
-                                        deleteAddressBook({
-                                            urlParam: address.id
-                                        })
-                                            .then(res => {
-                                                this.getMyAddress();
-                                                if (res.success) {
-                                                    //删除地址成功
-                                                    setTimeout(() => {
-                                                        this.$refs.toast.show({
-                                                            text: '删除成功',
-                                                            type: 'success',
-                                                            direction: 'top'
-                                                        });
-                                                    }, 500);
-                                                }
-                                                else {
+                                        console.error(err);
+                                    });
+                            }
+                            else if (res.tapIndex === 2) {
+                                //删除地址
+                                uni.showModal({
+                                    title: '',
+                                    content: '删除地址后将无法恢复，确定删除？',
+                                    success: res => {
+                                        if (res.confirm) {
+                                            //确定删除地址
+                                            deleteAddressBook({
+                                                urlParam: address.id
+                                            })
+                                                .then(res => {
+                                                    this.getMyAddress();
+                                                    if (res.success) {
+                                                        //删除地址成功
+                                                        setTimeout(() => {
+                                                            this.$refs.toast.show({
+                                                                text: '删除成功',
+                                                                type: 'success',
+                                                                direction: 'top'
+                                                            });
+                                                        }, 500);
+                                                    }
+                                                    else {
+                                                        //删除地址失败
+                                                        setTimeout(() => {
+                                                            this.$refs.toast.show({
+                                                                text: '删除失败',
+                                                                type: 'error',
+                                                                direction: 'top'
+                                                            });
+                                                        }, 500);
+                                                        console.log(res);
+                                                    }
+                                                })
+                                                .catch(err => {
                                                     //删除地址失败
+                                                    this.$refs.loading.stopLoading();
                                                     setTimeout(() => {
                                                         this.$refs.toast.show({
                                                             text: '删除失败',
@@ -271,27 +316,15 @@
                                                             direction: 'top'
                                                         });
                                                     }, 500);
-                                                    console.log(res);
-                                                }
-                                            })
-                                            .catch(err => {
-                                                //删除地址失败
-                                                this.$refs.loading.stopLoading();
-                                                setTimeout(() => {
-                                                    this.$refs.toast.show({
-                                                        text: '删除失败',
-                                                        type: 'error',
-                                                        direction: 'top'
-                                                    });
-                                                }, 500);
-                                                console.error(err);
-                                            });
+                                                    console.error(err);
+                                                });
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                }
             },
             // 地址编辑按钮点击事件
             handleEdit(e) {
@@ -435,7 +468,17 @@
         mounted() {
 
         },
-        onLoad() {
+        onLoad(options) {
+            try {
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.on('selectAddress', data => {
+                    this.isSelectMode = !!data.data;
+                    this.$forceUpdate();
+                });
+            } catch (e) {
+                this.isSelectMode = false;
+                this.$forceUpdate();
+            }
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;

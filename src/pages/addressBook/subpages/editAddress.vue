@@ -165,6 +165,7 @@
                 addressAdCode: ['44', '4401', '440103'], //行政编码数组，已绑定为selectArea组件的Picker初始值
                 addressDetail: '', //门牌号（详细地址）
                 isDefaultAddress: false, //是否设为默认地址
+                isSelectMode: false, //是否为选择地址模式（用于下单页）
             }
         },
         methods: {
@@ -339,8 +340,10 @@
              */
             postAddresses(mode, newAddress) {
                 return new Promise((resolve, reject) => {
+                    console.log(mode, newAddress)
                     if (mode === 1) {
                         //新增地址
+                        //当前不为选择地址模式
                         addAddressBook({
                             queryData: {
                                 contacts: newAddress.contacts,
@@ -352,7 +355,27 @@
                         })
                             .then(res => {
                                 if (res.success) {
-                                    this.navigateToAddressBook();
+                                    if (this.isSelectMode) {
+                                        //当前为选择地址模式
+                                        try {
+                                            newAddress.id = res.data;
+                                            const eventChannel = this.getOpenerEventChannel();
+                                            eventChannel.emit("acceptDataFromOpenedPage", {
+                                                address: newAddress
+                                            });
+                                            uni.navigateBack();
+                                        } catch (e) {
+                                            this.$refs.toast.show({
+                                                text: '网络异常',
+                                                type: 'error',
+                                                direction: 'top'
+                                            });
+                                        }
+                                    }
+                                    else {
+                                        //当前不为选择地址模式
+                                        this.navigateToAddressBook();
+                                    }
                                 }
                                 else {
                                     this.$refs.toast.show({
@@ -368,7 +391,7 @@
                                     type: 'error',
                                 });
                                 console.log(err);
-                            })
+                            });
                     }
                     else {
                         //修改地址
@@ -435,6 +458,15 @@
                     this.isDefaultAddress = data.data.isDefaultAddress;
                     this.$forceUpdate();
                 });
+                try {
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.on('selectAddress', data => {
+                        this.isSelectMode = !!data.data;
+                        this.$forceUpdate();
+                    });
+                } catch (e) {
+                    this.isSelectMode = false;
+                }
             } catch (e) {
                 this.isNewAddress = true;
             }
