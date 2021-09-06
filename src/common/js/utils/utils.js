@@ -89,15 +89,23 @@ export class Utils {
             curParam: curParam
         };
     }
-    isObjectSomeKeyEmpty(obj) {
-        let isSomeKeyEmpty = false
+    /**
+     * @description: 判断对象的键是否为空
+     * @param {*} obj 需要判断的对象
+     * @param {*} arr 数组内为该对象可以为空的键
+     */    
+    isObjectAnyKeyEmpty(obj,arr) {
+        let isAnyKeyEmpty = false
         for (const key in obj) {
+            if (arr&&arr.indexOf(key) !== -1) {
+                continue;
+            }
             if (!obj[key] || obj[key] === {} || obj[key] === []) {
-                isSomeKeyEmpty = true;
+                isAnyKeyEmpty = true;
                 break
             }
         }
-        return isSomeKeyEmpty
+        return isAnyKeyEmpty
     }
 }
 

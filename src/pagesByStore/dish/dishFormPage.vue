@@ -6,23 +6,26 @@
       <u-form-item label-position="top" label="菜品封面图片">
         <uploadGroup
           ref="dishInfoImageUpload"
-          :maxImageCount="1"
           uploadImageDir="sotre/dish-info"
           uploadId="dishInfoImageUpload"
+          :maxImageCount="1"
+          :file-list="fileList"
+          @onRemoveImage="clearImage(arguments)"
           @onImageUploaded="allImageUploaded(arguments)"
+          @onChooseComplete="isImageChoosen = true"
         ></uploadGroup>
       </u-form-item>
       <u-form-item label-position="top" label="菜品名称">
         <u-input v-model="dishInfoForm.name" maxlength="10" />
       </u-form-item>
-      <u-form-item label-position="top" label="菜品描述">
-        <u-input v-model="dishInfoForm.description" maxlength="30" />
+      <u-form-item label-position="top" label="菜品简短介绍">
+        <u-input v-model="dishInfoForm.summary" maxlength="20" />
       </u-form-item>
-      <u-form-item label-position="top" label="菜品概要介绍">
-        <u-input v-model="dishInfoForm.summary" maxlength="30" />
+      <u-form-item label-position="top" label="菜品描述">
+        <u-input v-model="dishInfoForm.description" maxlength="200" />
       </u-form-item>
       <u-form-item label-position="top" label="原价（单位：元）">
-        <u-input v-model="dishInfoForm.price" maxlength="4" />
+        <u-input v-model="dishInfoForm.price" type="number" maxlength="4" />
       </u-form-item>
       <u-form-item label-position="top" label="折扣（八折为0.8,原价为1）">
         <u-input
@@ -57,7 +60,11 @@
         ></u-select>
       </u-form-item>
       <u-form-item label-position="top" label="打包费">
-        <u-input v-model="dishInfoForm.packingCharges" maxlength="2" />
+        <u-input
+          v-model="dishInfoForm.packingCharges"
+          type="number"
+          maxlength="2"
+        />
       </u-form-item>
     </u-form>
     <button
@@ -67,27 +74,30 @@
       :class="isShowLoading ? 'disabled-button' : ''"
     >
       <i v-show="isShowLoading" class="fa fa-spinner fa-spin fa-fw"></i>
-      提交
+      {{ isAdd ? "添加" : "编辑" }}
     </button>
   </view>
 </template>
 
 <script>
-import { postDishInfo } from "@/common/js/api/models.js";
+import { postDishInfo, putDishInfo } from "@/common/js/api/models.js";
 export default {
   data() {
     return {
+      isAdd: true, //当前是否为添加菜品
       isShowSelectDiscount: false,
       isShowSelectDishType: false,
       isShowLoading: false, //提交的加载
+      isImageChoosen: false, //是否选择了照片
       dishInfoForm: {
-        imageUrl: 1, //封面图片
+        imageUrl: null, //封面图片
         name: "", //菜品名称
         description: "", //菜品描述
         summary: "", //菜品概要介绍
         price: "", //原价（单位：元）
         discount: 1, //折扣
-        packingCharges: "", //打包费（外卖）（单位：元）
+        // packingCharges: "", //打包费（外卖）（单位：元）
+        typeId: "", //菜品类型id
       },
       storeMainInfo: {
         id: "",
@@ -99,7 +109,7 @@ export default {
       },
       dishTypeList: [],
       discountlist: [],
-      typeId: "", //菜品类型id
+      fileList: [], //上传组件的图片
       primaryColor: "#f4756b",
       dishTypeInputValue: "",
     };
@@ -108,20 +118,31 @@ export default {
     for (let i = 0; i < 10; i++) {
       this.discountlist[i] = { value: (i + 1) / 10, label: (i + 1) / 10 };
     }
-    this.$refs.navigationBar.setNavigation({
-      backgroundColor: "white",
-      titleText: "添加菜品",
-    });
     const eventChannel = this.getOpenerEventChannel();
     eventChannel.on(
       "acceptDataFromOpenerPage",
-      (storeMainInfo, dishTypeList) => {
+      (isAdd, storeMainInfo, dishTypeList, dishInfo) => {
+        this.isAdd = isAdd;
+        //编辑
+        if (this.isAdd === false) {
+          Object.assign(this.dishInfoForm, dishInfo);
+          this.fileList.push({ url: this.dishInfoForm.imageUrl });
+          this.isImageChoosen = true;
+        }
         this.storeMainInfo = storeMainInfo;
         dishTypeList.forEach((element) => {
+          //编辑
+          if (this.isAdd === false && element.id === dishInfo.typeId) {
+            this.dishTypeInputValue = element.typeName;
+          }
           this.dishTypeList.push({
             label: element.typeName,
             value: element.id,
           });
+        });
+        this.$refs.navigationBar.setNavigation({
+          backgroundColor: "white",
+          titleText: `${this.isAdd ? "添加" : "编辑"}菜品`,
         });
       }
     );
@@ -147,13 +168,60 @@ export default {
      */
     clickSubmitButton() {
       this.utils.debounce(() => {
-        if (!this.utils.isObjectSomeKeyEmpty(this.dishInfoForm)) {
-          this.$refs.dishInfoImageUpload.$refs.upload.upload();
+        console.log("当前表单数据", this.dishInfoForm);
+        //添加
+        if (this.isAdd) {
+          if (
+            !this.utils.isObjectAnyKeyEmpty(this.dishInfoForm, ["imageUrl"]) &&
+            this.isImageChoosen
+          ) {
+            this.$refs.dishInfoImageUpload.$refs.upload.upload();
+          } else {
+            this.$refs.toast.show({
+              text: "有信息还未填写",
+              type: "warning",
+            });
+          }
+          //编辑
         } else {
-          this.$refs.toast.show({
-            text: "有信息还未填写",
-            type: "warning",
-          });
+          if (
+            !this.utils.isObjectAnyKeyEmpty(this.dishInfoForm, ["imageUrl"]) &&
+            this.isImageChoosen
+          ) {
+            //更改过图片
+            if (this.fileList.length === 0) {
+              this.$refs.dishInfoImageUpload.$refs.upload.upload();
+            } else {
+              //未改过图片
+              const dishId = this.dishInfoForm.id;
+              delete this.dishInfoForm.id;
+              putDishInfo({
+                urlParam: {
+                  storeId: this.storeMainInfo.id,
+                  dishId: dishId,
+                },
+                queryData: this.dishInfoForm,
+              }).then((res) => {
+                if (res.success) {
+                  this.$refs.toast.show({
+                    text: "编辑成功",
+                    type: "success",
+                  });
+                  this.backPage();
+                } else {
+                  this.$refs.toast.show({
+                    text: "编辑失败",
+                    type: "error",
+                  });
+                }
+              });
+            }
+          } else {
+            this.$refs.toast.show({
+              text: "有信息还未填写",
+              type: "warning",
+            });
+          }
         }
       });
     },
@@ -165,20 +233,58 @@ export default {
     async allImageUploaded(args) {
       const uploadedImageList = args[0];
       this.dishInfoForm.imageUrl = uploadedImageList[0];
-      let dishInfoForm = this.dishInfoForm;
-      dishInfoForm.preferentialPrice = ""; //随时废弃
       try {
-        await postDishInfo({
-          urlParam: this.storeMainInfo.id,
-          queryData: dishInfoForm,
-        });
+        //添加
+        if (this.isAdd === true) {
+          await postDishInfo({
+            urlParam: this.storeMainInfo.id,
+            queryData: this.dishInfoForm,
+          });
+          //编辑
+        } else {
+          const dishId = this.dishInfoForm.id;
+          delete this.dishInfoForm.id;
+          await putDishInfo({
+            urlParam: {
+              storeId: this.storeMainInfo.id,
+              dishId: dishId,
+            },
+            queryData: this.dishInfoForm,
+          });
+        }
+
         this.$refs.toast.show({
           text: "提交成功",
-          type: "succes",
+          type: "success",
         });
+        this.backPage();
       } catch (error) {
         console.log(error.data.errorMsg);
+        this.$refs.toast.show({
+          text: "编辑失败",
+          type: "error",
+        });
       }
+    },
+    /**
+     * @description: 清除当前菜品的图片
+     */
+    clearImage(args) {
+      this.isImageChoosen = false;
+      let index = args[0];
+      this.dishInfoForm.imageUrl = null;
+      this.fileList.splice(index, 1);
+    },
+    /**
+     * @description: 返回上一页
+     */
+    backPage() {
+      const pages = getCurrentPages();
+      //上一个页面
+      let prePage = pages[pages.length - 2];
+      //调用上一页拉取数据的方法
+      prePage.$vm.getDishListData();
+      uni.navigateBack();
     },
   },
 };

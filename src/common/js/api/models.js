@@ -135,15 +135,24 @@ export const getMyStoreInfo = (requestConfig) =>
 //提交店铺图片
 export const postMyStoreInfoImage = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/image`, { method: "POST", requestConfig });
-//添加菜品
-export const postDishInfo = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/dishes`, { method: "POST", requestConfig });
 //获取菜品列表
 export const getDishList = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type/dishes`, { method: "GET", requestConfig });
-//添加菜品类型 
-export const postDishType = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type`, { method: "POST", requestConfig });
+//添加菜品
+export const postDishInfo = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/dishes`, { method: "POST", requestConfig });
+//编辑菜品
+export const putDishInfo = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/dishes/${requestConfig.urlParam.dishId}`, { method: "PUT", requestConfig });
+//删除菜品
+export const deleteDishInfo = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/dishes/${requestConfig.urlParam.dishId}`, { method: "DELETE", requestConfig });
 //获取菜品类型 
 export const getDishType = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/dishes/type`, { method: "GET", requestConfig });
+//添加菜品类型 
+export const postDishType = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type`, { method: "POST", requestConfig });
+//删除菜品类型
+export const deleteDishType = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/type/${requestConfig.urlParam.typeId}`, { method: "DELETE", requestConfig });

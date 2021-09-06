@@ -8,10 +8,12 @@
       :before-upload="beforeUpload"
       :max-size="5242880"
       :max-count="maxImageCount"
+      :size-type="sizeType"
       @on-choose-complete="onChooseComplete"
       @on-success="onUploadSuccess"
       @on-uploaded="onUploaded"
       @on-error="onError"
+      @on-remove="onRemove"
     ></upload>
   </view>
 </template>
@@ -31,11 +33,18 @@ export default {
     uploadId: {
       type: String,
     },
+    sizeType: {
+      type: Array,
+      default: ["compressed"],
+    },
+    fileList: {
+      type: Array,
+      default: [],
+    },
   },
   data() {
     return {
       lists: [],
-      fileList: [],
       imageSrc: "",
       action: "",
       formData: {},
@@ -45,7 +54,13 @@ export default {
     };
   },
   methods: {
-    onChooseComplete(list, index) {},
+    /**
+     * @description 单个文件上传成功后回调
+     * @param list  上传文件列表
+     */
+    onChooseComplete(list) {
+      this.$emit("onChooseComplete");
+    },
     /**
      * @description 单个文件上传成功后回调
      * @param data 上传文件成功后的响应
@@ -111,6 +126,11 @@ export default {
           });
       });
     },
+    /**
+     * @description: 错误发生的回调
+     * @param {*} err 错误原因
+     * @param {*} index 错误下标
+     */
     onError(err, index) {
       uni.showModal({
         title: "警告",
@@ -122,6 +142,14 @@ export default {
         },
       });
       throw err;
+    },
+    /**
+     * @description 移除图片的回调
+     * @param listsIndex 移除图片列表下标
+     * @param lists  当前文件列表
+     */
+    onRemove(listsIndex, lists) {
+      this.$emit("onRemoveImage", listsIndex, lists);
     },
   },
 };

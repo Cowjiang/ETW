@@ -96,6 +96,9 @@ import Vue from "vue";
 export default {
   data() {
     return {
+      isShowPickerNextOpen: false, //是否显示下次营业时间选择器
+      isShowPickerTakeOut: false, //是否显示下次外卖营业时间选择器
+      isShowLoading: false, //提交的加载
       //店铺要上传的的表单信息
       storeInfoForm: {
         name: "", //店铺名称
@@ -123,8 +126,7 @@ export default {
       nextOpeningTimeTakeOutInputValue: "", //下次营业时间输入框的的值
       areaInputValue: "", //地区输入框的值，
       locationValue: "", //定位输入框的值
-      isShowPickerNextOpen: false, //是否显示下次营业时间选择器
-      isShowPickerTakeOut: false, //是否显示下次外卖营业时间选择器
+
       pickerTimeParams: {
         //时间选择器的配置对象
         year: true,
@@ -134,7 +136,6 @@ export default {
         minute: true,
         timestamp: true,
       },
-      isShowLoading: false, //提交的加载
       primaryColor: "#f4756b",
     };
   },
@@ -208,7 +209,7 @@ export default {
      */
     clickSubmitButton() {
       this.utils.debounce(() => {
-        if (!this.utils.isObjectSomeKeyEmpty(this.storeInfoForm)) {
+        if (!this.utils.isObjectAnyKeyEmpty(this.storeInfoForm)) {
           this.$refs.storeInfoImageUpload.$refs.upload.upload();
         } else {
           this.$refs.toast.show({
