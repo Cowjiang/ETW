@@ -143,6 +143,14 @@
                     }
                 },
                 {
+                    "path": "storeMenu/storeMenu",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "store/subpages/storeInfoUpdatePage",
                     "style": {
                         "navigationBarTitleText": "",

@@ -267,6 +267,7 @@
                 navigationHeight: 0, //导航栏高度
                 isTakeOut: false, //是否外送
                 storeInfo: {
+                    storeId: 0, // {Number} 店铺id，必需
                     name: '必胜客（太平店）', // {String} 店铺名字，必需
                     addressDetails: '广东省广州市从化区太平镇乐东路385号（峰达电器城旁）', // {String} 店铺地址详情，必需
                     phone: '020-88900280', // {String} 店铺联系电话，必需
