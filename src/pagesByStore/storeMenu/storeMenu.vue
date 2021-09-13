@@ -30,26 +30,27 @@
                         </view>
                     </view>
                     <view class="favorite-container">
-                        <view class="favorite-btn">
-                            <i class="fa fa-star-o" aria-hidden="true"></i>
+                        <view class="favorite-btn" @click="handleChangeFavorite">
+                            <i class="fa fa-star-o" aria-hidden="true" v-show="!isFavourite"></i>
+                            <i class="fa fa-star" aria-hidden="true" v-show="isFavourite"></i>
                         </view>
                     </view>
                 </view>
-                <view class="announcement-container">
+                <view class="announcement-container" @click="handleAnnouncementFold">
                     <i class="fa fa-volume-down" aria-hidden="true"></i>
                     <view
                         class="announcement-text"
                         :style="{whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}`}">
                         {{ storeInfo.announcement }}
                     </view>
-                    <view class="unfold-btn" @click="handleAnnouncementFold">
+                    <view class="unfold-btn" @click.stop="" @click="handleAnnouncementFold">
                         <i
                             class="fa fa-angle-down"
                             aria-hidden="true"
                             :style="{transform: `${announcementFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"></i>
                     </view>
                 </view>
-                <view class="discount-container">
+                <view class="discount-container" @click="handleDiscountFold">
                     <view
                         class="discount-tags"
                         :style="{height: `${discountFolding ? 'rpx(40)' : 'fit-content'}`}">
@@ -65,7 +66,7 @@
                             {{ tag.content }}
                         </view>
                     </view>
-                    <view class="unfold-btn" @click="handleDiscountFold">
+                    <view class="unfold-btn" @click.stop="" @click="handleDiscountFold">
                         <view :style="{opacity: `${discountFolding ? 1 : 0}`}">
                             更多
                         </view>
@@ -91,7 +92,7 @@
                             @change="handleTabsChange"
                         ></u-tabs>
                     </view>
-                    <view class="search-btn-container">
+                    <view class="search-btn-container" @click="handleOpenSearchPopup">
                         <i class="fa fa-search" aria-hidden="true"></i>
                         搜索
                     </view>
@@ -126,7 +127,7 @@
                         :scroll-with-animation="true">
                         <view
                             class="commodity-group-container"
-                            v-for="type in menuList"
+                            v-for="(type, typeIndex) in menuList"
                             :key="type.id"
                             :id="`type${type.id}`">
                             <view class="group-name">
@@ -134,14 +135,18 @@
                             </view>
                             <view
                                 class="commodity"
-                                v-for="commodity in type.dishes"
+                                v-for="(commodity, commodityIndex) in type.dishes"
                                 :key="commodity.id"
                                 :data-name="`type${type.id}`"
                                 @touchstart="handleTouchStart">
-                                <view class="commodity-image-container">
+                                <view
+                                    class="commodity-image-container"
+                                    @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
                                     <view class="commodity-image"></view>
                                 </view>
-                                <view class="commodity-info-container">
+                                <view
+                                    class="commodity-info-container"
+                                    @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
                                     <view class="commodity-name">
                                         {{ commodity.name }}
                                     </view>
@@ -157,20 +162,20 @@
                                                 ￥
                                                 <text>
                                                     {{
-                                                        parseInt(commodity.discountPrice === null ? commodity.originPrice : commodity.discountPrice)
+                                                        parseInt(commodity.discountPrice === null ? commodity.originalPrice : commodity.discountPrice)
                                                     }}
                                                 </text>
                                                 <text>
                                                     {{
-                                                        commodity.discountPrice === null ? (commodity.originPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.originPrice.toString().split('.')[1]}`) : (commodity.discountPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.discountPrice.toString().split('.')[1]}`)
+                                                        commodity.discountPrice === null ? (commodity.originalPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.originalPrice.toString().split('.')[1]}`) : (commodity.discountPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.discountPrice.toString().split('.')[1]}`)
                                                     }}
                                                 </text>
                                             </view>
                                             <view class="origin-price" v-if="commodity.discountPrice !== null">
-                                                {{ commodity.originPrice | showPrice }}
+                                                {{ commodity.originalPrice | showPrice }}
                                             </view>
                                         </view>
-                                        <view class="amount-btn-container">
+                                        <view class="amount-btn-container" @click.stop="">
                                             <i
                                                 class="fa fa-minus-circle"
                                                 aria-hidden="true"
@@ -194,6 +199,224 @@
                         </view>
                         <view class="bottom-empty-box"></view>
                     </scroll-view>
+                </view>
+                <u-popup
+                    v-model="showCartPopup"
+                    mode="bottom"
+                    width="100%"
+                    height="40%"
+                    border-radius="30"
+                    z-index="3">
+                    <view class="shopping-cart-container">
+                        <view class="title-container">
+                            <view class="amount-container">
+                                共 {{ totalAmount }} 件商品
+                            </view>
+                            <view class="clear-btn-container" @click="handleClearCartList">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                清空购物车
+                            </view>
+                        </view>
+                        <view class="content-container">
+                            <view class="empty-tips" v-if="totalAmount === 0">
+                                <text>空空如也 ~</text>
+                            </view>
+                            <view class="cart-items" v-if="totalAmount !== 0">
+                                <scroll-view
+                                    class="commodity-container"
+                                    :scroll-y="true"
+                                    :scroll-with-animation="true">
+                                    <view
+                                        class="commodity"
+                                        v-for="item in cartList"
+                                        :key="item.id">
+                                        <view class="image-container">
+                                            <view class="image"></view>
+                                        </view>
+                                        <view class="info-container">
+                                            <view class="name">
+                                                {{ item.name }}
+                                            </view>
+                                            <view class="description">
+                                                <!-- 用于展示规格 -->
+                                            </view>
+                                            <view class="price">
+                                                {{
+                                                    item.discountPrice === null ? item.originalPrice : item.discountPrice | showPrice
+                                                }}
+                                            </view>
+                                        </view>
+                                        <view class="amount-container">
+                                            <view class="amount-btn-container">
+                                                <i
+                                                    class="fa fa-minus-circle"
+                                                    aria-hidden="true"
+                                                    :data-name="`${item.typeId}&${item.commodityId}`"
+                                                    @click="handleMinusCommodity"></i>
+                                                <view class="amount">
+                                                    {{ item.amount || 0 }}
+                                                </view>
+                                                <i
+                                                    class="fa fa-plus-circle"
+                                                    aria-hidden="true"
+                                                    :data-name="`${item.typeId}&${item.commodityId}`"
+                                                    @click="handleAddCommodity"></i>
+                                            </view>
+                                        </view>
+                                    </view>
+                                </scroll-view>
+                            </view>
+                        </view>
+                    </view>
+                </u-popup>
+                <u-popup
+                    class="search-popup"
+                    v-model="showSearchPopup"
+                    mode="bottom"
+                    width="100%"
+                    height="80%"
+                    border-radius="30"
+                    z-index="5"
+                    @close="handleCloseSearchPopup">
+                    <view class="search-container">
+                        <view class="input-container">
+                            <view class="input">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                                <input
+                                    type="text"
+                                    v-model="searchValue"
+                                    :focus="searchInputFocus"
+                                    placeholder="搜索商品名称">
+                            </view>
+                            <view
+                                class="cancel-btn"
+                                @click="handleCloseSearchPopup">
+                                取消
+                            </view>
+                        </view>
+                        <view class="result-container">
+                            <scroll-view
+                                class="result-scroll-view"
+                                :scroll-y="true"
+                                :scroll-with-animation="true">
+                                <view
+                                    class="search-result-item"
+                                    v-for="(result, index) in searchResultList"
+                                    :key="index"
+                                    @click="handleShowCommodityPopup(result.typeIndex, result.commodityIndex)">
+                                    <view class="image-container">
+                                        <view class="image"></view>
+                                    </view>
+                                    <view class="info-container">
+                                        <text>{{ result.commodityName.split(searchValue)[0] }}</text>
+                                        <text class="search-key-text">{{ searchValue }}</text>
+                                        <text>{{ result.commodityName.split(searchValue)[1] }}</text>
+                                    </view>
+                                    <view class="price-container">
+                                        {{ result.commodityPrice | showPrice }}
+                                    </view>
+                                </view>
+                            </scroll-view>
+                        </view>
+                    </view>
+                </u-popup>
+                <u-popup
+                    class="commodity-detail-popup"
+                    v-model="showCommodityDetailPopup"
+                    mode="center"
+                    width="80%"
+                    border-radius="30"
+                    closeable
+                    z-index="5"
+                    @close="handleCloseCommodityPopup">
+                    <view class="commodity-detail-container" v-if="currentSelectedCommodity.commodityIndex!==undefined">
+                        <view class="image-container">
+                            <view class="image"></view>
+                        </view>
+                        <view class="info-container">
+                            <view class="title">
+                                {{
+                                    menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].name
+                                }}
+                            </view>
+                            <view class="description">
+                                {{
+                                    menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].description
+                                }}
+                            </view>
+                        </view>
+                        <view class="price-container">
+                            <view class="price">
+                                {{
+                                    menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice == null
+                                        ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].originalPrice
+                                        : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice
+                                        | showPrice
+                                }}
+                            </view>
+                            <view class="amount-btn">
+                                <i
+                                    class="fa fa-minus-circle"
+                                    aria-hidden="true"
+                                    v-show="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== 0
+                                        && !isNaN(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount)
+                                        && menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== undefined"
+                                    :data-name="`${menuList[currentSelectedCommodity.typeIndex].id}&${menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id}`"
+                                    @click="handleMinusCommodity"></i>
+                                <view
+                                    class="amount"
+                                    v-show="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== 0
+                                        && !isNaN(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount)
+                                        && menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== undefined">
+                                    {{
+                                        menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount
+                                    }}
+                                </view>
+                                <i
+                                    class="fa fa-plus-circle"
+                                    aria-hidden="true"
+                                    :data-name="`${menuList[currentSelectedCommodity.typeIndex].id}&${menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id}`"
+                                    @click="handleAddCommodity"></i>
+                            </view>
+                        </view>
+                    </view>
+                </u-popup>
+                <view class="cart-bar-container" v-show="currentTab === 0">
+                    <view
+                        class="cart-btn-container"
+                        @click="handleOpenCartPopup"
+                        :style="{transform: `${showCartPopup ? 'translateX(-100rpx)' : 'translateX(30rpx)'}`}">
+                        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                        <view class="total-amount" v-show="totalAmount !== 0">
+                            {{ totalAmount }}
+                        </view>
+                    </view>
+                    <view class="cart-bar">
+                        <view
+                            class="price-container"
+                            :style="{marginLeft: `${showCartPopup ? '40rpx' : '150rpx'}`, color: `${ showCartPopup ? '#f4756b' : '#333'}`}">
+                            ￥
+                            <text>
+                                {{ parseInt(totalPrice) }}
+                            </text>
+                            <text>
+                                {{
+                                    totalPrice.toString().split('.')[1] === undefined ? '' : `.${totalPrice.toString().split('.')[1]}`
+                                }}
+                            </text>
+                            <text
+                                class="origin-price"
+                                v-show="totalOriginalPrice !== totalPrice">
+                                ￥{{ totalOriginalPrice }}
+                            </text>
+                        </view>
+                        <view
+                            class="pay-container"
+                            :class="payable ? 'pay-container__default' : 'pay-container__reject'"
+                            @click="handlePayBtnClick">
+                            结算
+                        </view>
+                    </view>
                 </view>
             </view>
         </view>
@@ -274,6 +497,7 @@
                 ], //优惠券标签
                 announcementFolding: true, //公告折叠状态
                 discountFolding: true, //优惠券折叠状态
+                isFavourite: false, //是否收藏店铺
                 menuTabs: [
                     {
                         name: '点餐'
@@ -294,7 +518,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感巴拉巴拉巴拉巴拉',
-                                originPrice: 39,
+                                originalPrice: 39,
                                 discountPrice: 32.9,
                             },
                             {
@@ -302,7 +526,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -310,7 +534,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -318,7 +542,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -326,7 +550,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -334,7 +558,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -342,7 +566,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -350,7 +574,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -358,7 +582,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -366,7 +590,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -380,7 +604,7 @@
                                 name: '多肉雪山青提',
                                 imageUrl: '',
                                 description: '超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -388,7 +612,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -396,7 +620,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -404,7 +628,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -412,7 +636,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -420,7 +644,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -428,7 +652,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -436,7 +660,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -444,7 +668,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -452,7 +676,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -466,7 +690,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -474,7 +698,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -482,7 +706,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -490,7 +714,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -498,7 +722,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -506,7 +730,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -514,7 +738,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -522,7 +746,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -530,7 +754,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -538,7 +762,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -552,7 +776,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -560,7 +784,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -568,7 +792,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -576,7 +800,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -584,7 +808,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -592,7 +816,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -600,7 +824,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -608,7 +832,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -616,7 +840,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -624,7 +848,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -638,7 +862,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -646,7 +870,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -654,7 +878,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -662,7 +886,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -670,7 +894,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -678,7 +902,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -686,7 +910,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -694,7 +918,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -702,7 +926,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -710,7 +934,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -724,7 +948,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -732,7 +956,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -740,7 +964,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -748,7 +972,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -756,7 +980,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -764,7 +988,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -772,7 +996,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -780,7 +1004,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -788,7 +1012,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -796,7 +1020,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -810,7 +1034,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -818,7 +1042,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -826,7 +1050,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -834,7 +1058,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -842,7 +1066,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -850,7 +1074,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -858,7 +1082,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -866,7 +1090,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -874,7 +1098,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -882,7 +1106,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -896,7 +1120,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -904,7 +1128,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -912,7 +1136,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -920,7 +1144,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -928,7 +1152,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -936,7 +1160,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -944,7 +1168,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -952,7 +1176,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -960,7 +1184,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -968,7 +1192,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -982,7 +1206,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -990,7 +1214,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -998,7 +1222,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1006,7 +1230,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1014,7 +1238,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1022,7 +1246,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1030,7 +1254,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1038,7 +1262,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1046,7 +1270,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1054,7 +1278,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1068,7 +1292,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1076,7 +1300,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1084,7 +1308,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1092,7 +1316,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1100,7 +1324,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1108,7 +1332,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1116,7 +1340,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1124,7 +1348,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1132,7 +1356,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1140,7 +1364,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1154,7 +1378,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1162,7 +1386,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1170,7 +1394,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1178,7 +1402,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1186,7 +1410,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1194,7 +1418,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1202,7 +1426,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1210,7 +1434,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1218,7 +1442,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1226,7 +1450,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1240,7 +1464,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1248,7 +1472,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1256,7 +1480,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1264,7 +1488,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1272,7 +1496,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1280,7 +1504,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1288,7 +1512,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1296,7 +1520,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1304,7 +1528,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1312,7 +1536,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1326,7 +1550,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1334,7 +1558,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1342,7 +1566,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1350,7 +1574,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1358,7 +1582,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1366,7 +1590,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1374,7 +1598,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1382,7 +1606,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1390,7 +1614,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1398,7 +1622,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1412,7 +1636,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1420,7 +1644,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1428,7 +1652,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1436,7 +1660,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1444,7 +1668,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1452,7 +1676,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1460,7 +1684,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1468,7 +1692,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1476,7 +1700,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1484,7 +1708,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1498,7 +1722,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1506,7 +1730,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1514,7 +1738,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1522,7 +1746,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1530,7 +1754,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1538,7 +1762,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1546,7 +1770,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1554,7 +1778,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1562,7 +1786,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             },
                             {
@@ -1570,7 +1794,7 @@
                                 name: '雪山多肉青提',
                                 imageUrl: '',
                                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originPrice: 32,
+                                originalPrice: 32,
                                 discountPrice: null,
                             }
                         ]
@@ -1579,6 +1803,14 @@
                 currentTypeId: 1, //当前菜单显示的类型编号
                 scrollToTypeId: '', //要滑动到的类型Id
                 cartList: [], //购物车列表
+                showCartPopup: false, //是否显示购物车弹出层
+                searchResultList: [], //搜索结果列表
+                showSearchPopup: false, //是否显示搜索弹出层
+                searchValue: '', //搜索输入框的值
+                searchInputFocus: false, //搜索输入框聚焦状态
+                showCommodityDetailPopup: false,
+                currentSelectedCommodity: {}, //当前选择的商品信息，用于商品详情弹出框的信息展示
+                payable: false, //支付按钮是否可点击
             }
         },
         methods: {
@@ -1590,9 +1822,31 @@
             handleDiscountFold() {
                 this.discountFolding = !this.discountFolding;
             },
+            // 切换收藏店铺状态
+            handleChangeFavorite() {
+                this.isFavourite = !this.isFavourite;
+            },
             // 切换菜单标签
             handleTabsChange(index) {
                 this.currentTab = index;
+            },
+            // 打开搜索弹出层事件
+            handleOpenSearchPopup() {
+                this.searchResultList = [];
+                this.searchValue = '';
+                setTimeout(() => {
+                    this.searchInputFocus = true;
+                }, 0);
+                this.showSearchPopup = true;
+            },
+            // 关闭搜索弹出层事件
+            handleCloseSearchPopup() {
+                this.searchResultList = [];
+                this.searchValue = '';
+                setTimeout(() => {
+                    this.searchInputFocus = false;
+                }, 0);
+                this.showSearchPopup = false;
             },
             // 菜单中的类型点击事件
             handleTypeClick(id) {
@@ -1633,15 +1887,15 @@
                                         name: val.name, // {String} 商品名字
                                         imageUrl: val.imageUrl, // {String} 商品图片url
                                         description: val.description, // {String} 商品描述
-                                        originPrice: val.originPrice, // {Number} 商品原价
+                                        originalPrice: val.originalPrice, // {Number} 商品原价
                                         discountPrice: val.discountPrice, // {Number|NaN} 商品优惠价格
                                     }); //将商品加入购物车列表
                                 }
-                                this.$forceUpdate();
                             }
                         });
                     }
                 });
+                this.$forceUpdate();
             },
             // 菜品减少按钮点击事件
             handleMinusCommodity(e) {
@@ -1667,24 +1921,117 @@
                                         }
                                     });
                                 }
-                                this.$forceUpdate();
                             }
                         });
                     }
                 });
+                this.$forceUpdate();
+            },
+            // 打开购物车弹出层事件
+            handleOpenCartPopup() {
+                this.showCartPopup = true;
+            },
+            // 清空购物车事件
+            handleClearCartList() {
+                this.cartList.forEach((v, k) => {
+                    this.menuList.forEach((type, typeIndex) => {
+                        if (type.id == v.typeId) {
+                            type.dishes.forEach((dish, dishIndex) => {
+                                if (dish.id == v.commodityId) {
+                                    dish.amount = 0;
+                                }
+                            });
+                        }
+                    });
+                });
+                this.cartList = [];
+                this.$forceUpdate();
+            },
+            /**
+             * 商品详情弹出层显示事件
+             * @param typeIndex {Number} 类型索引
+             * @param commodityIndex {Number} 商品索引
+             */
+            handleShowCommodityPopup(typeIndex, commodityIndex) {
+                if (typeIndex != null && commodityIndex != null) {
+                    this.currentSelectedCommodity = {
+                        typeIndex: typeIndex,
+                        commodityIndex: commodityIndex
+                    };
+                    this.showCommodityDetailPopup = true;
+                }
+            },
+            // 商品详情弹出层关闭事件
+            handleCloseCommodityPopup() {
+                this.currentSelectedCommodity = {};
+                this.showCommodityDetailPopup = false;
+            },
+            /**
+             * 查询搜索结果
+             * @param keyword {String} 搜索的关键字
+             * @return {Array} 结果数组
+             */
+            querySearchResult(keyword) {
+                let result = [];
+                this.menuList.forEach((type, typeIndex) => {
+                    type.dishes.forEach((commodity, commodityIndex) => {
+                        if (commodity.name.includes(keyword)) {
+                            //商品名字包含搜索关键字
+                            result.push({
+                                typeId: type.id,
+                                commodityId: commodity.id,
+                                typeIndex: typeIndex,
+                                commodityIndex: commodityIndex,
+                                commodityName: commodity.name,
+                                commodityPrice: commodity.discountPrice === null ? commodity.originalPrice : commodity.discountPrice,
+                                commodityImageUrl: commodity.imageUrl
+                            });
+                        }
+                    });
+                });
+                return result;
+            },
+            // 支付按钮点击事件
+            handlePayBtnClick() {
+                if (this.cartList.length > 0) {
+                    uni.navigateTo({
+                        url: '/pagesByStore/order/order'
+                    });
+                }
             }
         },
         computed: {
             /**
-             * 计算购物车总价
+             * 计算购物车总价（现价，包含优惠）
              * @return {Number} 计算的总价
              */
             totalPrice() {
                 let totalPrice = 0;
                 this.cartList.forEach((v, k) => {
-                    totalPrice += (v.discountPrice === null ? v.originPrice : v.discountPrice) * v.amount;
+                    totalPrice += (v.discountPrice === null ? v.originalPrice : v.discountPrice) * v.amount;
                 });
-                return totalPrice;
+                if (parseInt(totalPrice) !== totalPrice) {
+                    return totalPrice.toFixed(2);
+                }
+                else {
+                    return totalPrice;
+                }
+            },
+            /**
+             * 计算购物车总价（原价，不含优惠）
+             * @return {Number} 计算的总价
+             */
+            totalOriginalPrice() {
+                let totalOriginalPrice = 0;
+                this.cartList.forEach((v, k) => {
+                    totalOriginalPrice += v.originalPrice * v.amount;
+                });
+                if (parseInt(totalOriginalPrice) !== totalOriginalPrice) {
+                    return totalOriginalPrice.toFixed(2);
+                }
+                else {
+                    return totalOriginalPrice;
+                }
             },
             /**
              * 计算购物车总数量
@@ -1713,7 +2060,29 @@
                 }
             },
         },
-        watch: {},
+        watch: {
+            // 搜索输入框监听事件
+            searchValue(nval, oval) {
+                if (oval == null || oval === '' && nval !== '' && nval != null) {
+                    this.searchResultList = this.querySearchResult(nval);
+                }
+                else {
+                    this.utils.debounce(() => {
+                        if (nval !== '' && nval != null) {
+                            this.searchResultList = this.querySearchResult(nval);
+                        }
+                        else {
+                            this.searchResultList = [];
+                        }
+                    }, 500);
+                }
+            },
+            // 购物车列表监听事件
+            cartList(nval) {
+                this.payable = nval.length > 0;
+                this.$forceUpdate();
+            }
+        },
         mounted() {
         },
         onLoad() {
@@ -1871,6 +2240,10 @@
                         text-align: right;
                         line-height: rpx(48);
                         padding-right: rpx(10);
+
+                        .fa-star {
+                            color: #f4756b;
+                        }
                     }
                 }
             }
@@ -2238,6 +2611,531 @@
                     .bottom-empty-box {
                         width: 100%;
                         height: rpx(250);
+                    }
+                }
+            }
+
+            .shopping-cart-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                background-color: #fff;
+                padding: 0 rpx(40);
+                padding-bottom: rpx(90);
+
+                .title-container {
+                    width: 100%;
+                    height: rpx(80);
+                    flex-shrink: 0;
+                    display: flex;
+                    flex-direction: row;
+                    border-bottom: rpx(2) solid #f1f1f1;
+                    font-size: rpx(24);
+                    color: #888;
+                    line-height: rpx(80);
+
+                    .amount-container {
+                        width: fit-content;
+                        height: 100%;
+                        flex-shrink: 0;
+                    }
+
+                    .clear-btn-container {
+                        width: fit-content;
+                        height: 100%;
+                        margin-left: auto;
+
+                        .fa {
+                            margin-right: rpx(10);
+                            font-size: rpx(30);
+                            color: #999;
+                        }
+                    }
+                }
+
+                .content-container {
+                    width: 100%;
+                    height: calc(100% - 80rpx);
+
+                    .empty-tips {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        font-size: rpx(30);
+                        color: #888;
+                        text-align: center;
+
+                        text {
+                            margin: auto;
+                        }
+                    }
+
+                    .cart-items {
+                        width: 100%;
+                        height: 100%;
+                        padding-top: rpx(20);
+
+                        .commodity-container {
+                            width: 100%;
+                            height: 100%;
+
+                            ::-webkit-scrollbar {
+                                width: 0;
+                                height: 0;
+                                color: transparent;
+                            }
+
+                            .commodity {
+                                width: 100%;
+                                height: fit-content;
+                                display: flex;
+                                flex-direction: row;
+
+                                .image-container {
+                                    width: rpx(132);
+                                    height: rpx(132);
+                                    margin: rpx(20) 0;
+                                    flex-shrink: 0;
+                                    overflow: hidden;
+                                    border-radius: rpx(20);
+
+                                    .image {
+                                        width: 100%;
+                                        height: 100%;
+                                        background-color: #f1f1f1;
+                                    }
+                                }
+
+                                .info-container {
+                                    width: 100%;
+                                    height: fit-content;
+                                    display: flex;
+                                    flex-direction: column;
+                                    margin: rpx(20) 0 0 rpx(30);
+                                    padding-bottom: rpx(20);
+                                    border-bottom: rpx(2) solid #f1f1f1;
+
+                                    .name {
+                                        width: 100%;
+                                        height: rpx(44);
+                                        font-size: rpx(30);
+                                        color: #333;
+                                        line-height: rpx(44);
+                                    }
+
+                                    .description {
+                                        width: 100%;
+                                        height: rpx(44);
+                                        font-size: rpx(22);
+                                        color: #888;
+                                        line-height: rpx(38);
+                                    }
+
+                                    .price {
+                                        width: 100%;
+                                        height: rpx(50);
+                                        font-size: rpx(30);
+                                        font-weight: bold;
+                                        color: #f4756b;
+                                        line-height: rpx(58);
+                                    }
+                                }
+
+                                .amount-container {
+                                    width: rpx(150);
+                                    height: rpx(160);
+                                    margin: rpx(20) 0 0 auto;
+                                    padding-bottom: rpx(20);
+                                    flex-shrink: 0;
+                                    display: flex;
+                                    flex-direction: column;
+                                    border-bottom: rpx(2) solid #f1f1f1;
+
+                                    .amount-btn-container {
+                                        width: fit-content;
+                                        height: fit-content;
+                                        flex-shrink: 0;
+                                        margin-top: auto;
+                                        margin-right: rpx(10);
+                                        margin-left: auto;
+                                        display: flex;
+                                        flex-direction: row;
+
+                                        .amount {
+                                            margin: 0 rpx(16);
+                                            font-size: rpx(30);
+                                            line-height: rpx(44);
+                                        }
+
+                                        .fa-minus-circle {
+                                            font-size: rpx(44);
+                                            color: #ddd;
+                                        }
+
+                                        .fa-plus-circle {
+                                            font-size: rpx(44);
+                                            color: #f4756b;
+                                        }
+                                    }
+                                }
+                            }
+
+                            .commodity:last-child {
+                                .info-container {
+                                    border-bottom: 0;
+                                }
+
+                                .amount-container {
+                                    border-bottom: 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .search-popup {
+                /deep/ .u-drawer {
+                    z-index: 5 !important;
+                }
+
+                /deep/ .u-drawer__scroll-view {
+                    ::-webkit-scrollbar {
+                        width: 0;
+                        height: 0;
+                        color: transparent;
+                    }
+                }
+
+                .search-container {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    padding: rpx(40);
+
+                    .input-container {
+                        width: 100%;
+                        height: rpx(70);
+                        display: flex;
+                        flex-direction: row;
+                        margin-bottom: rpx(40);
+
+                        .input {
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            flex-direction: row;
+                            padding: 0 rpx(20);
+                            background-color: #f1f1f1;
+                            border-radius: rpx(50);
+                            overflow: hidden;
+
+                            .fa {
+                                margin-right: rpx(20);
+                                font-size: rpx(36);
+                                line-height: rpx(70);
+                                color: #aaa;
+                                font-weight: lighter;
+                            }
+
+                            input {
+                                width: 100%;
+                                height: rpx(70);
+                                font-size: rpx(28);
+                                line-height: rpx(70);
+                                color: #333;
+                            }
+                        }
+
+                        .cancel-btn {
+                            width: fit-content;
+                            height: 100%;
+                            flex-shrink: 0;
+                            padding-left: rpx(40);
+                            font-size: rpx(28);
+                            color: #888;
+                            line-height: rpx(70);
+                        }
+                    }
+
+                    .result-container {
+                        width: 100%;
+                        height: 100%;
+
+                        .result-scroll-view {
+                            width: 100%;
+                            height: 100%;
+
+                            ::-webkit-scrollbar {
+                                width: 0;
+                                height: 0;
+                                color: transparent;
+                            }
+
+                            .search-result-item {
+                                width: 100%;
+                                height: fit-content;
+                                display: flex;
+                                flex-direction: row;
+                                margin-bottom: rpx(40);
+
+                                .image-container {
+                                    width: rpx(100);
+                                    height: rpx(100);
+                                    flex-shrink: 0;
+                                    border-radius: rpx(20);
+                                    overflow: hidden;
+
+                                    .image {
+                                        width: 100%;
+                                        height: 100%;
+                                        background-color: #f1f1f1;
+                                    }
+                                }
+
+                                .info-container {
+                                    width: 100%;
+                                    height: 100%;
+                                    margin-left: rpx(30);
+                                    font-size: rpx(28);
+                                    line-height: rpx(100);
+                                    color: #333;
+
+                                    .search-key-text {
+                                        color: #f4756b;
+                                    }
+                                }
+
+                                .price-container {
+                                    width: rpx(130);
+                                    height: 100%;
+                                    margin-left: auto;
+                                    flex-shrink: 0;
+                                    font-size: rpx(28);
+                                    text-align: right;
+                                    color: #333;
+                                    line-height: rpx(100);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .commodity-detail-popup {
+                /deep/ .u-drawer {
+                    z-index: 5 !important;
+                }
+
+                /deep/ .u-drawer__scroll-view {
+                    ::-webkit-scrollbar {
+                        width: 0;
+                        height: 0;
+                        color: transparent;
+                    }
+                }
+
+                .commodity-detail-container {
+                    width: 100%;
+                    height: fit-content;
+                    display: flex;
+                    flex-direction: column;
+
+                    .image-container {
+                        width: 100%;
+                        height: 45vw;
+                        overflow: hidden;
+
+                        .image {
+                            width: 100%;
+                            height: 100%;
+                            background-color: #f1f1f1;
+                        }
+                    }
+
+                    .info-container {
+                        width: 100%;
+                        height: fit-content;
+                        display: flex;
+                        flex-direction: column;
+                        padding: rpx(40);
+
+                        .title {
+                            width: 100%;
+                            height: fit-content;
+                            font-size: rpx(32);
+                            color: #333;
+                        }
+
+                        .tags {
+
+                            view {
+                                width: fit-content;
+                                height: fit-content;
+                                margin: rpx(16) 0 rpx(16) 0;
+                                padding: rpx(2) rpx(10);
+                                font-size: rpx(20);
+                                color: #888;
+                                background-color: #f6f6f6;
+                                border-radius: rpx(4);
+                            }
+                        }
+
+                        .description {
+                            width: fit-content;
+                            height: fit-content;
+                            margin-top: rpx(20);
+                            font-size: rpx(22);
+                            color: #888;
+                            word-break: break-all;
+                        }
+                    }
+
+                    .price-container {
+                        width: 100%;
+                        height: fit-content;
+                        display: flex;
+                        flex-direction: row;
+                        padding: 0 rpx(40) rpx(40) rpx(40);
+
+                        .price {
+                            font-size: rpx(32);
+                            font-weight: bold;
+                            color: #f4756b;
+                        }
+
+                        .amount-btn {
+                            width: fit-content;
+                            height: fit-content;
+                            flex-shrink: 0;
+                            margin-left: auto;
+                            display: flex;
+                            flex-direction: row;
+
+                            .amount {
+                                margin: 0 rpx(16);
+                                font-size: rpx(30);
+                                line-height: rpx(44);
+                            }
+
+                            .fa-minus-circle {
+                                font-size: rpx(44);
+                                color: #ddd;
+                            }
+
+                            .fa-plus-circle {
+                                font-size: rpx(44);
+                                color: #f4756b;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .cart-bar-container {
+                width: 100vw;
+                height: rpx(90);
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                z-index: 4;
+                background-color: rgba(250, 250, 250, 0.9);
+                box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+
+                .cart-btn-container {
+                    width: rpx(100);
+                    height: rpx(100);
+                    border-radius: rpx(50);
+                    position: fixed;
+                    left: 0;
+                    bottom: rpx(14);
+                    transform: translateX(rpx(30));
+                    transition-duration: 300ms;
+                    background-color: #fff;
+                    text-align: center;
+                    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+
+                    .fa {
+                        color: #f4756b;
+                        font-size: rpx(48);
+                        line-height: rpx(100);
+                    }
+
+                    .total-amount {
+                        width: rpx(34);
+                        height: rpx(34);
+                        position: fixed;
+                        bottom: rpx(74);
+                        left: rpx(66);
+                        border-radius: rpx(50);
+                        overflow: hidden;
+                        background-color: #f4756b;
+                        color: #fff;
+                        font-size: rpx(24);
+                        text-align: center;
+                        line-height: rpx(34);
+                    }
+                }
+
+                .cart-bar {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: row;
+                    overflow: hidden;
+                    box-shadow: rgba(100, 100, 100, 0.1) 0px 5px 15px 0px;
+
+                    .price-container {
+                        width: fit-content;
+                        height: 100%;
+                        margin-left: rpx(150);
+                        font-size: rpx(30);
+                        line-height: rpx(90);
+                        font-weight: bold;
+                        color: #333;
+                        letter-spacing: rpx(2);
+                        transition-property: margin-left, color;
+                        transition-duration: 300ms;
+
+                        text:first-child {
+                            font-size: rpx(40);
+                            margin-left: rpx(2);
+                        }
+
+                        text:nth-child(2) {
+                            font-size: rpx(30);
+                        }
+
+                        .origin-price {
+                            margin-left: rpx(20);
+                            font-size: rpx(22);
+                            font-weight: normal;
+                            color: #888;
+                            text-decoration: line-through;
+                        }
+                    }
+
+                    .pay-container {
+                        width: rpx(180);
+                        height: 100%;
+                        margin-left: auto;
+                        font-size: rpx(30);
+                        text-align: center;
+                        line-height: rpx(90);
+                        background-color: #f4756b;
+                        color: #fff;
+                        transition-property: opacity;
+                        transition-duration: 300ms;
+                    }
+
+                    .pay-container__default {
+                        opacity: 1;
+                    }
+
+                    .pay-container__reject {
+                        opacity: 0.7;
                     }
                 }
             }

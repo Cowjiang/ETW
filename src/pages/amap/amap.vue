@@ -401,6 +401,7 @@
                                 clearTimeout(this.checkUserAuthorizationTimer);
                                 this.checkUserAuthorizationTimer = null;
                             }
+                            this.$refs.loading.stopLoading();
                             this.userAuthorization = 0;
                             this.reGetAuthorization();
                         }
@@ -414,6 +415,10 @@
                         this.$forceUpdate();
                     },
                 });
+                this.$once('hook:beforeDestroy', () => {
+                    clearTimeout(this.checkUserAuthorizationTimer);
+                    this.checkUserAuthorizationTimer = null;
+                }); //销毁定时器
             },
             // 重新获取用户授权
             reGetAuthorization() {
@@ -488,8 +493,7 @@
                         resultDetails: resultDetails
                     });
                     uni.navigateBack();
-                }
-                catch (e) {
+                } catch (e) {
                     console.log(resultDetails);
                 }
             },
@@ -554,8 +558,7 @@
                                 break;
                         }
                         return returnValue;
-                    }
-                    catch (e) {
+                    } catch (e) {
                         // console.log(e)
                     }
                 };
