@@ -452,7 +452,7 @@
                     this.contactName = data.data.contactName;
                     this.contactGender = data.data.contactGender;
                     this.contactPhone = data.data.contactPhone;
-                    this.addressAdCode = data.data.areaCode;
+                    this.addressAdCode = [data.data.areaCode.slice(0, 2), data.data.areaCode.slice(0, 4), data.data.areaCode];
                     this.addressDetail = data.data.addressDetail;
                     this.addressArea = [data.data.areaName[0], data.data.areaName[1], data.data.areaName[2]];
                     this.isDefaultAddress = data.data.isDefaultAddress;
@@ -493,7 +493,7 @@
 <style lang="scss" scoped>
     .address-container {
         width: 100vw;
-        height: 100vh;
+        height: fit-content;
 
         .bg-image {
             position: fixed;
@@ -692,11 +692,15 @@
                         height: 100%;
                         font-size: rpx(30);
                         line-height: rpx(100);
+                        overflow: hidden;
 
                         .input {
                             width: calc(100% - 80rpx);
                             height: 100%;
                             color: $uni-text-color;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
                         }
 
                         .area-placeholder {

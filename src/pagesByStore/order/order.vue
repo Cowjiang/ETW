@@ -255,6 +255,7 @@
     import {loading} from '../../components/loading/loading.vue';
     import {storeInfoPopup} from '../../components/storeInfoPopup/storeInfoPopup.vue'
     import {selectTimePopup} from '../../components/selectTimePopup/selectTimePopup.vue'
+    import {getDefaultAddress} from '../../common/js/api/models.js';
 
     export default {
         components: {
@@ -326,11 +327,30 @@
         methods: {
             // 切换自取/外送标签
             handleChangeTags(e) {
-                this.contactName = '';
-                this.contactPhone = '';
-                this.reservationTime = '';
-                this.takeOutInfo = {};
-                this.isTakeOut = e.currentTarget.dataset.name !== 'tagLeft';
+                this.utils.throttle(() => {
+                    if (e.currentTarget.dataset.name === 'tagRight' && this.takeOutInfo.id === undefined) {
+                        //获取用户当前默认地址
+                        getDefaultAddress().then(res => {
+                            if (res.success && res.data.id != null) {
+                                this.takeOutInfo = {
+                                    id: res.data.id,
+                                    contactName: res.data.contacts,
+                                    contactPhone: res.data.phone,
+                                    areaCode: res.data.areaCode,
+                                    addressDetail: res.data.addressDetail,
+                                    areaName: [res.data.province, res.data.city, res.data.area],
+                                    isDefaultAddress: res.data.isDefault
+                                };
+                            }
+                            else {
+                                this.takeOutInfo = {};
+                            }
+                        }, error => {
+                            this.takeOutInfo = {};
+                        });
+                    }
+                    this.isTakeOut = e.currentTarget.dataset.name !== 'tagLeft';
+                }, 300);
             },
             //店铺地址点击事件
             handleAddressClick() {
@@ -346,8 +366,10 @@
             },
             //预约到店时间点击事件
             handleReservationTimeClick() {
-                this.reservationTimeLimit = `9:00-21:00`;
-                this.showSelectTimePopup = true;
+                this.utils.throttle(() => {
+                    this.reservationTimeLimit = `9:00-21:00`;
+                    this.showSelectTimePopup = true;
+                }, 500);
             },
             //预约到店时间确认事件
             handleReservationTimeConfirm(e) {
@@ -356,47 +378,51 @@
             },
             //外卖配送选择收货地址
             selectMyAddress() {
-                uni.showActionSheet({
-                    itemList: ['从地址簿中选择', '新建地址'],
-                    success: res => {
-                        if (res.tapIndex === 0) {
-                            uni.navigateTo({
-                                url: "/pages/addressBook/addressBook",
-                                events: {
-                                    acceptDataFromOpenedPage: data => {
-                                        if (data) {
-                                            this.takeOutInfo = data.address;
-                                        }
+                this.utils.throttle(() => {
+                    uni.showActionSheet({
+                        itemList: ['从地址簿中选择', '新建地址'],
+                        success: res => {
+                            if (res.tapIndex === 0) {
+                                //从地址簿中选择
+                                uni.navigateTo({
+                                    url: "/pages/addressBook/addressBook",
+                                    events: {
+                                        acceptDataFromOpenedPage: data => {
+                                            if (data) {
+                                                this.takeOutInfo = data.address;
+                                            }
+                                        },
                                     },
-                                },
-                                success(res) {
-                                    res.eventChannel.emit('selectAddress', {data: true})
-                                }
-                            });
-                        }
-                        else {
-                            uni.navigateTo({
-                                url: "/pages/addressBook/subpages/editAddress",
-                                events: {
-                                    acceptDataFromOpenedPage: data => {
-                                        if (data) {
-                                            this.tackOutInfo = {
-                                                id: data.address.id,
-                                                contactName: data.address.contacts,
-                                                contactPhone: data.address.phone,
-                                                addressDetail: data.address.addressDetail,
-                                                areaCode: data.address.areaCode
-                                            };
-                                        }
+                                    success: res => {
+                                        res.eventChannel.emit('selectAddress', {data: true})
+                                    }
+                                });
+                            }
+                            else {
+                                //新建地址
+                                uni.navigateTo({
+                                    url: "/pages/addressBook/subpages/editAddress",
+                                    events: {
+                                        acceptDataFromOpenedPage: data => {
+                                            if (data) {
+                                                this.takeOutInfo = {
+                                                    id: data.address.id,
+                                                    contactName: data.address.contacts,
+                                                    contactPhone: data.address.phone,
+                                                    addressDetail: data.address.addressDetail,
+                                                    areaCode: data.address.areaCode
+                                                };
+                                            }
+                                        },
                                     },
-                                },
-                                success(res) {
-                                    res.eventChannel.emit('selectAddress', {data: true})
-                                }
-                            });
+                                    success: res => {
+                                        res.eventChannel.emit('selectAddress', {data: true})
+                                    }
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                }, 1000);
             }
         },
         computed: {
@@ -1077,6 +1103,9 @@
             width: 90%;
             height: rpx(200);
             margin: rpx(20) 0 0 5%;
+            margin-bottom: 5%;
+            margin-bottom: calc(5% + constant(safe-area-inset-bottom));
+            margin-bottom: calc(5% + env(safe-area-inset-bottom));
             padding: rpx(40);
             display: flex;
             flex-direction: column;
@@ -1118,13 +1147,15 @@
         .fixed-bar-container {
             width: 100vw;
             height: rpx(110);
+            height: calc(110rpx + constant(safe-area-inset-bottom));
+            height: calc(110rpx + env(safe-area-inset-bottom));
             position: fixed;
             bottom: 0;
-            padding: rpx(16) rpx(40);
+            padding: rpx(18) rpx(40);
             display: flex;
             flex-direction: row;
             background-color: #fff;
-            box-shadow: 0 0 rpx(16) rpx(-10) #888888;
+            box-shadow: 0 rpx(-8) rpx(16) 0 rgba(175, 175, 175, 0.1), 0 0 0 0 #fff, 0 rpx(10) rpx(10) 0 transparent, 0 0 0 0 #fff;
 
             .discount-price {
                 font-size: rpx(26);

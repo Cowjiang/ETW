@@ -134,8 +134,7 @@
 
     export default {
         components: {
-            toast,
-            loading,
+            toast, loading
         },
         data() {
             return {
@@ -378,6 +377,14 @@
                 if (this.searchShowInput !== "" && this.searchShowInput !== "搜索地点") {
                     let searchResult = await this.getInputTips();
                     if (searchResult !== null) {
+                        searchResult.tips.forEach((v, k) => {
+                            if (v.name.includes('公交站')) {
+                                searchResult.tips.splice(k ,1);
+                            }
+                            if (v.address == null) {
+                                searchResult.tips.splice(k ,1);
+                            }
+                        });
                         this.addressTips = searchResult.tips;
                     }
                     this.$forceUpdate();
@@ -494,7 +501,7 @@
                     });
                     uni.navigateBack();
                 } catch (e) {
-                    console.log(resultDetails);
+                    // console.log(resultDetails);
                 }
             },
         },
@@ -514,7 +521,7 @@
         computed: {
             /**
              * 计算两点距离
-             * @return {function(string, string, string, string, string)}
+             * @return {String} 返回距离结果
              */
             distance() {
                 return (la1, lo1, newLocation, newLa, newLo) => {
@@ -602,7 +609,7 @@
                 }
             },
             // 加载完毕状态变化
-            onLoadReady(nval, oval) {
+            onLoadReady(nval) {
                 if (nval === true) {
                     this.$refs.loading.stopLoading();
                 }
@@ -613,7 +620,7 @@
         },
         created() {
             wx.getSystemInfo({
-                success: (res) => {
+                success: res => {
                     this.windowWidth = res.screenWidth;
                     this.windowHeight = res.screenHeight;
                 },
@@ -671,7 +678,6 @@
         map {
             width: 100%;
             height: 60vh;
-            //transition-property: ;
             transition-duration: 500ms;
         }
 
@@ -694,7 +700,6 @@
         .result-container {
             background-color: $uni-bg-color;
             position: absolute;
-            //top: 55vh;
             top: 0;
             left: 0;
             width: 100%;
@@ -708,8 +713,8 @@
 
                 .item {
                     width: 100%;
-                    height: rpx(100);
-                    padding: rpx(65) rpx(40);
+                    height: fit-content;
+                    padding: rpx(26) rpx(40);
 
                     .name {
                         font-size: rpx(32);
@@ -723,8 +728,12 @@
                     }
                 }
 
-                .item:nth-last-child(1) {
+                .item:last-child {
                     margin-bottom: rpx(100);
+                }
+
+                .item:first-child {
+                    margin-top: rpx(48);
                 }
 
                 .no-result {

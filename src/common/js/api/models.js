@@ -64,6 +64,9 @@ export const deleteAddressBook = (requestConfig) =>
 //设置某地址为默认地址
 export const setDefaultAddress = (requestConfig) =>
     apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}/default`, { method: "Put", requestConfig });
+//获取我的默认地址
+export const getDefaultAddress = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/default`, { method: "GET", requestConfig });
 
 //地区查询相关
 //获取省份

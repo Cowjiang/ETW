@@ -92,7 +92,10 @@
                             @change="handleTabsChange"
                         ></u-tabs>
                     </view>
-                    <view class="search-btn-container" @click="handleOpenSearchPopup">
+                    <view
+                        class="search-btn-container"
+                        v-if="currentTab === 0"
+                        @click="handleOpenSearchPopup">
                         <i class="fa fa-search" aria-hidden="true"></i>
                         搜索
                     </view>
@@ -111,7 +114,12 @@
                             v-for="type in menuList"
                             :key="type.id"
                             @click="handleTypeClick(type.id)">
-                            <view>
+                            <view
+                                class="type-amount"
+                                v-if="!isNaN(type.amount) && type.amount !== 0">
+                                {{ type.amount <= 99 ? type.amount : '99+' }}
+                            </view>
+                            <view class="type-name">
                                 {{ type.typeName }}
                             </view>
                         </view>
@@ -181,7 +189,8 @@
                                                 aria-hidden="true"
                                                 :data-name="`${type.id}&${commodity.id}`"
                                                 v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined"
-                                                @click="handleMinusCommodity"></i>
+                                                @click="handleMinusCommodity"
+                                                @longpress="handleMinusCommodityLongPress"></i>
                                             <view
                                                 class="amount"
                                                 v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined">
@@ -252,7 +261,8 @@
                                                     class="fa fa-minus-circle"
                                                     aria-hidden="true"
                                                     :data-name="`${item.typeId}&${item.commodityId}`"
-                                                    @click="handleMinusCommodity"></i>
+                                                    @click="handleMinusCommodity"
+                                                    @longpress="handleMinusCommodityLongPress"></i>
                                                 <view class="amount">
                                                     {{ item.amount || 0 }}
                                                 </view>
@@ -362,7 +372,8 @@
                                         && !isNaN(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount)
                                         && menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== undefined"
                                     :data-name="`${menuList[currentSelectedCommodity.typeIndex].id}&${menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id}`"
-                                    @click="handleMinusCommodity"></i>
+                                    @click="handleMinusCommodity"
+                                    @longpress="handleMinusCommodityLongPress"></i>
                                 <view
                                     class="amount"
                                     v-show="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== 0
@@ -427,8 +438,9 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    import {storeInfoPopup} from '../../components/storeInfoPopup/storeInfoPopup.vue'
-    import {selectTimePopup} from '../../components/selectTimePopup/selectTimePopup.vue'
+    import {storeInfoPopup} from '../../components/storeInfoPopup/storeInfoPopup.vue';
+    import {selectTimePopup} from '../../components/selectTimePopup/selectTimePopup.vue';
+    import menuList from '../../common/js/fakeData/storeMenu.js';
 
     export default {
         components: {
@@ -508,1298 +520,7 @@
                     }
                 ], //菜单标签
                 currentTab: 0, //当前标签序号
-                menuList: [
-                    {
-                        id: 1,
-                        typeName: '当季限定',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感巴拉巴拉巴拉巴拉',
-                                originalPrice: 39,
-                                discountPrice: 32.9,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 2,
-                        typeName: '人气必点',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '多肉雪山青提',
-                                imageUrl: '',
-                                description: '超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 3,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 4,
-                        typeName: '茗茶/波波家族啊啊啊啊啊',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 5,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 6,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 7,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 8,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 9,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 10,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 11,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 12,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 13,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 14,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                    {
-                        id: 15,
-                        typeName: '水果家族',
-                        dishes: [
-                            {
-                                id: 1,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 2,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 3,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 4,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 5,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 6,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 7,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 8,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 9,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            },
-                            {
-                                id: 10,
-                                name: '雪山多肉青提',
-                                imageUrl: '',
-                                description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感',
-                                originalPrice: 32,
-                                discountPrice: null,
-                            }
-                        ]
-                    },
-                ], //菜单内容
+                menuList: menuList, //菜单内容
                 currentTypeId: 1, //当前菜单显示的类型编号
                 scrollToTypeId: '', //要滑动到的类型Id
                 cartList: [], //购物车列表
@@ -1850,8 +571,10 @@
             },
             // 菜单中的类型点击事件
             handleTypeClick(id) {
-                this.currentTypeId = id;
-                this.scrollToTypeId = `type${id}`;
+                this.utils.throttle(() => {
+                    this.currentTypeId = id;
+                    this.scrollToTypeId = `type${id}`;
+                }, 500);
             },
             // 菜单滑动触摸开始事件
             handleTouchStart(e) {
@@ -1860,69 +583,95 @@
             },
             // 菜品添加按钮点击事件
             handleAddCommodity(e) {
-                let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]); //当前商品的类型Id
-                let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]); //当前商品Id
-                let isExist = false; //购物车中是否已存在该商品
-                this.menuList.forEach((v, k) => {
-                    if (v.id === typeId) {
-                        //索引对应类型Id
-                        this.menuList[k].dishes.forEach((val, key) => {
-                            if (val.id === commodityId) {
-                                //索引对应商品Id
-                                !isNaN(val.amount) ? val.amount += 1 : val.amount = 1;
-                                this.cartList.forEach((v, k) => {
-                                    if (v.typeId === typeId && v.commodityId === commodityId) {
-                                        //购物车列表中已存在当前商品
-                                        v.amount += 1;
-                                        isExist = true;
-                                        return;
+                this.utils.throttle(() => {
+                    let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]); //当前商品的类型Id
+                    let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]); //当前商品Id
+                    let isExist = false; //购物车中是否已存在该商品
+                    this.menuList.forEach((v, k) => {
+                        if (v.id === typeId) {
+                            !isNaN(v.amount) ? v.amount += 1 : v.amount = 1;
+                            //索引对应类型Id
+                            this.menuList[k].dishes.forEach(val => {
+                                if (val.id === commodityId) {
+                                    //索引对应商品Id
+                                    !isNaN(val.amount) ? val.amount += 1 : val.amount = 1;
+                                    this.cartList.forEach(v => {
+                                        if (v.typeId === typeId && v.commodityId === commodityId) {
+                                            //购物车列表中已存在当前商品
+                                            v.amount += 1;
+                                            isExist = true;
+
+                                        }
+                                    });
+                                    if (!isExist) {
+                                        //购物车列表中不存在当前商品
+                                        this.cartList.push({
+                                            typeId: typeId, // {Number} 类型id
+                                            commodityId: commodityId, // {Number} 商品id
+                                            amount: 1, // {Number} 商品数量
+                                            name: val.name, // {String} 商品名字
+                                            imageUrl: val.imageUrl, // {String} 商品图片url
+                                            description: val.description, // {String} 商品描述
+                                            originalPrice: val.originalPrice, // {Number} 商品原价
+                                            discountPrice: val.discountPrice, // {Number|NaN} 商品优惠价格
+                                        }); //将商品加入购物车列表
                                     }
-                                });
-                                if (!isExist) {
-                                    //购物车列表中不存在当前商品
-                                    this.cartList.push({
-                                        typeId: typeId, // {Number} 类型id
-                                        commodityId: commodityId, // {Number} 商品id
-                                        amount: 1, // {Number} 商品数量
-                                        name: val.name, // {String} 商品名字
-                                        imageUrl: val.imageUrl, // {String} 商品图片url
-                                        description: val.description, // {String} 商品描述
-                                        originalPrice: val.originalPrice, // {Number} 商品原价
-                                        discountPrice: val.discountPrice, // {Number|NaN} 商品优惠价格
-                                    }); //将商品加入购物车列表
                                 }
+                            });
+                        }
+                    });
+                    this.$forceUpdate();
+                }, 300);
+            },
+            // 菜品减少按钮点击事件
+            handleMinusCommodity(e) {
+                this.utils.throttle(() => {
+                    let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]);
+                    let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]);
+                    this.menuList.forEach((v, k) => {
+                        if (v.id === typeId) {
+                            !isNaN(v.amount) ? v.amount -= 1 : v.amount = 0;
+                            this.menuList[k].dishes.forEach((val, key) => {
+                                if (val.id === commodityId) {
+                                    if (this.menuList[k].dishes[key].amount !== 0) {
+                                        //当前商品已选数量不为零
+                                        !isNaN(val.amount) ? val.amount -= 1 : val.amount = 0;
+                                        this.cartList.forEach((v, k) => {
+                                            if (v.typeId === typeId && v.commodityId === commodityId) {
+                                                if (v.amount === 1) {
+                                                    //购物车中当前商品数量为1
+                                                    this.cartList.splice(k, 1); //从购物车列表中移除
+                                                }
+                                                else {
+                                                    v.amount -= 1;
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    this.$forceUpdate();
+                }, 300);
+            },
+            // 菜品减少按钮长按事件
+            handleMinusCommodityLongPress(e) {
+                let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]);
+                let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]);
+                this.menuList.forEach(v => {
+                    if (v.id === typeId) {
+                        v.amount = 0;
+                        v.dishes.forEach(val => {
+                            if (val.id === commodityId) {
+                                val.amount = 0;
                             }
                         });
                     }
                 });
-                this.$forceUpdate();
-            },
-            // 菜品减少按钮点击事件
-            handleMinusCommodity(e) {
-                let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]);
-                let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]);
-                this.menuList.forEach((v, k) => {
-                    if (v.id === typeId) {
-                        this.menuList[k].dishes.forEach((val, key) => {
-                            if (val.id === commodityId) {
-                                if (this.menuList[k].dishes[key].amount !== 0) {
-                                    //当前商品已选数量不为零
-                                    !isNaN(val.amount) ? val.amount -= 1 : val.amount = 0;
-                                    this.cartList.forEach((v, k) => {
-                                        if (v.typeId === typeId && v.commodityId === commodityId) {
-                                            if (v.amount === 1) {
-                                                //购物车中当前商品数量为1
-                                                this.cartList.splice(k, 1); //从购物车列表中移除
-                                            }
-                                            else {
-                                                v.amount -= 1;
-                                            }
-                                            return;
-                                        }
-                                    });
-                                }
-                            }
-                        });
+                this.cartList.forEach((v, k) => {
+                    if (v.typeId === typeId && v.commodityId === commodityId) {
+                        this.cartList.splice(k, 1); //从购物车列表中移除
                     }
                 });
                 this.$forceUpdate();
@@ -1933,11 +682,12 @@
             },
             // 清空购物车事件
             handleClearCartList() {
-                this.cartList.forEach((v, k) => {
-                    this.menuList.forEach((type, typeIndex) => {
-                        if (type.id == v.typeId) {
-                            type.dishes.forEach((dish, dishIndex) => {
-                                if (dish.id == v.commodityId) {
+                this.cartList.forEach(v => {
+                    this.menuList.forEach(type => {
+                        if (type.id === v.typeId) {
+                            type.amount = 0;
+                            type.dishes.forEach(dish => {
+                                if (dish.id === v.commodityId) {
                                     dish.amount = 0;
                                 }
                             });
@@ -2007,7 +757,7 @@
              */
             totalPrice() {
                 let totalPrice = 0;
-                this.cartList.forEach((v, k) => {
+                this.cartList.forEach(v => {
                     totalPrice += (v.discountPrice === null ? v.originalPrice : v.discountPrice) * v.amount;
                 });
                 if (parseInt(totalPrice) !== totalPrice) {
@@ -2023,7 +773,7 @@
              */
             totalOriginalPrice() {
                 let totalOriginalPrice = 0;
-                this.cartList.forEach((v, k) => {
+                this.cartList.forEach(v => {
                     totalOriginalPrice += v.originalPrice * v.amount;
                 });
                 if (parseInt(totalOriginalPrice) !== totalOriginalPrice) {
@@ -2039,7 +789,7 @@
              */
             totalAmount() {
                 let totalAmount = 0;
-                this.cartList.forEach((v, k) => {
+                this.cartList.forEach(v => {
                     totalAmount += v.amount;
                 });
                 return totalAmount;
@@ -2063,18 +813,13 @@
         watch: {
             // 搜索输入框监听事件
             searchValue(nval, oval) {
-                if (oval == null || oval === '' && nval !== '' && nval != null) {
-                    this.searchResultList = this.querySearchResult(nval);
+                if (nval == null || nval === '') {
+                    this.searchResultList = [];
                 }
                 else {
-                    this.utils.debounce(() => {
-                        if (nval !== '' && nval != null) {
-                            this.searchResultList = this.querySearchResult(nval);
-                        }
-                        else {
-                            this.searchResultList = [];
-                        }
-                    }, 500);
+                    if (this.searchValue !== '' && this.searchValue != null) {
+                        this.searchResultList = this.querySearchResult(nval);
+                    }
                 }
             },
             // 购物车列表监听事件
@@ -2370,7 +1115,7 @@
             top: rpx(170);
             background-color: #fff;
             border-radius: rpx(30);
-            box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+            box-shadow: rgba(17, 17, 26, 0.05) 0 4px 16px, rgba(17, 17, 26, 0.05) 0 8px 32px;
 
             .menu-top-tabs-container {
                 width: 100%;
@@ -2418,6 +1163,12 @@
                     background-color: #fff;
                     border-radius: rpx(20) rpx(20) 0 0;
 
+                    ::-webkit-scrollbar {
+                        width: 0;
+                        height: 0;
+                        color: transparent;
+                    }
+
                     .type-item-container__default {
                         width: 100%;
                         height: fit-content;
@@ -2430,8 +1181,8 @@
                         transition-property: color, background-color, border-left, border-radius;
                         transition-duration: 300ms;
 
-                        view {
-                            width: fit-content;
+                        .type-name {
+                            width: 90%;
                             height: fit-content;
                             text-overflow: -o-ellipsis-lastline;
                             overflow: hidden;
@@ -2440,6 +1191,20 @@
                             line-clamp: 2;
                             -webkit-line-clamp: 2;
                             -webkit-box-orient: vertical;
+                        }
+
+                        .type-amount {
+                            position: absolute;
+                            transform: translate(rpx(120), rpx(-10));
+                            width: rpx(26);
+                            height: rpx(26);
+                            border-radius: rpx(50);
+                            overflow: hidden;
+                            background-color: #f4756b;
+                            color: #fff;
+                            font-size: rpx(20);
+                            text-align: center;
+                            line-height: rpx(26);
                         }
                     }
 
@@ -2579,11 +1344,11 @@
 
                                     .amount-btn-container {
                                         width: fit-content;
-                                        height: fit-content;
+                                        height: rpx(80);
                                         flex-shrink: 0;
-                                        margin-top: rpx(4);
-                                        margin-right: rpx(10);
-                                        margin-left: auto;
+                                        margin: rpx(2) rpx(10) 0 auto;
+                                        padding: rpx(20) rpx(20) 0;
+                                        transform: translate(rpx(20), rpx(-20));
                                         display: flex;
                                         flex-direction: row;
 
@@ -3036,13 +1801,15 @@
 
             .cart-bar-container {
                 width: 100vw;
-                height: rpx(90);
+                height: fit-content;
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 z-index: 4;
-                background-color: rgba(250, 250, 250, 0.9);
-                box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+                padding-bottom: 0;
+                padding-bottom: constant(safe-area-inset-bottom);
+                padding-bottom: env(safe-area-inset-bottom);
+                background-color: rgba(250, 250, 250, 0.95);
 
                 .cart-btn-container {
                     width: rpx(100);
@@ -3051,11 +1818,14 @@
                     position: fixed;
                     left: 0;
                     bottom: rpx(14);
+                    margin-bottom: 0;
+                    margin-bottom: constant(safe-area-inset-bottom);
+                    margin-bottom: env(safe-area-inset-bottom);
                     transform: translateX(rpx(30));
                     transition-duration: 300ms;
                     background-color: #fff;
                     text-align: center;
-                    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+                    box-shadow: rgba(0, 0, 0, 0.25) 0 25px 50px -12px;
 
                     .fa {
                         color: #f4756b;
@@ -3085,7 +1855,7 @@
                     display: flex;
                     flex-direction: row;
                     overflow: hidden;
-                    box-shadow: rgba(100, 100, 100, 0.1) 0px 5px 15px 0px;
+                    box-shadow: 0 rpx(-10) rpx(20) 0 rgba(125, 125, 125, 0.1), 0 0 0 0 #fff, 0 rpx(10) rpx(10) 0 transparent, 0 0 0 0 #fff;
 
                     .price-container {
                         width: fit-content;

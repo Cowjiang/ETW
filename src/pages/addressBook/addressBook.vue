@@ -194,6 +194,9 @@
                         });
                     }
                 }
+                else {
+                    this.handleEdit(e);
+                }
             },
             // 监听地址触摸开始事件
             handleTouchStart(e) {
