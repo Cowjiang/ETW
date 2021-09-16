@@ -303,9 +303,9 @@
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
                 this.chatMessages[targetId].isRead = true;
-                uni.redirectTo({
+                uni.navigateTo({
                     url: `/pages/chatDetail/chatDetail?${senderInfo}`,
-                })
+                });
             },
             // 监听长按事件
             handleLongPress(e) {
@@ -710,9 +710,9 @@
                         pointer-events: none;
 
                         .time {
+                            margin-bottom: rpx(20);
                             font-size: rpx(24);
                             color: #999999;
-                            margin-bottom: rpx(20);
                         }
 
                         .unread {
@@ -739,14 +739,15 @@
                 }
 
                 .load-more {
-                    font-size: rpx(28);
                     height: fit-content;
-                    text-align: center;
                     width: 100%;
-                    color: $uni-text-color-placeholder;
-                    background-color: #fff;
                     margin-top: rpx(30);
                     padding-bottom: rpx(70);
+                    background-color: #fff;
+                    border-radius: rpx(30);
+                    color: $uni-text-color-placeholder;
+                    font-size: rpx(28);
+                    text-align: center;
 
                     text {
                         margin-left: rpx(10);
