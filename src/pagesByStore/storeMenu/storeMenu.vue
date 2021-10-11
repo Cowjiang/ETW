@@ -145,7 +145,7 @@
                                 class="commodity"
                                 v-for="(commodity, commodityIndex) in type.dishes"
                                 :key="commodity.id"
-                                :data-name="`type${type.id}`"
+                                :data-typeId="type.id"
                                 @touchstart="handleTouchStart">
                                 <view
                                     class="commodity-image-container"
@@ -187,7 +187,8 @@
                                             <i
                                                 class="fa fa-minus-circle"
                                                 aria-hidden="true"
-                                                :data-name="`${type.id}&${commodity.id}`"
+                                                :data-typeId="type.id"
+                                                :data-commodityId="commodity.id"
                                                 v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined"
                                                 @click="handleMinusCommodity"
                                                 @longpress="handleMinusCommodityLongPress"></i>
@@ -199,8 +200,9 @@
                                             <i
                                                 class="fa fa-plus-circle"
                                                 aria-hidden="true"
-                                                :data-name="`${type.id}&${commodity.id}`"
-                                                @click="handleAddCommodity"></i>
+                                                :data-typeId="type.id"
+                                                :data-commodityId="commodity.id"
+                                                @click="handleAddCommodity($event, true)"></i>
                                         </view>
                                     </view>
                                 </view>
@@ -260,7 +262,8 @@
                                                 <i
                                                     class="fa fa-minus-circle"
                                                     aria-hidden="true"
-                                                    :data-name="`${item.typeId}&${item.commodityId}`"
+                                                    :data-typeId="item.typeId"
+                                                    :data-commodityId="item.commodityId"
                                                     @click="handleMinusCommodity"
                                                     @longpress="handleMinusCommodityLongPress"></i>
                                                 <view class="amount">
@@ -269,7 +272,8 @@
                                                 <i
                                                     class="fa fa-plus-circle"
                                                     aria-hidden="true"
-                                                    :data-name="`${item.typeId}&${item.commodityId}`"
+                                                    :data-typeId="item.typeId"
+                                                    :data-commodityId="item.commodityId"
                                                     @click="handleAddCommodity"></i>
                                             </view>
                                         </view>
@@ -339,7 +343,9 @@
                     closeable
                     z-index="5"
                     @close="handleCloseCommodityPopup">
-                    <view class="commodity-detail-container" v-if="currentSelectedCommodity.commodityIndex!==undefined">
+                    <view
+                        class="commodity-detail-container"
+                        v-if="currentSelectedCommodity.commodityIndex!==undefined">
                         <view class="image-container">
                             <view class="image"></view>
                         </view>
@@ -354,13 +360,39 @@
                                     menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].description
                                 }}
                             </view>
+                            <scroll-view class="custom-options-container" scroll-y="true">
+                                <view
+                                    class="option-container"
+                                    v-for="(option, optionIndex) in menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptions"
+                                    :key="option.customId">
+                                    <view class="option-title">
+                                        {{ option.customName }}
+                                    </view>
+                                    <view class="option-items-container">
+                                        <view
+                                            v-for="(optionItem, optionItemIndex) in option.customItems"
+                                            :key="optionItem.customItemId"
+                                            class="option-item__default"
+                                            :class="optionItem.isSelected ? 'option-item__selected' : ''"
+                                            :data-typeIndex="currentSelectedCommodity.typeIndex"
+                                            :data-commodityIndex="currentSelectedCommodity.commodityIndex"
+                                            :data-optionIndex="optionIndex"
+                                            :data-optionItemIndex="optionItemIndex"
+                                            @click="handleCustomOptionClick">
+                                            {{ optionItem.customItemTitle }}
+                                        </view>
+                                    </view>
+                                </view>
+                            </scroll-view>
                         </view>
                         <view class="price-container">
                             <view class="price">
                                 {{
                                     menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice == null
                                         ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].originalPrice
+                                        + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
                                         : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice
+                                        + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
                                         | showPrice
                                 }}
                             </view>
@@ -371,7 +403,8 @@
                                     v-show="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== 0
                                         && !isNaN(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount)
                                         && menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== undefined"
-                                    :data-name="`${menuList[currentSelectedCommodity.typeIndex].id}&${menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id}`"
+                                    :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
+                                    :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
                                     @click="handleMinusCommodity"
                                     @longpress="handleMinusCommodityLongPress"></i>
                                 <view
@@ -386,7 +419,8 @@
                                 <i
                                     class="fa fa-plus-circle"
                                     aria-hidden="true"
-                                    :data-name="`${menuList[currentSelectedCommodity.typeIndex].id}&${menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id}`"
+                                    :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
+                                    :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
                                     @click="handleAddCommodity"></i>
                             </view>
                         </view>
@@ -531,6 +565,7 @@
                 searchInputFocus: false, //搜索输入框聚焦状态
                 showCommodityDetailPopup: false,
                 currentSelectedCommodity: {}, //当前选择的商品信息，用于商品详情弹出框的信息展示
+                currentCustomOptions: {}, //当前已编辑的的商品定制选项信息
                 payable: false, //支付按钮是否可点击
             }
         },
@@ -578,72 +613,122 @@
             },
             // 菜单滑动触摸开始事件
             handleTouchStart(e) {
-                let typeId = e.currentTarget.dataset.name.replace('type', '');
+                const typeId = e.currentTarget.dataset.typeid;
                 this.currentTypeId = parseInt(typeId);
             },
-            // 菜品添加按钮点击事件
-            handleAddCommodity(e) {
+            /**
+             * 菜品添加按钮点击事件
+             * @param e {Object} 默认事件
+             * @param isFromMenu {Boolean} 是否从菜单调用，默认为false
+             */
+            handleAddCommodity(e, isFromMenu = false) {
                 this.utils.throttle(() => {
-                    let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]); //当前商品的类型Id
-                    let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]); //当前商品Id
-                    let isExist = false; //购物车中是否已存在该商品
-                    this.menuList.forEach((v, k) => {
-                        if (v.id === typeId) {
-                            !isNaN(v.amount) ? v.amount += 1 : v.amount = 1;
-                            //索引对应类型Id
-                            this.menuList[k].dishes.forEach(val => {
-                                if (val.id === commodityId) {
-                                    //索引对应商品Id
-                                    !isNaN(val.amount) ? val.amount += 1 : val.amount = 1;
-                                    this.cartList.forEach(v => {
-                                        if (v.typeId === typeId && v.commodityId === commodityId) {
-                                            //购物车列表中已存在当前商品
-                                            v.amount += 1;
-                                            isExist = true;
-
+                    const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
+                    const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
+                    const currentCustomOptions = this.currentCustomOptions;
+                    if (!isFromMenu) {
+                        //不是从菜单点击触发
+                        let isExist = false; //购物车中是否已存在该商品
+                        this.menuList.forEach((typeItem, typeIndex) => {
+                            if (typeItem.id === typeId) {
+                                !isNaN(typeItem.amount) ? typeItem.amount += 1 : typeItem.amount = 1;
+                                //索引对应类型Id
+                                typeItem.dishes.forEach((commodityItem, commodityIndex) => {
+                                    if (commodityItem.id === commodityId) {
+                                        //索引对应商品Id
+                                        !isNaN(commodityItem.amount) ? commodityItem.amount += 1 : commodityItem.amount = 1;
+                                        this.cartList.forEach(cartItem => {
+                                            if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
+                                                //购物车列表中已存在当前商品
+                                                // cartItem.amount += 1;
+                                                // isExist = true;
+                                                // let [customOptions, currentCustomOptions] = [cartItem.customOptions.customOptions, this.currentCustomOptions.customOptions];
+                                                // let customOptions = cartItem.customOptions.customOptions;
+                                                // let currentCustomOptions = this.currentCustomOptions.customOptions;
+                                                // console.log(cartItem.customOptions.customOptions)
+                                                // debugger
+                                                // if (JSON.stringify(cartItem.customOptions.customOptions) === JSON.stringify(this.currentCustomOptions.customOptions)) {
+                                                //     console.log(true);
+                                                // }
+                                            }
+                                        });
+                                        if (!isExist) {
+                                            //购物车列表中不存在当前商品
+                                            if (currentCustomOptions !== {} && currentCustomOptions.typeIndex === typeIndex && currentCustomOptions.commodityIndex === commodityIndex) {
+                                                this.cartList.push({
+                                                    typeId: typeId, // {Number} 类型id
+                                                    commodityId: commodityId, // {Number} 商品id
+                                                    amount: 1, // {Number} 商品数量
+                                                    name: commodityItem.name, // {String} 商品名字
+                                                    imageUrl: commodityItem.imageUrl, // {String} 商品图片url
+                                                    description: commodityItem.description, // {String} 商品描述
+                                                    originalPrice: commodityItem.originalPrice + currentCustomOptions.customOptionPrice, // {Number} 商品原价
+                                                    discountPrice: commodityItem.discountPrice + currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
+                                                    customOptions: currentCustomOptions
+                                                }); //将商品加入购物车列表
+                                                console.log(this.cartList)
+                                                this.currentCustomOptions = {};
+                                            }
+                                            else {
+                                                this.cartList.push({
+                                                    typeId: typeId, // {Number} 类型id
+                                                    commodityId: commodityId, // {Number} 商品id
+                                                    amount: 1, // {Number} 商品数量
+                                                    name: commodityItem.name, // {String} 商品名字
+                                                    imageUrl: commodityItem.imageUrl, // {String} 商品图片url
+                                                    description: commodityItem.description, // {String} 商品描述
+                                                    originalPrice: commodityItem.originalPrice, // {Number} 商品原价
+                                                    discountPrice: commodityItem.discountPrice, // {Number|NaN} 商品优惠价格
+                                                }); //将商品加入购物车列表
+                                                console.log(this.cartList)
+                                            }
                                         }
-                                    });
-                                    if (!isExist) {
-                                        //购物车列表中不存在当前商品
-                                        this.cartList.push({
-                                            typeId: typeId, // {Number} 类型id
-                                            commodityId: commodityId, // {Number} 商品id
-                                            amount: 1, // {Number} 商品数量
-                                            name: val.name, // {String} 商品名字
-                                            imageUrl: val.imageUrl, // {String} 商品图片url
-                                            description: val.description, // {String} 商品描述
-                                            originalPrice: val.originalPrice, // {Number} 商品原价
-                                            discountPrice: val.discountPrice, // {Number|NaN} 商品优惠价格
-                                        }); //将商品加入购物车列表
                                     }
-                                }
-                            });
-                        }
-                    });
-                    this.$forceUpdate();
+                                });
+                            }
+                        });
+                        this.$forceUpdate();
+                    }
+                    else {
+                        //从菜单点击触发
+                        this.menuList.forEach((typeItem, typeIndex) => {
+                            if (typeItem.id === typeId) {
+                                typeItem.dishes.forEach((communityItem, commodityIndex) => {
+                                    if (communityItem.id === commodityId) {
+                                        if (communityItem.customOptions) {
+                                            this.handleShowCommodityPopup(typeIndex, commodityIndex);
+                                        }
+                                        else {
+                                            this.handleAddCommodity(e);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }, 300);
             },
             // 菜品减少按钮点击事件
             handleMinusCommodity(e) {
                 this.utils.throttle(() => {
-                    let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]);
-                    let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]);
-                    this.menuList.forEach((v, k) => {
-                        if (v.id === typeId) {
-                            !isNaN(v.amount) ? v.amount -= 1 : v.amount = 0;
-                            this.menuList[k].dishes.forEach((val, key) => {
-                                if (val.id === commodityId) {
-                                    if (this.menuList[k].dishes[key].amount !== 0) {
+                    const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
+                    const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
+                    this.menuList.forEach(typeItem => {
+                        if (typeItem.id === typeId) {
+                            !isNaN(typeItem.amount) ? typeItem.amount -= 1 : typeItem.amount = 0;
+                            typeItem.dishes.forEach(commodityItem => {
+                                if (commodityItem.id === commodityId) {
+                                    if (commodityItem.amount !== 0) {
                                         //当前商品已选数量不为零
-                                        !isNaN(val.amount) ? val.amount -= 1 : val.amount = 0;
-                                        this.cartList.forEach((v, k) => {
-                                            if (v.typeId === typeId && v.commodityId === commodityId) {
-                                                if (v.amount === 1) {
+                                        !isNaN(commodityItem.amount) ? commodityItem.amount -= 1 : commodityItem.amount = 0;
+                                        this.cartList.forEach((cartItem, cartItemIndex) => {
+                                            if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
+                                                if (cartItem.amount === 1) {
                                                     //购物车中当前商品数量为1
-                                                    this.cartList.splice(k, 1); //从购物车列表中移除
+                                                    this.cartList.splice(cartItemIndex, 1); //从购物车列表中移除
                                                 }
                                                 else {
-                                                    v.amount -= 1;
+                                                    cartItem.amount -= 1;
                                                 }
                                             }
                                         });
@@ -657,21 +742,21 @@
             },
             // 菜品减少按钮长按事件
             handleMinusCommodityLongPress(e) {
-                let typeId = parseInt(e.currentTarget.dataset.name.split('&')[0]);
-                let commodityId = parseInt(e.currentTarget.dataset.name.split('&')[1]);
-                this.menuList.forEach(v => {
-                    if (v.id === typeId) {
-                        v.amount = 0;
-                        v.dishes.forEach(val => {
-                            if (val.id === commodityId) {
-                                val.amount = 0;
+                const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
+                const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
+                this.menuList.forEach(typeItem => {
+                    if (typeItem.id === typeId) {
+                        typeItem.amount = 0;
+                        typeItem.dishes.forEach(commodity => {
+                            if (commodity.id === commodityId) {
+                                commodity.amount = 0;
                             }
                         });
                     }
                 });
-                this.cartList.forEach((v, k) => {
-                    if (v.typeId === typeId && v.commodityId === commodityId) {
-                        this.cartList.splice(k, 1); //从购物车列表中移除
+                this.cartList.forEach((typeItem, typeIndex) => {
+                    if (typeItem.typeId === typeId && typeItem.commodityId === commodityId) {
+                        this.cartList.splice(typeIndex, 1); //从购物车列表中移除
                     }
                 });
                 this.$forceUpdate();
@@ -682,13 +767,13 @@
             },
             // 清空购物车事件
             handleClearCartList() {
-                this.cartList.forEach(v => {
-                    this.menuList.forEach(type => {
-                        if (type.id === v.typeId) {
-                            type.amount = 0;
-                            type.dishes.forEach(dish => {
-                                if (dish.id === v.commodityId) {
-                                    dish.amount = 0;
+                this.cartList.forEach(cartItem => {
+                    this.menuList.forEach(typeItem => {
+                        if (typeItem.id === cartItem.typeId) {
+                            typeItem.amount = 0;
+                            typeItem.dishes.forEach(commodity => {
+                                if (commodity.id === cartItem.commodityId) {
+                                    commodity.amount = 0;
                                 }
                             });
                         }
@@ -709,12 +794,80 @@
                         commodityIndex: commodityIndex
                     };
                     this.showCommodityDetailPopup = true;
+                    this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice = 0; //初始化当前菜品的定制选项总增值价格
+                    if (this.menuList[typeIndex].dishes[commodityIndex].customOptions) {
+                        this.currentCustomOptions = {};
+                        this.menuList[typeIndex].dishes[commodityIndex].customOptions.forEach(customOption => {
+                            if (customOption.isSingle) {
+                                //单选必选
+                                customOption.customItems.forEach((customItem, customItemIndex) => {
+                                    if (customItemIndex === 0) {
+                                        this.$set(customItem, 'isSelected', true);
+                                        this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += customItem.customItemPrice); //增加默认选中的定制选项价格
+                                    }
+                                    else {
+                                        this.$set(customItem, 'isSelected', false);
+                                    }
+                                });
+                            }
+                            else {
+                                //多选可选
+                                customOption.customItems.forEach(customItem => {
+                                    this.$set(customItem, 'isSelected', false);
+                                });
+                            }
+                        });
+                    }
                 }
             },
-            // 商品详情弹出层关闭事件
+            // 商品详情弹出层关闭监听事件
             handleCloseCommodityPopup() {
                 this.currentSelectedCommodity = {};
                 this.showCommodityDetailPopup = false;
+            },
+            handleCustomOptionClick(e) {
+                const {
+                    typeindex: typeIndex,
+                    commodityindex: commodityIndex,
+                    optionindex: optionIndex,
+                    optionitemindex: optionItemIndex
+                } = e.currentTarget.dataset;
+                switch (this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].isSingle) {
+                    case true:
+                        //单选必选
+                        this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems.forEach((item, itemIndex) => {
+                            if (item.isSelected) {
+                                //当前选项已经处于选中状态
+                                this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice -= item.customItemPrice); //减去定制选项的价格
+                                this.$set(item, 'isSelected', false);
+                            }
+                            if (itemIndex === optionItemIndex) {
+                                //当前选项为目标选中的状态
+                                this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += item.customItemPrice); //增加定制选项的价格
+                                this.$set(item, 'isSelected', true);
+                            }
+                        });
+                        break;
+                    case false:
+                        //多选可选
+                        if (this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].isSelected) {
+                            //当前选项已经处于选中状态
+                            this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice -= this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].customItemPrice);
+                            this.$set(this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex], 'isSelected', false);
+                        }
+                        else {
+                            //当前选项为目标选中的状态
+                            this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].customItemPrice);
+                            this.$set(this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex], 'isSelected', true);
+                        }
+                        break;
+                }
+                this.currentCustomOptions = {
+                    typeIndex: typeIndex,
+                    commodityIndex: commodityIndex,
+                    customOptions: this.menuList[typeIndex].dishes[commodityIndex].customOptions,
+                    customOptionPrice: this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice
+                };
             },
             /**
              * 查询搜索结果
@@ -723,12 +876,12 @@
              */
             querySearchResult(keyword) {
                 let result = [];
-                this.menuList.forEach((type, typeIndex) => {
-                    type.dishes.forEach((commodity, commodityIndex) => {
+                this.menuList.forEach((typeItem, typeIndex) => {
+                    typeItem.dishes.forEach((commodity, commodityIndex) => {
                         if (commodity.name.includes(keyword)) {
                             //商品名字包含搜索关键字
                             result.push({
-                                typeId: type.id,
+                                typeId: typeItem.id,
                                 commodityId: commodity.id,
                                 typeIndex: typeIndex,
                                 commodityIndex: commodityIndex,
@@ -757,8 +910,8 @@
              */
             totalPrice() {
                 let totalPrice = 0;
-                this.cartList.forEach(v => {
-                    totalPrice += (v.discountPrice === null ? v.originalPrice : v.discountPrice) * v.amount;
+                this.cartList.forEach(cartItem => {
+                    totalPrice += (cartItem.discountPrice === null ? cartItem.originalPrice : cartItem.discountPrice) * cartItem.amount;
                 });
                 if (parseInt(totalPrice) !== totalPrice) {
                     return totalPrice.toFixed(2);
@@ -773,8 +926,8 @@
              */
             totalOriginalPrice() {
                 let totalOriginalPrice = 0;
-                this.cartList.forEach(v => {
-                    totalOriginalPrice += v.originalPrice * v.amount;
+                this.cartList.forEach(cartItem => {
+                    totalOriginalPrice += cartItem.originalPrice * cartItem.amount;
                 });
                 if (parseInt(totalOriginalPrice) !== totalOriginalPrice) {
                     return totalOriginalPrice.toFixed(2);
@@ -789,8 +942,8 @@
              */
             totalAmount() {
                 let totalAmount = 0;
-                this.cartList.forEach(v => {
-                    totalAmount += v.amount;
+                this.cartList.forEach(cartItem => {
+                    totalAmount += cartItem.amount;
                 });
                 return totalAmount;
             },
@@ -1751,10 +1904,63 @@
                         .description {
                             width: fit-content;
                             height: fit-content;
-                            margin-top: rpx(20);
+                            margin: rpx(20) 0 rpx(10) 0;
                             font-size: rpx(22);
                             color: #888;
                             word-break: break-all;
+                        }
+
+                        .custom-options-container {
+                            width: 100%;
+                            height: fit-content;
+                            max-height: 30vh;
+
+                            .option-container {
+                                width: 100%;
+                                height: fit-content;
+                                margin: rpx(30) 0 rpx(50) 0;
+
+                                .option-title {
+                                    font-size: rpx(24);
+                                    color: #888;
+                                }
+
+                                .option-items-container {
+                                    width: 100%;
+                                    height: fit-content;
+                                    display: flex;
+                                    flex-direction: row;
+                                    flex-wrap: wrap;
+
+                                    .option-item__default {
+                                        width: fit-content;
+                                        min-width: rpx(130);
+                                        height: fit-content;
+                                        flex-shrink: 0;
+                                        padding: rpx(10);
+                                        margin: rpx(16) rpx(20) 0 0;
+                                        background-color: #f6f6f6;
+                                        border-radius: rpx(10);
+                                        border: rpx(2) solid #f6f6f6;
+                                        font-size: rpx(24);
+                                        color: #333;
+                                        line-height: rpx(40);
+                                        text-align: center;
+                                        transition-property: border color background-color;
+                                        transition-duration: 300ms;
+                                    }
+
+                                    .option-item__default:last-child {
+                                        margin-right: 0;
+                                    }
+
+                                    .option-item__selected {
+                                        background-color: rgba(244, 117, 107, 0.05);
+                                        border: rpx(2) solid #f4756b;
+                                        color: #f4756b;
+                                    }
+                                }
+                            }
                         }
                     }
 

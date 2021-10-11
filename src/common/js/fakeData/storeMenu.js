@@ -10,6 +10,145 @@ var menuList = [
                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感巴拉巴拉巴拉巴拉',
                 originalPrice: 39,
                 discountPrice: 32.9,
+                customOptions: [
+                    {
+                        customId: 1,
+                        customName: '规格',
+                        isSingle: true,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "一人份",
+                                customItemPrice: 0
+                            }
+                        ]
+                    },
+                    {
+                        customId: 2,
+                        customName: '份量大小',
+                        isSingle: true,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "小份",
+                                customItemPrice: 0
+                            },
+                            {
+                                customItemId: 2,
+                                customItemTitle: "中份",
+                                customItemPrice: 3
+                            },
+                            {
+                                customItemId: 3,
+                                customItemTitle: "大份",
+                                customItemPrice: 5
+                            },
+                        ]
+                    },
+                    {
+                        customId: 3,
+                        customName: '搭配小吃',
+                        isSingle: false,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "手枪腿",
+                                customItemPrice: 9
+                            },
+                            {
+                                customItemId: 2,
+                                customItemTitle: "上校鸡块",
+                                customItemPrice: 5
+                            },
+                            {
+                                customItemId: 3,
+                                customItemTitle: "巨无霸汉堡",
+                                customItemPrice: 12
+                            },
+                            {
+                                customItemId: 4,
+                                customItemTitle: "薯条",
+                                customItemPrice: 3
+                            },
+                            {
+                                customItemId: 5,
+                                customItemTitle: "苹果派",
+                                customItemPrice: 7
+                            },
+                            {
+                                customItemId: 6,
+                                customItemTitle: "豪霸爆浆芝士鸡排",
+                                customItemPrice: 11
+                            },
+                        ]
+                    },
+                    {
+                        customId: 4,
+                        customName: '饮料',
+                        isSingle: false,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "可乐",
+                                customItemPrice: 3
+                            },
+                            {
+                                customItemId: 2,
+                                customItemTitle: "雪碧",
+                                customItemPrice: 3
+                            },
+                            {
+                                customItemId: 3,
+                                customItemTitle: "美年达",
+                                customItemPrice: 4
+                            },
+                        ]
+                    },
+                    {
+                        customId: 5,
+                        customName: '测试',
+                        isSingle: false,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "A",
+                                customItemPrice: 1
+                            },
+                            {
+                                customItemId: 2,
+                                customItemTitle: "B",
+                                customItemPrice: 2
+                            },
+                            {
+                                customItemId: 3,
+                                customItemTitle: "C",
+                                customItemPrice: 3
+                            },
+                        ]
+                    },
+                    {
+                        customId: 6,
+                        customName: '测试 2',
+                        isSingle: false,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "xxxxxxxxxxxxxx",
+                                customItemPrice: 6
+                            },
+                            {
+                                customItemId: 2,
+                                customItemTitle: "飒飒飒飒飒飒飒飒飒飒飒飒撒",
+                                customItemPrice: 3
+                            },
+                            {
+                                customItemId: 3,
+                                customItemTitle: "大得瑟得瑟份",
+                                customItemPrice: 5
+                            },
+                        ]
+                    },
+                ], //定制选项范例（临时）
             },
             {
                 id: 2,
@@ -18,6 +157,20 @@ var menuList = [
                 description: '优选新鲜阳光玫瑰青提，去皮手捣',
                 originalPrice: 32,
                 discountPrice: null,
+                customOptions: [
+                    {
+                        customId: 1,
+                        customName: '规格',
+                        isSingle: true,
+                        customItems: [
+                            {
+                                customItemId: 1,
+                                customItemTitle: "一人份",
+                                customItemPrice: 0
+                            }
+                        ]
+                    },
+                ]
             },
             {
                 id: 3,
