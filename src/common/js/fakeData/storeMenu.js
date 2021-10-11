@@ -10,6 +10,7 @@ var menuList = [
                 description: '优选新鲜阳光玫瑰青提，去皮手捣，现压生榨，超“冻”感巴拉巴拉巴拉巴拉',
                 originalPrice: 39,
                 discountPrice: 32.9,
+                isCustom: true,
                 customOptions: [
                     {
                         customId: 1,
@@ -157,6 +158,7 @@ var menuList = [
                 description: '优选新鲜阳光玫瑰青提，去皮手捣',
                 originalPrice: 32,
                 discountPrice: null,
+                isCustom: true,
                 customOptions: [
                     {
                         customId: 1,

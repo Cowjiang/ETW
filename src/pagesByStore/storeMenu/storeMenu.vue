@@ -80,6 +80,7 @@
             <view
                 class="menu-container"
                 :style="{height: `${windowHeight - navigationHeight - 130}px`}">
+                <!-- 菜单顶部选项卡 -->
                 <view class="menu-top-tabs-container">
                     <view class="u-tabs-container">
                         <u-tabs
@@ -100,7 +101,9 @@
                         搜索
                     </view>
                 </view>
+                <!-- 菜单内容 -->
                 <view class="menu" v-if="currentTab === 0">
+                    <!-- 菜单类型滚动列表 -->
                     <scroll-view
                         class="type-container"
                         :scroll-y="true">
@@ -128,6 +131,7 @@
                             :style="{borderTopRightRadius: `${currentTypeId === menuList.length ? '20rpx' : '0'}`}">
                         </view>
                     </scroll-view>
+                    <!-- 菜单商品滚动列表 -->
                     <scroll-view
                         class="commodity-container"
                         :scroll-y="true"
@@ -189,12 +193,12 @@
                                                 aria-hidden="true"
                                                 :data-typeId="type.id"
                                                 :data-commodityId="commodity.id"
-                                                v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined"
+                                                v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined && !commodity.isCustom"
                                                 @click="handleMinusCommodity"
                                                 @longpress="handleMinusCommodityLongPress"></i>
                                             <view
                                                 class="amount"
-                                                v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined">
+                                                v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined && !commodity.isCustom">
                                                 {{ commodity.amount || 0 }}
                                             </view>
                                             <i
@@ -202,7 +206,21 @@
                                                 aria-hidden="true"
                                                 :data-typeId="type.id"
                                                 :data-commodityId="commodity.id"
+                                                v-show="!commodity.isCustom"
                                                 @click="handleAddCommodity($event, true)"></i>
+                                            <view
+                                                class="options-btn"
+                                                v-show="commodity.isCustom"
+                                                :data-typeId="type.id"
+                                                :data-commodityId="commodity.id"
+                                                @click="handleAddCommodity($event, true)">
+                                                选规格
+                                                <view
+                                                    class="amount"
+                                                    v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.isCustom">
+                                                    {{ commodity.amount }}
+                                                </view>
+                                            </view>
                                         </view>
                                     </view>
                                 </view>
@@ -211,13 +229,15 @@
                         <view class="bottom-empty-box"></view>
                     </scroll-view>
                 </view>
+                <!-- 购物车弹出窗 -->
                 <u-popup
                     v-model="showCartPopup"
                     mode="bottom"
                     width="100%"
-                    height="40%"
+                    height="50%"
                     border-radius="30"
-                    z-index="3">
+                    z-index="3"
+                    safe-area-inset-bottom>
                     <view class="shopping-cart-container">
                         <view class="title-container">
                             <view class="amount-container">
@@ -249,32 +269,32 @@
                                                 {{ item.name }}
                                             </view>
                                             <view class="description">
-                                                <!-- 用于展示规格 -->
+                                                {{ item.customOptions === undefined ? null : item.customOptions.customOptions | showCartCustomOptions}}
                                             </view>
-                                            <view class="price">
-                                                {{
-                                                    item.discountPrice === null ? item.originalPrice : item.discountPrice | showPrice
-                                                }}
-                                            </view>
-                                        </view>
-                                        <view class="amount-container">
-                                            <view class="amount-btn-container">
-                                                <i
-                                                    class="fa fa-minus-circle"
-                                                    aria-hidden="true"
-                                                    :data-typeId="item.typeId"
-                                                    :data-commodityId="item.commodityId"
-                                                    @click="handleMinusCommodity"
-                                                    @longpress="handleMinusCommodityLongPress"></i>
-                                                <view class="amount">
-                                                    {{ item.amount || 0 }}
+                                            <view class="price-container">
+                                                <view class="price">
+                                                    {{ item.discountPrice === null ? item.originalPrice : item.discountPrice | showPrice }}
                                                 </view>
-                                                <i
-                                                    class="fa fa-plus-circle"
-                                                    aria-hidden="true"
-                                                    :data-typeId="item.typeId"
-                                                    :data-commodityId="item.commodityId"
-                                                    @click="handleAddCommodity"></i>
+                                                <view class="amount-btn-container">
+                                                    <i
+                                                        class="fa fa-minus-circle"
+                                                        aria-hidden="true"
+                                                        :data-typeId="item.typeId"
+                                                        :data-commodityId="item.commodityId"
+                                                        :data-cartId="item.cartId"
+                                                        @click="handleMinusCommodity"
+                                                        @longpress="handleMinusCommodityLongPress"></i>
+                                                    <view class="amount">
+                                                        {{ item.amount || 0 }}
+                                                    </view>
+                                                    <i
+                                                        class="fa fa-plus-circle"
+                                                        aria-hidden="true"
+                                                        :data-typeId="item.typeId"
+                                                        :data-commodityId="item.commodityId"
+                                                        :data-cartId="item.cartId"
+                                                        @click="handleAddCommodity"></i>
+                                                </view>
                                             </view>
                                         </view>
                                     </view>
@@ -283,6 +303,7 @@
                         </view>
                     </view>
                 </u-popup>
+                <!-- 搜索弹出窗 -->
                 <u-popup
                     class="search-popup"
                     v-model="showSearchPopup"
@@ -334,6 +355,7 @@
                         </view>
                     </view>
                 </u-popup>
+                <!-- 商品详情信息弹出窗 -->
                 <u-popup
                     class="commodity-detail-popup"
                     v-model="showCommodityDetailPopup"
@@ -400,32 +422,28 @@
                                 <i
                                     class="fa fa-minus-circle"
                                     aria-hidden="true"
-                                    v-show="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== 0
-                                        && !isNaN(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount)
-                                        && menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== undefined"
-                                    :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
-                                    :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
-                                    @click="handleMinusCommodity"
-                                    @longpress="handleMinusCommodityLongPress"></i>
-                                <view
-                                    class="amount"
-                                    v-show="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== 0
-                                        && !isNaN(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount)
-                                        && menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount !== undefined">
-                                    {{
-                                        menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].amount
-                                    }}
+                                    @click="handleMinusAmountTemp"></i>
+                                <view class="amount">
+                                    {{ amountTemp }}
                                 </view>
                                 <i
                                     class="fa fa-plus-circle"
                                     aria-hidden="true"
-                                    :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
-                                    :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
-                                    @click="handleAddCommodity"></i>
+                                    @click="handleAddAmountTemp"></i>
+                            </view>
+                        </view>
+                        <view class="add-to-cart-container">
+                            <view
+                                class="add-btn"
+                                :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
+                                :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
+                                @click="handleAddToCartBtnClick">
+                                加入购物车
                             </view>
                         </view>
                     </view>
                 </u-popup>
+                <!-- 底部购物车栏 -->
                 <view class="cart-bar-container" v-show="currentTab === 0">
                     <view
                         class="cart-btn-container"
@@ -566,6 +584,7 @@
                 showCommodityDetailPopup: false,
                 currentSelectedCommodity: {}, //当前选择的商品信息，用于商品详情弹出框的信息展示
                 currentCustomOptions: {}, //当前已编辑的的商品定制选项信息
+                amountTemp: 1, //商品详情弹出窗显示的商品数量
                 payable: false, //支付按钮是否可点击
             }
         },
@@ -625,7 +644,8 @@
                 this.utils.throttle(() => {
                     const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
                     const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
-                    const currentCustomOptions = this.currentCustomOptions;
+                    const cartId = e.currentTarget.dataset.cartid == null ? null : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
+                    const currentCustomOptions = JSON.parse(JSON.stringify(this.currentCustomOptions)); //当前填写的定制选项信息
                     if (!isFromMenu) {
                         //不是从菜单点击触发
                         let isExist = false; //购物车中是否已存在该商品
@@ -640,22 +660,31 @@
                                         this.cartList.forEach(cartItem => {
                                             if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
                                                 //购物车列表中已存在当前商品
-                                                // cartItem.amount += 1;
-                                                // isExist = true;
-                                                // let [customOptions, currentCustomOptions] = [cartItem.customOptions.customOptions, this.currentCustomOptions.customOptions];
-                                                // let customOptions = cartItem.customOptions.customOptions;
-                                                // let currentCustomOptions = this.currentCustomOptions.customOptions;
-                                                // console.log(cartItem.customOptions.customOptions)
-                                                // debugger
-                                                // if (JSON.stringify(cartItem.customOptions.customOptions) === JSON.stringify(this.currentCustomOptions.customOptions)) {
-                                                //     console.log(true);
-                                                // }
+                                                if (cartItem.customOptions) {
+                                                    //购物车当前项有定制选项信息
+                                                    if (JSON.stringify(cartItem.customOptions.customOptions) === JSON.stringify(currentCustomOptions.customOptions) || cartItem.cartId === cartId) {
+                                                        //购物车当前项的定制选项信息与当前填写的定制选项信息匹配，或购物车当前项的Id与触发点击事件的购物车项Id相同
+                                                        cartItem.amount += 1;
+                                                        isExist = true;
+                                                    }
+                                                }
+                                                else {
+                                                    //购物车当前项没有定制选项信息
+                                                    cartItem.amount += 1;
+                                                    isExist = true;
+                                                }
                                             }
                                         });
                                         if (!isExist) {
                                             //购物车列表中不存在当前商品
+                                            let cartIdMax = Math.max.apply(Math, this.cartList.map(item => {
+                                                return item.cartId
+                                            }));
+                                            cartIdMax = cartIdMax < 0 ? -1 : cartIdMax;
                                             if (currentCustomOptions !== {} && currentCustomOptions.typeIndex === typeIndex && currentCustomOptions.commodityIndex === commodityIndex) {
+                                                //当前商品存在定制选项，且类型索引、商品索引与商品对应
                                                 this.cartList.push({
+                                                    cartId: cartIdMax + 1, // {Number} 购物车id
                                                     typeId: typeId, // {Number} 类型id
                                                     commodityId: commodityId, // {Number} 商品id
                                                     amount: 1, // {Number} 商品数量
@@ -663,14 +692,14 @@
                                                     imageUrl: commodityItem.imageUrl, // {String} 商品图片url
                                                     description: commodityItem.description, // {String} 商品描述
                                                     originalPrice: commodityItem.originalPrice + currentCustomOptions.customOptionPrice, // {Number} 商品原价
-                                                    discountPrice: commodityItem.discountPrice + currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
-                                                    customOptions: currentCustomOptions
+                                                    discountPrice: commodityItem.discountPrice === null ? null : commodityItem.discountPrice + currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
+                                                    customOptions: currentCustomOptions // {Array} 商品定制选项信息
                                                 }); //将商品加入购物车列表
-                                                console.log(this.cartList)
-                                                this.currentCustomOptions = {};
                                             }
                                             else {
+                                                //当前商品不存在定制选项
                                                 this.cartList.push({
+                                                    cartId: cartIdMax + 1, // {Number} 购物车id
                                                     typeId: typeId, // {Number} 类型id
                                                     commodityId: commodityId, // {Number} 商品id
                                                     amount: 1, // {Number} 商品数量
@@ -680,8 +709,8 @@
                                                     originalPrice: commodityItem.originalPrice, // {Number} 商品原价
                                                     discountPrice: commodityItem.discountPrice, // {Number|NaN} 商品优惠价格
                                                 }); //将商品加入购物车列表
-                                                console.log(this.cartList)
                                             }
+                                            this.showCommodityDetailPopup = false;
                                         }
                                     }
                                 });
@@ -713,6 +742,7 @@
                 this.utils.throttle(() => {
                     const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
                     const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
+                    const cartId = e.currentTarget.dataset.cartid == null ? null : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
                     this.menuList.forEach(typeItem => {
                         if (typeItem.id === typeId) {
                             !isNaN(typeItem.amount) ? typeItem.amount -= 1 : typeItem.amount = 0;
@@ -723,12 +753,27 @@
                                         !isNaN(commodityItem.amount) ? commodityItem.amount -= 1 : commodityItem.amount = 0;
                                         this.cartList.forEach((cartItem, cartItemIndex) => {
                                             if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
-                                                if (cartItem.amount === 1) {
-                                                    //购物车中当前商品数量为1
-                                                    this.cartList.splice(cartItemIndex, 1); //从购物车列表中移除
+                                                if (cartId !== null) {
+                                                    //购物车id不为空
+                                                    if (cartItem.cartId === cartId) {
+                                                        //购物车id匹配
+                                                        if (cartItem.amount === 1) {
+                                                            //购物车中当前商品数量为1
+                                                            this.cartList.splice(cartItemIndex, 1); //从购物车列表中移除
+                                                        }
+                                                        else {
+                                                            cartItem.amount -= 1;
+                                                        }
+                                                    }
                                                 }
                                                 else {
-                                                    cartItem.amount -= 1;
+                                                    //购物车id为空（从菜单调用操作）
+                                                    if (cartItem.amount === 1) {
+                                                        this.cartList.splice(cartItemIndex, 1);
+                                                    }
+                                                    else {
+                                                        cartItem.amount -= 1;
+                                                    }
                                                 }
                                             }
                                         });
@@ -746,9 +791,9 @@
                 const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
                 this.menuList.forEach(typeItem => {
                     if (typeItem.id === typeId) {
-                        typeItem.amount = 0;
                         typeItem.dishes.forEach(commodity => {
                             if (commodity.id === commodityId) {
+                                typeItem.amount -= commodity.amount;
                                 commodity.amount = 0;
                             }
                         });
@@ -788,43 +833,55 @@
              * @param commodityIndex {Number} 商品索引
              */
             handleShowCommodityPopup(typeIndex, commodityIndex) {
-                if (typeIndex != null && commodityIndex != null) {
-                    this.currentSelectedCommodity = {
-                        typeIndex: typeIndex,
-                        commodityIndex: commodityIndex
-                    };
-                    this.showCommodityDetailPopup = true;
-                    this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice = 0; //初始化当前菜品的定制选项总增值价格
-                    if (this.menuList[typeIndex].dishes[commodityIndex].customOptions) {
-                        this.currentCustomOptions = {};
-                        this.menuList[typeIndex].dishes[commodityIndex].customOptions.forEach(customOption => {
-                            if (customOption.isSingle) {
-                                //单选必选
-                                customOption.customItems.forEach((customItem, customItemIndex) => {
-                                    if (customItemIndex === 0) {
-                                        this.$set(customItem, 'isSelected', true);
-                                        this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += customItem.customItemPrice); //增加默认选中的定制选项价格
-                                    }
-                                    else {
+                this.utils.throttle(() => {
+                    if (typeIndex != null && commodityIndex != null) {
+                        this.currentSelectedCommodity = {
+                            typeIndex: typeIndex,
+                            commodityIndex: commodityIndex
+                        };
+                        this.amountTemp = 1;
+                        this.showCommodityDetailPopup = true;
+                        this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice = 0; //初始化当前菜品的定制选项总增值价格
+                        if (this.menuList[typeIndex].dishes[commodityIndex].customOptions) {
+                            this.currentCustomOptions = {};
+                            this.menuList[typeIndex].dishes[commodityIndex].customOptions.forEach(customOption => {
+                                if (customOption.isSingle) {
+                                    //单选必选
+                                    customOption.customItems.forEach((customItem, customItemIndex) => {
+                                        if (customItemIndex === 0) {
+                                            this.$set(customItem, 'isSelected', true);
+                                            this.$set(this.menuList[typeIndex].dishes[commodityIndex], 'customOptionPrice', this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += customItem.customItemPrice); //增加默认选中的定制选项价格
+                                        }
+                                        else {
+                                            this.$set(customItem, 'isSelected', false);
+                                        }
+                                    });
+                                }
+                                else {
+                                    //多选可选
+                                    customOption.customItems.forEach(customItem => {
                                         this.$set(customItem, 'isSelected', false);
-                                    }
-                                });
-                            }
-                            else {
-                                //多选可选
-                                customOption.customItems.forEach(customItem => {
-                                    this.$set(customItem, 'isSelected', false);
-                                });
-                            }
-                        });
+                                    });
+                                }
+                            });
+                            this.currentCustomOptions = {
+                                typeIndex: typeIndex,
+                                commodityIndex: commodityIndex,
+                                customOptions: this.menuList[typeIndex].dishes[commodityIndex].customOptions,
+                                customOptionPrice: this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice
+                            };
+                        }
                     }
-                }
+                }, 500);
             },
             // 商品详情弹出层关闭监听事件
             handleCloseCommodityPopup() {
                 this.currentSelectedCommodity = {};
+                this.currentCustomOptions = {};
                 this.showCommodityDetailPopup = false;
+                this.amountTemp = 1;
             },
+            // 商品定制选项点击事件
             handleCustomOptionClick(e) {
                 const {
                     typeindex: typeIndex,
@@ -868,6 +925,98 @@
                     customOptions: this.menuList[typeIndex].dishes[commodityIndex].customOptions,
                     customOptionPrice: this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice
                 };
+            },
+            // 商品详情弹出框数量增加按钮点击事件
+            handleAddAmountTemp() {
+                this.utils.throttle(() => {
+                    this.amountTemp += 1;
+                }, 300);
+            },
+            // 商品详情弹出框数量减少按钮点击事件
+            handleMinusAmountTemp() {
+                this.utils.throttle(() => {
+                    if (this.amountTemp > 1) {
+                        this.amountTemp -= 1;
+                    }
+                }, 300);
+            },
+            // 商品详情弹出窗中的添加到购物车按钮点击事件
+            handleAddToCartBtnClick(e) {
+                this.utils.throttle(() => {
+                    const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
+                    const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
+                    const currentCustomOptions = JSON.parse(JSON.stringify(this.currentCustomOptions)); //当前填写的定制选项信息
+                    const currentAmount = this.amountTemp; //当前选择的数量
+                    let isExist = false; //购物车中是否已存在该商品
+                    this.menuList.forEach((typeItem, typeIndex) => {
+                        if (typeItem.id === typeId) {
+                            !isNaN(typeItem.amount) ? typeItem.amount += currentAmount : typeItem.amount = currentAmount;
+                            //索引对应类型Id
+                            typeItem.dishes.forEach((commodityItem, commodityIndex) => {
+                                if (commodityItem.id === commodityId) {
+                                    //索引对应商品Id
+                                    !isNaN(commodityItem.amount) ? commodityItem.amount += currentAmount : commodityItem.amount = currentAmount;
+                                    this.cartList.forEach(cartItem => {
+                                        if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
+                                            //购物车列表中已存在当前商品
+                                            if (cartItem.customOptions) {
+                                                //购物车当前项有定制选项信息
+                                                if (JSON.stringify(cartItem.customOptions.customOptions) === JSON.stringify(currentCustomOptions.customOptions)) {
+                                                    //购物车当前项的定制选项信息与当前填写的定制选项信息匹配，或购物车当前项的Id与触发点击事件的购物车项Id相同
+                                                    cartItem.amount += currentAmount;
+                                                    isExist = true;
+                                                }
+                                            }
+                                            else {
+                                                //购物车当前项没有定制选项信息
+                                                cartItem.amount += currentAmount;
+                                                isExist = true;
+                                            }
+                                        }
+                                    });
+                                    if (!isExist) {
+                                        //购物车列表中不存在当前商品
+                                        let cartIdMax = Math.max.apply(Math, this.cartList.map(item => {
+                                            return item.cartId
+                                        }));
+                                        cartIdMax = cartIdMax < 0 ? -1 : cartIdMax;
+                                        if (currentCustomOptions !== {} && currentCustomOptions.typeIndex === typeIndex && currentCustomOptions.commodityIndex === commodityIndex) {
+                                            //当前商品存在定制选项，且类型索引、商品索引与商品对应
+                                            this.cartList.push({
+                                                cartId: cartIdMax + 1, // {Number} 购物车id
+                                                typeId: typeId, // {Number} 类型id
+                                                commodityId: commodityId, // {Number} 商品id
+                                                amount: currentAmount, // {Number} 商品数量
+                                                name: commodityItem.name, // {String} 商品名字
+                                                imageUrl: commodityItem.imageUrl, // {String} 商品图片url
+                                                description: commodityItem.description, // {String} 商品描述
+                                                originalPrice: commodityItem.originalPrice + currentCustomOptions.customOptionPrice, // {Number} 商品原价
+                                                discountPrice: commodityItem.discountPrice === null ? null : commodityItem.discountPrice + currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
+                                                customOptions: currentCustomOptions // {Array} 商品定制选项信息
+                                            }); //将商品加入购物车列表
+                                        }
+                                        else {
+                                            //当前商品不存在定制选项
+                                            this.cartList.push({
+                                                cartId: cartIdMax + 1, // {Number} 购物车id
+                                                typeId: typeId, // {Number} 类型id
+                                                commodityId: commodityId, // {Number} 商品id
+                                                amount: currentAmount, // {Number} 商品数量
+                                                name: commodityItem.name, // {String} 商品名字
+                                                imageUrl: commodityItem.imageUrl, // {String} 商品图片url
+                                                description: commodityItem.description, // {String} 商品描述
+                                                originalPrice: commodityItem.originalPrice, // {Number} 商品原价
+                                                discountPrice: commodityItem.discountPrice, // {Number|NaN} 商品优惠价格
+                                            }); //将商品加入购物车列表
+                                        }
+                                    }
+                                    this.showCommodityDetailPopup = false;
+                                }
+                            });
+                        }
+                    });
+                    this.$forceUpdate();
+                }, 1000);
             },
             /**
              * 查询搜索结果
@@ -951,7 +1100,7 @@
         filters: {
             /**
              * 格式化价格显示
-             * @param {Number} price 价格
+             * @param price {Number} 价格
              * @return {String} 格式化后的价格
              */
             showPrice(price) {
@@ -962,6 +1111,27 @@
                     return `￥${price}`;
                 }
             },
+            /**
+             * 格式化购物车中商品的定制选项信息
+             * @param customOptions {Object | Null} 定制选项信息
+             * @return {String} 格式化后的定制选项信息
+             */
+            showCartCustomOptions(customOptions) {
+                if (customOptions !== null) {
+                    let result = [];
+                    customOptions.forEach(option => {
+                        option.customItems.forEach(item => {
+                            if (item.isSelected) {
+                                result.push(item.customItemTitle);
+                            }
+                        });
+                    });
+                    return result.join('；');
+                }
+                else {
+                    return '';
+                }
+            }
         },
         watch: {
             // 搜索输入框监听事件
@@ -1520,6 +1690,31 @@
                                             font-size: rpx(44);
                                             color: #f4756b;
                                         }
+
+                                        .options-btn {
+                                            width: rpx(100);
+                                            height: rpx(40);
+                                            background-color: #f4756b;
+                                            color: #fff;
+                                            border-radius: rpx(30);
+                                            font-size: rpx(24);
+                                            line-height: rpx(40);
+                                            text-align: center;
+
+                                            .amount {
+                                                width: rpx(34);
+                                                height: rpx(34);
+                                                overflow: hidden;
+                                                transform: translate(rpx(66), rpx(-50));
+                                                border: rpx(2) solid #fff;
+                                                background-color: #f4756b;
+                                                color: #fff;
+                                                border-radius: rpx(50);
+                                                font-size: rpx(22);
+                                                text-align: center;
+                                                line-height: rpx(30);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1636,27 +1831,61 @@
 
                                     .name {
                                         width: 100%;
-                                        height: rpx(44);
+                                        height: fit-content;
                                         font-size: rpx(30);
                                         color: #333;
-                                        line-height: rpx(44);
                                     }
 
                                     .description {
-                                        width: 100%;
-                                        height: rpx(44);
+                                        width: fit-content;
+                                        height: fit-content;
+                                        min-height: rpx(46);
+                                        padding: rpx(10) 0;
                                         font-size: rpx(22);
                                         color: #888;
-                                        line-height: rpx(38);
                                     }
 
-                                    .price {
+                                    .price-container {
                                         width: 100%;
                                         height: rpx(50);
-                                        font-size: rpx(30);
-                                        font-weight: bold;
-                                        color: #f4756b;
-                                        line-height: rpx(58);
+                                        display: flex;
+                                        flex-direction: row;
+
+                                        .price {
+                                            width: 100%;
+                                            height: rpx(50);
+                                            font-size: rpx(30);
+                                            font-weight: bold;
+                                            color: #f4756b;
+                                            line-height: rpx(58);
+                                        }
+
+                                        .amount-btn-container {
+                                            width: fit-content;
+                                            height: fit-content;
+                                            flex-shrink: 0;
+                                            margin-top: auto;
+                                            margin-right: rpx(10);
+                                            margin-left: auto;
+                                            display: flex;
+                                            flex-direction: row;
+
+                                            .amount {
+                                                margin: 0 rpx(16);
+                                                font-size: rpx(30);
+                                                line-height: rpx(44);
+                                            }
+
+                                            .fa-minus-circle {
+                                                font-size: rpx(44);
+                                                color: #ddd;
+                                            }
+
+                                            .fa-plus-circle {
+                                                font-size: rpx(44);
+                                                color: #f4756b;
+                                            }
+                                        }
                                     }
                                 }
 
@@ -1915,6 +2144,17 @@
                             height: fit-content;
                             max-height: 30vh;
 
+                            ::-webkit-scrollbar {
+                                width: rpx(6);
+                                height: rpx(6);
+                                background-color: #ffffff;
+                            }
+
+                            ::-webkit-scrollbar-thumb {
+                                border-radius: 10px;
+                                background-color: #f6f6f6;
+                            }
+
                             .option-container {
                                 width: 100%;
                                 height: fit-content;
@@ -2000,6 +2240,23 @@
                                 font-size: rpx(44);
                                 color: #f4756b;
                             }
+                        }
+                    }
+
+                    .add-to-cart-container {
+                        width: 100%;
+                        height: rpx(100);
+                        padding: 0 rpx(40) rpx(110);
+
+                        .add-btn {
+                            width: 100%;
+                            height: rpx(70);
+                            margin: auto;
+                            background-color: #f4756b;
+                            border-radius: rpx(50);
+                            color: #fff;
+                            line-height: rpx(70);
+                            text-align: center;
                         }
                     }
                 }
