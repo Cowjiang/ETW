@@ -321,6 +321,7 @@
                                     type="text"
                                     v-model="searchValue"
                                     :focus="searchInputFocus"
+                                    :adjust-position="false"
                                     placeholder="搜索商品名称">
                             </view>
                             <view
@@ -1967,6 +1968,7 @@
                         height: rpx(70);
                         display: flex;
                         flex-direction: row;
+                        flex-shrink: 0;
                         margin-bottom: rpx(40);
 
                         .input {
@@ -2264,14 +2266,16 @@
 
             .cart-bar-container {
                 width: 100vw;
-                height: fit-content;
+                height: rpx(90);
+                height: calc(constant(safe-area-inset-bottom) + 90rpx);
+                height: calc(env(safe-area-inset-bottom) + 90rpx);
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 z-index: 4;
-                padding-bottom: 0;
-                padding-bottom: constant(safe-area-inset-bottom);
-                padding-bottom: env(safe-area-inset-bottom);
+                //margin-bottom: 0;
+                //margin-bottom: constant(safe-area-inset-bottom);
+                //margin-bottom: env(safe-area-inset-bottom);
                 background-color: rgba(250, 250, 250, 0.95);
 
                 .cart-btn-container {
@@ -2314,7 +2318,7 @@
 
                 .cart-bar {
                     width: 100%;
-                    height: 100%;
+                    height: rpx(90);
                     display: flex;
                     flex-direction: row;
                     overflow: hidden;
@@ -2352,7 +2356,7 @@
 
                     .pay-container {
                         width: rpx(180);
-                        height: 100%;
+                        height: fit-content;
                         margin-left: auto;
                         font-size: rpx(30);
                         text-align: center;
