@@ -5,9 +5,9 @@ import { apiResquest } from "./request.js";
 //#ifdef MP-WEIXIN
 // let baseUrl = "http://free.svipss.top:21199"
 //#endif
-let host = `112.74.19.170:8887`; //服务器主机域名
-export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
-export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
+let host = `shitukj.cn/service`; //服务器主机域名
+export const httpBaseUrl = `https://${host}`; //HTTP请求服务器基本地址
+export const wsBaseUrl = `wss://${host}/websocket/JSf_MNZCnst27kG72s7VE/2`; //WebSocket请求服务器基本地址
 // mock
 // 获取作品列表
 export const getWorkList = (requestConfig) =>
@@ -155,7 +155,7 @@ export const deleteDishInfo = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/dishes/${requestConfig.urlParam.dishId}`, { method: "DELETE", requestConfig });
 //获取菜品类型 
 export const getDishType = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/dishes/type`, { method: "GET", requestConfig });
+	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/types`, { method: "GET", requestConfig });
 //添加菜品类型 
 export const postDishType = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type`, { method: "POST", requestConfig });
