@@ -36,7 +36,9 @@
                     class="message-scroll-view"
                     :style="{
                         top: `${isBlocked ? '80rpx' : '100rpx'}`,
-                        height: `${isBlocked ? 'calc(100% - 80rpx)' : 'calc(100% - 100rpx)'}`
+                        height: `${isBlocked ? 'calc(100% - 80rpx)' : 'calc(100% - 100rpx)'}`,
+                        height: `${isBlocked ? 'calc(100% - 80rpx - constant(safe-area-inset-bottom))' : 'calc(100% - 100rpx - constant(safe-area-inset-bottom))'}`,
+                        height: `${isBlocked ? 'calc(100% - 80rpx - env(safe-area-inset-bottom))' : 'calc(100% - 100rpx - env(safe-area-inset-bottom))'}`
                     }"
                     ref="scrollView"
                     :scroll-y="true"
@@ -368,57 +370,59 @@
             },
             // 发送文字消息
             sendMessage() {
-                setTimeout(() => {
-                    this.scrollToViewId = `message${this.messageRecords.length - 1}`;
-                    this.$forceUpdate();
-                }, 0);
-                if (this.isSendReady === true) {
-                    wx.showLoading({
-                        title: '正在发送'
-                    });
-                    sendMessage({
-                        urlParam: this.friendInfo.userId,
-                        queryData: {
-                            content: this.rawInputValue,
-                            isText: true
-                        }
-                    })
-                        .then(res => {
-                            if (res.success) {
-                                wx.hideLoading();
-                                this.messageRecords.push({
-                                    id: res.data.id,
-                                    isMe: true,
-                                    isPhoto: false,
-                                    content: this.rawInputValue,
-                                    time: new Date()
-                                });
-                                this.recordsLength += 1;
-                                this.rawInputValue = '';
-                                this.inputFocusStatus = true;
+                this.utils.throttle(() => {
+                    setTimeout(() => {
+                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
+                        this.$forceUpdate();
+                    }, 0);
+                    if (this.isSendReady === true) {
+                        wx.showLoading({
+                            title: '正在发送'
+                        });
+                        sendMessage({
+                            urlParam: this.friendInfo.userId,
+                            queryData: {
+                                content: this.rawInputValue,
+                                isText: true
                             }
-                            else {
+                        })
+                            .then(res => {
+                                if (res.success) {
+                                    wx.hideLoading();
+                                    this.messageRecords.push({
+                                        id: res.data.id,
+                                        isMe: true,
+                                        isPhoto: false,
+                                        content: this.rawInputValue,
+                                        time: new Date()
+                                    });
+                                    this.recordsLength += 1;
+                                    this.rawInputValue = '';
+                                    // this.inputFocusStatus = true;
+                                }
+                                else {
+                                    wx.hideLoading();
+                                    this.$refs.toast.show({
+                                        text: '发送失败',
+                                        type: 'error',
+                                        direction: 'top'
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err);
                                 wx.hideLoading();
                                 this.$refs.toast.show({
                                     text: '发送失败',
                                     type: 'error',
                                     direction: 'top'
                                 });
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            wx.hideLoading();
-                            this.$refs.toast.show({
-                                text: '发送失败',
-                                type: 'error',
-                                direction: 'top'
                             });
-                        })
-                }
-                else {
-                    this.inputFocusStatus = true;
-                }
+                    }
+                    else {
+                        this.inputFocusStatus = true;
+                    }
+                }, 1000);
             },
             /**
              * 选择图片
@@ -599,7 +603,11 @@
                         }
                     })
                     .catch(err => {
-                        wx.hideLoading();
+                        wx.hideLoading();this.$refs.toast.show({
+                            text: '删除失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
                         console.log(err);
                     })
             },
@@ -627,20 +635,28 @@
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
             },
+            // 黑名单按钮点击事件
             handleBlockBtnClick() {
                 this.isReadyToShow = false;
                 this.rawInputValue = '';
+                this.inputFocusStatus = false;
+                this.keyboardHeight = 0;
                 setTimeout(() => {
                     this.isBlocked = !this.isBlocked;
                     this.isReadyToShow = true;
+                    this.rawInputValue = '';
+                    this.inputFocusStatus = false;
+                    this.isReadyToShow = true;
+                    this.keyboardHeight = 0;
                 }, 1000);
                 this.$forceUpdate();
             },
             // 重定向至聊天列表页
             redirectToChatList() {
-                uni.redirectTo({
-                    url: `/pages/chatList/chatList`
-                });
+                // uni.redirectTo({
+                //     url: `/pages/chatList/chatList`
+                // });
+                uni.navigateBack();
             },
             // 开启Socket连接
             startCheckingUpdate() {
@@ -857,8 +873,6 @@
             .message-scroll-view {
                 position: relative;
                 width: 100%;
-                height: calc(100% - 80rpx);
-                top: rpx(80);
 
                 .message-container {
                     width: 100%;
@@ -895,6 +909,7 @@
                         min-height: rpx(60);
                         padding: rpx(20);
                         font-size: rpx(30);
+                        word-break: break-all;
 
                         view {
                             pointer-events: none;
@@ -943,8 +958,12 @@
             left: 0;
             bottom: 0;
             width: 100%;
-            height: rpx(120);
+            height: fit-content;
+            min-height: rpx(120);
             padding-left: rpx(85);
+            padding-bottom: 0;
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
             z-index: 2;
             font-size: rpx(30);
             text-align: center;
@@ -957,8 +976,12 @@
             position: fixed;
             left: 0;
             bottom: 0;
+            padding-bottom: 0;
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
             width: 100%;
-            height: rpx(120);
+            height: fit-content;
+            min-height: rpx(120);
             background-color: #fff;
 
             .more-btn-container {
@@ -980,31 +1003,40 @@
             .input-container {
                 display: inline;
                 position: fixed;
-                bottom: rpx(20);
                 right: 0;
+                bottom: rpx(20);
+                padding-bottom: 0;
+                padding-bottom: constant(safe-area-inset-bottom);
+                padding-bottom: env(safe-area-inset-bottom);
                 width: fit-content;
                 margin: rpx(20) rpx(20) 0 0;
-                height: rpx(80);
+                height: fit-content;
+                min-height: rpx(80);
                 float: right;
                 transition-duration: 200ms;
 
                 .input-inner-container {
                     width: calc(100vw - 220rpx - 80rpx);
-                    height: 100%;
+                    height: fit-content;
                     float: left;
                     padding: rpx(20) rpx(40);
-                    border-radius: rpx(100);
+                    border-radius: rpx(50);
                     background-color: $uni-color-grey;
                     transition-duration: 200ms;
                     transition-property: width, transform;
+                    overflow: hidden;
 
                     .raw-input {
                         font-size: rpx(32);
+                        height: rpx(40);
                     }
 
                     .show-input {
                         font-size: rpx(32);
-                        height: 100%;
+                        height: rpx(40);
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
                     }
                 }
 
@@ -1013,7 +1045,7 @@
                     display: inline;
                     height: rpx(70);
                     width: rpx(70);
-                    margin-top: rpx(10);
+                    margin-top: rpx(4);
                     margin-left: rpx(20);
                     font-size: rpx(40);
                     line-height: rpx(70);

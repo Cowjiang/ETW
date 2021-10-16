@@ -46,10 +46,10 @@ export const deleteBlockList = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 //获取我的地址簿
 export const getAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+    apiResquest(`${httpBaseUrl}/user/address`, { method: "GET", requestConfig });
 //添加地址到地址簿
 export const addAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+    apiResquest(`${httpBaseUrl}/user/address`, { method: "POST", requestConfig });
 //修改地址簿中的地址
 export const updateAddressBook = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "PUT", requestConfig });
@@ -58,7 +58,13 @@ export const getAddress = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
 //删除地址簿中的地址
 export const deleteAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+//设置某地址为默认地址
+export const setDefaultAddress = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}/default`, { method: "Put", requestConfig });
+//获取我的默认地址
+export const getDefaultAddress = (requestConfig) =>
+    apiResquest(`${httpBaseUrl}/user/address/default`, { method: "GET", requestConfig });
 
 //地区查询相关
 //获取省份
@@ -114,9 +120,9 @@ export const sendMessage = (requestConfig) =>
 //删除私信记录
 export const deleteChatHistory = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/chat/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
-//获取用户简要信息（临时）
-export const getUserInfoTemp = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+//删除私信列表中的私信记录
+export const deleteChatWithFriend = (requestConfig) =>
+	apiResquest(`${httpBaseUrl}/chat/friend/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 //获取登录websocket的令牌
 export const getUserToken = (requestConfig) =>
 	apiResquest(`${httpBaseUrl}/socket/connection`, { method: "GET", requestConfig });

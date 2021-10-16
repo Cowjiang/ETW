@@ -115,9 +115,9 @@
                                 <view class="name">
                                     {{ message.senderName }}
                                 </view>
-                                <view class="blacklist-user">
-                                    黑名单
-                                </view>
+<!--                                <view class="blacklist-user">-->
+<!--                                    黑名单-->
+<!--                                </view>-->
                             </view>
                             <view class="message-content">
                                 {{ message.isPhoto ? '[图片]' : message.content }}
@@ -153,7 +153,7 @@
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    import {getBlockList, getMyChatList} from "../../common/js/api/models.js";
+    import {getBlockList, getMyChatList, deleteChatWithFriend} from "../../common/js/api/models.js";
     import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
@@ -303,9 +303,9 @@
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
                 this.chatMessages[targetId].isRead = true;
-                uni.redirectTo({
+                uni.navigateTo({
                     url: `/pages/chatDetail/chatDetail?${senderInfo}`,
-                })
+                });
             },
             // 监听长按事件
             handleLongPress(e) {
@@ -313,12 +313,50 @@
                 let targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', '加入黑名单'],
-                    itemColor: '#f35b56',
                     success: res => {
                         if (res.tapIndex === 0) {
-
+                            //用户点击删除记录
+                            uni.showModal({
+                                title: '',
+                                content: '删除私信记录后将无法恢复，确定删除？',
+                                success: res => {
+                                    if (res.confirm) {
+                                        deleteChatWithFriend({
+                                            urlParam: this.chatMessages[targetId].senderId
+                                        })
+                                            .then(res => {
+                                                if (res.success) {
+                                                    this.chatMessages.forEach((v, k) => {
+                                                        if (v.senderId === this.chatMessages[targetId].senderId) {
+                                                            this.chatMessages.splice(k, 1);
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    console.log(res);
+                                                    this.$refs.toast.show({
+                                                        text: '删除失败',
+                                                        type: 'error',
+                                                        direction: 'top'
+                                                    });
+                                                    this.getChatList();
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.log(err);
+                                                this.$refs.toast.show({
+                                                    text: '删除失败',
+                                                    type: 'error',
+                                                    direction: 'top'
+                                                });
+                                                this.getChatList();
+                                            });
+                                    }
+                                }
+                            });
                         }
                         else {
+                            //用户点击加入黑名单
 
                         }
                     }
@@ -672,9 +710,9 @@
                         pointer-events: none;
 
                         .time {
+                            margin-bottom: rpx(20);
                             font-size: rpx(24);
                             color: #999999;
-                            margin-bottom: rpx(20);
                         }
 
                         .unread {
@@ -701,14 +739,15 @@
                 }
 
                 .load-more {
-                    font-size: rpx(28);
                     height: fit-content;
-                    text-align: center;
                     width: 100%;
-                    color: $uni-text-color-placeholder;
-                    background-color: #fff;
                     margin-top: rpx(30);
                     padding-bottom: rpx(70);
+                    background-color: #fff;
+                    border-radius: rpx(30);
+                    color: $uni-text-color-placeholder;
+                    font-size: rpx(28);
+                    text-align: center;
 
                     text {
                         margin-left: rpx(10);
@@ -720,16 +759,6 @@
                     padding-bottom: 0;
                     margin-top: 0;
                 }
-            }
-
-            .no-more-chats {
-                width: 100vw;
-                height: rpx(100);
-                font-size: rpx(24);
-                color: #999999;
-                line-height: rpx(100);
-                text-align: center;
-                background-color: #f6f6f6;
             }
         }
     }

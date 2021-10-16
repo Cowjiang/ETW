@@ -103,6 +103,7 @@
          * @property {Boolean} showPopularCity 是否显示热门城市，默认为true
          * @example <selectArea v-model="showPicker" @confirm="handleConfirm"></selectArea>
          * @method init() 初始化Picker
+         * @method queryAreaName(String) 根据行政编码查询地区名称
          * @event {Function} confirm 用户点击确认按钮，返回当前选择地区的结果集
          * @event {Function} cancel 用户点击取消按钮或点击遮罩层关闭Picker，返回当前选择地区的结果集
          */
@@ -340,6 +341,40 @@
             close(e) {
                 this.$emit('input', false);
             },
+            /**
+             * 根据行政编码查询地区名称
+             * @param {String} adCode 行政编码，例："440104"
+             * @return {Boolean | Array} 查询失败返回false，查询成功返回名称数组，格式：[省份, 城市, 区县]
+             */
+            queryAreaName(adCode) {
+                let result = [];
+                let provinceIndex, cityIndex;
+                try {
+                    let areaCodeArray = [adCode.slice(0, 2), adCode.slice(0, 4), adCode];
+                    provinces.map((v, k) => {
+                        if (v.value === areaCodeArray[0]) {
+                            result[0] = v.label;
+                            provinceIndex = k;
+                        }
+                    });
+                    citys[provinceIndex].map((v, k) => {
+                        if (v.value === areaCodeArray[1]) {
+                            result[1] = v.label;
+                            cityIndex = k;
+                        }
+                    });
+                    areas[provinceIndex][cityIndex].map((v, k) => {
+                        if (v.value === areaCodeArray[2]) {
+                            result[2] = v.label;
+                        }
+                    });
+                }
+                catch (e) {
+                    console.error(e)
+                    return false;
+                }
+                return result;
+            }
         },
         computed: {
             // 强制触发props变化监听器

@@ -216,27 +216,30 @@
                                             data: res.data,
                                             success: () => {
                                                 this.$refs.toast.show({
-                                                    text: res.data,
+                                                    text: '登陆成功',
                                                     type: "success",
                                                 });
-                                                let redirectPage =
-                                                    this.utils.getCurrentPage().curParam.redirectPath ||
-                                                    null;
+                                                let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "pages/home/home" : redirectPage}`,
+                                                    url: `/${redirectPage === null ? "/pages/addressBook/addressBook" : redirectPage}`,
                                                 });
                                             },
                                         });
                                     }
                                     else {
+                                        console.log(res)
                                         this.$refs.toast.show({
-                                            text: res.errorMsg,
+                                            text: '登陆失败',
                                             type: "error",
                                         });
                                     }
                                 })
                                 .catch((err) => {
                                     console.log(err);
+                                    this.$refs.toast.show({
+                                        text: '登陆失败',
+                                        type: "error",
+                                    });
                                 });
                         }
                         else if (usernameValidatedInfo.regExp.length >= 2) {
