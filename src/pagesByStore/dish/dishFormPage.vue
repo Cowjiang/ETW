@@ -66,6 +66,9 @@
           maxlength="2"
         />
       </u-form-item>
+      <u-form-item label-position="left" label="可定制选项" label-width="180">
+        <u-switch slot="right" v-model="dishInfoForm.isCustom"> </u-switch>
+      </u-form-item>
     </u-form>
     <button
       class="submit-button"
@@ -98,6 +101,7 @@ export default {
         discount: 1, //折扣
         // packingCharges: "", //打包费（外卖）（单位：元）
         typeId: "", //菜品类型id
+        isCustom:false//是否开启定制项
       },
       storeMainInfo: {
         id: "",
@@ -172,7 +176,10 @@ export default {
         //添加
         if (this.isAdd) {
           if (
-            !this.utils.isObjectAnyKeyEmpty(this.dishInfoForm, ["imageUrl"]) &&
+            !this.utils.isObjectAnyKeyEmpty(this.dishInfoForm, [
+              "imageUrl",
+              "isCustom",
+            ]) &&
             this.isImageChoosen
           ) {
             this.$refs.dishInfoImageUpload.$refs.upload.upload();
@@ -185,7 +192,10 @@ export default {
           //编辑
         } else {
           if (
-            !this.utils.isObjectAnyKeyEmpty(this.dishInfoForm, ["imageUrl"]) &&
+            !this.utils.isObjectAnyKeyEmpty(this.dishInfoForm, [
+              "imageUrl",
+              "isCustom",
+            ]) &&
             this.isImageChoosen
           ) {
             //更改过图片
