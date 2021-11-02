@@ -134,6 +134,15 @@
             "root": "pagesByStore",
             "pages": [
                 {
+                    "path": "storeSearch/storeSearch",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom",
+                        "disableScroll": true
+                    }
+                },
+                {
                     "path": "order/order",
                     "style": {
                         "navigationBarTitleText": "",

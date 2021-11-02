@@ -209,9 +209,9 @@
                                     password: this.password,
                                 },
                             })
-                                .then((res) => {
+                                .then(res => {
                                     if (res.success && res.data.id !== null) {
-                                        uni.setStorage({
+                                        wx.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
@@ -221,7 +221,7 @@
                                                 });
                                                 let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "/pages/addressBook/addressBook" : redirectPage}`,
+                                                    url: `/${redirectPage === null ? "/pages/chatList/chatList" : redirectPage}`,
                                                 });
                                             },
                                         });

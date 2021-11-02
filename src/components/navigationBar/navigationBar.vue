@@ -150,15 +150,16 @@
                                     });
                                 }
                             }); //返回上一页
+                            this.resetNavigation();
                         }
                         break;
                     case 2:
                         wx.navigateTo({
                             url: "/pages/home/home",
                         }); //跳转首页
+                        this.resetNavigation();
                         break;
                 }
-                this.resetNavigation();
             },
             // 返回导航栏总高度
             getNavigationHeight() {

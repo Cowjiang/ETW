@@ -1,14 +1,8 @@
 import { apiResquest } from "./request.js";
-//#ifdef H5
-// let baseUrl = "/api"
-//#endif
-//#ifdef MP-WEIXIN
-// let baseUrl = "http://free.svipss.top:21199"
-//#endif
 
-let host = `112.74.19.170:8887`; //服务器主机域名
-export const httpBaseUrl = `http://${host}`; //HTTP请求服务器基本地址
-export const wsBaseUrl = `ws://${host}/websocket`; //WebSocket请求服务器基本地址
+const host = `shitukj.cn/service`; //服务器主机域名
+export const httpBaseUrl = `https://${host}`; //HTTP请求服务器基本地址
+export const wsBaseUrl = `wss://${host}/websocket`; //WebSocket请求服务器基本地址
 
 // mock
 // 获取作品列表
