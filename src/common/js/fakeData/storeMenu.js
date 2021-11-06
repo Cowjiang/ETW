@@ -1,4 +1,4 @@
-var menuList = [
+let menuList = [
     {
         id: 1,
         typeName: '当季限定',

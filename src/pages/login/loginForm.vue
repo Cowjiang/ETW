@@ -284,22 +284,29 @@
             // 微信登陆按钮点击事件
             wechatLogin() {
                 this.utils.throttle(() => {
-                    //Wechat Login
-                    // this.$refs.toast.show({
-                    //     text: '大笨蛋还想用微信登陆',
-                    //     type: "success",
-                    //     direction: 'left'
-                    // });
-
                     // this.isShow = true;
 
-                    uni.navigateTo({
-                        url: '/pages/amap/amap',
-                    })
-
                     // uni.navigateTo({
-                    //   url: "/pages/home/subpages/upload-file",
-                    // });
+                    //     url: '/pages/amap/amap',
+                    // })
+                    uni.login({
+                        provider: 'weixin',
+                        success: res => {
+                            uni.request({
+                                url: 'https://shitukj.cn/service/user/wx/login',
+                                header: {
+                                    'content-type': 'application/x-www-form-urlencoded'
+                                },
+                                method: 'POST',
+                                data: {
+                                    code: res.code
+                                },
+                                success: res => {
+                                    console.log(res);
+                                }
+                            })
+                        }
+                    })
                 });
             },
             /**

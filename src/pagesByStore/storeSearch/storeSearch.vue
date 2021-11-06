@@ -50,6 +50,7 @@
     import {loading} from '../../components/loading/loading.vue';
     import {storeSearchEmpty} from '../../components/storeSearchEmpty/storeSearchEmpty';
     import {storeSearchResult} from '../../components/storeSearchResult/storeSearchResult';
+    import {getSearchResult} from '../../common/js/api/models.js';
 
     export default {
         name: "storeSearch",
@@ -69,18 +70,18 @@
         methods: {
             // 搜索事件
             searchResult() {
-                this.utils.throttle(() => {
+                this.utils.throttle(async () => {
                     if (!this.searchTrigger) {
                         this.searchTrigger = true;
                         this.navigateBackTrigger = true;
                         this.$refs.loading.startLoading();
-                        setTimeout(() => {
-                            const searchValue = this.searchValue.replace(/\s*/g, "");
-                            this.$refs.storeSearchEmpty.addHistory(searchValue);
-                            this.showResult = true;
-                            this.showHistory = false;
-                            this.$refs.loading.stopLoading();
-                        }, 500);
+                        const searchValue = this.searchValue.replace(/\s*/g, "");
+                        this.$refs.storeSearchResult.init();
+                        await this.$refs.storeSearchResult.doSearch(searchValue); //执行搜索操作
+                        this.$refs.storeSearchEmpty.addHistory(searchValue);
+                        this.showResult = true;
+                        this.showHistory = false;
+                        this.$refs.loading.stopLoading();
                     }
                     else {
                         this.$refs.loading.startLoading();

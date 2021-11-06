@@ -59,9 +59,7 @@
             }
         },
         methods: {
-            /**
-             * 初始化搜索历史记录
-             */
+            // 初始化
             init() {
                 wx.getStorage({
                     key: 'searchHistoryList',

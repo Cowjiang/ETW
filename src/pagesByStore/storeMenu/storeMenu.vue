@@ -3,6 +3,11 @@
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+    <storeInfoPopup
+      v-model="showStoreInfoPopup"
+      :info="storeInfo"
+      @close="showStoreInfoPopup = false">
+    </storeInfoPopup>
 
     <view class="store-menu-container">
       <view
@@ -21,12 +26,12 @@
               <view class="title-text">
                 {{ storeInfo.name }}
               </view>
-              <i class="fa fa-angle-right" aria-hidden="true"></i>
+              <i class="fa fa-angle-right" aria-hidden="true" @click="handleStoreTitleClick"></i>
             </view>
             <view class="tags-container">
               <view>营业中</view>
               <view>好评率84%</view>
-              <view>月销1447</view>
+              <view>月销{{ storeInfo.sales }}</view>
             </view>
           </view>
           <view class="favorite-container">
@@ -36,12 +41,15 @@
             </view>
           </view>
         </view>
-        <view class="announcement-container" @click="handleAnnouncementFold">
+        <view
+          class="announcement-container"
+          v-if="storeInfo.characteristic != null"
+          @click="handleAnnouncementFold">
           <i class="fa fa-volume-down" aria-hidden="true"></i>
           <view
             class="announcement-text"
             :style="{whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}`}">
-            {{ storeInfo.announcement }}
+            {{ storeInfo.characteristic }}
           </view>
           <view class="unfold-btn" @click.stop="" @click="handleAnnouncementFold">
             <i
@@ -496,6 +504,7 @@
     import {storeInfoPopup} from '../../components/storeInfoPopup/storeInfoPopup.vue';
     import {selectTimePopup} from '../../components/selectTimePopup/selectTimePopup.vue';
     import menuList from '../../common/js/fakeData/storeMenu.js';
+    import {getStoreMenu} from '../../common/js/api/models.js';
 
     export default {
         components: {
@@ -506,18 +515,7 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                storeInfo: {
-                    storeId: 0, // {Number} 店铺id，必需
-                    name: '必胜客（太平店）', // {String} 店铺名字，必需
-                    addressDetails: '广东省广州市从化区太平镇乐东路385号（峰达电器城旁）', // {String} 店铺地址详情，必需
-                    phone: '020-88900280', // {String} 店铺联系电话，必需
-                    openingTime: '工作日9:00-21:00，节假日9:00-24:00',  // {String} 店铺营业时间，必需
-                    longitude: 113.492195, // {Number|NaN} 店铺经度，必需
-                    latitude: 23.452394, // {Number|NaN} 店铺纬度，必需
-                    areaCode: '440103', // {String} 行政编码
-                    imageUrl: '', // {String} 店铺Logo的Url
-                    announcement: '必胜客快餐，全国门店十万家，总有你喜欢的！广东省广州市从化区太平镇乐东路385号' // {String} 店铺公告
-                }, //店铺信息
+                storeInfo: {}, //店铺信息
                 discountTags: [
                     {
                         id: 1,
@@ -564,7 +562,8 @@
                 ], //优惠券标签
                 announcementFolding: true, //公告折叠状态
                 discountFolding: true, //优惠券折叠状态
-                isFavourite: false, //是否收藏店铺
+                isFavourite: false, //是否收藏店铺,
+                showStoreInfoPopup: false, //是否显示店铺信息弹出窗
                 menuTabs: [
                     {
                         name: '点餐'
@@ -575,7 +574,7 @@
                     }
                 ], //菜单标签
                 currentTab: 0, //当前标签序号
-                menuList: menuList, //菜单内容
+                menuList: [], //菜单内容
                 currentTypeId: 1, //当前菜单显示的类型编号
                 scrollToTypeId: '', //要滑动到的类型Id
                 cartList: [], //购物车列表
@@ -603,6 +602,10 @@
             // 切换收藏店铺状态
             handleChangeFavorite() {
                 this.isFavourite = !this.isFavourite;
+            },
+            // 店铺名字点击事件
+            handleStoreTitleClick() {
+                this.showStoreInfoPopup = true;
             },
             // 切换菜单标签
             handleTabsChange(index) {
@@ -1157,6 +1160,7 @@
         mounted() {
         },
         onLoad() {
+            this.menuList = menuList;
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -1164,6 +1168,52 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            try {
+                let storeInfo = {};
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.on('storeInfo', data => {
+                    storeInfo = data.storeInfo;
+                });
+                this.storeInfo = storeInfo;
+                console.log(storeInfo);
+                if (storeInfo.id) {
+                    getStoreMenu({
+                        urlParam: storeInfo.id
+                    }).then(res => {
+                        console.log(res);
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+            }
+            catch (err) {
+                this.$refs.toast.show({
+                    text: '调试模式',
+                    type: 'warning',
+                    direction: 'top'
+                });
+                getStoreMenu({
+                    urlParam: 2
+                }).then(res => {
+                    this.menuList = res.data;
+                    console.log(this.menuList);
+                }).catch(err => {
+                    console.log(err);
+                });
+                this.storeInfo = {
+                    storeId: 0, // {Number} 店铺id，必需
+                    name: '必胜客（太平店）', // {String} 店铺名字，必需
+                    addressDetails: '广东省广州市从化区太平镇乐东路385号（峰达电器城旁）', // {String} 店铺地址详情，必需
+                    phone: '020-88900280', // {String} 店铺联系电话，必需
+                    openingTime: '工作日9:00-21:00，节假日9:00-24:00',  // {String} 店铺营业时间，必需
+                    longitude: 113.492195, // {Number|NaN} 店铺经度，必需
+                    latitude: 23.452394, // {Number|NaN} 店铺纬度，必需
+                    areaCode: '440103', // {String} 行政编码
+                    imageUrl: '', // {String} 店铺Logo的Url
+                    characteristic: '必胜客快餐，全国门店十万家，总有你喜欢的！广东省广州市从化区太平镇乐东路385号', // {String} 店铺公告
+                    sales: 1448,
+                }
+            }
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({

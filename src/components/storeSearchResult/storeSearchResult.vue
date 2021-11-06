@@ -6,11 +6,13 @@
     <view class="result-container">
       <scroll-view
         class="result-scroll-view"
-        :scroll-y="true">
+        :scroll-y="true"
+        @scrolltolower="handleLoadMore">
         <view
           class="store-container"
           v-for="store in storeSearchResult"
           :key="store.id"
+          :data-storeid="store.id"
           @click="toStoreMenu">
           <view class="info-container">
             <view class="img-container">
@@ -59,27 +61,130 @@
           </view>
           <view class="combo-container"></view>
         </view>
-
+        <view
+          class="load-more"
+          v-show="existMore && !loadingMore && storeSearchResult.length !== 0">
+          <text>下拉加载更多</text>
+        </view>
+        <view
+          class="load-more loading-more"
+          v-show="loadingMore && storeSearchResult.length !== 0">
+          <loading ref="loadingMore"></loading>
+        </view>
+        <view
+          class="load-more"
+          v-show="!existMore && storeSearchResult.length !== 0">
+          <text>没有更多了哦 ~</text>
+        </view>
+        <view class="safe-area"></view>
       </scroll-view>
     </view>
   </view>
 </template>
 
 <script>
+    import {loading} from '../../components/loading/loading.vue';
     import storeSearchResult from '../../common/js/fakeData/storeSearch.js';
+    import {getSearchResult} from "@/common/js/api/models";
+
     export default {
         name: "storeSearchResult",
+        components: {
+            loading
+        },
         data() {
             return {
+                windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
+                pageSize: 5, //分页大小
+                currentPage: 0, //当前页码
+                totalPage: 0, //总页数
+                loadingMore: false, //正在加载更多搜索结果
+                existMore: true, //是否存在更多搜索结果
+                searchKeyword: '', //搜索关键词
                 storeSearchResult: [], //店铺搜索结果
             }
         },
         methods: {
+            // 初始化
+            init() {
+                this.currentPage = 0;
+                this.totalPage = 0;
+                this.loadingMore = false;
+                this.existMore = true;
+                this.searchKeyword = '';
+                this.storeSearchResult = [];
+            },
+            /**
+             * 执行搜索操作
+             * @param keyword {String} 搜索关键词
+             * @return {Promise}
+             */
+            doSearch(keyword) {
+                return new Promise((resolve, reject) => {
+                    this.searchKeyword = keyword;
+                    if (keyword === '必胜客') {
+                        //测试用，后续删除
+                        this.storeSearchResult = storeSearchResult;
+                        this.loadingMore = false;
+                        this.existMore = false;
+                        setTimeout(() => {
+                            resolve(storeSearchResult);
+                        }, 1000)
+                    }
+                    getSearchResult({
+                        queryData: {
+                            keywords: keyword,
+                            pageSize: this.pageSize,
+                            pageNumber: this.currentPage + 1,
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            console.log(res.data)
+                            this.loadingMore = false;
+                            if (res.data.records.length !== 0) {
+                                //当前查询的结果数量不为0
+                                res.data.records.forEach(store => {
+                                    this.storeSearchResult.push(store);
+                                });
+                                this.currentPage += 1;
+                                if (res.data.records.length < this.pageSize) {
+                                    this.existMore = false;
+                                }
+                            }
+                            else {
+                                //当前查询的结果数量为0
+                                this.existMore = false;
+                            }
+                            setTimeout(() => {
+                                resolve(res.data);
+                            }, 1000)
+                        }
+                    }).catch(err => {
+                        reject(err);
+                    });
+                });
+            },
+            // 下滑加载更多
+            handleLoadMore() {
+                this.utils.throttle(() => {
+                    if (!this.loadingMore && this.existMore) {
+                        this.loadingMore = true;
+                        this.doSearch(this.searchKeyword);
+                    }
+                }, 1000);
+            },
+            // 跳转店铺菜单页
             toStoreMenu(e) {
+                const storeInfo = this.storeSearchResult.find(store => store.id === e.currentTarget.dataset.storeid);
                 wx.navigateTo({
-                    url: '/pagesByStore/storeMenu/storeMenu'
+                    url: '/pagesByStore/storeMenu/storeMenu',
+                    success: res => {
+                        res.eventChannel.emit('storeInfo', {
+                            storeInfo: storeInfo
+                        });
+                    }
                 });
             },
             /**
@@ -112,12 +217,27 @@
             }
         },
         mounted() {
-            this.storeSearchResult = storeSearchResult;
             wx.getSystemInfo({
-                success: res => this.windowHeight = res.windowHeight
+                success: res => {
+                    this.windowWidth = res.windowWidth;
+                    this.windowHeight = res.windowHeight;
+                }
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
         },
+        watch: {
+            loadingMore(nval, oval) {
+                if (nval && !oval && this.storeSearchResult.length !== 0) {
+                    this.$refs.loadingMore.startLoading({
+                        width: this.windowWidth - 40,
+                        height: 54
+                    });
+                }
+                if (!nval && oval) {
+                    this.$refs.loadingMore.stopLoading();
+                }
+            }
+        }
     }
 </script>
 
@@ -141,6 +261,12 @@
       .result-scroll-view {
         width: 100%;
         height: 100%;
+
+        ::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+          color: transparent;
+        }
 
         .store-container {
           width: 100%;
@@ -238,17 +364,17 @@
 
                 .tag {
                   width: fit-content;
-                  height: rpx(30);
+                  height: 30rpx;
                   margin: 0 10rpx 8rpx 0;
-                  padding: 0 rpx(8);
+                  padding: 0 8rpx;
                   flex-shrink: 0;
-                  font-size: rpx(20);
-                  line-height: rpx(24);
+                  font-size: 20rpx;
+                  line-height: 24rpx;
                   background-color: #f4756b;
                   color: #fff;
                   //color: #f4756b;
-                  border-radius: rpx(8);
-                  border: rpx(2) solid #f4756b;
+                  border-radius: 8rpx;
+                  border: 2rpx solid #f4756b;
                 }
               }
             }
@@ -265,7 +391,36 @@
         }
 
         .store-container:last-child {
-          padding-bottom: 100rpx;
+          padding-bottom: 0;
+        }
+
+        .load-more {
+          height: fit-content;
+          width: 100%;
+          margin-top: 30rpx;
+          padding-bottom: 70rpx;
+          background-color: #fff;
+          border-radius: 30rpx;
+          color: $uni-text-color-placeholder;
+          font-size: 26rpx;
+          text-align: center;
+
+          text {
+            margin-left: 10rpx;
+          }
+        }
+
+        .loading-more {
+          height: 150rpx;
+          padding-bottom: 0;
+          margin-top: 0;
+        }
+
+        .safe-area {
+          width: 100%;
+          height: 0;
+          height: calc(constant(safe-area-inset-bottom));
+          height: calc(env(safe-area-inset-bottom));
         }
       }
     }
