@@ -188,7 +188,6 @@
                     },
                 })
                     .then(res => {
-                        console.log(res.data);
                         if (time === null) {
                             let recordsTemp = [];
                             for (const records of res.data.records) {

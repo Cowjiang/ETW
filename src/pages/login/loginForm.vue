@@ -209,9 +209,9 @@
                                     password: this.password,
                                 },
                             })
-                                .then((res) => {
+                                .then(res => {
                                     if (res.success && res.data.id !== null) {
-                                        uni.setStorage({
+                                        wx.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
@@ -221,7 +221,7 @@
                                                 });
                                                 let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "/pages/addressBook/addressBook" : redirectPage}`,
+                                                    url: `/${redirectPage === null ? "/pages/chatList/chatList" : redirectPage}`,
                                                 });
                                             },
                                         });
@@ -284,22 +284,29 @@
             // 微信登陆按钮点击事件
             wechatLogin() {
                 this.utils.throttle(() => {
-                    //Wechat Login
-                    // this.$refs.toast.show({
-                    //     text: '大笨蛋还想用微信登陆',
-                    //     type: "success",
-                    //     direction: 'left'
-                    // });
-
                     // this.isShow = true;
 
-                    uni.navigateTo({
-                        url: '/pages/amap/amap',
-                    })
-
                     // uni.navigateTo({
-                    //   url: "/pages/home/subpages/upload-file",
-                    // });
+                    //     url: '/pages/amap/amap',
+                    // })
+                    uni.login({
+                        provider: 'weixin',
+                        success: res => {
+                            uni.request({
+                                url: 'https://shitukj.cn/service/user/wx/login',
+                                header: {
+                                    'content-type': 'application/x-www-form-urlencoded'
+                                },
+                                method: 'POST',
+                                data: {
+                                    code: res.code
+                                },
+                                success: res => {
+                                    console.log(res);
+                                }
+                            })
+                        }
+                    })
                 });
             },
             /**

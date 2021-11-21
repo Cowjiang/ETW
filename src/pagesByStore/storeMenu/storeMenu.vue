@@ -1,490 +1,500 @@
 <template>
-    <view>
-        <navigationBar ref="navigationBar" class="navigation-bar"/>
-        <toast ref="toast"/>
-        <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+  <view>
+    <navigationBar ref="navigationBar" class="navigation-bar"/>
+    <toast ref="toast"/>
+    <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+    <storeInfoPopup
+      v-model="showStoreInfoPopup"
+      :info="storeInfo"
+      @close="showStoreInfoPopup = false">
+    </storeInfoPopup>
 
-        <view class="store-menu-container">
-            <view
-                class="store-image-container"
-                :style="{height: `${navigationHeight + 200}px`}">
-                <image src="../../static/images/test.jpg" mode="aspectFill"></image>
+    <view class="store-menu-container">
+      <view
+        class="store-image-container"
+        :style="{height: `${navigationHeight + 200}px`}">
+        <image src="../../static/images/test.jpg" mode="aspectFill"></image>
+      </view>
+      <view
+        class="store-info-container">
+        <view class="store-title-container">
+          <view class="avatar-container">
+            <image class="avatar" src="../../static/images/testLogo.jpg" mode="widthFix"></image>
+          </view>
+          <view class="title-container">
+            <view class="title">
+              <view class="title-text">
+                {{ storeInfo.name }}
+              </view>
+              <i class="fa fa-angle-right" aria-hidden="true" @click="handleStoreTitleClick"></i>
             </view>
-            <view
-                class="store-info-container">
-                <view class="store-title-container">
-                    <view class="avatar-container">
-                        <image class="avatar" src="../../static/images/testLogo.jpg" mode="widthFix"></image>
-                    </view>
-                    <view class="title-container">
-                        <view class="title">
-                            <view class="title-text">
-                                {{ storeInfo.name }}
-                            </view>
-                            <i class="fa fa-angle-right" aria-hidden="true"></i>
-                        </view>
-                        <view class="tags-container">
-                            <view>营业中</view>
-                            <view>好评率84%</view>
-                            <view>月销1447</view>
-                        </view>
-                    </view>
-                    <view class="favorite-container">
-                        <view class="favorite-btn" @click="handleChangeFavorite">
-                            <i class="fa fa-star-o" aria-hidden="true" v-show="!isFavourite"></i>
-                            <i class="fa fa-star" aria-hidden="true" v-show="isFavourite"></i>
-                        </view>
-                    </view>
-                </view>
-                <view class="announcement-container" @click="handleAnnouncementFold">
-                    <i class="fa fa-volume-down" aria-hidden="true"></i>
-                    <view
-                        class="announcement-text"
-                        :style="{whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}`}">
-                        {{ storeInfo.announcement }}
-                    </view>
-                    <view class="unfold-btn" @click.stop="" @click="handleAnnouncementFold">
-                        <i
-                            class="fa fa-angle-down"
-                            aria-hidden="true"
-                            :style="{transform: `${announcementFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"></i>
-                    </view>
-                </view>
-                <view class="discount-container" @click="handleDiscountFold">
-                    <view
-                        class="discount-tags"
-                        :style="{height: `${discountFolding ? 'rpx(40)' : 'fit-content'}`}">
-                        <view
-                            class="tag"
-                            v-for="(tag, index) in discountTags"
-                            :key="index"
-                            :style="{
-                                backgroundColor: tag.backgroundColor,
-                                borderColor: tag.borderColor,
-                                color: tag.color
-                            }">
-                            {{ tag.content }}
-                        </view>
-                    </view>
-                    <view class="unfold-btn" @click.stop="" @click="handleDiscountFold">
-                        <view :style="{opacity: `${discountFolding ? 1 : 0}`}">
-                            更多
-                        </view>
-                        <i
-                            class="fa fa-angle-down"
-                            aria-hidden="true"
-                            :style="{transform: `${discountFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"></i>
-                    </view>
-                </view>
+            <view class="tags-container">
+              <view>营业中</view>
+              <view>好评率84%</view>
+              <view>月销{{ storeInfo.sales }}</view>
             </view>
-            <view
-                class="menu-container"
-                :style="{height: `${windowHeight - navigationHeight - 130}px`}">
-                <!-- 菜单顶部选项卡 -->
-                <view class="menu-top-tabs-container">
-                    <view class="u-tabs-container">
-                        <u-tabs
-                            class="u-tabs"
-                            :list="menuTabs"
-                            :is-scroll="false"
-                            :current="currentTab"
-                            active-color="#f4756b"
-                            :bar-height="8"
-                            @change="handleTabsChange"
-                        ></u-tabs>
-                    </view>
-                    <view
-                        class="search-btn-container"
-                        v-if="currentTab === 0"
-                        @click="handleOpenSearchPopup">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                        搜索
-                    </view>
-                </view>
-                <!-- 菜单内容 -->
-                <view class="menu" v-if="currentTab === 0">
-                    <!-- 菜单类型滚动列表 -->
-                    <scroll-view
-                        class="type-container"
-                        :scroll-y="true">
-                        <view
-                            class="type-item-container__default"
-                            :class="[
-                                currentTypeId === type.id ? 'type-item-container__selected' : '',
-                                currentTypeId - 1 === type.id ? 'type-item-container__selected-before' : '',
-                                currentTypeId + 1 === type.id ? 'type-item-container__selected-after' : '',
-                            ]"
-                            v-for="type in menuList"
-                            :key="type.id"
-                            @click="handleTypeClick(type.id)">
-                            <view
-                                class="type-amount"
-                                v-if="!isNaN(type.amount) && type.amount !== 0">
-                                {{ type.amount <= 99 ? type.amount : '99+' }}
-                            </view>
-                            <view class="type-name">
-                                {{ type.typeName }}
-                            </view>
-                        </view>
-                        <view
-                            class="bottom-empty-box"
-                            :style="{borderTopRightRadius: `${currentTypeId === menuList.length ? '20rpx' : '0'}`}">
-                        </view>
-                    </scroll-view>
-                    <!-- 菜单商品滚动列表 -->
-                    <scroll-view
-                        class="commodity-container"
-                        :scroll-y="true"
-                        :scroll-into-view="scrollToTypeId"
-                        :scroll-with-animation="true">
-                        <view
-                            class="commodity-group-container"
-                            v-for="(type, typeIndex) in menuList"
-                            :key="type.id"
-                            :id="`type${type.id}`">
-                            <view class="group-name">
-                                {{ type.typeName }}
-                            </view>
-                            <view
-                                class="commodity"
-                                v-for="(commodity, commodityIndex) in type.dishes"
-                                :key="commodity.id"
-                                :data-typeId="type.id"
-                                @touchstart="handleTouchStart">
-                                <view
-                                    class="commodity-image-container"
-                                    @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
-                                    <view class="commodity-image"></view>
-                                </view>
-                                <view
-                                    class="commodity-info-container"
-                                    @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
-                                    <view class="commodity-name">
-                                        {{ commodity.name }}
-                                    </view>
-                                    <view class="commodity-description">
-                                        {{ commodity.description }}
-                                    </view>
-                                    <view class="commodity-sale-info">
-                                        月销 99
-                                    </view>
-                                    <view class="price-container">
-                                        <view class="price">
-                                            <view class="current-price">
-                                                ￥
-                                                <text>
-                                                    {{
-                                                        parseInt(commodity.discountPrice === null ? commodity.originalPrice : commodity.discountPrice)
-                                                    }}
-                                                </text>
-                                                <text>
-                                                    {{
-                                                        commodity.discountPrice === null ? (commodity.originalPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.originalPrice.toString().split('.')[1]}`) : (commodity.discountPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.discountPrice.toString().split('.')[1]}`)
-                                                    }}
-                                                </text>
-                                            </view>
-                                            <view class="origin-price" v-if="commodity.discountPrice !== null">
-                                                {{ commodity.originalPrice | showPrice }}
-                                            </view>
-                                        </view>
-                                        <view class="amount-btn-container" @click.stop="">
-                                            <i
-                                                class="fa fa-minus-circle"
-                                                aria-hidden="true"
-                                                :data-typeId="type.id"
-                                                :data-commodityId="commodity.id"
-                                                v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined && !commodity.isCustom"
-                                                @click="handleMinusCommodity"
-                                                @longpress="handleMinusCommodityLongPress"></i>
-                                            <view
-                                                class="amount"
-                                                v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined && !commodity.isCustom">
-                                                {{ commodity.amount || 0 }}
-                                            </view>
-                                            <i
-                                                class="fa fa-plus-circle"
-                                                aria-hidden="true"
-                                                :data-typeId="type.id"
-                                                :data-commodityId="commodity.id"
-                                                v-show="!commodity.isCustom"
-                                                @click="handleAddCommodity($event, true)"></i>
-                                            <view
-                                                class="options-btn"
-                                                v-show="commodity.isCustom"
-                                                :data-typeId="type.id"
-                                                :data-commodityId="commodity.id"
-                                                @click="handleAddCommodity($event, true)">
-                                                选规格
-                                                <view
-                                                    class="amount"
-                                                    v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.isCustom">
-                                                    {{ commodity.amount }}
-                                                </view>
-                                            </view>
-                                        </view>
-                                    </view>
-                                </view>
-                            </view>
-                        </view>
-                        <view class="bottom-empty-box"></view>
-                    </scroll-view>
-                </view>
-                <!-- 购物车弹出窗 -->
-                <u-popup
-                    v-model="showCartPopup"
-                    mode="bottom"
-                    width="100%"
-                    height="50%"
-                    border-radius="30"
-                    z-index="3"
-                    safe-area-inset-bottom>
-                    <view class="shopping-cart-container">
-                        <view class="title-container">
-                            <view class="amount-container">
-                                共 {{ totalAmount }} 件商品
-                            </view>
-                            <view class="clear-btn-container" @click="handleClearCartList">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                清空购物车
-                            </view>
-                        </view>
-                        <view class="content-container">
-                            <view class="empty-tips" v-if="totalAmount === 0">
-                                <text>空空如也 ~</text>
-                            </view>
-                            <view class="cart-items" v-if="totalAmount !== 0">
-                                <scroll-view
-                                    class="commodity-container"
-                                    :scroll-y="true"
-                                    :scroll-with-animation="true">
-                                    <view
-                                        class="commodity"
-                                        v-for="item in cartList"
-                                        :key="item.id">
-                                        <view class="image-container">
-                                            <view class="image"></view>
-                                        </view>
-                                        <view class="info-container">
-                                            <view class="name">
-                                                {{ item.name }}
-                                            </view>
-                                            <view class="description">
-                                                {{ item.customOptions === undefined ? null : item.customOptions.customOptions | showCartCustomOptions}}
-                                            </view>
-                                            <view class="price-container">
-                                                <view class="price">
-                                                    {{ item.discountPrice === null ? item.originalPrice : item.discountPrice | showPrice }}
-                                                </view>
-                                                <view class="amount-btn-container">
-                                                    <i
-                                                        class="fa fa-minus-circle"
-                                                        aria-hidden="true"
-                                                        :data-typeId="item.typeId"
-                                                        :data-commodityId="item.commodityId"
-                                                        :data-cartId="item.cartId"
-                                                        @click="handleMinusCommodity"
-                                                        @longpress="handleMinusCommodityLongPress"></i>
-                                                    <view class="amount">
-                                                        {{ item.amount || 0 }}
-                                                    </view>
-                                                    <i
-                                                        class="fa fa-plus-circle"
-                                                        aria-hidden="true"
-                                                        :data-typeId="item.typeId"
-                                                        :data-commodityId="item.commodityId"
-                                                        :data-cartId="item.cartId"
-                                                        @click="handleAddCommodity"></i>
-                                                </view>
-                                            </view>
-                                        </view>
-                                    </view>
-                                </scroll-view>
-                            </view>
-                        </view>
-                    </view>
-                </u-popup>
-                <!-- 搜索弹出窗 -->
-                <u-popup
-                    class="search-popup"
-                    v-model="showSearchPopup"
-                    mode="bottom"
-                    width="100%"
-                    height="80%"
-                    border-radius="30"
-                    z-index="5"
-                    @close="handleCloseSearchPopup">
-                    <view class="search-container">
-                        <view class="input-container">
-                            <view class="input">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                                <input
-                                    type="text"
-                                    v-model="searchValue"
-                                    :focus="searchInputFocus"
-                                    :adjust-position="false"
-                                    placeholder="搜索商品名称">
-                            </view>
-                            <view
-                                class="cancel-btn"
-                                @click="handleCloseSearchPopup">
-                                取消
-                            </view>
-                        </view>
-                        <view class="result-container">
-                            <scroll-view
-                                class="result-scroll-view"
-                                :scroll-y="true"
-                                :scroll-with-animation="true">
-                                <view
-                                    class="search-result-item"
-                                    v-for="(result, index) in searchResultList"
-                                    :key="index"
-                                    @click="handleShowCommodityPopup(result.typeIndex, result.commodityIndex)">
-                                    <view class="image-container">
-                                        <view class="image"></view>
-                                    </view>
-                                    <view class="info-container">
-                                        <text>{{ result.commodityName.split(searchValue)[0] }}</text>
-                                        <text class="search-key-text">{{ searchValue }}</text>
-                                        <text>{{ result.commodityName.split(searchValue)[1] }}</text>
-                                    </view>
-                                    <view class="price-container">
-                                        {{ result.commodityPrice | showPrice }}
-                                    </view>
-                                </view>
-                            </scroll-view>
-                        </view>
-                    </view>
-                </u-popup>
-                <!-- 商品详情信息弹出窗 -->
-                <u-popup
-                    class="commodity-detail-popup"
-                    v-model="showCommodityDetailPopup"
-                    mode="center"
-                    width="80%"
-                    border-radius="30"
-                    closeable
-                    z-index="5"
-                    @close="handleCloseCommodityPopup">
-                    <view
-                        class="commodity-detail-container"
-                        v-if="currentSelectedCommodity.commodityIndex!==undefined">
-                        <view class="image-container">
-                            <view class="image"></view>
-                        </view>
-                        <view class="info-container">
-                            <view class="title">
-                                {{
-                                    menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].name
-                                }}
-                            </view>
-                            <view class="description">
-                                {{
-                                    menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].description
-                                }}
-                            </view>
-                            <scroll-view class="custom-options-container" scroll-y="true">
-                                <view
-                                    class="option-container"
-                                    v-for="(option, optionIndex) in menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptions"
-                                    :key="option.customId">
-                                    <view class="option-title">
-                                        {{ option.customName }}
-                                    </view>
-                                    <view class="option-items-container">
-                                        <view
-                                            v-for="(optionItem, optionItemIndex) in option.customItems"
-                                            :key="optionItem.customItemId"
-                                            class="option-item__default"
-                                            :class="optionItem.isSelected ? 'option-item__selected' : ''"
-                                            :data-typeIndex="currentSelectedCommodity.typeIndex"
-                                            :data-commodityIndex="currentSelectedCommodity.commodityIndex"
-                                            :data-optionIndex="optionIndex"
-                                            :data-optionItemIndex="optionItemIndex"
-                                            @click="handleCustomOptionClick">
-                                            {{ optionItem.customItemTitle }}
-                                        </view>
-                                    </view>
-                                </view>
-                            </scroll-view>
-                        </view>
-                        <view class="price-container">
-                            <view class="price">
-                                {{
-                                    menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice == null
-                                        ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].originalPrice
-                                        + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
-                                        : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice
-                                        + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
-                                        | showPrice
-                                }}
-                            </view>
-                            <view class="amount-btn">
-                                <i
-                                    class="fa fa-minus-circle"
-                                    aria-hidden="true"
-                                    @click="handleMinusAmountTemp"></i>
-                                <view class="amount">
-                                    {{ amountTemp }}
-                                </view>
-                                <i
-                                    class="fa fa-plus-circle"
-                                    aria-hidden="true"
-                                    @click="handleAddAmountTemp"></i>
-                            </view>
-                        </view>
-                        <view class="add-to-cart-container">
-                            <view
-                                class="add-btn"
-                                :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
-                                :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
-                                @click="handleAddToCartBtnClick">
-                                加入购物车
-                            </view>
-                        </view>
-                    </view>
-                </u-popup>
-                <!-- 底部购物车栏 -->
-                <view class="cart-bar-container" v-show="currentTab === 0">
-                    <view
-                        class="cart-btn-container"
-                        @click="handleOpenCartPopup"
-                        :style="{transform: `${showCartPopup ? 'translateX(-100rpx)' : 'translateX(30rpx)'}`}">
-                        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                        <view class="total-amount" v-show="totalAmount !== 0">
-                            {{ totalAmount }}
-                        </view>
-                    </view>
-                    <view class="cart-bar">
-                        <view
-                            class="price-container"
-                            :style="{marginLeft: `${showCartPopup ? '40rpx' : '150rpx'}`, color: `${ showCartPopup ? '#f4756b' : '#333'}`}">
-                            ￥
-                            <text>
-                                {{ parseInt(totalPrice) }}
-                            </text>
-                            <text>
-                                {{
-                                    totalPrice.toString().split('.')[1] === undefined ? '' : `.${totalPrice.toString().split('.')[1]}`
-                                }}
-                            </text>
-                            <text
-                                class="origin-price"
-                                v-show="totalOriginalPrice !== totalPrice">
-                                ￥{{ totalOriginalPrice }}
-                            </text>
-                        </view>
-                        <view
-                            class="pay-container"
-                            :class="payable ? 'pay-container__default' : 'pay-container__reject'"
-                            @click="handlePayBtnClick">
-                            结算
-                        </view>
-                    </view>
-                </view>
+          </view>
+          <view class="favorite-container">
+            <view class="favorite-btn" @click="handleChangeFavorite">
+              <i class="fa fa-star-o" aria-hidden="true" v-show="!isFavourite"></i>
+              <i class="fa fa-star" aria-hidden="true" v-show="isFavourite"></i>
             </view>
+          </view>
         </view>
+        <view
+          class="announcement-container"
+          v-if="storeInfo.characteristic != null"
+          @click="handleAnnouncementFold">
+          <i class="fa fa-volume-down" aria-hidden="true"></i>
+          <view
+            class="announcement-text"
+            :style="{whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}`}">
+            {{ storeInfo.characteristic }}
+          </view>
+          <view class="unfold-btn" @click.stop="" @click="handleAnnouncementFold">
+            <i
+              class="fa fa-angle-down"
+              aria-hidden="true"
+              :style="{transform: `${announcementFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"></i>
+          </view>
+        </view>
+        <view class="discount-container" @click="handleDiscountFold">
+          <view
+            class="discount-tags"
+            :style="{height: `${discountFolding ? 'rpx(40)' : 'fit-content'}`}">
+            <view
+              class="tag"
+              v-for="(tag, index) in discountTags"
+              :key="index"
+              :style="{
+                backgroundColor: tag.backgroundColor,
+                borderColor: tag.borderColor,
+                color: tag.color
+              }">
+              {{ tag.content }}
+            </view>
+          </view>
+          <view class="unfold-btn" @click.stop="" @click="handleDiscountFold">
+            <view :style="{opacity: `${discountFolding ? 1 : 0}`}">
+              更多
+            </view>
+            <i
+              class="fa fa-angle-down"
+              aria-hidden="true"
+              :style="{transform: `${discountFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"></i>
+          </view>
+        </view>
+      </view>
+      <view
+        class="menu-container"
+        :style="{height: `${windowHeight - navigationHeight - 130}px`}">
+        <!-- 菜单顶部选项卡 -->
+        <view class="menu-top-tabs-container">
+          <view class="u-tabs-container">
+            <u-tabs
+              class="u-tabs"
+              :list="menuTabs"
+              :is-scroll="false"
+              :current="currentTab"
+              active-color="#f4756b"
+              :bar-height="8"
+              @change="handleTabsChange"
+            ></u-tabs>
+          </view>
+          <view
+            class="search-btn-container"
+            v-if="currentTab === 0"
+            @click="handleOpenSearchPopup">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            搜索
+          </view>
+        </view>
+        <!-- 菜单内容 -->
+        <view class="menu" v-if="currentTab === 0">
+          <!-- 菜单类型滚动列表 -->
+          <scroll-view
+            class="type-container"
+            :scroll-y="true">
+            <view
+              class="type-item-container__default"
+              :class="[
+                currentTypeId === type.id ? 'type-item-container__selected' : '',
+                currentTypeId - 1 === type.id ? 'type-item-container__selected-before' : '',
+                currentTypeId + 1 === type.id ? 'type-item-container__selected-after' : '',
+              ]"
+              v-for="type in menuList"
+              :key="type.id"
+              @click="handleTypeClick(type.id)">
+              <view
+                class="type-amount"
+                v-if="!isNaN(type.amount) && type.amount !== 0">
+                {{ type.amount <= 99 ? type.amount : '99+' }}
+              </view>
+              <view class="type-name">
+                {{ type.typeName }}
+              </view>
+            </view>
+            <view
+              class="bottom-empty-box"
+              :style="{borderTopRightRadius: `${currentTypeId === menuList.length ? '20rpx' : '0'}`}">
+            </view>
+          </scroll-view>
+          <!-- 菜单商品滚动列表 -->
+          <scroll-view
+            class="commodity-container"
+            :scroll-y="true"
+            :scroll-into-view="scrollToTypeId"
+            :scroll-with-animation="true">
+            <view
+              class="commodity-group-container"
+              v-for="(type, typeIndex) in menuList"
+              :key="type.id"
+              :id="`type${type.id}`">
+              <view class="group-name">
+                {{ type.typeName }}
+              </view>
+              <view
+                class="commodity"
+                v-for="(commodity, commodityIndex) in type.dishes"
+                :key="commodity.id"
+                :data-typeId="type.id"
+                @touchstart="handleTouchStart">
+                <view
+                  class="commodity-image-container"
+                  @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
+                  <view class="commodity-image"></view>
+                </view>
+                <view
+                  class="commodity-info-container"
+                  @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
+                  <view class="commodity-name">
+                    {{ commodity.name }}
+                  </view>
+                  <view class="commodity-description">
+                    {{ commodity.description }}
+                  </view>
+                  <view class="commodity-sale-info">
+                    月销 99
+                  </view>
+                  <view class="price-container">
+                    <view class="price">
+                      <view class="current-price">
+                        ￥
+                        <text>
+                          {{
+                            parseInt(commodity.discountPrice === null ? commodity.originalPrice : commodity.discountPrice)
+                          }}
+                        </text>
+                        <text>
+                          {{
+                            commodity.discountPrice === null ? (commodity.originalPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.originalPrice.toString().split('.')[1]}`) : (commodity.discountPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.discountPrice.toString().split('.')[1]}`)
+                          }}
+                        </text>
+                      </view>
+                      <view class="origin-price" v-if="commodity.discountPrice !== null">
+                        {{ commodity.originalPrice | showPrice }}
+                      </view>
+                    </view>
+                    <view class="amount-btn-container" @click.stop="">
+                      <i
+                        class="fa fa-minus-circle"
+                        aria-hidden="true"
+                        :data-typeId="type.id"
+                        :data-commodityId="commodity.id"
+                        v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined && !commodity.isCustom"
+                        @click="handleMinusCommodity"
+                        @longpress="handleMinusCommodityLongPress"></i>
+                      <view
+                        class="amount"
+                        v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.amount !== undefined && !commodity.isCustom">
+                        {{ commodity.amount || 0 }}
+                      </view>
+                      <i
+                        class="fa fa-plus-circle"
+                        aria-hidden="true"
+                        :data-typeId="type.id"
+                        :data-commodityId="commodity.id"
+                        v-show="!commodity.isCustom"
+                        @click="handleAddCommodity($event, true)"></i>
+                      <view
+                        class="options-btn"
+                        v-show="commodity.isCustom"
+                        :data-typeId="type.id"
+                        :data-commodityId="commodity.id"
+                        @click="handleAddCommodity($event, true)">
+                        选规格
+                        <view
+                          class="amount"
+                          v-show="commodity.amount !== 0 && !isNaN(commodity.amount) && commodity.isCustom">
+                          {{ commodity.amount }}
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view class="bottom-empty-box"></view>
+          </scroll-view>
+        </view>
+        <!-- 购物车弹出窗 -->
+        <u-popup
+          v-model="showCartPopup"
+          mode="bottom"
+          width="100%"
+          height="50%"
+          border-radius="30"
+          z-index="3"
+          safe-area-inset-bottom>
+          <view class="shopping-cart-container">
+            <view class="title-container">
+              <view class="amount-container">
+                共 {{ totalAmount }} 件商品
+              </view>
+              <view class="clear-btn-container" @click="handleClearCartList">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                清空购物车
+              </view>
+            </view>
+            <view class="content-container">
+              <view class="empty-tips" v-if="totalAmount === 0">
+                <text>空空如也 ~</text>
+              </view>
+              <view class="cart-items" v-if="totalAmount !== 0">
+                <scroll-view
+                  class="commodity-container"
+                  :scroll-y="true"
+                  :scroll-with-animation="true">
+                  <view
+                    class="commodity"
+                    v-for="item in cartList"
+                    :key="item.id">
+                    <view class="image-container">
+                      <view class="image"></view>
+                    </view>
+                    <view class="info-container">
+                      <view class="name">
+                        {{ item.name }}
+                      </view>
+                      <view class="description">
+                        {{
+                          item.customOptions === undefined ? null : item.customOptions.customOptions | showCartCustomOptions
+                        }}
+                      </view>
+                      <view class="price-container">
+                        <view class="price">
+                          {{ item.discountPrice === null ? item.originalPrice : item.discountPrice | showPrice }}
+                        </view>
+                        <view class="amount-btn-container">
+                          <i
+                            class="fa fa-minus-circle"
+                            aria-hidden="true"
+                            :data-typeId="item.typeId"
+                            :data-commodityId="item.commodityId"
+                            :data-cartId="item.cartId"
+                            @click="handleMinusCommodity"
+                            @longpress="handleMinusCommodityLongPress"></i>
+                          <view class="amount">
+                            {{ item.amount || 0 }}
+                          </view>
+                          <i
+                            class="fa fa-plus-circle"
+                            aria-hidden="true"
+                            :data-typeId="item.typeId"
+                            :data-commodityId="item.commodityId"
+                            :data-cartId="item.cartId"
+                            @click="handleAddCommodity"></i>
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </scroll-view>
+              </view>
+            </view>
+          </view>
+        </u-popup>
+        <!-- 搜索弹出窗 -->
+        <u-popup
+          class="search-popup"
+          v-model="showSearchPopup"
+          mode="bottom"
+          width="100%"
+          height="80%"
+          border-radius="30"
+          z-index="5"
+          @close="handleCloseSearchPopup">
+          <view class="search-container">
+            <view class="input-container">
+              <view class="input">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input
+                  type="text"
+                  v-model="searchValue"
+                  :focus="searchInputFocus"
+                  :adjust-position="false"
+                  placeholder="搜索商品名称">
+              </view>
+              <view
+                class="cancel-btn"
+                @click="handleCloseSearchPopup">
+                取消
+              </view>
+            </view>
+            <view class="result-container">
+              <scroll-view
+                class="result-scroll-view"
+                :scroll-y="true"
+                :scroll-with-animation="true">
+                <view
+                  class="search-result-item"
+                  v-for="(result, index) in searchResultList"
+                  :key="index"
+                  @click="handleShowCommodityPopup(result.typeIndex, result.commodityIndex)">
+                  <view class="image-container">
+                    <view class="image"></view>
+                  </view>
+                  <view class="info-container">
+                    <text>{{ result.commodityName.split(searchValue)[0] }}</text>
+                    <text class="search-key-text">{{ searchValue }}</text>
+                    <text>{{ result.commodityName.split(searchValue)[1] }}</text>
+                  </view>
+                  <view class="price-container">
+                    {{ result.commodityPrice | showPrice }}
+                  </view>
+                </view>
+              </scroll-view>
+            </view>
+          </view>
+        </u-popup>
+        <!-- 商品详情信息弹出窗 -->
+        <u-popup
+          class="commodity-detail-popup"
+          v-model="showCommodityDetailPopup"
+          mode="center"
+          width="80%"
+          border-radius="30"
+          closeable
+          z-index="5"
+          @close="handleCloseCommodityPopup">
+          <view
+            class="commodity-detail-container"
+            v-if="currentSelectedCommodity.commodityIndex!==undefined">
+            <view class="image-container">
+              <view class="image"></view>
+            </view>
+            <view class="info-container">
+              <view class="title">
+                {{
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].name
+                }}
+              </view>
+              <view class="description">
+                {{
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].description
+                }}
+              </view>
+              <scroll-view class="custom-options-container" scroll-y="true">
+                <view
+                  class="option-container"
+                  v-for="(option, optionIndex) in menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptions"
+                  :key="option.customId">
+                  <view class="option-title">
+                    {{ option.customName }}
+                  </view>
+                  <view class="option-items-container">
+                    <view
+                      v-for="(optionItem, optionItemIndex) in option.customItems"
+                      :key="optionItem.customItemId"
+                      class="option-item__default"
+                      :class="optionItem.isSelected ? 'option-item__selected' : ''"
+                      :data-typeIndex="currentSelectedCommodity.typeIndex"
+                      :data-commodityIndex="currentSelectedCommodity.commodityIndex"
+                      :data-optionIndex="optionIndex"
+                      :data-optionItemIndex="optionItemIndex"
+                      @click="handleCustomOptionClick">
+                      {{ optionItem.customItemTitle }}
+                    </view>
+                  </view>
+                </view>
+              </scroll-view>
+            </view>
+            <view class="price-container">
+              <view class="price">
+                {{
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice == null
+                    ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].originalPrice
+                    + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
+                    : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice
+                    + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
+                    | showPrice
+                }}
+              </view>
+              <view class="amount-btn">
+                <i
+                  class="fa fa-minus-circle"
+                  aria-hidden="true"
+                  @click="handleMinusAmountTemp"></i>
+                <view class="amount">
+                  {{ amountTemp }}
+                </view>
+                <i
+                  class="fa fa-plus-circle"
+                  aria-hidden="true"
+                  @click="handleAddAmountTemp"></i>
+              </view>
+            </view>
+            <view class="add-to-cart-container">
+              <view
+                class="add-btn"
+                :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
+                :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
+                @click="handleAddToCartBtnClick">
+                加入购物车
+              </view>
+            </view>
+          </view>
+        </u-popup>
+        <!-- 底部购物车栏 -->
+        <view class="cart-bar-container" v-show="currentTab === 0">
+          <view
+            class="cart-btn-container"
+            @click="handleOpenCartPopup"
+            :style="{transform: `${showCartPopup ? 'translateX(-100rpx)' : 'translateX(30rpx)'}`}">
+            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+            <view class="total-amount" v-show="totalAmount !== 0">
+              {{ totalAmount }}
+            </view>
+          </view>
+          <view class="cart-bar">
+            <view
+              class="price-container"
+              :style="{marginLeft: `${showCartPopup ? '40rpx' : '150rpx'}`, color: `${ showCartPopup ? '#f4756b' : '#333'}`}">
+              ￥
+              <text>
+                {{ parseInt(totalPrice) }}
+              </text>
+              <text>
+                {{
+                  totalPrice.toString().split('.')[1] === undefined ? '' : `.${totalPrice.toString().split('.')[1]}`
+                }}
+              </text>
+              <text
+                class="origin-price"
+                v-show="totalOriginalPrice !== totalPrice">
+                ￥{{ totalOriginalPrice }}
+              </text>
+            </view>
+            <view
+              class="pay-container"
+              :class="payable ? 'pay-container__default' : 'pay-container__reject'"
+              @click="handlePayBtnClick">
+              结算
+            </view>
+          </view>
+        </view>
+      </view>
     </view>
+  </view>
 </template>
 
 <script>
@@ -494,6 +504,7 @@
     import {storeInfoPopup} from '../../components/storeInfoPopup/storeInfoPopup.vue';
     import {selectTimePopup} from '../../components/selectTimePopup/selectTimePopup.vue';
     import menuList from '../../common/js/fakeData/storeMenu.js';
+    import {getStoreMenu} from '../../common/js/api/models.js';
 
     export default {
         components: {
@@ -504,18 +515,7 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                storeInfo: {
-                    storeId: 0, // {Number} 店铺id，必需
-                    name: '必胜客（太平店）', // {String} 店铺名字，必需
-                    addressDetails: '广东省广州市从化区太平镇乐东路385号（峰达电器城旁）', // {String} 店铺地址详情，必需
-                    phone: '020-88900280', // {String} 店铺联系电话，必需
-                    openingTime: '工作日9:00-21:00，节假日9:00-24:00',  // {String} 店铺营业时间，必需
-                    longitude: 113.492195, // {Number|NaN} 店铺经度，必需
-                    latitude: 23.452394, // {Number|NaN} 店铺纬度，必需
-                    areaCode: '440103', // {String} 行政编码
-                    imageUrl: '', // {String} 店铺Logo的Url
-                    announcement: '必胜客快餐，全国门店十万家，总有你喜欢的！广东省广州市从化区太平镇乐东路385号' // {String} 店铺公告
-                }, //店铺信息
+                storeInfo: {}, //店铺信息
                 discountTags: [
                     {
                         id: 1,
@@ -562,7 +562,8 @@
                 ], //优惠券标签
                 announcementFolding: true, //公告折叠状态
                 discountFolding: true, //优惠券折叠状态
-                isFavourite: false, //是否收藏店铺
+                isFavourite: false, //是否收藏店铺,
+                showStoreInfoPopup: false, //是否显示店铺信息弹出窗
                 menuTabs: [
                     {
                         name: '点餐'
@@ -573,7 +574,7 @@
                     }
                 ], //菜单标签
                 currentTab: 0, //当前标签序号
-                menuList: menuList, //菜单内容
+                menuList: [], //菜单内容
                 currentTypeId: 1, //当前菜单显示的类型编号
                 scrollToTypeId: '', //要滑动到的类型Id
                 cartList: [], //购物车列表
@@ -601,6 +602,10 @@
             // 切换收藏店铺状态
             handleChangeFavorite() {
                 this.isFavourite = !this.isFavourite;
+            },
+            // 店铺名字点击事件
+            handleStoreTitleClick() {
+                this.showStoreInfoPopup = true;
             },
             // 切换菜单标签
             handleTabsChange(index) {
@@ -1155,6 +1160,7 @@
         mounted() {
         },
         onLoad() {
+            this.menuList = menuList;
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -1162,6 +1168,52 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            try {
+                let storeInfo = {};
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.on('storeInfo', data => {
+                    storeInfo = data.storeInfo;
+                });
+                this.storeInfo = storeInfo;
+                console.log(storeInfo);
+                if (storeInfo.id) {
+                    getStoreMenu({
+                        urlParam: storeInfo.id
+                    }).then(res => {
+                        console.log(res);
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+            }
+            catch (err) {
+                this.$refs.toast.show({
+                    text: '调试模式',
+                    type: 'warning',
+                    direction: 'top'
+                });
+                getStoreMenu({
+                    urlParam: 2
+                }).then(res => {
+                    this.menuList = res.data;
+                    console.log(this.menuList);
+                }).catch(err => {
+                    console.log(err);
+                });
+                this.storeInfo = {
+                    storeId: 0, // {Number} 店铺id，必需
+                    name: '必胜客（太平店）', // {String} 店铺名字，必需
+                    addressDetails: '广东省广州市从化区太平镇乐东路385号（峰达电器城旁）', // {String} 店铺地址详情，必需
+                    phone: '020-88900280', // {String} 店铺联系电话，必需
+                    openingTime: '工作日9:00-21:00，节假日9:00-24:00',  // {String} 店铺营业时间，必需
+                    longitude: 113.492195, // {Number|NaN} 店铺经度，必需
+                    latitude: 23.452394, // {Number|NaN} 店铺纬度，必需
+                    areaCode: '440103', // {String} 行政编码
+                    imageUrl: '', // {String} 店铺Logo的Url
+                    characteristic: '必胜客快餐，全国门店十万家，总有你喜欢的！广东省广州市从化区太平镇乐东路385号', // {String} 店铺公告
+                    sales: 1448,
+                }
+            }
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
@@ -1182,1200 +1234,1200 @@
 </script>
 
 <style lang="scss" scoped>
-    .store-menu-container {
-        width: 100vw;
-        height: 100vh;
-        background-color: #f6f6f6;
-        display: flex;
-        flex-direction: column;
+  .store-menu-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: #f6f6f6;
+    display: flex;
+    flex-direction: column;
 
-        .store-image-container {
-            width: 100vw;
+    .store-image-container {
+      width: 100vw;
+      height: fit-content;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #f6f6f6;
+      overflow: hidden;
+
+      image {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .store-info-container {
+      width: calc(100% - 60rpx);
+      height: fit-content;
+      padding: rpx(40);
+      margin-left: rpx(30);
+      position: relative;
+      top: rpx(250);
+      z-index: 2;
+      background-color: #fff;
+      border-radius: rpx(30);
+      box-shadow: rgba(50, 50, 50, 0.1) -4px 9px 10px -6px;
+      transition-property: height;
+      transition-duration: 300ms;
+
+      .store-title-container {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+
+        .avatar-container {
+          width: rpx(90);
+          height: rpx(90);
+          border-radius: rpx(30);
+          overflow: hidden;
+          flex-shrink: 0;
+
+          .avatar {
+            width: 100%;
+            height: 100%;
+            background-color: #f1f1f1;
+          }
+        }
+
+        .title-container {
+          width: calc(100% - 170rpx);
+          height: fit-content;
+          display: flex;
+          flex-direction: column;
+          padding: 0 rpx(20);
+          color: #333;
+
+          .title {
+            width: 100%;
             height: fit-content;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #f6f6f6;
+            display: flex;
+            flex-direction: row;
+            font-size: rpx(36);
+            line-height: rpx(48);
+            white-space: nowrap;
             overflow: hidden;
 
-            image {
-                width: 100%;
-                height: 100%;
+            .title-text {
+              width: fit-content;
+              max-width: calc(100% - 50rpx);
+              overflow: hidden;
+              text-overflow: ellipsis;
             }
+
+            .fa {
+              flex-shrink: 0;
+              margin-left: rpx(10);
+              font-size: rpx(44);
+              line-height: rpx(48);
+              color: #888;
+            }
+          }
+
+          .tags-container {
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: row;
+            margin-top: rpx(10);
+            font-size: rpx(24);
+            color: #555;
+            overflow: hidden;
+
+            view {
+              width: fit-content;
+              padding: 0 rpx(6);
+              white-space: nowrap;
+              overflow: hidden;
+              flex-shrink: 0;
+            }
+
+            view:first-child {
+              padding-left: 0;
+            }
+
+            view:last-child {
+              padding-right: 0
+            }
+          }
         }
 
-        .store-info-container {
-            width: calc(100% - 60rpx);
+        .favorite-container {
+          width: rpx(80);
+          height: fit-content;
+
+          .favorite-btn {
+            font-size: rpx(38);
+            text-align: right;
+            line-height: rpx(48);
+            padding-right: rpx(10);
+
+            .fa-star {
+              color: #f4756b;
+            }
+          }
+        }
+      }
+
+      .announcement-container {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+        margin-top: rpx(14);
+        font-size: rpx(24);
+        color: #888;
+
+        .fa-volume-down {
+          width: rpx(34);
+          height: fit-content;
+          flex-shrink: 0;
+          font-size: rpx(34);
+          line-height: rpx(40);
+        }
+
+        .announcement-text {
+          width: 100%;
+          max-width: calc(100% - 84rpx);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          //white-space: normal;
+          line-height: rpx(40);
+        }
+
+        .unfold-btn {
+          width: rpx(40);
+          height: fit-content;
+          flex-shrink: 0;
+          font-size: rpx(34);
+          text-align: right;
+          line-height: rpx(40);
+
+          .fa {
+            transition-property: transform;
+            transition-duration: 300ms;
+          }
+        }
+      }
+
+      .discount-container {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+        font-size: rpx(24);
+        color: #888;
+        margin-top: rpx(20);
+        padding-right: rpx(10);
+
+        .discount-tags {
+          width: calc(100%);
+          height: rpx(40);
+          max-width: calc(100% - 100rpx);
+          //height: fit-content;
+          display: flex;
+          flex-direction: row;
+          overflow: hidden;
+          flex-wrap: wrap;
+          transition-property: height;
+          transition-duration: 300ms;
+
+          .tag {
+            width: fit-content;
+            height: rpx(36);
+            margin-right: rpx(10);
+            margin-bottom: rpx(8);
+            padding: 0 rpx(8);
+            flex-shrink: 0;
+            font-size: rpx(22);
+            line-height: rpx(30);
+            background-color: #f4756b;
+            color: #fff;
+            //color: #f4756b;
+            border-radius: rpx(8);
+            border: rpx(2) solid #f4756b;
+          }
+        }
+
+        .unfold-btn {
+          width: rpx(100);
+          height: fit-content;
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: row;
+
+          view {
+            width: 100%;
+            font-size: rpx(24);
+            line-height: rpx(36);
+            text-align: right;
+            transition-property: opacity;
+            transition-duration: 300ms;
+          }
+
+          .fa {
+            width: fit-content;
+            flex-shrink: 0;
+            margin-left: rpx(10);
+            font-size: rpx(34);
+            line-height: rpx(36);
+            text-align: right;
+            transition-property: transform;
+            transition-duration: 300ms;
+          }
+        }
+      }
+    }
+
+    .menu-container {
+      width: 100%;
+      height: rpx(1000);
+      //margin-top: rpx(20);
+      //padding: rpx(30);
+      //position: absolute;
+      //top: rpx(350);
+      position: relative;
+      top: rpx(170);
+      background-color: #fff;
+      border-radius: rpx(30);
+      box-shadow: rgba(17, 17, 26, 0.05) 0 4px 16px, rgba(17, 17, 26, 0.05) 0 8px 32px;
+
+      .menu-top-tabs-container {
+        width: 100%;
+        height: fit-content;
+        margin-top: rpx(90);
+        margin-bottom: rpx(30);
+        display: flex;
+        flex-direction: row;
+
+        .u-tabs-container {
+          width: 55vw;
+          flex-shrink: 0;
+
+          .u-tabs {
+
+          }
+        }
+
+        .search-btn-container {
+          width: 100%;
+          height: fit-content;
+          font-size: rpx(28);
+          color: #666;
+          text-align: right;
+          line-height: rpx(80);
+          padding-right: rpx(40);
+
+          .fa {
+            margin-right: rpx(10);
+            color: #777;
+          }
+        }
+      }
+
+      .menu {
+        width: 100%;
+        height: calc(100% - 200rpx);
+        display: flex;
+        flex-direction: row;
+
+        .type-container {
+          width: rpx(180);
+          height: 100%;
+          flex-shrink: 0;
+          background-color: #fff;
+          border-radius: rpx(20) rpx(20) 0 0;
+
+          ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            color: transparent;
+          }
+
+          .type-item-container__default {
+            width: 100%;
             height: fit-content;
-            padding: rpx(40);
-            margin-left: rpx(30);
-            position: relative;
-            top: rpx(250);
-            z-index: 2;
-            background-color: #fff;
-            border-radius: rpx(30);
-            box-shadow: rgba(50, 50, 50, 0.1) -4px 9px 10px -6px;
-            transition-property: height;
+            min-height: rpx(100);
+            padding: rpx(30) rpx(20);
+            font-size: rpx(26);
+            color: #888;
+            background-color: #f6f6f6;
+            border-left: rpx(6) solid #f6f6f6;
+            transition-property: color, background-color, border-left, border-radius;
             transition-duration: 300ms;
 
-            .store-title-container {
-                width: 100%;
-                height: fit-content;
-                display: flex;
-                flex-direction: row;
-
-                .avatar-container {
-                    width: rpx(90);
-                    height: rpx(90);
-                    border-radius: rpx(30);
-                    overflow: hidden;
-                    flex-shrink: 0;
-
-                    .avatar {
-                        width: 100%;
-                        height: 100%;
-                        background-color: #f1f1f1;
-                    }
-                }
-
-                .title-container {
-                    width: calc(100% - 170rpx);
-                    height: fit-content;
-                    display: flex;
-                    flex-direction: column;
-                    padding: 0 rpx(20);
-                    color: #333;
-
-                    .title {
-                        width: 100%;
-                        height: fit-content;
-                        display: flex;
-                        flex-direction: row;
-                        font-size: rpx(36);
-                        line-height: rpx(48);
-                        white-space: nowrap;
-                        overflow: hidden;
-
-                        .title-text {
-                            width: fit-content;
-                            max-width: calc(100% - 50rpx);
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                        }
-
-                        .fa {
-                            flex-shrink: 0;
-                            margin-left: rpx(10);
-                            font-size: rpx(44);
-                            line-height: rpx(48);
-                            color: #888;
-                        }
-                    }
-
-                    .tags-container {
-                        width: 100%;
-                        height: fit-content;
-                        display: flex;
-                        flex-direction: row;
-                        margin-top: rpx(10);
-                        font-size: rpx(24);
-                        color: #555;
-                        overflow: hidden;
-
-                        view {
-                            width: fit-content;
-                            padding: 0 rpx(6);
-                            white-space: nowrap;
-                            overflow: hidden;
-                            flex-shrink: 0;
-                        }
-
-                        view:first-child {
-                            padding-left: 0;
-                        }
-
-                        view:last-child {
-                            padding-right: 0
-                        }
-                    }
-                }
-
-                .favorite-container {
-                    width: rpx(80);
-                    height: fit-content;
-
-                    .favorite-btn {
-                        font-size: rpx(38);
-                        text-align: right;
-                        line-height: rpx(48);
-                        padding-right: rpx(10);
-
-                        .fa-star {
-                            color: #f4756b;
-                        }
-                    }
-                }
+            .type-name {
+              width: 90%;
+              height: fit-content;
+              text-overflow: -o-ellipsis-lastline;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              line-clamp: 2;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
             }
 
-            .announcement-container {
-                width: 100%;
-                height: fit-content;
-                display: flex;
-                flex-direction: row;
-                margin-top: rpx(14);
-                font-size: rpx(24);
-                color: #888;
-
-                .fa-volume-down {
-                    width: rpx(34);
-                    height: fit-content;
-                    flex-shrink: 0;
-                    font-size: rpx(34);
-                    line-height: rpx(40);
-                }
-
-                .announcement-text {
-                    width: 100%;
-                    max-width: calc(100% - 84rpx);
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    //white-space: normal;
-                    line-height: rpx(40);
-                }
-
-                .unfold-btn {
-                    width: rpx(40);
-                    height: fit-content;
-                    flex-shrink: 0;
-                    font-size: rpx(34);
-                    text-align: right;
-                    line-height: rpx(40);
-
-                    .fa {
-                        transition-property: transform;
-                        transition-duration: 300ms;
-                    }
-                }
+            .type-amount {
+              position: absolute;
+              transform: translate(rpx(120), rpx(-10));
+              width: rpx(26);
+              height: rpx(26);
+              border-radius: rpx(50);
+              overflow: hidden;
+              background-color: #f4756b;
+              color: #fff;
+              font-size: rpx(20);
+              text-align: center;
+              line-height: rpx(26);
             }
+          }
 
-            .discount-container {
-                width: 100%;
-                height: fit-content;
-                display: flex;
-                flex-direction: row;
-                font-size: rpx(24);
-                color: #888;
-                margin-top: rpx(20);
-                padding-right: rpx(10);
+          .type-item-container__default:first-child {
+            border-top-right-radius: rpx(20);
+          }
 
-                .discount-tags {
-                    width: calc(100%);
-                    height: rpx(40);
-                    max-width: calc(100% - 100rpx);
-                    //height: fit-content;
-                    display: flex;
-                    flex-direction: row;
-                    overflow: hidden;
-                    flex-wrap: wrap;
-                    transition-property: height;
-                    transition-duration: 300ms;
+          .type-item-container__selected {
+            color: #555;
+            background-color: #fff;
+            border-left: rpx(6) solid #f4756b;
+          }
 
-                    .tag {
-                        width: fit-content;
-                        height: rpx(36);
-                        margin-right: rpx(10);
-                        margin-bottom: rpx(8);
-                        padding: 0 rpx(8);
-                        flex-shrink: 0;
-                        font-size: rpx(22);
-                        line-height: rpx(30);
-                        background-color: #f4756b;
-                        color: #fff;
-                        //color: #f4756b;
-                        border-radius: rpx(8);
-                        border: rpx(2) solid #f4756b;
-                    }
-                }
+          .type-item-container__selected-before {
+            border-radius: 0 0 rpx(20) 0;
+          }
 
-                .unfold-btn {
-                    width: rpx(100);
-                    height: fit-content;
-                    flex-shrink: 0;
-                    display: flex;
-                    flex-direction: row;
+          .type-item-container__selected-after {
+            border-radius: 0 rpx(20) 0 0;
+          }
 
-                    view {
-                        width: 100%;
-                        font-size: rpx(24);
-                        line-height: rpx(36);
-                        text-align: right;
-                        transition-property: opacity;
-                        transition-duration: 300ms;
-                    }
-
-                    .fa {
-                        width: fit-content;
-                        flex-shrink: 0;
-                        margin-left: rpx(10);
-                        font-size: rpx(34);
-                        line-height: rpx(36);
-                        text-align: right;
-                        transition-property: transform;
-                        transition-duration: 300ms;
-                    }
-                }
-            }
+          .bottom-empty-box {
+            width: 100%;
+            height: rpx(300);
+            background-color: #f6f6f6;
+            border-top-right-radius: rpx(20);
+          }
         }
 
-        .menu-container {
-            width: 100%;
-            height: rpx(1000);
-            //margin-top: rpx(20);
-            //padding: rpx(30);
-            //position: absolute;
-            //top: rpx(350);
-            position: relative;
-            top: rpx(170);
-            background-color: #fff;
-            border-radius: rpx(30);
-            box-shadow: rgba(17, 17, 26, 0.05) 0 4px 16px, rgba(17, 17, 26, 0.05) 0 8px 32px;
+        .commodity-container {
+          width: 100%;
+          height: 100%;
 
-            .menu-top-tabs-container {
+          .commodity-group-container {
+            width: 100%;
+            height: fit-content;
+            margin-bottom: rpx(20);
+
+            .group-name {
+              width: 100%;
+              height: fit-content;
+              padding: rpx(20) rpx(20) rpx(10);
+              color: #888;
+              background-color: #fff;
+            }
+
+            .commodity {
+              width: 100%;
+              height: fit-content;
+              padding: rpx(20);
+              display: flex;
+              flex-direction: row;
+
+              .commodity-image-container {
+                width: rpx(180);
+                height: rpx(180);
+                flex-shrink: 0;
+                border-radius: rpx(20);
+                overflow: hidden;
+
+                .commodity-image {
+                  width: 100%;
+                  height: 100%;
+                  background-color: #f1f1f1;
+                }
+              }
+
+              .commodity-info-container {
                 width: 100%;
                 height: fit-content;
-                margin-top: rpx(90);
-                margin-bottom: rpx(30);
-                display: flex;
-                flex-direction: row;
-
-                .u-tabs-container {
-                    width: 55vw;
-                    flex-shrink: 0;
-
-                    .u-tabs {
-
-                    }
-                }
-
-                .search-btn-container {
-                    width: 100%;
-                    height: fit-content;
-                    font-size: rpx(28);
-                    color: #666;
-                    text-align: right;
-                    line-height: rpx(80);
-                    padding-right: rpx(40);
-
-                    .fa {
-                        margin-right: rpx(10);
-                        color: #777;
-                    }
-                }
-            }
-
-            .menu {
-                width: 100%;
-                height: calc(100% - 200rpx);
-                display: flex;
-                flex-direction: row;
-
-                .type-container {
-                    width: rpx(180);
-                    height: 100%;
-                    flex-shrink: 0;
-                    background-color: #fff;
-                    border-radius: rpx(20) rpx(20) 0 0;
-
-                    ::-webkit-scrollbar {
-                        width: 0;
-                        height: 0;
-                        color: transparent;
-                    }
-
-                    .type-item-container__default {
-                        width: 100%;
-                        height: fit-content;
-                        min-height: rpx(100);
-                        padding: rpx(30) rpx(20);
-                        font-size: rpx(26);
-                        color: #888;
-                        background-color: #f6f6f6;
-                        border-left: rpx(6) solid #f6f6f6;
-                        transition-property: color, background-color, border-left, border-radius;
-                        transition-duration: 300ms;
-
-                        .type-name {
-                            width: 90%;
-                            height: fit-content;
-                            text-overflow: -o-ellipsis-lastline;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            display: -webkit-box;
-                            line-clamp: 2;
-                            -webkit-line-clamp: 2;
-                            -webkit-box-orient: vertical;
-                        }
-
-                        .type-amount {
-                            position: absolute;
-                            transform: translate(rpx(120), rpx(-10));
-                            width: rpx(26);
-                            height: rpx(26);
-                            border-radius: rpx(50);
-                            overflow: hidden;
-                            background-color: #f4756b;
-                            color: #fff;
-                            font-size: rpx(20);
-                            text-align: center;
-                            line-height: rpx(26);
-                        }
-                    }
-
-                    .type-item-container__default:first-child {
-                        border-top-right-radius: rpx(20);
-                    }
-
-                    .type-item-container__selected {
-                        color: #555;
-                        background-color: #fff;
-                        border-left: rpx(6) solid #f4756b;
-                    }
-
-                    .type-item-container__selected-before {
-                        border-radius: 0 0 rpx(20) 0;
-                    }
-
-                    .type-item-container__selected-after {
-                        border-radius: 0 rpx(20) 0 0;
-                    }
-
-                    .bottom-empty-box {
-                        width: 100%;
-                        height: rpx(300);
-                        background-color: #f6f6f6;
-                        border-top-right-radius: rpx(20);
-                    }
-                }
-
-                .commodity-container {
-                    width: 100%;
-                    height: 100%;
-
-                    .commodity-group-container {
-                        width: 100%;
-                        height: fit-content;
-                        margin-bottom: rpx(20);
-
-                        .group-name {
-                            width: 100%;
-                            height: fit-content;
-                            padding: rpx(20) rpx(20) rpx(10);
-                            color: #888;
-                            background-color: #fff;
-                        }
-
-                        .commodity {
-                            width: 100%;
-                            height: fit-content;
-                            padding: rpx(20);
-                            display: flex;
-                            flex-direction: row;
-
-                            .commodity-image-container {
-                                width: rpx(180);
-                                height: rpx(180);
-                                flex-shrink: 0;
-                                border-radius: rpx(20);
-                                overflow: hidden;
-
-                                .commodity-image {
-                                    width: 100%;
-                                    height: 100%;
-                                    background-color: #f1f1f1;
-                                }
-                            }
-
-                            .commodity-info-container {
-                                width: 100%;
-                                height: fit-content;
-                                display: flex;
-                                flex-direction: column;
-                                padding-left: rpx(20);
-
-                                .commodity-name {
-                                    font-size: rpx(30);
-                                    color: #333;
-                                    margin-bottom: rpx(10);
-                                }
-
-                                .commodity-description {
-                                    font-size: rpx(24);
-                                    line-height: rpx(36);
-                                    color: #888;
-                                    text-overflow: -o-ellipsis-lastline;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                    display: -webkit-box;
-                                    line-clamp: 1;
-                                    -webkit-line-clamp: 1;
-                                    -webkit-box-orient: vertical;
-                                }
-
-                                .commodity-sale-info {
-                                    width: fit-content;
-                                    height: fit-content;
-                                    margin: rpx(16) 0 rpx(16) 0;
-                                    padding: rpx(2) rpx(10);
-                                    font-size: rpx(20);
-                                    color: #888;
-                                    background-color: #f6f6f6;
-                                    border-radius: rpx(4);
-                                }
-
-                                .price-container {
-                                    width: 100%;
-                                    height: fit-content;
-                                    display: flex;
-                                    flex-direction: row;
-
-                                    .price {
-                                        display: flex;
-                                        flex-direction: row;
-
-                                        .current-price {
-                                            font-size: rpx(24);
-                                            color: #f4756b;
-                                            font-weight: bold;
-
-                                            text:first-child {
-                                                font-size: rpx(34);
-                                            }
-
-                                            text:last-child {
-                                                font-size: rpx(24);
-                                            }
-                                        }
-
-                                        .origin-price {
-                                            padding-left: rpx(10);
-                                            font-size: rpx(20);
-                                            line-height: rpx(58);
-                                            color: #888;
-                                            text-decoration: line-through;
-                                        }
-                                    }
-
-                                    .amount-btn-container {
-                                        width: fit-content;
-                                        height: rpx(80);
-                                        flex-shrink: 0;
-                                        margin: rpx(2) rpx(10) 0 auto;
-                                        padding: rpx(20) rpx(20) 0;
-                                        transform: translate(rpx(20), rpx(-20));
-                                        display: flex;
-                                        flex-direction: row;
-
-                                        .amount {
-                                            margin: 0 rpx(16);
-                                            font-size: rpx(30);
-                                            line-height: rpx(44);
-                                        }
-
-                                        .fa-minus-circle {
-                                            font-size: rpx(44);
-                                            color: #ddd;
-                                        }
-
-                                        .fa-plus-circle {
-                                            font-size: rpx(44);
-                                            color: #f4756b;
-                                        }
-
-                                        .options-btn {
-                                            width: rpx(100);
-                                            height: rpx(40);
-                                            background-color: #f4756b;
-                                            color: #fff;
-                                            border-radius: rpx(30);
-                                            font-size: rpx(24);
-                                            line-height: rpx(40);
-                                            text-align: center;
-
-                                            .amount {
-                                                width: rpx(34);
-                                                height: rpx(34);
-                                                overflow: hidden;
-                                                transform: translate(rpx(66), rpx(-50));
-                                                border: rpx(2) solid #fff;
-                                                background-color: #f4756b;
-                                                color: #fff;
-                                                border-radius: rpx(50);
-                                                font-size: rpx(22);
-                                                text-align: center;
-                                                line-height: rpx(30);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    .bottom-empty-box {
-                        width: 100%;
-                        height: rpx(250);
-                    }
-                }
-            }
-
-            .shopping-cart-container {
-                width: 100%;
-                height: 100%;
                 display: flex;
                 flex-direction: column;
-                background-color: #fff;
-                padding: 0 rpx(40);
-                padding-bottom: rpx(90);
+                padding-left: rpx(20);
 
-                .title-container {
-                    width: 100%;
+                .commodity-name {
+                  font-size: rpx(30);
+                  color: #333;
+                  margin-bottom: rpx(10);
+                }
+
+                .commodity-description {
+                  font-size: rpx(24);
+                  line-height: rpx(36);
+                  color: #888;
+                  text-overflow: -o-ellipsis-lastline;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  display: -webkit-box;
+                  line-clamp: 1;
+                  -webkit-line-clamp: 1;
+                  -webkit-box-orient: vertical;
+                }
+
+                .commodity-sale-info {
+                  width: fit-content;
+                  height: fit-content;
+                  margin: rpx(16) 0 rpx(16) 0;
+                  padding: rpx(2) rpx(10);
+                  font-size: rpx(20);
+                  color: #888;
+                  background-color: #f6f6f6;
+                  border-radius: rpx(4);
+                }
+
+                .price-container {
+                  width: 100%;
+                  height: fit-content;
+                  display: flex;
+                  flex-direction: row;
+
+                  .price {
+                    display: flex;
+                    flex-direction: row;
+
+                    .current-price {
+                      font-size: rpx(24);
+                      color: #f4756b;
+                      font-weight: bold;
+
+                      text:first-child {
+                        font-size: rpx(34);
+                      }
+
+                      text:last-child {
+                        font-size: rpx(24);
+                      }
+                    }
+
+                    .origin-price {
+                      padding-left: rpx(10);
+                      font-size: rpx(20);
+                      line-height: rpx(58);
+                      color: #888;
+                      text-decoration: line-through;
+                    }
+                  }
+
+                  .amount-btn-container {
+                    width: fit-content;
                     height: rpx(80);
                     flex-shrink: 0;
+                    margin: rpx(2) rpx(10) 0 auto;
+                    padding: rpx(20) rpx(20) 0;
+                    transform: translate(rpx(20), rpx(-20));
                     display: flex;
                     flex-direction: row;
-                    border-bottom: rpx(2) solid #f1f1f1;
-                    font-size: rpx(24);
-                    color: #888;
-                    line-height: rpx(80);
 
-                    .amount-container {
-                        width: fit-content;
-                        height: 100%;
-                        flex-shrink: 0;
+                    .amount {
+                      margin: 0 rpx(16);
+                      font-size: rpx(30);
+                      line-height: rpx(44);
                     }
 
-                    .clear-btn-container {
-                        width: fit-content;
-                        height: 100%;
-                        margin-left: auto;
-
-                        .fa {
-                            margin-right: rpx(10);
-                            font-size: rpx(30);
-                            color: #999;
-                        }
-                    }
-                }
-
-                .content-container {
-                    width: 100%;
-                    height: calc(100% - 80rpx);
-
-                    .empty-tips {
-                        width: 100%;
-                        height: 100%;
-                        display: flex;
-                        font-size: rpx(30);
-                        color: #888;
-                        text-align: center;
-
-                        text {
-                            margin: auto;
-                        }
+                    .fa-minus-circle {
+                      font-size: rpx(44);
+                      color: #ddd;
                     }
 
-                    .cart-items {
-                        width: 100%;
-                        height: 100%;
-                        padding-top: rpx(20);
-
-                        .commodity-container {
-                            width: 100%;
-                            height: 100%;
-
-                            ::-webkit-scrollbar {
-                                width: 0;
-                                height: 0;
-                                color: transparent;
-                            }
-
-                            .commodity {
-                                width: 100%;
-                                height: fit-content;
-                                display: flex;
-                                flex-direction: row;
-
-                                .image-container {
-                                    width: rpx(132);
-                                    height: rpx(132);
-                                    margin: rpx(20) 0;
-                                    flex-shrink: 0;
-                                    overflow: hidden;
-                                    border-radius: rpx(20);
-
-                                    .image {
-                                        width: 100%;
-                                        height: 100%;
-                                        background-color: #f1f1f1;
-                                    }
-                                }
-
-                                .info-container {
-                                    width: 100%;
-                                    height: fit-content;
-                                    display: flex;
-                                    flex-direction: column;
-                                    margin: rpx(20) 0 0 rpx(30);
-                                    padding-bottom: rpx(20);
-                                    border-bottom: rpx(2) solid #f1f1f1;
-
-                                    .name {
-                                        width: 100%;
-                                        height: fit-content;
-                                        font-size: rpx(30);
-                                        color: #333;
-                                    }
-
-                                    .description {
-                                        width: fit-content;
-                                        height: fit-content;
-                                        min-height: rpx(46);
-                                        padding: rpx(10) 0;
-                                        font-size: rpx(22);
-                                        color: #888;
-                                    }
-
-                                    .price-container {
-                                        width: 100%;
-                                        height: rpx(50);
-                                        display: flex;
-                                        flex-direction: row;
-
-                                        .price {
-                                            width: 100%;
-                                            height: rpx(50);
-                                            font-size: rpx(30);
-                                            font-weight: bold;
-                                            color: #f4756b;
-                                            line-height: rpx(58);
-                                        }
-
-                                        .amount-btn-container {
-                                            width: fit-content;
-                                            height: fit-content;
-                                            flex-shrink: 0;
-                                            margin-top: auto;
-                                            margin-right: rpx(10);
-                                            margin-left: auto;
-                                            display: flex;
-                                            flex-direction: row;
-
-                                            .amount {
-                                                margin: 0 rpx(16);
-                                                font-size: rpx(30);
-                                                line-height: rpx(44);
-                                            }
-
-                                            .fa-minus-circle {
-                                                font-size: rpx(44);
-                                                color: #ddd;
-                                            }
-
-                                            .fa-plus-circle {
-                                                font-size: rpx(44);
-                                                color: #f4756b;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                .amount-container {
-                                    width: rpx(150);
-                                    height: rpx(160);
-                                    margin: rpx(20) 0 0 auto;
-                                    padding-bottom: rpx(20);
-                                    flex-shrink: 0;
-                                    display: flex;
-                                    flex-direction: column;
-                                    border-bottom: rpx(2) solid #f1f1f1;
-
-                                    .amount-btn-container {
-                                        width: fit-content;
-                                        height: fit-content;
-                                        flex-shrink: 0;
-                                        margin-top: auto;
-                                        margin-right: rpx(10);
-                                        margin-left: auto;
-                                        display: flex;
-                                        flex-direction: row;
-
-                                        .amount {
-                                            margin: 0 rpx(16);
-                                            font-size: rpx(30);
-                                            line-height: rpx(44);
-                                        }
-
-                                        .fa-minus-circle {
-                                            font-size: rpx(44);
-                                            color: #ddd;
-                                        }
-
-                                        .fa-plus-circle {
-                                            font-size: rpx(44);
-                                            color: #f4756b;
-                                        }
-                                    }
-                                }
-                            }
-
-                            .commodity:last-child {
-                                .info-container {
-                                    border-bottom: 0;
-                                }
-
-                                .amount-container {
-                                    border-bottom: 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            .search-popup {
-                /deep/ .u-drawer {
-                    z-index: 5 !important;
-                }
-
-                /deep/ .u-drawer__scroll-view {
-                    ::-webkit-scrollbar {
-                        width: 0;
-                        height: 0;
-                        color: transparent;
-                    }
-                }
-
-                .search-container {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    padding: rpx(40);
-
-                    .input-container {
-                        width: 100%;
-                        height: rpx(70);
-                        display: flex;
-                        flex-direction: row;
-                        flex-shrink: 0;
-                        margin-bottom: rpx(40);
-
-                        .input {
-                            width: 100%;
-                            height: 100%;
-                            display: flex;
-                            flex-direction: row;
-                            padding: 0 rpx(20);
-                            background-color: #f1f1f1;
-                            border-radius: rpx(50);
-                            overflow: hidden;
-
-                            .fa {
-                                margin-right: rpx(20);
-                                font-size: rpx(36);
-                                line-height: rpx(70);
-                                color: #aaa;
-                                font-weight: lighter;
-                            }
-
-                            input {
-                                width: 100%;
-                                height: rpx(70);
-                                font-size: rpx(28);
-                                line-height: rpx(70);
-                                color: #333;
-                            }
-                        }
-
-                        .cancel-btn {
-                            width: fit-content;
-                            height: 100%;
-                            flex-shrink: 0;
-                            padding-left: rpx(40);
-                            font-size: rpx(28);
-                            color: #888;
-                            line-height: rpx(70);
-                        }
+                    .fa-plus-circle {
+                      font-size: rpx(44);
+                      color: #f4756b;
                     }
 
-                    .result-container {
-                        width: 100%;
-                        height: 100%;
+                    .options-btn {
+                      width: rpx(100);
+                      height: rpx(40);
+                      background-color: #f4756b;
+                      color: #fff;
+                      border-radius: rpx(30);
+                      font-size: rpx(24);
+                      line-height: rpx(40);
+                      text-align: center;
 
-                        .result-scroll-view {
-                            width: 100%;
-                            height: 100%;
-
-                            ::-webkit-scrollbar {
-                                width: 0;
-                                height: 0;
-                                color: transparent;
-                            }
-
-                            .search-result-item {
-                                width: 100%;
-                                height: fit-content;
-                                display: flex;
-                                flex-direction: row;
-                                margin-bottom: rpx(40);
-
-                                .image-container {
-                                    width: rpx(100);
-                                    height: rpx(100);
-                                    flex-shrink: 0;
-                                    border-radius: rpx(20);
-                                    overflow: hidden;
-
-                                    .image {
-                                        width: 100%;
-                                        height: 100%;
-                                        background-color: #f1f1f1;
-                                    }
-                                }
-
-                                .info-container {
-                                    width: 100%;
-                                    height: 100%;
-                                    margin-left: rpx(30);
-                                    font-size: rpx(28);
-                                    line-height: rpx(100);
-                                    color: #333;
-
-                                    .search-key-text {
-                                        color: #f4756b;
-                                    }
-                                }
-
-                                .price-container {
-                                    width: rpx(130);
-                                    height: 100%;
-                                    margin-left: auto;
-                                    flex-shrink: 0;
-                                    font-size: rpx(28);
-                                    text-align: right;
-                                    color: #333;
-                                    line-height: rpx(100);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            .commodity-detail-popup {
-                /deep/ .u-drawer {
-                    z-index: 5 !important;
-                }
-
-                /deep/ .u-drawer__scroll-view {
-                    ::-webkit-scrollbar {
-                        width: 0;
-                        height: 0;
-                        color: transparent;
-                    }
-                }
-
-                .commodity-detail-container {
-                    width: 100%;
-                    height: fit-content;
-                    display: flex;
-                    flex-direction: column;
-
-                    .image-container {
-                        width: 100%;
-                        height: 45vw;
-                        overflow: hidden;
-
-                        .image {
-                            width: 100%;
-                            height: 100%;
-                            background-color: #f1f1f1;
-                        }
-                    }
-
-                    .info-container {
-                        width: 100%;
-                        height: fit-content;
-                        display: flex;
-                        flex-direction: column;
-                        padding: rpx(40);
-
-                        .title {
-                            width: 100%;
-                            height: fit-content;
-                            font-size: rpx(32);
-                            color: #333;
-                        }
-
-                        .tags {
-
-                            view {
-                                width: fit-content;
-                                height: fit-content;
-                                margin: rpx(16) 0 rpx(16) 0;
-                                padding: rpx(2) rpx(10);
-                                font-size: rpx(20);
-                                color: #888;
-                                background-color: #f6f6f6;
-                                border-radius: rpx(4);
-                            }
-                        }
-
-                        .description {
-                            width: fit-content;
-                            height: fit-content;
-                            margin: rpx(20) 0 rpx(10) 0;
-                            font-size: rpx(22);
-                            color: #888;
-                            word-break: break-all;
-                        }
-
-                        .custom-options-container {
-                            width: 100%;
-                            height: fit-content;
-                            max-height: 30vh;
-
-                            ::-webkit-scrollbar {
-                                width: rpx(6);
-                                height: rpx(6);
-                                background-color: #ffffff;
-                            }
-
-                            ::-webkit-scrollbar-thumb {
-                                border-radius: 10px;
-                                background-color: #f6f6f6;
-                            }
-
-                            .option-container {
-                                width: 100%;
-                                height: fit-content;
-                                margin: rpx(30) 0 rpx(50) 0;
-
-                                .option-title {
-                                    font-size: rpx(24);
-                                    color: #888;
-                                }
-
-                                .option-items-container {
-                                    width: 100%;
-                                    height: fit-content;
-                                    display: flex;
-                                    flex-direction: row;
-                                    flex-wrap: wrap;
-
-                                    .option-item__default {
-                                        width: fit-content;
-                                        min-width: rpx(130);
-                                        height: fit-content;
-                                        flex-shrink: 0;
-                                        padding: rpx(10);
-                                        margin: rpx(16) rpx(20) 0 0;
-                                        background-color: #f6f6f6;
-                                        border-radius: rpx(10);
-                                        border: rpx(2) solid #f6f6f6;
-                                        font-size: rpx(24);
-                                        color: #333;
-                                        line-height: rpx(40);
-                                        text-align: center;
-                                        transition-property: border color background-color;
-                                        transition-duration: 300ms;
-                                    }
-
-                                    .option-item__default:last-child {
-                                        margin-right: 0;
-                                    }
-
-                                    .option-item__selected {
-                                        background-color: rgba(244, 117, 107, 0.05);
-                                        border: rpx(2) solid #f4756b;
-                                        color: #f4756b;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    .price-container {
-                        width: 100%;
-                        height: fit-content;
-                        display: flex;
-                        flex-direction: row;
-                        padding: 0 rpx(40) rpx(40) rpx(40);
-
-                        .price {
-                            font-size: rpx(32);
-                            font-weight: bold;
-                            color: #f4756b;
-                        }
-
-                        .amount-btn {
-                            width: fit-content;
-                            height: fit-content;
-                            flex-shrink: 0;
-                            margin-left: auto;
-                            display: flex;
-                            flex-direction: row;
-
-                            .amount {
-                                margin: 0 rpx(16);
-                                font-size: rpx(30);
-                                line-height: rpx(44);
-                            }
-
-                            .fa-minus-circle {
-                                font-size: rpx(44);
-                                color: #ddd;
-                            }
-
-                            .fa-plus-circle {
-                                font-size: rpx(44);
-                                color: #f4756b;
-                            }
-                        }
-                    }
-
-                    .add-to-cart-container {
-                        width: 100%;
-                        height: rpx(100);
-                        padding: 0 rpx(40) rpx(110);
-
-                        .add-btn {
-                            width: 100%;
-                            height: rpx(70);
-                            margin: auto;
-                            background-color: #f4756b;
-                            border-radius: rpx(50);
-                            color: #fff;
-                            line-height: rpx(70);
-                            text-align: center;
-                        }
-                    }
-                }
-            }
-
-            .cart-bar-container {
-                width: 100vw;
-                height: rpx(90);
-                height: calc(constant(safe-area-inset-bottom) + 90rpx);
-                height: calc(env(safe-area-inset-bottom) + 90rpx);
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                z-index: 4;
-                //margin-bottom: 0;
-                //margin-bottom: constant(safe-area-inset-bottom);
-                //margin-bottom: env(safe-area-inset-bottom);
-                background-color: rgba(250, 250, 250, 0.95);
-
-                .cart-btn-container {
-                    width: rpx(100);
-                    height: rpx(100);
-                    border-radius: rpx(50);
-                    position: fixed;
-                    left: 0;
-                    bottom: rpx(14);
-                    margin-bottom: 0;
-                    margin-bottom: constant(safe-area-inset-bottom);
-                    margin-bottom: env(safe-area-inset-bottom);
-                    transform: translateX(rpx(30));
-                    transition-duration: 300ms;
-                    background-color: #fff;
-                    text-align: center;
-                    box-shadow: rgba(0, 0, 0, 0.25) 0 25px 50px -12px;
-
-                    .fa {
-                        color: #f4756b;
-                        font-size: rpx(48);
-                        line-height: rpx(100);
-                    }
-
-                    .total-amount {
+                      .amount {
                         width: rpx(34);
                         height: rpx(34);
-                        position: fixed;
-                        bottom: rpx(74);
-                        left: rpx(66);
-                        border-radius: rpx(50);
                         overflow: hidden;
+                        transform: translate(rpx(66), rpx(-50));
+                        border: rpx(2) solid #fff;
                         background-color: #f4756b;
                         color: #fff;
-                        font-size: rpx(24);
+                        border-radius: rpx(50);
+                        font-size: rpx(22);
                         text-align: center;
-                        line-height: rpx(34);
+                        line-height: rpx(30);
+                      }
                     }
+                  }
+                }
+              }
+            }
+          }
+
+          .bottom-empty-box {
+            width: 100%;
+            height: rpx(250);
+          }
+        }
+      }
+
+      .shopping-cart-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        padding: 0 rpx(40);
+        padding-bottom: rpx(90);
+
+        .title-container {
+          width: 100%;
+          height: rpx(80);
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: row;
+          border-bottom: rpx(2) solid #f1f1f1;
+          font-size: rpx(24);
+          color: #888;
+          line-height: rpx(80);
+
+          .amount-container {
+            width: fit-content;
+            height: 100%;
+            flex-shrink: 0;
+          }
+
+          .clear-btn-container {
+            width: fit-content;
+            height: 100%;
+            margin-left: auto;
+
+            .fa {
+              margin-right: rpx(10);
+              font-size: rpx(30);
+              color: #999;
+            }
+          }
+        }
+
+        .content-container {
+          width: 100%;
+          height: calc(100% - 80rpx);
+
+          .empty-tips {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            font-size: rpx(30);
+            color: #888;
+            text-align: center;
+
+            text {
+              margin: auto;
+            }
+          }
+
+          .cart-items {
+            width: 100%;
+            height: 100%;
+            padding-top: rpx(20);
+
+            .commodity-container {
+              width: 100%;
+              height: 100%;
+
+              ::-webkit-scrollbar {
+                width: 0;
+                height: 0;
+                color: transparent;
+              }
+
+              .commodity {
+                width: 100%;
+                height: fit-content;
+                display: flex;
+                flex-direction: row;
+
+                .image-container {
+                  width: rpx(132);
+                  height: rpx(132);
+                  margin: rpx(20) 0;
+                  flex-shrink: 0;
+                  overflow: hidden;
+                  border-radius: rpx(20);
+
+                  .image {
+                    width: 100%;
+                    height: 100%;
+                    background-color: #f1f1f1;
+                  }
                 }
 
-                .cart-bar {
+                .info-container {
+                  width: 100%;
+                  height: fit-content;
+                  display: flex;
+                  flex-direction: column;
+                  margin: rpx(20) 0 0 rpx(30);
+                  padding-bottom: rpx(20);
+                  border-bottom: rpx(2) solid #f1f1f1;
+
+                  .name {
                     width: 100%;
-                    height: rpx(90);
+                    height: fit-content;
+                    font-size: rpx(30);
+                    color: #333;
+                  }
+
+                  .description {
+                    width: fit-content;
+                    height: fit-content;
+                    min-height: rpx(46);
+                    padding: rpx(10) 0;
+                    font-size: rpx(22);
+                    color: #888;
+                  }
+
+                  .price-container {
+                    width: 100%;
+                    height: rpx(50);
                     display: flex;
                     flex-direction: row;
-                    overflow: hidden;
-                    box-shadow: 0 rpx(-10) rpx(20) 0 rgba(125, 125, 125, 0.1), 0 0 0 0 #fff, 0 rpx(10) rpx(10) 0 transparent, 0 0 0 0 #fff;
 
-                    .price-container {
-                        width: fit-content;
-                        height: 100%;
-                        margin-left: rpx(150);
+                    .price {
+                      width: 100%;
+                      height: rpx(50);
+                      font-size: rpx(30);
+                      font-weight: bold;
+                      color: #f4756b;
+                      line-height: rpx(58);
+                    }
+
+                    .amount-btn-container {
+                      width: fit-content;
+                      height: fit-content;
+                      flex-shrink: 0;
+                      margin-top: auto;
+                      margin-right: rpx(10);
+                      margin-left: auto;
+                      display: flex;
+                      flex-direction: row;
+
+                      .amount {
+                        margin: 0 rpx(16);
                         font-size: rpx(30);
-                        line-height: rpx(90);
-                        font-weight: bold;
-                        color: #333;
-                        letter-spacing: rpx(2);
-                        transition-property: margin-left, color;
-                        transition-duration: 300ms;
+                        line-height: rpx(44);
+                      }
 
-                        text:first-child {
-                            font-size: rpx(40);
-                            margin-left: rpx(2);
-                        }
+                      .fa-minus-circle {
+                        font-size: rpx(44);
+                        color: #ddd;
+                      }
 
-                        text:nth-child(2) {
-                            font-size: rpx(30);
-                        }
-
-                        .origin-price {
-                            margin-left: rpx(20);
-                            font-size: rpx(22);
-                            font-weight: normal;
-                            color: #888;
-                            text-decoration: line-through;
-                        }
+                      .fa-plus-circle {
+                        font-size: rpx(44);
+                        color: #f4756b;
+                      }
                     }
-
-                    .pay-container {
-                        width: rpx(180);
-                        height: fit-content;
-                        margin-left: auto;
-                        font-size: rpx(30);
-                        text-align: center;
-                        line-height: rpx(90);
-                        background-color: #f4756b;
-                        color: #fff;
-                        transition-property: opacity;
-                        transition-duration: 300ms;
-                    }
-
-                    .pay-container__default {
-                        opacity: 1;
-                    }
-
-                    .pay-container__reject {
-                        opacity: 0.7;
-                    }
+                  }
                 }
+
+                .amount-container {
+                  width: rpx(150);
+                  height: rpx(160);
+                  margin: rpx(20) 0 0 auto;
+                  padding-bottom: rpx(20);
+                  flex-shrink: 0;
+                  display: flex;
+                  flex-direction: column;
+                  border-bottom: rpx(2) solid #f1f1f1;
+
+                  .amount-btn-container {
+                    width: fit-content;
+                    height: fit-content;
+                    flex-shrink: 0;
+                    margin-top: auto;
+                    margin-right: rpx(10);
+                    margin-left: auto;
+                    display: flex;
+                    flex-direction: row;
+
+                    .amount {
+                      margin: 0 rpx(16);
+                      font-size: rpx(30);
+                      line-height: rpx(44);
+                    }
+
+                    .fa-minus-circle {
+                      font-size: rpx(44);
+                      color: #ddd;
+                    }
+
+                    .fa-plus-circle {
+                      font-size: rpx(44);
+                      color: #f4756b;
+                    }
+                  }
+                }
+              }
+
+              .commodity:last-child {
+                .info-container {
+                  border-bottom: 0;
+                }
+
+                .amount-container {
+                  border-bottom: 0;
+                }
+              }
             }
+          }
         }
+      }
+
+      .search-popup {
+        /deep/ .u-drawer {
+          z-index: 5 !important;
+        }
+
+        /deep/ .u-drawer__scroll-view {
+          ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            color: transparent;
+          }
+        }
+
+        .search-container {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          padding: rpx(40);
+
+          .input-container {
+            width: 100%;
+            height: rpx(70);
+            display: flex;
+            flex-direction: row;
+            flex-shrink: 0;
+            margin-bottom: rpx(40);
+
+            .input {
+              width: 100%;
+              height: 100%;
+              display: flex;
+              flex-direction: row;
+              padding: 0 rpx(20);
+              background-color: #f1f1f1;
+              border-radius: rpx(50);
+              overflow: hidden;
+
+              .fa {
+                margin-right: rpx(20);
+                font-size: rpx(36);
+                line-height: rpx(70);
+                color: #aaa;
+                font-weight: lighter;
+              }
+
+              input {
+                width: 100%;
+                height: rpx(70);
+                font-size: rpx(28);
+                line-height: rpx(70);
+                color: #333;
+              }
+            }
+
+            .cancel-btn {
+              width: fit-content;
+              height: 100%;
+              flex-shrink: 0;
+              padding-left: rpx(40);
+              font-size: rpx(28);
+              color: #888;
+              line-height: rpx(70);
+            }
+          }
+
+          .result-container {
+            width: 100%;
+            height: 100%;
+
+            .result-scroll-view {
+              width: 100%;
+              height: 100%;
+
+              ::-webkit-scrollbar {
+                width: 0;
+                height: 0;
+                color: transparent;
+              }
+
+              .search-result-item {
+                width: 100%;
+                height: fit-content;
+                display: flex;
+                flex-direction: row;
+                margin-bottom: rpx(40);
+
+                .image-container {
+                  width: rpx(100);
+                  height: rpx(100);
+                  flex-shrink: 0;
+                  border-radius: rpx(20);
+                  overflow: hidden;
+
+                  .image {
+                    width: 100%;
+                    height: 100%;
+                    background-color: #f1f1f1;
+                  }
+                }
+
+                .info-container {
+                  width: 100%;
+                  height: 100%;
+                  margin-left: rpx(30);
+                  font-size: rpx(28);
+                  line-height: rpx(100);
+                  color: #333;
+
+                  .search-key-text {
+                    color: #f4756b;
+                  }
+                }
+
+                .price-container {
+                  width: rpx(130);
+                  height: 100%;
+                  margin-left: auto;
+                  flex-shrink: 0;
+                  font-size: rpx(28);
+                  text-align: right;
+                  color: #333;
+                  line-height: rpx(100);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .commodity-detail-popup {
+        /deep/ .u-drawer {
+          z-index: 5 !important;
+        }
+
+        /deep/ .u-drawer__scroll-view {
+          ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            color: transparent;
+          }
+        }
+
+        .commodity-detail-container {
+          width: 100%;
+          height: fit-content;
+          display: flex;
+          flex-direction: column;
+
+          .image-container {
+            width: 100%;
+            height: 45vw;
+            overflow: hidden;
+
+            .image {
+              width: 100%;
+              height: 100%;
+              background-color: #f1f1f1;
+            }
+          }
+
+          .info-container {
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            padding: rpx(40);
+
+            .title {
+              width: 100%;
+              height: fit-content;
+              font-size: rpx(32);
+              color: #333;
+            }
+
+            .tags {
+
+              view {
+                width: fit-content;
+                height: fit-content;
+                margin: rpx(16) 0 rpx(16) 0;
+                padding: rpx(2) rpx(10);
+                font-size: rpx(20);
+                color: #888;
+                background-color: #f6f6f6;
+                border-radius: rpx(4);
+              }
+            }
+
+            .description {
+              width: fit-content;
+              height: fit-content;
+              margin: rpx(20) 0 rpx(10) 0;
+              font-size: rpx(22);
+              color: #888;
+              word-break: break-all;
+            }
+
+            .custom-options-container {
+              width: 100%;
+              height: fit-content;
+              max-height: 30vh;
+
+              ::-webkit-scrollbar {
+                width: rpx(6);
+                height: rpx(6);
+                background-color: #ffffff;
+              }
+
+              ::-webkit-scrollbar-thumb {
+                border-radius: 10px;
+                background-color: #f6f6f6;
+              }
+
+              .option-container {
+                width: 100%;
+                height: fit-content;
+                margin: rpx(30) 0 rpx(50) 0;
+
+                .option-title {
+                  font-size: rpx(24);
+                  color: #888;
+                }
+
+                .option-items-container {
+                  width: 100%;
+                  height: fit-content;
+                  display: flex;
+                  flex-direction: row;
+                  flex-wrap: wrap;
+
+                  .option-item__default {
+                    width: fit-content;
+                    min-width: rpx(130);
+                    height: fit-content;
+                    flex-shrink: 0;
+                    padding: rpx(10);
+                    margin: rpx(16) rpx(20) 0 0;
+                    background-color: #f6f6f6;
+                    border-radius: rpx(10);
+                    border: rpx(2) solid #f6f6f6;
+                    font-size: rpx(24);
+                    color: #333;
+                    line-height: rpx(40);
+                    text-align: center;
+                    transition-property: border color background-color;
+                    transition-duration: 300ms;
+                  }
+
+                  .option-item__default:last-child {
+                    margin-right: 0;
+                  }
+
+                  .option-item__selected {
+                    background-color: rgba(244, 117, 107, 0.05);
+                    border: rpx(2) solid #f4756b;
+                    color: #f4756b;
+                  }
+                }
+              }
+            }
+          }
+
+          .price-container {
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: row;
+            padding: 0 rpx(40) rpx(40) rpx(40);
+
+            .price {
+              font-size: rpx(32);
+              font-weight: bold;
+              color: #f4756b;
+            }
+
+            .amount-btn {
+              width: fit-content;
+              height: fit-content;
+              flex-shrink: 0;
+              margin-left: auto;
+              display: flex;
+              flex-direction: row;
+
+              .amount {
+                margin: 0 rpx(16);
+                font-size: rpx(30);
+                line-height: rpx(44);
+              }
+
+              .fa-minus-circle {
+                font-size: rpx(44);
+                color: #ddd;
+              }
+
+              .fa-plus-circle {
+                font-size: rpx(44);
+                color: #f4756b;
+              }
+            }
+          }
+
+          .add-to-cart-container {
+            width: 100%;
+            height: rpx(100);
+            padding: 0 rpx(40) rpx(110);
+
+            .add-btn {
+              width: 100%;
+              height: rpx(70);
+              margin: auto;
+              background-color: #f4756b;
+              border-radius: rpx(50);
+              color: #fff;
+              line-height: rpx(70);
+              text-align: center;
+            }
+          }
+        }
+      }
+
+      .cart-bar-container {
+        width: 100vw;
+        height: rpx(90);
+        height: calc(constant(safe-area-inset-bottom) + 90rpx);
+        height: calc(env(safe-area-inset-bottom) + 90rpx);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 4;
+        //margin-bottom: 0;
+        //margin-bottom: constant(safe-area-inset-bottom);
+        //margin-bottom: env(safe-area-inset-bottom);
+        background-color: rgba(250, 250, 250, 0.95);
+
+        .cart-btn-container {
+          width: rpx(100);
+          height: rpx(100);
+          border-radius: rpx(50);
+          position: fixed;
+          left: 0;
+          bottom: rpx(14);
+          margin-bottom: 0;
+          margin-bottom: constant(safe-area-inset-bottom);
+          margin-bottom: env(safe-area-inset-bottom);
+          transform: translateX(rpx(30));
+          transition-duration: 300ms;
+          background-color: #fff;
+          text-align: center;
+          box-shadow: rgba(0, 0, 0, 0.25) 0 25px 50px -12px;
+
+          .fa {
+            color: #f4756b;
+            font-size: rpx(48);
+            line-height: rpx(100);
+          }
+
+          .total-amount {
+            width: rpx(34);
+            height: rpx(34);
+            position: fixed;
+            bottom: rpx(74);
+            left: rpx(66);
+            border-radius: rpx(50);
+            overflow: hidden;
+            background-color: #f4756b;
+            color: #fff;
+            font-size: rpx(24);
+            text-align: center;
+            line-height: rpx(34);
+          }
+        }
+
+        .cart-bar {
+          width: 100%;
+          height: rpx(90);
+          display: flex;
+          flex-direction: row;
+          overflow: hidden;
+          box-shadow: 0 rpx(-10) rpx(20) 0 rgba(125, 125, 125, 0.1), 0 0 0 0 #fff, 0 rpx(10) rpx(10) 0 transparent, 0 0 0 0 #fff;
+
+          .price-container {
+            width: fit-content;
+            height: 100%;
+            margin-left: rpx(150);
+            font-size: rpx(30);
+            line-height: rpx(90);
+            font-weight: bold;
+            color: #333;
+            letter-spacing: rpx(2);
+            transition-property: margin-left, color;
+            transition-duration: 300ms;
+
+            text:first-child {
+              font-size: rpx(40);
+              margin-left: rpx(2);
+            }
+
+            text:nth-child(2) {
+              font-size: rpx(30);
+            }
+
+            .origin-price {
+              margin-left: rpx(20);
+              font-size: rpx(22);
+              font-weight: normal;
+              color: #888;
+              text-decoration: line-through;
+            }
+          }
+
+          .pay-container {
+            width: rpx(180);
+            height: fit-content;
+            margin-left: auto;
+            font-size: rpx(30);
+            text-align: center;
+            line-height: rpx(90);
+            background-color: #f4756b;
+            color: #fff;
+            transition-property: opacity;
+            transition-duration: 300ms;
+          }
+
+          .pay-container__default {
+            opacity: 1;
+          }
+
+          .pay-container__reject {
+            opacity: 0.7;
+          }
+        }
+      }
     }
+  }
 </style>

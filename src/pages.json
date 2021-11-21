@@ -133,7 +133,16 @@
       "root": "pagesByStore",
       "pages": [
         {
-          "path": "store/subpages/storeInfoUpdatePage",
+          "path": "storeSearch/storeSearch",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false,
+            "navigationStyle": "custom",
+            "disableScroll": true
+          }
+        },
+        {
+          "path": "order/order",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false,
@@ -141,10 +150,11 @@
           }
         },
         {
-          "path": "store/subpages/storeApplyPage",
+          "path": "storeMenu/storeMenu",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false,
+            "disableScroll": true,
             "navigationStyle": "custom"
           }
         },
@@ -166,6 +176,14 @@
         },
         {
           "path": "store/subpages/MyStorePage",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false,
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "dish/dishPostPage",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false,

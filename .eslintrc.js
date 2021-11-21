@@ -20,5 +20,14 @@ module.exports = {
 	],
 	rules: {
 		'camelcase': 0,
-	}
+        'vue/script-indent': ['error', 2, {'baseIndent': 1}]
+	},
+    overrides: [
+        {
+            'files': ['*.vue'],
+            'rules': {
+                'indent': 'off'
+            }
+        }
+    ]
 }
