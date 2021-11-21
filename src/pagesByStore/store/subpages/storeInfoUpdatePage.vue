@@ -56,17 +56,13 @@
         ></u-picker>
       </u-form-item>
       <u-form-item label-position="top" label="定位">
-        <u-input
-          v-model="locationValue"
-          placeholder="请选择定位信息"
-          :disabled="true"
-        />
+        <u-input v-model="locationValue" placeholder="请选择定位信息" :disabled="true" />
         <template #right>
-          <view class="location-button" @click="toMapPage"> 获取定位 </view>
+          <view class="location-button" @click="toMapPage">获取定位</view>
         </template>
       </u-form-item>
       <u-form-item label-position="top" label="详细地址">
-        <u-input v-model="storeInfoForm.addressDetails" maxlength="24" />
+        <u-input v-model="storeInfoForm.addressDetails" maxlength="40" />
       </u-form-item>
       <u-form-item label-position="top" label="手机">
         <u-input v-model="storeInfoForm.phone" type="number" maxlength="11" />
@@ -94,7 +90,7 @@ import {
 } from "@/common/js/api/models.js";
 import Vue from "vue";
 export default {
-  data() {
+  data () {
     return {
       isShowPickerNextOpen: false, //是否显示下次营业时间选择器
       isShowPickerTakeOut: false, //是否显示下次外卖营业时间选择器
@@ -139,7 +135,7 @@ export default {
       primaryColor: "#f4756b",
     };
   },
-  onLoad() {
+  onLoad () {
     this.$refs.navigationBar.setNavigation({
       backgroundColor: "white",
       titleText: "编辑店铺信息",
@@ -149,7 +145,7 @@ export default {
       "acceptDataFromOpenerPage",
       (storeMainInfo, storeAllInfo) => {
         this.storeMainInfo = storeMainInfo;
-        this.storeInfoForm = storeAllInfo;
+        Object.assign(this.storeInfoForm, storeAllInfo);
         let f = Vue.filter("dateFilter");
         this.nextOpeningTimeInputValue = f(
           this.storeInfoForm.nextOpeningTime,
@@ -167,7 +163,7 @@ export default {
      * @description: 下次营业时间的回调
      * @param {*} e 选择的参数
      */
-    confirmNextOpenTime(e) {
+    confirmNextOpenTime (e) {
       console.log(e);
       this.storeInfoForm.nextOpeningTime = e.timestamp + "000";
       this.nextOpeningTimeInputValue = `${e.year}-${e.month}-${e.day} ${e.hour}:${e.minute}`;
@@ -176,7 +172,7 @@ export default {
      * @description: 下次外卖时间的回调
      * @param {*} e 选择的参数
      */
-    confirmTakeOutTime(e) {
+    confirmTakeOutTime (e) {
       console.log(e);
       this.storeInfoForm.nextOpeningTimeTakeOut = e.timestamp + "000";
       this.nextOpeningTimeTakeOutInputValue = `${e.year}-${e.month}-${e.day} ${e.hour}:${e.minute}`;
@@ -184,20 +180,22 @@ export default {
     /**
      * @description: 点击定位按钮
      */
-    toMapPage() {
+    toMapPage () {
       uni.navigateTo({
         url: "/pages/amap/amap",
         events: {
           // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
           acceptDataFromOpenedPage: (data) => {
-            if (data) {
-              this.locationValue = data.locationName;
-              this.storeInfoForm.areaCode = data.adcode;
-              this.storeInfoForm.longitude = data.longitude;
-              this.storeInfoForm.latitude = data.latitude;
-              this.storeInfoForm.addressDetails = data.locationDetail;
+            console.log(data.resultDetails);
+            const resultDetails = data.resultDetails
+            if (resultDetails) {
+              this.locationValue = resultDetails.name;
+              this.storeInfoForm.areaCode = resultDetails.adcode;
+              this.storeInfoForm.longitude = resultDetails.location.longitude;
+              this.storeInfoForm.latitude = resultDetails.location.latitude;
+              this.storeInfoForm.addressDetails = (resultDetails.pname == resultDetails.cityname ? '' : resultDetails.pname) + resultDetails.cityname + resultDetails.adname + resultDetails.address;
               if (this.storeInfoForm.phone === "") {
-                this.storeInfoForm.phone = data.locationPhone;
+                this.storeInfoForm.phone = resultDetails.tel;
               }
             }
           },
@@ -207,7 +205,7 @@ export default {
     /**
      * @description: 点击提交按钮
      */
-    clickSubmitButton() {
+    clickSubmitButton () {
       this.utils.debounce(() => {
         if (!this.utils.isObjectAnyKeyEmpty(this.storeInfoForm)) {
           this.$refs.storeInfoImageUpload.$refs.upload.upload();
@@ -225,7 +223,7 @@ export default {
      * @param {String} uploadId 每个上传组件的标识
      */
 
-    async allImageUploaded(args) {
+    async allImageUploaded (args) {
       const uploadedImageList = args[0];
       try {
         await postMyStoreInfoImage({

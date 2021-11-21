@@ -487,16 +487,6 @@
                 try {
                     const eventChannel = this.getOpenerEventChannel();
                     eventChannel.emit("acceptDataFromOpenedPage", {
-                        // longitude: resultDetails.location.longitude,
-                        // latitude: resultDetails.location.latitude,
-                        // adcode: resultDetails.adcode,
-                        // locationName: resultDetails.name,
-                        // locationDetail:
-                        //     resultDetails.pname +
-                        //     resultDetails.cityname +
-                        //     resultDetails.adname +
-                        //     resultDetails.address,
-                        // locationPhone: resultDetails.tel.length === 0 ? "" : resultDetails.tel,
                         resultDetails: resultDetails
                     });
                     uni.navigateBack();

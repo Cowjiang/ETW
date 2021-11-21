@@ -3,14 +3,14 @@ import { Utils } from "@/common/js/utils/utils.js"
 /**
  *封装请求
  * @param {Object} url 接口的地址
- * @param {Object} pramsObject 自定义请求参数
+ * @param {Object} paramObject 自定义请求参数
  * @return {Promise} 请求结果
  **/
-export const apiResquest = (url, pramsObject) => {
+export const apiRequest = (url, paramObject) => {
     let utils = new Utils; //创建工具集对象
     //header,cookies,query等参数
-    const requestConfig = pramsObject.requestConfig  //方法
-    let method = pramsObject.method
+    const requestConfig = paramObject.requestConfig  //方法
+    let method = paramObject.method
     //请求query数据
     let queryData = {};
     //请求头
@@ -55,7 +55,7 @@ export const apiResquest = (url, pramsObject) => {
             success: (res) => {
                 // console.log(res.data.errorCode)
                 // console.log(queryData,method,headerData);
-                console.log(`【${url}】请求响应：`, res);
+                console.log(`【${url.split('/').slice(-2)}】 ${method}请求 状态码${res.statusCode}：`, res.data ? res.data : res)
                 //HTTP状态码
                 const { statusCode } = res
                 // 和后端约定的状态码

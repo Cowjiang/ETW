@@ -26,12 +26,13 @@
         </button>
       </view>
     </u-popup>
+    <!-- 店铺信息 -->
     <view class="store-container">
       <!-- 分隔栏 -->
       <view class="section-title-box">
-        <view class="left-box"> 店铺信息 </view>
+        <view class="left-box">店铺信息</view>
         <view class="right-box">
-          <view class="btn-edit" @click="editStore"> 编辑 </view>
+          <view class="btn-edit" @click="editStore">编辑</view>
         </view>
       </view>
       <view class="content-box">
@@ -39,10 +40,11 @@
         <view>地址：{{ storeAllInfo.addressDetails }}</view>
       </view>
     </view>
+    <!-- 菜品类型 -->
     <view class="dish-type-container">
       <!-- 分隔栏 -->
       <view class="section-title-box">
-        <view class="left-box"> 菜品类型 </view>
+        <view class="left-box">菜品类型</view>
         <view class="right-box">
           <view class="btn" @click="addDishType">
             <text class="fa fa-plus"></text>
@@ -56,44 +58,30 @@
         scroll-x="true"
         scroll-left="0"
       >
-        <view
-          class="dish-type-item-box"
-          v-for="(item, index) in dishTypeList"
-          :key="index"
-        >
-          <view class="delete-icon" @tap.stop="deleteType(item.id)"> X </view>
+        <view class="dish-type-item-box" v-for="(item, index) in dishTypeList" :key="index">
+          <view class="delete-icon" @tap.stop="deleteType(item.id)">X</view>
           <view class="id-box">id：{{ item.id }}</view>
           <view class="name-box">{{ item.typeName }}</view>
           <view class="button-box">
-            <view class="button" @click="editDishType(item)"> 编辑 </view>
+            <view class="button" @click="editDishType(item)">编辑</view>
           </view>
         </view>
       </scroll-view>
-      <noData
-        v-else
-        text="还未添加菜品类型"
-        iconName="tags"
-        height="180"
-      ></noData>
+      <noData v-else text="还未添加菜品类型" iconName="tags" height="180"></noData>
     </view>
+    <!-- 菜品 -->
     <view class="dish-container">
-      <!-- 分隔栏 -->
       <view class="section-title-box">
-        <view class="left-box"> 所有菜品 </view>
+        <view class="left-box">所有菜品</view>
         <view class="right-box">
           <view class="btn" @click="addDish()">
             <text class="fa fa-plus"></text>
           </view>
         </view>
       </view>
-      <!-- 菜单列表 -->
+      <!-- 菜品列表 -->
       <view class="dish-list-box" v-if="dishList.length > 0">
-        <u-collapse
-          ref="uCollapse"
-          :accordion="false"
-          :item-style="itemStyle"
-          :arrow="false"
-        >
+        <u-collapse ref="uCollapse" :accordion="false" :item-style="itemStyle" :arrow="false">
           <u-collapse-item
             v-for="(item1, index1) in dishList"
             :title="item1.typeName"
@@ -104,27 +92,24 @@
               v-for="(item2, index2) in dishList[index1].dishes"
               :key="index2"
             >
-              <view class="delete-icon" @tap.stop="deleteDish(item2.id)">
-                X
-              </view>
+              <view class="delete-icon" @tap.stop="deleteDish(item2.id)">X</view>
               <view class="image-box">
                 <image :src="item2.imageUrl" mode="aspectFill" />
               </view>
               <view class="first-row">
-                <view class="left"> {{ item2.name }} </view>
+                <view class="left">{{ item2.name }}</view>
                 <view class="right">销量：{{ item2.sales }}</view>
               </view>
-              <view class="second-row"> {{ item2.summary }} </view>
+              <view class="second-row">{{ item2.summary }}</view>
               <view class="thrid-row">
                 <view class="left">
                   ￥{{ item2.price }}
-                  <text class="discount" v-if="item2.discount < 1">
-                    {{ item2.discount | discountFilter }}
-                  </text>
+                  <text
+                    class="discount"
+                    v-if="item2.discount < 1"
+                  >{{ item2.discount | discountFilter }}</text>
                 </view>
-                <view class="right" @click="editDish(item2, item1.id)"
-                  >编辑</view
-                >
+                <view class="right" @click="editDish(item2, item1.id)">编辑</view>
               </view>
             </view>
           </u-collapse-item>
@@ -139,18 +124,20 @@
 import {
   getMyStoreInfo,
   getDishType,
-  getDishList,
+  putDishType,
   postDishType,
   deleteDishType,
+  getDishList,
   deleteDishInfo,
 } from "@/common/js/api/models.js";
 export default {
-  data() {
+  data () {
     return {
       isShowDishTypePop: false, //是否弹出菜品类型表单
       isDishTypeAdd: false, //是为添加菜品类型，否为编辑菜品类型
       isShowLoading: false, //是否正在请求
       dishTypeInputValue: "", //菜品类型的表单值
+      editDishTypeId: null,// 当前编辑的菜品类型id
       //店铺主要信息
       storeMainInfo: {
         id: "",
@@ -186,10 +173,10 @@ export default {
       },
     };
   },
-  created() {
+  created () {
     this.getAllData();
   },
-  onLoad() {
+  onLoad () {
     this.$refs.navigationBar.setNavigation({
       backgroundColor: "#f6f6f6",
       titleText: "我的店铺",
@@ -199,7 +186,7 @@ export default {
     /**
      * @description: 获取店铺数据
      */
-    getMyStoreData() {
+    getMyStoreData () {
       return getMyStoreInfo().then((res) => {
         if (res.success) {
           for (const key in res.data) {
@@ -215,7 +202,7 @@ export default {
     /**
      * @description: 获取菜品类型数据
      */
-    getDishTypeData() {
+    getDishTypeData () {
       return getDishType({ urlParam: this.storeMainInfo.id }).then((res) => {
         if (res.success) {
           this.dishTypeList = res.data;
@@ -225,7 +212,7 @@ export default {
     /**
      * @description: 获取菜品数据
      */
-    getDishListData() {
+    getDishListData () {
       return getDishList({ urlParam: this.storeMainInfo.id }).then((res) => {
         if (res.success) {
           this.dishList = res.data;
@@ -238,7 +225,7 @@ export default {
     /**
      * @description: 获取所有初始数据
      */
-    async getAllData() {
+    async getAllData () {
       try {
         await this.getMyStoreData();
         await this.getDishTypeData();
@@ -251,11 +238,11 @@ export default {
     /**
      * @description: 编辑店铺信息
      */
-    editStore() {
+    editStore () {
       uni.navigateTo({
         url: "/pagesByStore/store/subpages/storeInfoUpdatePage",
         events: {
-          acceptDataFromOpenedPage: function (data) {},
+          acceptDataFromOpenedPage: function (data) { },
         },
         success: (res) => {
           res.eventChannel.emit(
@@ -270,7 +257,7 @@ export default {
     /**
      * @description: 添加菜品类型
      */
-    addDishType() {
+    addDishType () {
       this.isDishTypeAdd = true;
       this.isShowDishTypePop = true;
     },
@@ -278,47 +265,77 @@ export default {
      * @description: 编辑菜品类型
      * @param {*} typeInfo 选中的菜品类型
      */
-    editDishType(typeInfo) {
+    editDishType (typeInfo) {
       this.isDishTypeAdd = false;
       this.isShowDishTypePop = true;
       this.dishTypeInputValue = typeInfo.typeName;
+      this.editDishTypeId = typeInfo.id
     },
     /**
      * @description: 提交菜品类型的按钮
      */
-    clickSubmitButton() {
+    clickSubmitButton () {
       this.isShowLoading = true;
-      postDishType({
-        urlParam: this.storeMainInfo.id,
-        queryData: { name: this.dishTypeInputValue },
-      }).then((res) => {
-        if (res.success) {
-          this.dishTypeInputValue = "";
-          this.isShowLoading = false;
-          this.isShowDishTypePop = false;
-          getDishType({ urlParam: this.storeMainInfo.id }).then((res) => {
-            if (res.success) {
-              this.dishTypeList = res.data;
-            }
-          });
-          this.$refs.toast.show({
-            text: "提交成功",
-            type: "success",
-          });
-        } else {
-          this.isShowLoading = false;
-          this.$refs.toast.show({
-            text: "发生错误",
-            type: "error",
-          });
-        }
-      });
+      if (this.isDishTypeAdd) {
+        postDishType({
+          urlParam: this.storeMainInfo.id,
+          queryData: { name: this.dishTypeInputValue },
+        }).then((res) => {
+          if (res.success) {
+            this.dishTypeInputValue = "";
+            this.isShowLoading = false;
+            this.isShowDishTypePop = false;
+            getDishType({ urlParam: this.storeMainInfo.id }).then((res) => {
+              if (res.success) {
+                this.dishTypeList = res.data;
+              }
+            });
+            this.$refs.toast.show({
+              text: "提交成功",
+              type: "success",
+            });
+          } else {
+            this.isShowLoading = false;
+            this.$refs.toast.show({
+              text: "发生错误",
+              type: "error",
+            });
+          }
+        });
+      } else {
+        putDishType({
+          urlParam: { storeId: this.storeMainInfo.id, dishTypeId: this.editDishTypeId },
+          queryData: { name: this.dishTypeInputValue },
+        }).then((res) => {
+          if (res.success) {
+            this.dishTypeInputValue = "";
+            this.isShowLoading = false;
+            this.isShowDishTypePop = false;
+            getDishType({ urlParam: this.storeMainInfo.id }).then((res) => {
+              if (res.success) {
+                this.dishTypeList = res.data;
+              }
+            });
+            this.$refs.toast.show({
+              text: "提交成功",
+              type: "success",
+            });
+          } else {
+            this.isShowLoading = false;
+            this.$refs.toast.show({
+              text: "发生错误",
+              type: "error",
+            });
+          }
+        });
+      }
+
     },
     /**
      * @description: 删除菜品类型
      * @param {*} typeId 选中的菜品类型id
      */
-    deleteType(typeId) {
+    deleteType (typeId) {
       uni.showModal({
         title: "提示",
         content:
@@ -350,11 +367,11 @@ export default {
     /**
      * @description: 前往菜品表单
      */
-    addDish() {
+    addDish () {
       uni.navigateTo({
         url: "/pagesByStore/dish/dishFormPage",
         events: {
-          acceptDataFromOpenedPage: function (data) {},
+          acceptDataFromOpenedPage: function (data) { },
         },
         success: (res) => {
           res.eventChannel.emit(
@@ -371,13 +388,13 @@ export default {
      * @param {*} dishInfo 选中的菜品信息
      * @param {*} dishTypeId 选中的菜品类型id
      */
-    editDish(dishInfo, dishTypeId) {
+    editDish (dishInfo, dishTypeId) {
       delete dishInfo.sales;
       dishInfo.typeId = dishTypeId;
       uni.navigateTo({
         url: "/pagesByStore/dish/dishFormPage",
         events: {
-          acceptDataFromOpenedPage: function (data) {},
+          acceptDataFromOpenedPage: function (data) { },
         },
         success: (res) => {
           res.eventChannel.emit(
@@ -394,7 +411,7 @@ export default {
      * @description: 删除菜品
      * @param {*} typeId 选中的菜品id
      */
-    deleteDish(dishId) {
+    deleteDish (dishId) {
       uni.showModal({
         title: "提示",
         content: "确定删除此菜品吗",
