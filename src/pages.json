@@ -183,7 +183,7 @@
           }
         },
         {
-          "path": "dish/dishPostPage",
+          "path": "store/subpages/storeInfoUpdatePage",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false,

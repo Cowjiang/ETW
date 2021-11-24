@@ -18,92 +18,92 @@ export const getTrendList = (requestConfig) =>
 //用户相关
 //登录
 export const loginTest = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/login`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/login`, { method: "POST", requestConfig });
 //注册
 export const registerTest = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/register`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/register`, { method: "POST", requestConfig });
 //获取验证码
 export const getEmailCode = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/email/verification`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/email/verification`, { method: "GET", requestConfig });
 //微信登陆
 export const wxLogin = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/wx/login`, { method: "POST", requestConfig })
+	apiRequest(`${httpBaseUrl}/user/wx/login`, { method: "POST", requestConfig })
 //获取用户
 export const getUser = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/getUser`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/getUser`, { method: "GET", requestConfig });
 //登出
 export const logout = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/logout`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/logout`, { method: "GET", requestConfig });
 //获取黑名单
 export const getBlockList = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/block-list`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/block-list`, { method: "GET", requestConfig });
 //添加到黑名单
 export const addBlockList = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "POST", requestConfig });
 //从黑名单中移除
 export const deleteBlockList = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 //获取我的地址簿
 export const getAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address`, { method: "GET", requestConfig });
 //添加地址到地址簿
 export const addAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address`, { method: "POST", requestConfig });
 //修改地址簿中的地址
 export const updateAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "PUT", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "PUT", requestConfig });
 //获取一个地址簿中的地址
 export const getAddress = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "GET", requestConfig });
 //删除地址簿中的地址
 export const deleteAddressBook = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}`, { method: "DELETE", requestConfig });
 //设置某地址为默认地址
 export const setDefaultAddress = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}/default`, { method: "Put", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address/${requestConfig.urlParam}/default`, { method: "Put", requestConfig });
 //获取我的默认地址
 export const getDefaultAddress = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/user/address/default`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/user/address/default`, { method: "GET", requestConfig });
 
 //地区查询相关
 //获取省份
 export const getProvince = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/area/province`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/area/province`, { method: "GET", requestConfig });
 //获取城市
 export const getCity = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city`, { method: "GET", requestConfig });
 //获取县级(区/县)
 export const getArea = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area`, { method: "GET", requestConfig });
 //获取乡级(乡镇/街)
 export const getTown = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area/${requestConfig.urlParam.townId}/town`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/area/province/${requestConfig.urlParam.provinceId}/city/${requestConfig.urlParam.cityId}/area/${requestConfig.urlParam.townId}/town`, { method: "GET", requestConfig });
 
 //动态相关
 //获取目录上传签名
 export const getUploadSignature = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/signature-oss`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/signature-oss`, { method: "GET", requestConfig });
 //发布动态
 export const postTrend = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/dynamic`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/dynamic`, { method: "POST", requestConfig });
 //获取我的动态
 export const getMyTrend = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/dynamic`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/dynamic`, { method: "GET", requestConfig });
 //点赞
 export const like = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/like/${requestConfig.urlParam}`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/like/${requestConfig.urlParam}`, { method: "POST", requestConfig });
 //发布动态评论
 export const postTrendComment = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, { method: "POST", requestConfig });
 //获取动态评论
 export const getTrendComment = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, { method: "GET", requestConfig });
 //在动态评论下回复二级评论
 export const postTrendSecondComment = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "POST", requestConfig });
+	apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "POST", requestConfig });
 //获取动态评论的二级评论
 export const getTrendSecondComment = (requestConfig) =>
-	apiResquest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "GET", requestConfig });
+	apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, { method: "GET", requestConfig });
 
 
 //私信相关
