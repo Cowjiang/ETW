@@ -1,67 +1,67 @@
 <template>
-    <view :style="{marginBottom: `${backgroundColor === '' ? 0 : topAreaHeight + navigationButtonHorizontalMargin}px`}">
-        <!-- 导航栏背景 -->
-        <view
-            class="navigation-background"
-            :style="{
-                height: `${topAreaHeight + navigationButtonHorizontalMargin}px`,
-                backgroundColor: `${backgroundColor === '' ? 'transparent' : backgroundColor}`
-            }">
-        </view>
-        <!-- 导航栏主体 -->
-        <view
-            class="navigation-bar"
-            :style="{
-                top: `${navigationBarTop}px`,
-                height: `${navigationBarHeight}px`
-            }">
-            <view
-                :style="{
-                    width: `${navigationButtonWidth}px`,
-                    marginLeft: `${navigationButtonHorizontalMargin}px`,
-                }">
-                <!-- 导航栏左侧胶囊按钮插槽 -->
-                <slot>
-                    <!-- 胶囊按钮模板 -->
-                    <view class="navigation-menu-button" v-if="isShowButton">
-                        <view
-                            class="navigation-menu-button-content"
-                            :style="{
-                                height: `${0.54 * navigationBarHeight}px`,
-                                margin: `${0.23 * navigationBarHeight}px 0`,
-                            }">
-                            <view class="navigation-back" @click="backButtonClickEvent">
-                                <image
-                                    src="../../static/images/navigation/navigation@back.png"
-                                    class="navigation-back-image"
-                                    mode="heightFix">
-                                </image>
-                            </view>
-                            <view class="navigation-home" @click="homeButtonClickEvent">
-                                <image
-                                    src="../../static/images/navigation/navigation@home.png"
-                                    class="navigation-home-image"
-                                    mode="heightFix">
-                                </image>
-                                <!--<i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
-                            </view>
-                        </view>
-                    </view>
-                </slot>
-            </view>
-            <!-- 导航栏标题 -->
-            <view
-                class="navigation-title"
-                v-if="isShowTitle"
-                :style="{
-                    lineHeight: `${navigationBarHeight}px`,
-                    width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin - 20}px`,
-                    color: `${titleColor}`
-                }">
-                <view class="title">{{ titleText }}</view>
-            </view>
-        </view>
+  <view :style="{marginBottom: `${backgroundColor === '' ? 0 : topAreaHeight + navigationButtonHorizontalMargin}px`}">
+    <!-- 导航栏背景 -->
+    <view
+      class="navigation-background"
+      :style="{
+        height: `${topAreaHeight + navigationButtonHorizontalMargin}px`,
+        backgroundColor: `${backgroundColor === '' ? 'transparent' : backgroundColor}`
+      }">
     </view>
+    <!-- 导航栏主体 -->
+    <view
+      class="navigation-bar"
+      :style="{
+        top: `${navigationBarTop}px`,
+        height: `${navigationBarHeight}px`
+      }">
+      <view
+        :style="{
+          width: `${navigationButtonWidth}px`,
+          marginLeft: `${navigationButtonHorizontalMargin}px`,
+        }">
+        <!-- 导航栏左侧胶囊按钮插槽 -->
+        <slot>
+          <!-- 胶囊按钮模板 -->
+          <view class="navigation-menu-button" v-if="isShowButton">
+            <view
+              class="navigation-menu-button-content"
+              :style="{
+                height: `${0.54 * navigationBarHeight}px`,
+                margin: `${0.23 * navigationBarHeight}px 0`,
+              }">
+              <view class="navigation-back" @click="backButtonClickEvent">
+                <image
+                  src="../../static/images/navigation/navigation@back.png"
+                  class="navigation-back-image"
+                  mode="heightFix">
+                </image>
+              </view>
+              <view class="navigation-home" @click="homeButtonClickEvent">
+                <image
+                  src="../../static/images/navigation/navigation@home.png"
+                  class="navigation-home-image"
+                  mode="heightFix">
+                </image>
+                <!--<i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
+              </view>
+            </view>
+          </view>
+        </slot>
+      </view>
+      <!-- 导航栏标题 -->
+      <view
+        class="navigation-title"
+        v-if="isShowTitle"
+        :style="{
+          lineHeight: `${navigationBarHeight}px`,
+          width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin - 20}px`,
+          color: `${titleColor}`
+        }">
+        <view class="title">{{ titleText }}</view>
+      </view>
+    </view>
+  </view>
 
 </template>
 
@@ -198,67 +198,67 @@
 </script>
 
 <style lang="scss" scoped>
-    .navigation-background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: rpx(300);
-        z-index: 99999999;
-    }
+  .navigation-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 300rpx;
+    z-index: 99999999;
+  }
 
-    .navigation-bar {
-        width: 100vw;
-        position: fixed;
+  .navigation-bar {
+    width: 100vw;
+    position: fixed;
+    display: flex;
+    left: 0;
+    z-index: 99999999;
+
+    .navigation-menu-button {
+      height: 100%;
+      border-radius: 50rpx;
+      border: 1rpx solid rgba(125, 125, 125, 0.1);
+      background-color: rgba(255, 255, 255, 0.6);
+
+      .navigation-menu-button-content {
         display: flex;
-        left: 0;
-        z-index: 99999999;
 
-        .navigation-menu-button {
+        .navigation-back {
+          height: 100%;
+          width: 100%;
+          text-align: center;
+
+          .navigation-back-image {
             height: 100%;
-            border-radius: rpx(50);
-            border: rpx(1) solid rgba(125, 125, 125, 0.1);
-            background-color: rgba(255, 255, 255, 0.6);
-
-            .navigation-menu-button-content {
-                display: flex;
-
-                .navigation-back {
-                    height: 100%;
-                    width: 100%;
-                    text-align: center;
-
-                    .navigation-back-image {
-                        height: 100%;
-                    }
-                }
-
-                .navigation-home {
-                    height: 100%;
-                    width: 100%;
-                    text-align: center;
-                    border-left: rpx(1) solid rgba(100, 100, 100, 0.1);
-
-                    .navigation-home-image {
-                        height: 100%;
-                    }
-                }
-            }
+          }
         }
 
-        .navigation-title {
-            height: 100%;
-            margin-left: 10px;
-            text-align: center;
-            font-size: rpx(36);
-            color: $uni-text-color;
-            white-space: nowrap;
-            overflow: hidden;
+        .navigation-home {
+          height: 100%;
+          width: 100%;
+          text-align: center;
+          border-left: 1rpx solid rgba(100, 100, 100, 0.1);
 
-            .title {
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
+          .navigation-home-image {
+            height: 100%;
+          }
         }
+      }
     }
+
+    .navigation-title {
+      height: 100%;
+      margin-left: 10px;
+      text-align: center;
+      font-size: 36rpx;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+
+      .title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
 </style>

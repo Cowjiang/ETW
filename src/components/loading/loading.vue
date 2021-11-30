@@ -1,24 +1,24 @@
 <template>
-    <view class="loading-fake-container">
-        <view
-            class="loading-container"
-            :class="fullscreen ? 'full-screen' : ''"
-            :style="{
-                '--loading-color': loadingColor,
-                '--mask-color': `${showMask ? maskColor : 'transparent'}`,
-                width: `${positionConfig.width}px`,
-                height: `${positionConfig.height}px`,
-                top: `${positionConfig.top}px`,
-                left: `${positionConfig.left}px`,
-                opacity: `${isLoading ? '1' : '0'}`,
-                pointerEvents: `${pointerEvents}`,
-            }">
-            <view
-                class="loading-box"
-                :style="{animationPlayState: `${isLoading ? 'running' : 'pause'}`}">
-            </view>
-        </view>
+  <view class="loading-fake-container">
+    <view
+      class="loading-container"
+      :class="fullscreen ? 'full-screen' : ''"
+      :style="{
+        '--loading-color': loadingColor,
+        '--mask-color': `${showMask ? maskColor : 'transparent'}`,
+        width: `${positionConfig.width}px`,
+        height: `${positionConfig.height}px`,
+        top: `${positionConfig.top}px`,
+        left: `${positionConfig.left}px`,
+        opacity: `${isLoading ? '1' : '0'}`,
+        pointerEvents: `${pointerEvents}`,
+      }">
+      <view
+        class="loading-box"
+        :style="{animationPlayState: `${isLoading ? 'running' : 'pause'}`}">
+      </view>
     </view>
+  </view>
 </template>
 
 <script>
@@ -273,75 +273,75 @@
 </script>
 
 <style lang="scss" scoped>
-    .loading-fake-container {
-        position: relative;
-        width: 0;
-        height: 0;
-        top: 0;
-        left: 0;
+  .loading-fake-container {
+    position: relative;
+    width: 0;
+    height: 0;
+    top: 0;
+    left: 0;
+  }
+
+  .loading-container {
+    position: absolute;
+    background-color: var(--mask-color);
+    z-index: 9999999;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 500ms;
+
+    .loading-box {
+      width: 10rpx;
+      height: 25rpx;
+      position: relative;
+      top: 50%;
+      left: 50%;
+      z-index: 99999;
+      background-color: var(--loading-color);
+      animation-delay: 0.4s;
+      border-radius: 15rpx;
+      animation: loading-animation 1s ease-in-out infinite;
     }
+
+    .loading-box:before, .loading-box:after {
+      content: '';
+      position: absolute;
+      width: inherit;
+      height: inherit;
+      z-index: 99999;
+      background-color: inherit;
+      border-radius: 15rpx;
+      animation: inherit;
+    }
+
+    .loading-box:before {
+      right: 18rpx;
+      animation-delay: 0.2s;
+    }
+
+    .loading-box:after {
+      left: 18rpx;
+      animation-delay: 0.6s;
+    }
+
+    @keyframes loading-animation {
+      0%, 100% {
+        box-shadow: 0 0 0 var(--loading-color), 0 0 0 var(--loading-color);
+      }
+      50% {
+        box-shadow: 0 -15rpx 0 var(--loading-color), 0 -15rpx 0 var(--loading-color);
+      }
+    }
+  }
+
+  .full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
 
     .loading-container {
-        position: absolute;
-        background-color: var(--mask-color);
-        z-index: 9999999;
-        opacity: 0;
-        transition-property: opacity;
-        transition-duration: 500ms;
-
-        .loading-box {
-            width: rpx(10);
-            height: rpx(25);
-            position: relative;
-            top: 50%;
-            left: 50%;
-            z-index: 99999;
-            background-color: var(--loading-color);
-            animation-delay: 0.4s;
-            border-radius: rpx(15);
-            animation: loading-animation 1s ease-in-out infinite;
-        }
-
-        .loading-box:before, .loading-box:after {
-            content: '';
-            position: absolute;
-            width: inherit;
-            height: inherit;
-            z-index: 99999;
-            background-color: inherit;
-            border-radius: rpx(15);
-            animation: inherit;
-        }
-
-        .loading-box:before {
-            right: rpx(18);
-            animation-delay: 0.2s;
-        }
-
-        .loading-box:after {
-            left: rpx(18);
-            animation-delay: 0.6s;
-        }
-
-        @keyframes loading-animation {
-            0%, 100% {
-                box-shadow: 0 0 0 var(--loading-color), 0 0 0 var(--loading-color);
-            }
-            50% {
-                box-shadow: 0 rpx(-15) 0 var(--loading-color), 0 rpx(15) 0 var(--loading-color);
-            }
-        }
+      position: fixed !important;
     }
-
-    .full-screen {
-        width: 100vw !important;
-        height: 100vh !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-
-        .loading-container {
-            position: fixed !important;
-        }
-    }
+  }
 </style>

@@ -1,0 +1,205 @@
+.chat-list-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #f6f6f6;
+
+  .list-scroll-view {
+    width: 100vw;
+    height: fit-content;
+
+    .top-list-container {
+      width: 100vw;
+      height: fit-content;
+      background-color: #fff;
+      border-radius: 30rpx;
+      margin-bottom: 20rpx;
+      padding: 40rpx 20rpx;
+      display: flex;
+      flex-direction: row;
+
+      .btn-container {
+        flex: 1;
+        margin: 0 30rpx;
+        text-align: center;
+
+        .btn-icon-container {
+          width: 80rpx;
+          height: 80rpx;
+          margin: 0 auto 20rpx;
+          pointer-events: none;
+
+          .btn-icon {
+            width: 100%;
+            height: 100%;
+            background-color: deepskyblue;
+            border-radius: 150rpx;
+          }
+
+          .btn-unread {
+            width: 25rpx;
+            height: 25rpx;
+            position: relative;
+            top: -80rpx;
+            left: 55rpx;
+            background-color: #f35b56;
+            color: #fff;
+            text-align: center;
+            font-size: 22rpx;
+            line-height: 40rpx;
+            border-radius: 150rpx;
+          }
+        }
+
+        .btn-title {
+          font-size: 26rpx;
+          color: #333;
+        }
+      }
+    }
+
+    .main-list-container {
+      width: 100vw;
+      height: fit-content;
+      background-color: #fff;
+      border-radius: 30rpx;
+
+      .message-container:first-child {
+        border-top: none;
+        border-radius: 30rpx 30rpx 0 0;
+      }
+
+      .message-container:last-child {
+        border-radius: 0 0 30rpx 30rpx;
+      }
+
+      .message-container {
+        width: 100vw;
+        height: 150rpx;
+        background-color: #fff;
+        padding: 0 30rpx;
+        display: flex;
+        flex-direction: row;
+        border-top: 1rpx solid #f6f6f6;
+
+        .avatar-container {
+          width: 120rpx;
+          height: 100%;
+          margin-top: 30rpx;
+          pointer-events: none;
+
+          .avatar {
+            width: 90rpx;
+            height: 90rpx;
+            border-radius: 150rpx;
+            //background-color: orange;
+            overflow: hidden;
+
+            image {
+              width: 100%;
+            }
+          }
+        }
+
+        .content-container {
+          flex: 1;
+          overflow: hidden;
+          white-space: nowrap;
+          margin: auto 0;
+          pointer-events: none;
+
+          .sender-name {
+            display: flex;
+            flex-direction: row;
+
+            .name {
+              font-size: 32rpx;
+              line-height: 50rpx;
+              color: #333;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              max-width: calc(100% - 110rpx);
+            }
+
+            .blacklist-user {
+              position: relative;
+              top: 12rpx;
+              width: fit-content;
+              height: 28rpx;
+              margin-left: 15rpx;
+              padding: 0 10rpx;
+              font-size: 20rpx;
+              line-height: 28rpx;
+              color: #fff;
+              border-radius: 30rpx;
+              background-color: #f4756b;
+            }
+          }
+
+          .message-content {
+            overflow: hidden;
+            font-size: 26rpx;
+            line-height: 50rpx;
+            color: #999999;
+          }
+        }
+
+        .time-container {
+          width: fit-content;
+          height: fit-content;
+          margin-top: 30rpx;
+          margin-left: auto;
+          pointer-events: none;
+
+          .time {
+            margin-bottom: 20rpx;
+            font-size: 24rpx;
+            color: #999999;
+          }
+
+          .unread {
+            width: fit-content;
+            min-width: 32rpx;
+            height: 32rpx;
+            padding: 0 8rpx;
+            background-color: #f35b56;
+            color: #fff;
+            text-align: center;
+            font-size: 22rpx;
+            line-height: 32rpx;
+            border-radius: 150rpx;
+            font-weight: bold;
+            float: right;
+          }
+
+          .isread {
+            min-width: 40rpx;
+            height: 40rpx;
+            float: right;
+          }
+        }
+      }
+
+      .load-more {
+        height: fit-content;
+        width: 100%;
+        margin-top: 30rpx;
+        padding-bottom: 70rpx;
+        background-color: #fff;
+        border-radius: 30rpx;
+        color: $uni-text-color-placeholder;
+        font-size: 28rpx;
+        text-align: center;
+
+        text {
+          margin-left: 10rpx;
+        }
+      }
+
+      .loading-more {
+        height: 150rpx;
+        padding-bottom: 0;
+        margin-top: 0;
+      }
+    }
+  }
+}

@@ -1,159 +1,151 @@
 <template>
-    <view>
-        <navigationBar ref="navigationBar"/>
-        <toast ref="toast"/>
-        <loading
-            ref="loading"
-            fullscreen
-            maskColor="#f6f6f6"></loading>
-        <!-- 可滑动区域 -->
-        <scroll-view
-            class="chat-list-container"
-            :style="{height: `${windowHeight - navigationHeight}px`}"
-            :scroll-y="true"
-            :scroll-with-animation="true"
-            :refresher-enabled="true"
-            refresher-threshold="300"
-            :refresher-triggered="refresherTriggered"
-            @refresherrefresh="handleRefreshStart"
-            @refresherrestore="handleRefreshEnd"
-            @scrolltolower="handleScrollToBottom">
-            <view class="list-scroll-view">
-                <!-- 顶部按钮列表容器 -->
-                <view class="top-list-container">
-                    <!-- 顶部通知按钮区域 -->
-                    <view
-                        class="btn-container first-btn"
-                        :data-name="`btn0`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        @click="stopCheckingUpdate"
-                        :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view class="btn-icon-container">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[0]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">赞</view>
-                    </view>
-                    <view
-                        class="btn-container second-btn"
-                        :data-name="`btn1`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view class="btn-icon-container">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[1]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">回复我的</view>
-                    </view>
-                    <view
-                        class="btn-container third-btn"
-                        :data-name="`btn2`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view class="btn-icon-container">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[2]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">关注</view>
-                    </view>
-                    <view
-                        class="btn-container fourth-btn"
-                        :data-name="`btn3`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn3' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view
-                            class="btn-icon-container"
-                            @touchstart="handleTouchStart"
-                            @touchend="handleTouchEnd"
-                            @touchcancel="handleTouchEnd">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[3]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">通知消息</view>
-                    </view>
-                </view>
-                <!-- 聊天记录列表容器 -->
-                <view class="main-list-container">
-                    <view
-                        class="message-container"
-                        v-for="(message, index) in chatMessages"
-                        :key="index"
-                        :data-name="`message${index}`"
-                        :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                        @click="toChatDetail"
-                        @longpress="handleLongPress"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd">
-                        <view class="avatar-container">
-                            <view class="avatar">
-                                <image :src="message.senderAvatar" mode="widthFix"></image>
-                            </view>
-                        </view>
-                        <view class="content-container">
-                            <view class="sender-name">
-                                <view class="name">
-                                    {{ message.senderName }}
-                                </view>
-<!--                                <view class="blacklist-user">-->
-<!--                                    黑名单-->
-<!--                                </view>-->
-                            </view>
-                            <view class="message-content">
-                                {{ message.isPhoto ? '[图片]' : message.content }}
-                            </view>
-                        </view>
-                        <view class="time-container">
-                            <view class="time">
-                                {{ message.time | formatTime }}
-                            </view>
-                            <view
-                                :class="message.isRead ? 'isread' : 'unread'"
-                            >
-                                {{ message.isRead ? '' : message.unreadCount | unreadCount }}
-                            </view>
-                        </view>
-                    </view>
-                    <view v-show="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
-                        <text>下拉加载更多</text>
-                    </view>
-                    <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
-                        <loading ref="loadingMore"></loading>
-                    </view>
-                    <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
-                        <text>没有更多了哦 ~</text>
-                    </view>
-                </view>
+  <view>
+    <navigationBar ref="navigationBar"/>
+    <toast ref="toast"/>
+    <loading
+      ref="loading"
+      fullscreen
+      maskColor="#f6f6f6"></loading>
+    <!-- 可滑动区域 -->
+    <scroll-view
+      class="chat-list-container"
+      :style="{height: `${windowHeight - navigationHeight}px`}"
+      :scroll-y="true"
+      :scroll-with-animation="true"
+      :refresher-enabled="true"
+      refresher-threshold="300"
+      :refresher-triggered="refresherTriggered"
+      @refresherrefresh="handleRefreshStart"
+      @refresherrestore="handleRefreshEnd"
+      @scrolltolower="handleScrollToBottom">
+      <view class="list-scroll-view">
+        <!-- 顶部按钮列表容器 -->
+        <view class="top-list-container">
+          <!-- 顶部通知按钮区域 -->
+          <view
+            class="btn-container first-btn"
+            :data-name="`btn0`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            @click="stopCheckingUpdate"
+            :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view class="btn-icon-container">
+              <view class="btn-icon"></view>
+              <view
+                class="btn-unread"
+                v-if="!btnMessageIsRead[0]"
+              ></view>
             </view>
-        </scroll-view>
-    </view>
+            <view class="btn-title">赞</view>
+          </view>
+          <view
+            class="btn-container second-btn"
+            :data-name="`btn1`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view class="btn-icon-container">
+              <view class="btn-icon"></view>
+              <view
+                class="btn-unread"
+                v-if="!btnMessageIsRead[1]"
+              ></view>
+            </view>
+            <view class="btn-title">回复我的</view>
+          </view>
+          <view
+            class="btn-container third-btn"
+            :data-name="`btn2`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view class="btn-icon-container">
+              <view class="btn-icon"></view>
+              <view class="btn-unread" v-if="!btnMessageIsRead[2]"></view>
+            </view>
+            <view class="btn-title">关注</view>
+          </view>
+          <view
+            class="btn-container fourth-btn"
+            :data-name="`btn3`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            :style="{filter: `${messageTouchingId === 'btn3' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view
+              class="btn-icon-container"
+              @touchstart="handleTouchStart"
+              @touchend="handleTouchEnd"
+              @touchcancel="handleTouchEnd">
+              <view class="btn-icon"></view>
+              <view class="btn-unread" v-if="!btnMessageIsRead[3]"></view>
+            </view>
+            <view class="btn-title">通知消息</view>
+          </view>
+        </view>
+        <!-- 聊天记录列表容器 -->
+        <view class="main-list-container">
+          <view
+            class="message-container"
+            v-for="(message, index) in chatMessages"
+            :key="index"
+            :data-name="`message${index}`"
+            :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}"
+            @click="toChatDetail"
+            @longpress="handleLongPress"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd">
+            <view class="avatar-container">
+              <view class="avatar">
+                <image :src="message.senderAvatar" mode="widthFix"></image>
+              </view>
+            </view>
+            <view class="content-container">
+              <view class="sender-name">
+                <view class="name">
+                  {{ message.senderName }}
+                </view>
+                <!--                                <view class="blacklist-user">-->
+                <!--                                    黑名单-->
+                <!--                                </view>-->
+              </view>
+              <view class="message-content">
+                {{ message.isPhoto ? '[图片]' : message.content }}
+              </view>
+            </view>
+            <view class="time-container">
+              <view class="time">
+                {{ message.time | formatTime }}
+              </view>
+              <view :class="message.isRead ? 'isread' : 'unread'">
+                {{ message.isRead ? '' : message.unreadCount | unreadCount }}
+              </view>
+            </view>
+          </view>
+          <view v-show="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
+            <text>下拉加载更多</text>
+          </view>
+          <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
+            <loading ref="loadingMore"></loading>
+          </view>
+          <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
+            <text>没有更多了哦 ~</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
 </template>
 
 <script>
     import {toast} from '../../components/toast/toast.vue';
     import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../components/loading/loading.vue';
-    import {getBlockList, getMyChatList, deleteChatWithFriend} from "../../common/js/api/models.js";
+    import {deleteChatWithFriend, getMyChatList} from "../../common/js/api/models.js";
     import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
 
     export default {
@@ -556,209 +548,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .chat-list-container {
-        width: 100vw;
-        height: 100vh;
-        background-color: #f6f6f6;
-
-        .list-scroll-view {
-            width: 100vw;
-            height: fit-content;
-
-            .top-list-container {
-                width: 100vw;
-                height: fit-content;
-                background-color: #fff;
-                border-radius: rpx(30);
-                margin-bottom: rpx(20);
-                padding: rpx(40) rpx(20);
-                display: flex;
-                flex-direction: row;
-
-                .btn-container {
-                    flex: 1;
-                    margin: 0 rpx(30);
-                    text-align: center;
-
-                    .btn-icon-container {
-                        width: rpx(80);
-                        height: rpx(80);
-                        margin: 0 auto rpx(20);
-                        pointer-events: none;
-
-                        .btn-icon {
-                            width: 100%;
-                            height: 100%;
-                            background-color: deepskyblue;
-                            border-radius: rpx(150);
-                        }
-
-                        .btn-unread {
-                            width: rpx(25);
-                            height: rpx(25);
-                            position: relative;
-                            top: rpx(-80);
-                            left: rpx(55);
-                            background-color: #f35b56;
-                            color: #fff;
-                            text-align: center;
-                            font-size: rpx(22);
-                            line-height: rpx(40);
-                            border-radius: rpx(150);
-                        }
-                    }
-
-                    .btn-title {
-                        font-size: rpx(26);
-                        color: #333;
-                    }
-                }
-            }
-
-            .main-list-container {
-                width: 100vw;
-                height: fit-content;
-                background-color: #fff;
-                border-radius: rpx(30);
-
-                .message-container:first-child {
-                    border-top: none;
-                    border-radius: rpx(30) rpx(30) 0 0;
-                }
-
-                .message-container:last-child {
-                    border-radius: 0 0 rpx(30) rpx(30);
-                }
-
-                .message-container {
-                    width: 100vw;
-                    height: rpx(150);
-                    background-color: #fff;
-                    padding: 0 rpx(30);
-                    display: flex;
-                    flex-direction: row;
-                    border-top: rpx(1) solid #f6f6f6;
-
-                    .avatar-container {
-                        width: rpx(120);
-                        height: 100%;
-                        margin-top: rpx(30);
-                        pointer-events: none;
-
-                        .avatar {
-                            width: rpx(90);
-                            height: rpx(90);
-                            border-radius: rpx(150);
-                            //background-color: orange;
-                            overflow: hidden;
-
-                            image {
-                                width: 100%;
-                            }
-                        }
-                    }
-
-                    .content-container {
-                        flex: 1;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        margin: auto 0;
-                        pointer-events: none;
-
-                        .sender-name {
-                            display: flex;
-                            flex-direction: row;
-
-                            .name {
-                                font-size: rpx(32);
-                                line-height: rpx(50);
-                                color: #333;
-                                text-overflow: ellipsis;
-                                overflow: hidden;
-                                max-width: calc(100% - 110rpx);
-                            }
-
-                            .blacklist-user {
-                                position: relative;
-                                top: rpx(12);
-                                width: fit-content;
-                                height: rpx(28);
-                                margin-left: rpx(15);
-                                padding: 0 rpx(10);
-                                font-size: rpx(20);
-                                line-height: rpx(28);
-                                color: #fff;
-                                border-radius: rpx(30);
-                                background-color: #f4756b;
-                            }
-                        }
-
-                        .message-content {
-                            overflow: hidden;
-                            font-size: rpx(26);
-                            line-height: rpx(50);
-                            color: #999999;
-                        }
-                    }
-
-                    .time-container {
-                        width: fit-content;
-                        height: fit-content;
-                        margin-top: rpx(30);
-                        margin-left: auto;
-                        pointer-events: none;
-
-                        .time {
-                            margin-bottom: rpx(20);
-                            font-size: rpx(24);
-                            color: #999999;
-                        }
-
-                        .unread {
-                            width: fit-content;
-                            min-width: rpx(32);
-                            height: rpx(32);
-                            padding: 0 rpx(8);
-                            background-color: #f35b56;
-                            color: #fff;
-                            text-align: center;
-                            font-size: rpx(22);
-                            line-height: rpx(32);
-                            border-radius: rpx(150);
-                            font-weight: bold;
-                            float: right;
-                        }
-
-                        .isread {
-                            min-width: rpx(40);
-                            height: rpx(40);
-                            float: right;
-                        }
-                    }
-                }
-
-                .load-more {
-                    height: fit-content;
-                    width: 100%;
-                    margin-top: rpx(30);
-                    padding-bottom: rpx(70);
-                    background-color: #fff;
-                    border-radius: rpx(30);
-                    color: $uni-text-color-placeholder;
-                    font-size: rpx(28);
-                    text-align: center;
-
-                    text {
-                        margin-left: rpx(10);
-                    }
-                }
-
-                .loading-more {
-                    height: rpx(150);
-                    padding-bottom: 0;
-                    margin-top: 0;
-                }
-            }
-        }
-    }
+  @import 'chatList.scss';
 </style>

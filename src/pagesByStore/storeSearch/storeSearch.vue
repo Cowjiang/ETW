@@ -50,7 +50,6 @@
     import {loading} from '../../components/loading/loading.vue';
     import {storeSearchEmpty} from '../../components/storeSearchEmpty/storeSearchEmpty';
     import {storeSearchResult} from '../../components/storeSearchResult/storeSearchResult';
-    import {getSearchResult} from '../../common/js/api/models.js';
 
     export default {
         name: "storeSearch",

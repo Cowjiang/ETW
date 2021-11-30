@@ -4,7 +4,7 @@
   },
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "demo",
+    "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
   },
@@ -176,14 +176,6 @@
         },
         {
           "path": "store/subpages/MyStorePage",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false,
-            "navigationStyle": "custom"
-          }
-        },
-        {
-          "path": "dish/dishPostPage",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false,
