@@ -130,7 +130,7 @@ export const getUserToken = (requestConfig) =>
 //店铺相关
 //搜索店铺
 export const getSearchResult = requestConfig =>
-    apiRequest(`${httpBaseUrl}/store/search`, {method: "GET", requestConfig});
+    apiRequest(`${httpBaseUrl}/store/search`, {method: "POST", requestConfig});
 //获取店铺菜单
 export const getStoreMenu = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type/dishes`, {method: "GET", requestConfig});

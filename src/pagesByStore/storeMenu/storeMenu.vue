@@ -174,7 +174,7 @@
                     {{ commodity.description }}
                   </view>
                   <view class="commodity-sale-info">
-                    月销 99
+                    {{ commodity.sales != null ? `月销 ${commodity.sales}` : '' }}
                   </view>
                   <view class="price-container">
                     <view class="price">
@@ -182,17 +182,17 @@
                         ￥
                         <text>
                           {{
-                            parseInt(commodity.discountPrice === null ? commodity.originalPrice : commodity.discountPrice)
+                            parseInt(commodity.discountPrice === null ? commodity.price : commodity.discountPrice)
                           }}
                         </text>
                         <text>
                           {{
-                            commodity.discountPrice === null ? (commodity.originalPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.originalPrice.toString().split('.')[1]}`) : (commodity.discountPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.discountPrice.toString().split('.')[1]}`)
+                            commodity.discountPrice === null ? (commodity.price.toString().split('.')[1] === undefined ? '' : `.${commodity.price.toString().split('.')[1]}`) : (commodity.discountPrice.toString().split('.')[1] === undefined ? '' : `.${commodity.discountPrice.toString().split('.')[1]}`)
                           }}
                         </text>
                       </view>
-                      <view class="origin-price" v-if="commodity.discountPrice !== null">
-                        {{ commodity.originalPrice | showPrice }}
+                      <view class="origin-price" v-if="commodity.discountPrice !== commodity.price">
+                        {{ commodity.price | showPrice }}
                       </view>
                     </view>
                     <view class="amount-btn-container" @click.stop="">
@@ -283,7 +283,7 @@
                       </view>
                       <view class="price-container">
                         <view class="price">
-                          {{ item.discountPrice === null ? item.originalPrice : item.discountPrice | showPrice }}
+                          {{ item.discountPrice === null ? item.price : item.discountPrice | showPrice }}
                         </view>
                         <view class="amount-btn-container">
                           <i
@@ -422,7 +422,7 @@
               <view class="price">
                 {{
                   menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice == null
-                    ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].originalPrice
+                    ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].price
                     + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
                     : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice
                     + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
@@ -697,7 +697,7 @@
                                                     name: commodityItem.name, // {String} 商品名字
                                                     imageUrl: commodityItem.imageUrl, // {String} 商品图片url
                                                     description: commodityItem.description, // {String} 商品描述
-                                                    originalPrice: commodityItem.originalPrice + currentCustomOptions.customOptionPrice, // {Number} 商品原价
+                                                    price: commodityItem.price + currentCustomOptions.customOptionPrice, // {Number} 商品原价
                                                     discountPrice: commodityItem.discountPrice === null ? null : commodityItem.discountPrice + currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
                                                     customOptions: currentCustomOptions // {Array} 商品定制选项信息
                                                 }); //将商品加入购物车列表
@@ -712,7 +712,7 @@
                                                     name: commodityItem.name, // {String} 商品名字
                                                     imageUrl: commodityItem.imageUrl, // {String} 商品图片url
                                                     description: commodityItem.description, // {String} 商品描述
-                                                    originalPrice: commodityItem.originalPrice, // {Number} 商品原价
+                                                    price: commodityItem.price, // {Number} 商品原价
                                                     discountPrice: commodityItem.discountPrice, // {Number|NaN} 商品优惠价格
                                                 }); //将商品加入购物车列表
                                             }
@@ -996,7 +996,7 @@
                                                 name: commodityItem.name, // {String} 商品名字
                                                 imageUrl: commodityItem.imageUrl, // {String} 商品图片url
                                                 description: commodityItem.description, // {String} 商品描述
-                                                originalPrice: commodityItem.originalPrice + currentCustomOptions.customOptionPrice, // {Number} 商品原价
+                                                price: commodityItem.price + currentCustomOptions.customOptionPrice, // {Number} 商品原价
                                                 discountPrice: commodityItem.discountPrice === null ? null : commodityItem.discountPrice + currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
                                                 customOptions: currentCustomOptions // {Array} 商品定制选项信息
                                             }); //将商品加入购物车列表
@@ -1011,7 +1011,7 @@
                                                 name: commodityItem.name, // {String} 商品名字
                                                 imageUrl: commodityItem.imageUrl, // {String} 商品图片url
                                                 description: commodityItem.description, // {String} 商品描述
-                                                originalPrice: commodityItem.originalPrice, // {Number} 商品原价
+                                                price: commodityItem.price, // {Number} 商品原价
                                                 discountPrice: commodityItem.discountPrice, // {Number|NaN} 商品优惠价格
                                             }); //将商品加入购物车列表
                                         }
@@ -1041,7 +1041,7 @@
                                 typeIndex: typeIndex,
                                 commodityIndex: commodityIndex,
                                 commodityName: commodity.name,
-                                commodityPrice: commodity.discountPrice === null ? commodity.originalPrice : commodity.discountPrice,
+                                commodityPrice: commodity.discountPrice === null ? commodity.price : commodity.discountPrice,
                                 commodityImageUrl: commodity.imageUrl
                             });
                         }
@@ -1066,7 +1066,7 @@
             totalPrice() {
                 let totalPrice = 0;
                 this.cartList.forEach(cartItem => {
-                    totalPrice += (cartItem.discountPrice === null ? cartItem.originalPrice : cartItem.discountPrice) * cartItem.amount;
+                    totalPrice += (cartItem.discountPrice === null ? cartItem.price : cartItem.discountPrice) * cartItem.amount;
                 });
                 if (parseInt(totalPrice) !== totalPrice) {
                     return totalPrice.toFixed(2);
@@ -1082,7 +1082,7 @@
             totalOriginalPrice() {
                 let totalOriginalPrice = 0;
                 this.cartList.forEach(cartItem => {
-                    totalOriginalPrice += cartItem.originalPrice * cartItem.amount;
+                    totalOriginalPrice += cartItem.price * cartItem.amount;
                 });
                 if (parseInt(totalOriginalPrice) !== totalOriginalPrice) {
                     return totalOriginalPrice.toFixed(2);
@@ -1160,7 +1160,6 @@
         mounted() {
         },
         onLoad() {
-            this.menuList = menuList;
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -1181,6 +1180,7 @@
                         urlParam: storeInfo.id
                     }).then(res => {
                         console.log(res);
+                        this.menuList = res.data;
                     }).catch(err => {
                         console.log(err);
                     });
@@ -1192,14 +1192,7 @@
                     type: 'warning',
                     direction: 'top'
                 });
-                getStoreMenu({
-                    urlParam: 2
-                }).then(res => {
-                    this.menuList = res.data;
-                    console.log(this.menuList);
-                }).catch(err => {
-                    console.log(err);
-                });
+                this.menuList = menuList;
                 this.storeInfo = {
                     storeId: 0, // {Number} 店铺id，必需
                     name: '必胜客（太平店）', // {String} 店铺名字，必需
@@ -1536,7 +1529,7 @@
           width: rpx(180);
           height: 100%;
           flex-shrink: 0;
-          background-color: #fff;
+          background-color: #f6f6f6;
           border-radius: rpx(20) rpx(20) 0 0;
 
           ::-webkit-scrollbar {

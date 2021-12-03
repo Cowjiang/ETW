@@ -138,7 +138,8 @@
                             keywords: keyword,
                             pageSize: this.pageSize,
                             pageNumber: this.currentPage + 1,
-                        }
+                        },
+                        headerData: { "Content-type": "application/json" },
                     }).then(res => {
                         if (res.success) {
                             console.log(res.data)
