@@ -1,4 +1,4 @@
-import { apiRequest } from "./request.js";
+import {apiRequest, apiResquest} from "./request.js";
 
 let host = `shitukj.cn/service`; //服务器主机域名
 export const httpBaseUrl = `https://${host}`; //HTTP请求服务器基本地址
@@ -128,6 +128,12 @@ export const getUserToken = (requestConfig) =>
 
 
 //店铺相关
+//搜索店铺
+export const getSearchResult = requestConfig =>
+    apiRequest(`${httpBaseUrl}/store/search`, {method: "GET", requestConfig});
+//获取店铺菜单
+export const getStoreMenu = (requestConfig) =>
+    apiRequest(`${httpBaseUrl}/store/${requestConfig.urlParam}/type/dishes`, {method: "GET", requestConfig});
 //店铺申请
 export const postStoreArchives = (requestConfig) =>
 	apiRequest(`${httpBaseUrl}/store/archives`, { method: "POST", requestConfig });
