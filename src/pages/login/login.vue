@@ -45,9 +45,9 @@
 
 <script>
     import {navigationBar} from "../../components/navigationBar/navigationBar.vue";
-    import {loginForm} from "./loginForm.vue";
-    import {registerForm} from "./registerForm.vue";
-    import {captchaForm} from "./captchaForm.vue";
+    import {loginForm} from "./subpages/loginForm.vue";
+    import {registerForm} from "./subpages/registerForm.vue";
+    import {captchaForm} from "./subpages/captchaForm.vue";
 
     export default {
         components: {

@@ -145,7 +145,7 @@
     import {toast} from '../../../components/toast/toast.vue';
     import {navigationBar} from '../../../components/navigationBar/navigationBar.vue';
     import {loading} from '../../../components/loading/loading.vue';
-    import {selectArea} from '../../../components/selectArea/selectArea.vue';
+    import {selectArea} from '../../../components/selectPopup/selectArea/selectArea.vue';
     import {Validator} from "../../../common/js/validate/validate.js";
     import {addAddressBook, deleteAddressBook, updateAddressBook} from "../../../common/js/api/models.js";
 

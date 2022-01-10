@@ -88,9 +88,9 @@
 </template>
 
 <script>
-    import provinces from '../../../node_modules/uview-ui/libs/util/province.js';
-    import citys from '../../../node_modules/uview-ui/libs/util/city.js';
-    import areas from '../../../node_modules/uview-ui/libs/util/area.js';
+    import provinces from 'uview-ui/libs/util/province.js';
+    import citys from 'uview-ui/libs/util/city.js';
+    import areas from 'uview-ui/libs/util/area.js';
 
     export default {
         /**
