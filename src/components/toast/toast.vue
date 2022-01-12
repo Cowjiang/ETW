@@ -13,7 +13,7 @@
       :id="`toast${index}`"
       :style="{
         top: `${navigationHeight + 5}px`,
-        zIndex: `${item.isShow ? '999999' : '-1'}`,
+        zIndex: `${item.isShow ? '9999999' : '-1'}`,
         display: item.isShow ? 'flex' : 'none',
         animationDuration: `${item.animationDuration}ms`,
         marginTop: `${item.marginTop}rpx`,

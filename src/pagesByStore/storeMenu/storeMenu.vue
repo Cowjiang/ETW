@@ -336,7 +336,10 @@
                 >
                   <view class="commodity" v-for="item in cartList" :key="item.id">
                     <view class="image-container">
-                      <view class="image"></view>
+                      <image
+                        class="image"
+                        :src="item.imageUrl"
+                        mode="aspectFill" />
                     </view>
                     <view class="info-container">
                       <view class="name">
@@ -606,7 +609,7 @@
     import {storeInfoPopup} from "@/components/store/storeInfoPopup/storeInfoPopup.vue";
     import {selectTimePopup} from "@/components/selectPopup/selectTime/selectTime.vue";
     import menuList from "@/common/js/fakeData/storeMenu.js";
-    import {getCouponByStoreId, getStoreMenu, userGetCoupon,} from "@/common/js/api/models";
+    import {getCouponByStoreId, getStoreInfo, getStoreMenu, userGetCoupon,} from "@/common/js/api/models";
 
     export default {
         components: {
@@ -715,7 +718,7 @@
                 this.currentTypeId = parseInt(typeId);
             },
             /**
-             * 处理领取优惠券
+             * 用户领取优惠券
              * @param couponId 优惠券id
              */
             handleGetCoupon(couponId) {
@@ -724,21 +727,27 @@
                         storeId: this.storeInfo.id,
                         couponId,
                     },
-                }).then((res) => {
-                    let icon;
-                    let title;
+                }).then(res => {
                     if (res.success) {
-                        icon = "success";
-                        title = "领取优惠券成功";
+                        this.$refs.toast.show({
+                            text: '领取成功',
+                            type: 'success',
+                            direction: 'top'
+                        });
                     }
                     else {
-                        icon = "fail";
-                        title = "领取优惠券失败";
+                        this.$refs.toast.show({
+                            text: '领取失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
                     }
-                    uni.showToast({
-                        icon,
-                        title,
-                        duration: 2000,
+                }).catch(error => {
+                    console.error(error);
+                    this.$refs.toast.show({
+                        text: '领取失败',
+                        type: 'error',
+                        direction: 'top'
                     });
                 });
             },
@@ -751,13 +760,8 @@
                 this.utils.throttle(() => {
                     const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
                     const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
-                    const cartId =
-                        e.currentTarget.dataset.cartid == null
-                            ? null
-                            : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
-                    const currentCustomOptions = JSON.parse(
-                        JSON.stringify(this.currentCustomOptions)
-                    ); //当前填写的定制选项信息
+                    const cartId = e.currentTarget.dataset.cartid == null ? null : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
+                    const currentCustomOptions = JSON.parse(JSON.stringify(this.currentCustomOptions)); //当前填写的定制选项信息
                     if (!isFromMenu) {
                         //不是从菜单点击触发
                         let isExist = false; //购物车中是否已存在该商品
@@ -768,22 +772,13 @@
                                 typeItem.dishes.forEach((commodityItem, commodityIndex) => {
                                     if (commodityItem.id === commodityId) {
                                         //索引对应商品Id
-                                        !isNaN(commodityItem.amount)
-                                            ? (commodityItem.amount += 1)
-                                            : (commodityItem.amount = 1);
+                                        !isNaN(commodityItem.amount) ? (commodityItem.amount += 1) : (commodityItem.amount = 1);
                                         this.cartList.forEach((cartItem) => {
-                                            if (
-                                                cartItem.typeId === typeId &&
-                                                cartItem.commodityId === commodityId
-                                            ) {
+                                            if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
                                                 //购物车列表中已存在当前商品
                                                 if (cartItem.customOptions) {
                                                     //购物车当前项有定制选项信息
-                                                    if (
-                                                        JSON.stringify(cartItem.customOptions.customOptions) ===
-                                                        JSON.stringify(currentCustomOptions.customOptions) ||
-                                                        cartItem.cartId === cartId
-                                                    ) {
+                                                    if (JSON.stringify(cartItem.customOptions.customOptions) === JSON.stringify(currentCustomOptions.customOptions) || cartItem.cartId === cartId) {
                                                         //购物车当前项的定制选项信息与当前填写的定制选项信息匹配，或购物车当前项的Id与触发点击事件的购物车项Id相同
                                                         cartItem.amount += 1;
                                                         isExist = true;
@@ -866,24 +861,18 @@
                 this.utils.throttle(() => {
                     const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
                     const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
-                    const cartId =
-                        e.currentTarget.dataset.cartid == null
-                            ? null
-                            : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
-                    this.menuList.forEach((typeItem) => {
+                    const cartId = e.currentTarget.dataset.cartid == null ? null : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
+                    this.menuList.forEach(typeItem => {
                         if (typeItem.id === typeId) {
                             !isNaN(typeItem.amount) ? (typeItem.amount -= 1) : (typeItem.amount = 0);
                             typeItem.dishes.forEach((commodityItem) => {
                                 if (commodityItem.id === commodityId) {
                                     if (commodityItem.amount !== 0) {
                                         //当前商品已选数量不为零
-                                        !isNaN(commodityItem.amount)
-                                            ? (commodityItem.amount -= 1)
-                                            : (commodityItem.amount = 0);
+                                        !isNaN(commodityItem.amount) ? (commodityItem.amount -= 1) : (commodityItem.amount = 0);
                                         this.cartList.forEach((cartItem, cartItemIndex) => {
                                             if (
-                                                cartItem.typeId === typeId &&
-                                                cartItem.commodityId === commodityId
+                                                cartItem.typeId === typeId && cartItem.commodityId === commodityId
                                             ) {
                                                 if (cartId !== null) {
                                                     //购物车id不为空
@@ -944,11 +933,11 @@
             },
             // 清空购物车事件
             handleClearCartList() {
-                this.cartList.forEach((cartItem) => {
-                    this.menuList.forEach((typeItem) => {
+                this.cartList.forEach(cartItem => {
+                    this.menuList.forEach(typeItem => {
                         if (typeItem.id === cartItem.typeId) {
                             typeItem.amount = 0;
-                            typeItem.dishes.forEach((commodity) => {
+                            typeItem.dishes.forEach(commodity => {
                                 if (commodity.id === cartItem.commodityId) {
                                     commodity.amount = 0;
                                 }
@@ -1058,10 +1047,7 @@
                         break;
                     case false:
                         //多选可选
-                        if (
-                            this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex]
-                                .customItems[optionItemIndex].isSelected
-                        ) {
+                        if (this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].isSelected) {
                             //当前选项已经处于选中状态
                             this.$set(
                                 this.menuList[typeIndex].dishes[commodityIndex],
@@ -1107,35 +1093,23 @@
                 this.utils.throttle(() => {
                     const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
                     const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
-                    const currentCustomOptions = JSON.parse(
-                        JSON.stringify(this.currentCustomOptions)
-                    ); //当前填写的定制选项信息
+                    const currentCustomOptions = JSON.parse(JSON.stringify(this.currentCustomOptions)); //当前填写的定制选项信息
                     const currentAmount = this.amountTemp; //当前选择的数量
                     let isExist = false; //购物车中是否已存在该商品
                     this.menuList.forEach((typeItem, typeIndex) => {
                         if (typeItem.id === typeId) {
-                            !isNaN(typeItem.amount)
-                                ? (typeItem.amount += currentAmount)
-                                : (typeItem.amount = currentAmount);
+                            !isNaN(typeItem.amount) ? (typeItem.amount += currentAmount) : (typeItem.amount = currentAmount);
                             //索引对应类型Id
                             typeItem.dishes.forEach((commodityItem, commodityIndex) => {
                                 if (commodityItem.id === commodityId) {
                                     //索引对应商品Id
-                                    !isNaN(commodityItem.amount)
-                                        ? (commodityItem.amount += currentAmount)
-                                        : (commodityItem.amount = currentAmount);
-                                    this.cartList.forEach((cartItem) => {
-                                        if (
-                                            cartItem.typeId === typeId &&
-                                            cartItem.commodityId === commodityId
-                                        ) {
+                                    !isNaN(commodityItem.amount) ? (commodityItem.amount += currentAmount) : (commodityItem.amount = currentAmount);
+                                    this.cartList.forEach(cartItem => {
+                                        if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
                                             //购物车列表中已存在当前商品
                                             if (cartItem.customOptions) {
                                                 //购物车当前项有定制选项信息
-                                                if (
-                                                    JSON.stringify(cartItem.customOptions.customOptions) ===
-                                                    JSON.stringify(currentCustomOptions.customOptions)
-                                                ) {
+                                                if (JSON.stringify(cartItem.customOptions.customOptions) === JSON.stringify(currentCustomOptions.customOptions)) {
                                                     //购物车当前项的定制选项信息与当前填写的定制选项信息匹配，或购物车当前项的Id与触发点击事件的购物车项Id相同
                                                     cartItem.amount += currentAmount;
                                                     isExist = true;
@@ -1157,46 +1131,35 @@
                                             })
                                         );
                                         cartIdMax = cartIdMax < 0 ? -1 : cartIdMax;
+                                        let price, discountPrice, customOptions;
                                         if (
                                             currentCustomOptions !== {} &&
                                             currentCustomOptions.typeIndex === typeIndex &&
                                             currentCustomOptions.commodityIndex === commodityIndex
                                         ) {
-                                            //当前商品存在定制选项，且类型索引、商品索引与商品对应
-                                            this.cartList.push({
-                                                cartId: cartIdMax + 1, // {Number} 购物车id
-                                                typeId: typeId, // {Number} 类型id
-                                                commodityId: commodityId, // {Number} 商品id
-                                                amount: currentAmount, // {Number} 商品数量
-                                                name: commodityItem.name, // {String} 商品名字
-                                                imageUrl: commodityItem.imageUrl, // {String} 商品图片url
-                                                description: commodityItem.description, // {String} 商品描述
-                                                packingCharges: commodityItem.packingCharges, // 打包费
-                                                price: commodityItem.price + currentCustomOptions.customOptionPrice, // {Number} 商品原价
-                                                discountPrice:
-                                                    commodityItem.discountPrice === null
-                                                        ? null
-                                                        : commodityItem.discountPrice +
-                                                        currentCustomOptions.customOptionPrice, // {Number|NaN} 商品优惠价格
-                                                customOptions: currentCustomOptions, // {Array} 商品定制选项信息
-                                            }); //将商品加入购物车列表
+                                            price = commodityItem.price + currentCustomOptions.customOptionPrice;
+                                            discountPrice = commodityItem.discountPrice === null ? null : commodityItem.discountPrice + currentCustomOptions.customOptionPrice;
+                                            customOptions = currentCustomOptions;
                                         }
                                         else {
                                             //当前商品不存在定制选项
-                                            this.cartList.push({
-                                                cartId: cartIdMax + 1, // {Number} 购物车id
-                                                typeId: typeId, // {Number} 类型id
-                                                commodityId: commodityId, // {Number} 商品id
-                                                amount: currentAmount, // {Number} 商品数量
-                                                name: commodityItem.name, // {String} 商品名字
-                                                imageUrl: commodityItem.imageUrl, // {String} 商品图片url
-                                                description: commodityItem.description, // {String} 商品描述
-                                                price: commodityItem.price, // {Number} 商品原价
-                                                packingCharges: commodityItem.packingCharges, // 打包费
-
-                                                discountPrice: commodityItem.discountPrice, // {Number|NaN} 商品优惠价格
-                                            }); //将商品加入购物车列表
+                                            price = commodityItem.price;
+                                            discountPrice = commodityItem.discountPrice;
+                                            customOptions = [];
                                         }
+                                        this.cartList.push({
+                                            cartId: cartIdMax + 1, // {Number} 购物车id
+                                            typeId: typeId, // {Number} 类型id
+                                            commodityId: commodityId, // {Number} 商品id
+                                            amount: 1, // {Number} 商品数量
+                                            name: commodityItem.name, // {String} 商品名字
+                                            imageUrl: commodityItem.imageUrl, // {String} 商品图片url
+                                            description: commodityItem.description, // {String} 商品描述
+                                            price: price, // {Number} 商品原价
+                                            discountPrice: discountPrice, // {Number|NaN} 商品优惠价格
+                                            packingCharges: commodityItem.packingCharges, // 打包费
+                                            customOptions: customOptions  // {Object|Array} 商品定制选项信息
+                                        }); //将商品加入购物车列表
                                     }
                                     this.showCommodityDetailPopup = false;
                                 }
@@ -1223,10 +1186,7 @@
                                 typeIndex: typeIndex,
                                 commodityIndex: commodityIndex,
                                 commodityName: commodity.name,
-                                commodityPrice:
-                                    commodity.discountPrice === null
-                                        ? commodity.price
-                                        : commodity.discountPrice,
+                                commodityPrice: commodity.discountPrice === null ? commodity.price : commodity.discountPrice,
                                 commodityImageUrl: commodity.imageUrl,
                             });
                         }
@@ -1236,15 +1196,13 @@
             },
             // 支付按钮点击事件
             handlePayBtnClick() {
-                let that = this;
                 if (this.cartList.length > 0) {
                     uni.navigateTo({
                         url: "/pagesByStore/order/order",
-                        success(res) {
-                            // 通过eventChannel向被打开页面传送数据
+                        success: res => {
                             res.eventChannel.emit("acceptDataFromOpenerPage", {
-                                cartList: that.cartList,
-                                storeInfo: that.storeInfo,
+                                cartList: this.cartList,
+                                storeInfo: this.storeInfo,
                             });
                         },
                     });
@@ -1258,10 +1216,8 @@
              */
             totalPrice() {
                 let totalPrice = 0;
-                this.cartList.forEach((cartItem) => {
-                    totalPrice +=
-                        (cartItem.discountPrice === null ? cartItem.price : cartItem.discountPrice) *
-                        cartItem.amount;
+                this.cartList.forEach(cartItem => {
+                    totalPrice += (cartItem.discountPrice === null ? cartItem.price : cartItem.discountPrice) * cartItem.amount;
                 });
                 if (parseInt(totalPrice) !== totalPrice) {
                     return totalPrice.toFixed(2);
@@ -1276,7 +1232,7 @@
              */
             totalOriginalPrice() {
                 let totalOriginalPrice = 0;
-                this.cartList.forEach((cartItem) => {
+                this.cartList.forEach(cartItem => {
                     totalOriginalPrice += cartItem.price * cartItem.amount;
                 });
                 if (parseInt(totalOriginalPrice) !== totalOriginalPrice) {
@@ -1356,74 +1312,103 @@
         },
         onLoad() {
             wx.getSystemInfo({
-                success: (res) => {
+                success: res => {
                     this.windowWidth = res.windowWidth;
                     this.windowHeight = res.windowHeight;
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.$refs.loading.startLoading();
             try {
                 let storeInfo = {};
                 const eventChannel = this.getOpenerEventChannel();
-                eventChannel.on("storeInfo", (data) => {
+                eventChannel.on("storeInfo", data => {
                     storeInfo = data.storeInfo;
                 });
-                this.storeInfo = storeInfo;
                 if (storeInfo.id) {
-                    getStoreMenu({
-                        urlParam: storeInfo.id,
-                    }).then(res => {
-                        this.menuList = res.data;
-                    });
-                    // 初始化优惠券
-                    getCouponByStoreId({
-                        urlParam: {storeId: storeInfo.id},
-                    }).then(res => {
-                        let coupons = this.discountTags;
-                        if (res.success) {
-                            for (const coupon of res.data) {
-                                let tag = {
-                                    id: coupon.id,
-                                    content: coupon.withAmount / 100.0 + "减" + coupon.usedAmount / 100.0,
-                                    backgroundColor: "#fff",
-                                    color: "#f4756b",
-                                    borderColor: "#f4756b",
-                                };
-                                coupons.push(tag);
+                    //获取店铺信息
+                    const getInfoPromise = new Promise((resolve, reject) => {
+                        getStoreInfo({
+                            urlParam: {
+                                storeId: storeInfo.id
                             }
-                        }
-
-                        this.discountTags = coupons;
+                        }).then(res => {
+                            if (res.success) {
+                                this.storeInfo = res.data;
+                                resolve();
+                            }
+                            else {
+                                reject(res);
+                            }
+                        }).catch(err => {
+                            reject(err);
+                        });
                     });
+                    //获取优惠券信息
+                    const getCouponPromise = new Promise((resolve, reject) => {
+                        getCouponByStoreId({
+                            urlParam: {
+                                storeId: storeInfo.id
+                            },
+                        }).then(res => {
+                            let coupons = this.discountTags;
+                            if (res.success) {
+                                res.data.forEach(coupon => {
+                                    coupons.push({
+                                        id: coupon.id,
+                                        content: coupon.withAmount / 100.0 + "减" + coupon.usedAmount / 100.0,
+                                        backgroundColor: "#fff",
+                                        color: "#f4756b",
+                                        borderColor: "#f4756b",
+                                    });
+                                });
+                                this.discountTags = coupons;
+                                resolve();
+                            }
+                            else {
+                                reject(res);
+                            }
+                        }).catch(err => {
+                            reject(err);
+                        });
+                    });
+                    //获取店铺菜单
+                    const getMenuPromise = new Promise((resolve, reject) => {
+                        getStoreMenu({
+                            urlParam: storeInfo.id,
+                        }).then(res => {
+                            if (res.success) {
+                                this.menuList = res.data;
+                                resolve();
+                            }
+                            else {
+                                reject(res);
+                            }
+                        }).catch(err => {
+                            reject(err);
+                        });
+                    });
+                    Promise.all([getInfoPromise, getCouponPromise, getMenuPromise]).then(res => {
+                        this.$refs.loading.stopLoading();
+                    }).catch(err => {
+                        this.$refs.toast.show({
+                            text: '获取店铺菜单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                        setTimeout(() => {
+                            uni.navigateBack();
+                        }, 3000);
+                    })
                 }
             } catch (err) {
-                console.error(err);
-                this.$refs.toast.show({
-                    text: "调试模式",
-                    type: "warning",
-                    direction: "top",
-                });
-                this.menuList = menuList;
-                this.storeInfo = {
-                    storeId: 0, // {Number} 店铺id，必需
-                    name: "必胜客（太平店）", // {String} 店铺名字，必需
-                    addressDetails: "广东省广州市从化区太平镇乐东路385号（峰达电器城旁）", // {String} 店铺地址详情，必需
-                    phone: "020-88900280", // {String} 店铺联系电话，必需
-                    openingTime: "工作日9:00-21:00，节假日9:00-24:00", // {String} 店铺营业时间，必需
-                    longitude: 113.492195, // {Number|NaN} 店铺经度，必需
-                    latitude: 23.452394, // {Number|NaN} 店铺纬度，必需
-                    areaCode: "440103", // {String} 行政编码
-                    imgUrl: "", // {String} 店铺Logo的Url
-                    characteristic:
-                        "必胜客快餐，全国门店十万家，总有你喜欢的！广东省广州市从化区太平镇乐东路385号", // {String} 店铺公告
-                    sales: 1448,
-                };
+                uni.navigateBack();
             }
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
-                // titleText: '确认订单',
-                // backgroundColor: '#f6f6f6'
+                // titleText: '',
+                // backgroundColor: ''
             });
         },
         onHide() {

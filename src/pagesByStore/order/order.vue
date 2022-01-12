@@ -230,10 +230,10 @@
         </view>
       </view>
       <view class="order-options-container">
-        <view class="remark">
-          备注
+        <view class="remark" @click="editRemarks">
+          <view>备注</view>
           <view class="select-remark__default">
-            {{ userNotes === "" ? "口味、餐具数量等" : userNotes }}
+            <view class="content">{{ orderRemarks === "" ? "口味、餐具数量等" : orderRemarks }}</view>
             <i class="fa fa-angle-right" aria-hidden="true"></i>
           </view>
         </view>
@@ -357,7 +357,7 @@
                 showStoreInfoPopup: false, //是否显示店铺信息弹窗组件
                 showSelectTimePopup: false, //是否显示时间选择弹窗组件
                 reservationTimeLimit: "",
-                userNotes: "备注", //用户备注
+                orderRemarks: '', //用户备注
                 takeOutInfo: {}, //外卖收货人信息
                 orderContent: [], //订单商品内容
                 deliveryFee: 0, // {Number} 配送费
@@ -476,6 +476,24 @@
                     });
                 }, 1000);
             },
+            //编辑订单备注
+            editRemarks() {
+                uni.navigateTo({
+                    url: '/pagesByStore/order/subpages/orderRemarks',
+                    success: res => {
+                        res.eventChannel.emit("acceptDataFromOpenerPage", {
+                            orderRemarks: this.orderRemarks,
+                        });
+                    },
+                    events: {
+                        acceptDataFromOpenedPage: data => {
+                            if (data) {
+                                this.orderRemarks = data.orderRemarks;
+                            }
+                        },
+                    },
+                });
+            },
             // 去支付并提交订单
             toPay() {
                 // 构建订单数据
@@ -492,7 +510,7 @@
                 if (this.currentCouponId !== 0) {
                     params.userCouponId = this.currentCouponId;
                 }
-                params.userNotes = this.userNotes;
+                params.orderRemarks = this.orderRemarks;
                 // 微信登录
                 toWxLogin().then(code => {
                     params.code = code;
@@ -616,98 +634,102 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
-
-            // 渲染订单列表
-            const eventChannel = this.getOpenerEventChannel();
-            eventChannel.on("acceptDataFromOpenerPage", (data) => {
-                // 填充店铺信息
-                let storeInfo = data.storeInfo;
-                console.log(storeInfo);
-                this.storeInfo = {
-                    storeId: storeInfo.id, // {Number} 店铺id，必需
-                    name: storeInfo.name, // {String} 店铺名字，必需
-                    addressDetails: storeInfo.addressDetails, // {String} 店铺地址详情，必需
-                    phone: storeInfo.phone, // {String} 店铺联系电话
-                    openingTime: '', // {String} 店铺营业时间
-                    longitude: storeInfo.longitude, // {Number|NaN} 店铺经度，必需
-                    latitude: storeInfo.latitude, // {Number|NaN} 店铺纬度，必需
-                    areaCode: storeInfo.areaCode, // {String} 行政编码
-                    imageUrl: storeInfo.imgUrl, // {String} 店铺Logo的Url
-                };
-                // 填充订单项
-                let packagingFee = 0;
-                let cartList = data.cartList;
-                let orderContent = [];
-                // 准备订单项
-                let orderItems = []; // 请求用的订单信息
-                for (let cartItem of cartList) {
-                    let orderItem_q = {};
-                    orderItem_q["dishesId"] = cartItem.commodityId;
-                    orderItem_q["num"] = cartItem.amount;
-                    let customItemMap = {};
-                    // 填充自定义项
-                    let customSelectedItems = [];
-                    let customOptions = cartItem.customOptions.customOptions;
-                    if (customOptions) {
-                        if (customOptions.length > 0) {
-                            customOptions.forEach(customOption => {
-                                customItemMap[customOption.customId] = [];
-                                customOption.customItems.forEach(customItem => {
-                                    if (customItem.isSelected) {
-                                        customSelectedItems.push(customItem.customItemTitle); // 展示用的定制项
-                                        customItemMap[customOption.customId].push(customItem.customItemId); // 请求用的定制项
-                                    }
-                                });
-                            });
-                            orderItem_q["customItemMap"] = customItemMap;
-                        }
-                    }
-                    orderItems.push(orderItem_q); // 组合请求用的订单项
-                    this.orderItems = orderItems;
-                    // 填充订单信息
-                    packagingFee += cartItem.packingCharges * cartItem.amount;
-                    let orderItem = {
-                        imageUrl: cartItem.imageUrl,
-                        name: cartItem.name, // {String} 商品名称
-                        description: customSelectedItems.join(";"), // {String} 商品规格/描述
-                        originPrice: cartItem.price,
-                        discountPrice: cartItem.discountPrice, // {Number|null} 商品单价优惠折扣后价格（若无则为null）
-                        amount: cartItem.amount, // {Number} 商品数量
+            try {
+                // 渲染订单列表
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.on("acceptDataFromOpenerPage", (data) => {
+                    // 填充店铺信息
+                    let storeInfo = data.storeInfo;
+                    console.log(storeInfo);
+                    this.storeInfo = {
+                        storeId: storeInfo.id, // {Number} 店铺id，必需
+                        name: storeInfo.name, // {String} 店铺名字，必需
+                        addressDetails: storeInfo.addressDetails, // {String} 店铺地址详情，必需
+                        phone: storeInfo.phone, // {String} 店铺联系电话
+                        openingTime: '', // {String} 店铺营业时间
+                        longitude: storeInfo.longitude, // {Number|NaN} 店铺经度，必需
+                        latitude: storeInfo.latitude, // {Number|NaN} 店铺纬度，必需
+                        areaCode: storeInfo.areaCode, // {String} 行政编码
+                        imageUrl: storeInfo.imgUrl, // {String} 店铺Logo的Url
                     };
-                    orderContent.push(orderItem);
-                }
-                // 填充优惠券喜喜
-                getUserCoupon({
-                    queryData: {
-                        storeId: storeInfo.id,
-                        pageNumber: 1,
-                        pageSize: -1,
-                        stat: 0, // 未使用
-                    },
-                }).then(res => {
-                    if (res.success) {
-                        const coupons = res.data.records;
-                        let couponsEnable = [];
-                        let couponsDisable = [];
-                        for (const coupon of coupons) {
-                            if (
-                                coupon.withAmount <= this.totalPrice &&
-                                coupon.validEndTime > new Date().getTime() &&
-                                coupon.stat === 0
-                            ) {
-                                couponsEnable.push(coupon);
-                            }
-                            else {
-                                couponsDisable.push(coupon);
+                    // 填充订单项
+                    let packagingFee = 0;
+                    let cartList = data.cartList;
+                    let orderContent = [];
+                    // 准备订单项
+                    let orderItems = []; // 请求用的订单信息
+                    for (let cartItem of cartList) {
+                        let orderItem_q = {};
+                        orderItem_q["dishesId"] = cartItem.commodityId;
+                        orderItem_q["num"] = cartItem.amount;
+                        let customItemMap = {};
+                        // 填充自定义项
+                        let customSelectedItems = [];
+                        let customOptions = cartItem.customOptions.customOptions;
+                        if (customOptions) {
+                            if (customOptions.length > 0) {
+                                customOptions.forEach(customOption => {
+                                    customItemMap[customOption.customId] = [];
+                                    customOption.customItems.forEach(customItem => {
+                                        if (customItem.isSelected) {
+                                            customSelectedItems.push(customItem.customItemTitle); // 展示用的定制项
+                                            customItemMap[customOption.customId].push(customItem.customItemId); // 请求用的定制项
+                                        }
+                                    });
+                                });
+                                orderItem_q["customItemMap"] = customItemMap;
                             }
                         }
-                        this.couponsDisable = couponsDisable;
-                        this.couponsEnable = couponsEnable;
+                        orderItems.push(orderItem_q); // 组合请求用的订单项
+                        this.orderItems = orderItems;
+                        // 填充订单信息
+                        packagingFee += cartItem.packingCharges * cartItem.amount;
+                        let orderItem = {
+                            imageUrl: cartItem.imageUrl,
+                            name: cartItem.name, // {String} 商品名称
+                            description: customSelectedItems.join(";"), // {String} 商品规格/描述
+                            originPrice: cartItem.price,
+                            discountPrice: cartItem.discountPrice, // {Number|null} 商品单价优惠折扣后价格（若无则为null）
+                            amount: cartItem.amount, // {Number} 商品数量
+                        };
+                        orderContent.push(orderItem);
                     }
+                    // 填充优惠券喜喜
+                    getUserCoupon({
+                        queryData: {
+                            storeId: storeInfo.id,
+                            pageNumber: 1,
+                            pageSize: -1,
+                            stat: 0, // 未使用
+                        },
+                    }).then(res => {
+                        if (res.success) {
+                            const coupons = res.data.records;
+                            let couponsEnable = [];
+                            let couponsDisable = [];
+                            for (const coupon of coupons) {
+                                if (
+                                    coupon.withAmount <= this.totalPrice &&
+                                    coupon.validEndTime > new Date().getTime() &&
+                                    coupon.stat === 0
+                                ) {
+                                    couponsEnable.push(coupon);
+                                }
+                                else {
+                                    couponsDisable.push(coupon);
+                                }
+                            }
+                            this.couponsDisable = couponsDisable;
+                            this.couponsEnable = couponsEnable;
+                        }
+                    });
+                    this.orderContent = orderContent;
+                    this.packagingFee = packagingFee;
                 });
-                this.orderContent = orderContent;
-                this.packagingFee = packagingFee;
-            });
+            }
+            catch (e) {
+                uni.navigateBack();
+            }
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({

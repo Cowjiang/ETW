@@ -52,6 +52,7 @@
 <script>
     import {toast} from "@/components/toast/toast.vue";
     import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
+    import {getMyStoreInfo, getStoreInfo} from "@/common/js/api/models";
     export default {
         name: "index",
         components: {
@@ -88,12 +89,12 @@
                 operations: [
                     {
                         id: 0,
-                        name: '退出登录'
+                        name: '清除登陆状态'
                     },
                     {
                         id: 1,
                         name: '清除缓存'
-                    },
+                    }
                 ], //快捷调试操作列表（自行添加）
                 notes: [
                     '1. 首次使用体验版，需点击右上角"···"，点击菜单中的"开发调试"，然后点击"开启调试"，重新进入小程序才可正常使用',

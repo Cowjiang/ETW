@@ -261,9 +261,16 @@ export const putMyStoreInfo = (requestConfig) =>
         requestConfig,
     });
 
-//获取店铺信息
+//获取我的店铺信息（店家）
 export const getMyStoreInfo = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/store/info`, {
+        method: "GET",
+        requestConfig
+    });
+
+//获取店铺信息
+export const getStoreInfo = (requestConfig) =>
+    apiRequest(`${httpBaseUrl}/store/${requestConfig.urlParam.storeId}`, {
         method: "GET",
         requestConfig
     });

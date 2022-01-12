@@ -284,7 +284,7 @@
   .loading-container {
     position: absolute;
     background-color: var(--mask-color);
-    z-index: 9999999;
+    z-index: 9999998;
     opacity: 0;
     transition-property: opacity;
     transition-duration: 500ms;

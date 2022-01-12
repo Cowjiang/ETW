@@ -584,12 +584,26 @@
       display: flex;
       flex-direction: row;
 
+      view:first-child {
+        flex-shrink: 0;
+      }
+
       .select-remark__default {
         margin-left: auto;
+        display: flex;
+        flex-direction: row;
         color: #bbb;
         font-size: 28rpx;
 
+        .content {
+          max-width: 50vw;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
         .fa {
+          flex-shrink: 0;
           margin-left: 20rpx;
           font-size: 36rpx;
           color: #aaa;

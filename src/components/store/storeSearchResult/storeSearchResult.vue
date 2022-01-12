@@ -61,7 +61,7 @@
                   :style="{
                     backgroundColor: tag.backgroundColor,
                     borderColor: tag.borderColor,
-                    color: tag.color,
+                    color: tag.color
                   }"
                 >
                   {{ tag.content }}
