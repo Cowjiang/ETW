@@ -1,30 +1,28 @@
 <template>
   <view
     class="store-search-result-container animate__animated animate__fadeIn"
-    :style="{ height: `${windowHeight - navigationHeight - 60}px` }"
-  >
-    <view class="search-filter-container"></view>
+    :style="{ height: `${windowHeight - navigationHeight - 60}px` }">
+    <view class="search-filter-container">
+      <!-- 搜索过滤器区域 -->
+    </view>
     <view class="result-container">
       <scroll-view
         class="result-scroll-view"
         :scroll-y="true"
-        @scrolltolower="handleLoadMore"
-      >
+        @scrolltolower="handleLoadMore">
         <view
           class="store-container"
           v-for="store in storeSearchResult"
           :key="store.id"
           :data-storeid="store.id"
-          @click="toStoreMenu"
-        >
+          @click="toStoreMenu">
           <view class="info-container">
             <view class="img-container">
               <view class="image">
                 <image
                   :src="store.imgUrl"
                   style="width: 100%; height: 100%"
-                  mode="aspectFill"
-                ></image>
+                  mode="aspectFill"/>
               </view>
             </view>
             <view class="info">
@@ -41,9 +39,7 @@
                   :gutter="0"
                   :active-color="`#f4756b`"
                   :inactive-icon="`star-fill`"
-                  :inactive-color="`#ddd`"
-                >
-                </u-rate>
+                  :inactive-color="`#ddd`"/>
                 <text :class="formatScore(store.score) === '暂无评分' ? 'score__grey' : 'score__default'">
                   {{ formatScore(store.score) }}
                 </text>
@@ -62,8 +58,7 @@
                     backgroundColor: tag.backgroundColor,
                     borderColor: tag.borderColor,
                     color: tag.color
-                  }"
-                >
+                  }">
                   {{ tag.content }}
                 </view>
               </view>
@@ -73,15 +68,13 @@
         </view>
         <view
           class="load-more"
-          v-show="existMore && !loadingMore && storeSearchResult.length !== 0"
-        >
+          v-show="existMore && !loadingMore && storeSearchResult.length !== 0">
           <text>下拉加载更多</text>
         </view>
         <view
           class="load-more loading-more"
-          v-show="loadingMore && storeSearchResult.length !== 0"
-        >
-          <loading ref="loadingMore"></loading>
+          v-show="loadingMore && storeSearchResult.length !== 0">
+          <loading ref="loadingMore"/>
         </view>
         <view class="load-more" v-show="!existMore && storeSearchResult.length !== 0">
           <text>没有更多了哦 ~</text>
@@ -157,32 +150,30 @@
                             latitude: this.latitude === 0 ? null : this.latitude,
                         },
                         headerData: {"Content-type": "application/json"},
-                    })
-                        .then(res => {
-                            if (res.success) {
-                                this.loadingMore = false;
-                                if (res.data.records.length !== 0) {
-                                    //当前查询的结果数量不为0
-                                    res.data.records.forEach(store => {
-                                        this.storeSearchResult.push(store);
-                                    });
-                                    this.currentPage += 1;
-                                    if (res.data.records.length < this.pageSize) {
-                                        this.existMore = false;
-                                    }
-                                }
-                                else {
-                                    //当前查询的结果数量为0
+                    }).then(res => {
+                        if (res.success) {
+                            this.loadingMore = false;
+                            if (res.data.records.length !== 0) {
+                                //当前查询的结果数量不为0
+                                res.data.records.forEach(store => {
+                                    this.storeSearchResult.push(store);
+                                });
+                                this.currentPage += 1;
+                                if (res.data.records.length < this.pageSize) {
                                     this.existMore = false;
                                 }
-                                setTimeout(() => {
-                                    resolve(res.data);
-                                }, 0);
                             }
-                        })
-                        .catch((err) => {
-                            reject(err);
-                        });
+                            else {
+                                //当前查询的结果数量为0
+                                this.existMore = false;
+                            }
+                            setTimeout(() => {
+                                resolve(res.data);
+                            }, 0);
+                        }
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 });
             },
             // 下滑加载更多

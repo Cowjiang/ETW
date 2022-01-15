@@ -98,6 +98,9 @@ export const apiRequest = (url, paramObject) => {
                                 reject(res);
                                 break;
                             }
+                        case 4004:
+                            reject(res);
+                            break;
                         default:
                             break;
                     }

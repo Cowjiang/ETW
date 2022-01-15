@@ -149,7 +149,10 @@
                     }
                 }
             });
-            this.searchInputFocus = true;
+            this.searchInputFocus = false;
+        },
+        mounted() {
+            this.searchResult();
         }
     }
 </script>

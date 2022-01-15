@@ -167,7 +167,7 @@
 
                             }
                             this.$refs.loading.stopLoading();
-                        }, 500);
+                        }, 0);
                     })
                     .catch(err => {
                         console.log(err);

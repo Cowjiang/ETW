@@ -359,14 +359,14 @@ export const deleteCustom = (requestConfig) =>
         {method: "DELETE", requestConfig}
     );
 
-//  添加定制项
+// 添加定制项
 export const postCustomItem = (requestConfig) =>
     apiRequest(
         `${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/dishes/custom/${requestConfig.urlParam.customId}/item`,
         {method: "POST", requestConfig}
     );
 
-//  删除定制项
+// 删除定制项
 export const deleteCustomItem = (requestConfig) =>
     apiRequest(
         `${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/dishes/custom/${requestConfig.urlParam.customId}/item/${requestConfig.urlParam.itemId}`,
@@ -387,6 +387,13 @@ export const getMyOrder = (requestConfig = {}) =>
         requestConfig,
     });
 
+//获取订单详细信息
+export const getOrderDetail = (requestConfig = {}) =>
+    apiRequest(`${httpBaseUrl}/store/order/detail/${requestConfig.urlParam.orderId}`, {
+        method: "GET",
+        requestConfig,
+    });
+
 // 获取店铺的优惠券
 export const getCouponByStoreId = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/coupon`, {
@@ -397,8 +404,7 @@ export const getCouponByStoreId = (requestConfig) =>
 //领取优惠券
 export const userGetCoupon = (requestConfig) =>
     apiRequest(
-        `${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/user/coupon/${requestConfig.urlParam.couponId}`,
-        {
+        `${httpBaseUrl}/store/${requestConfig.urlParam.storeId}/user/coupon/${requestConfig.urlParam.couponId}`, {
             method: "POST",
             requestConfig,
         }

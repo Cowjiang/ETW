@@ -287,7 +287,7 @@
     z-index: 9999998;
     opacity: 0;
     transition-property: opacity;
-    transition-duration: 500ms;
+    transition-duration: 0ms;
 
     .loading-box {
       width: 10rpx;

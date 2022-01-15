@@ -166,7 +166,16 @@
                     }
                 },
                 {
-                    "path": "order/subpages/orderRemarks",
+                    "path": "order/subpages/orderRemarks/orderRemarks",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+
+                {
+                    "path": "order/subpages/orderDetail/orderDetail",
                     "style": {
                         "navigationBarTitleText": "",
                         "enablePullDownRefresh": false,

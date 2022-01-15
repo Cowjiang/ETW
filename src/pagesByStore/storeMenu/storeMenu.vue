@@ -2,29 +2,25 @@
   <view>
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
-    <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+    <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
     <storeInfoPopup
       v-model="showStoreInfoPopup"
       :info="storeInfo"
-      @close="showStoreInfoPopup = false"
-    >
-    </storeInfoPopup>
+      @close="showStoreInfoPopup = false"/>
 
     <view class="store-menu-container">
       <view
         class="store-image-container"
-        :style="{ height: `${navigationHeight + 200}px` }"
-      >
+        :style="{ height: `${navigationHeight + 200}px` }">
         <image
           style="filter: blur(1px)"
           :src="storeInfo.imgUrl"
-          mode="aspectFill"
-        ></image>
+          mode="aspectFill"/>
       </view>
       <view class="store-info-container">
         <view class="store-title-container">
           <view class="avatar-container">
-            <image class="avatar" :src="storeInfo.imgUrl" mode="aspectFill"></image>
+            <image class="avatar" :src="storeInfo.imgUrl" mode="aspectFill"/>
           </view>
           <view class="title-container">
             <view class="title">
@@ -34,8 +30,7 @@
               <i
                 class="fa fa-angle-right"
                 aria-hidden="true"
-                @click="handleStoreTitleClick"
-              ></i>
+                @click="handleStoreTitleClick"/>
             </view>
             <view class="tags-container">
               <view>营业中</view>
@@ -45,38 +40,32 @@
           </view>
           <view class="favorite-container">
             <view class="favorite-btn" @click="handleChangeFavorite">
-              <i class="fa fa-star-o" aria-hidden="true" v-show="!isFavourite"></i>
-              <i class="fa fa-star" aria-hidden="true" v-show="isFavourite"></i>
+              <i class="fa fa-star-o" aria-hidden="true" v-show="!isFavourite"/>
+              <i class="fa fa-star" aria-hidden="true" v-show="isFavourite"/>
             </view>
           </view>
         </view>
         <view
           class="announcement-container"
           v-if="storeInfo.characteristic != null"
-          @click="handleAnnouncementFold"
-        >
-          <i class="fa fa-volume-down" aria-hidden="true"></i>
+          @click="handleAnnouncementFold">
+          <i class="fa fa-volume-down" aria-hidden="true"/>
           <view
             class="announcement-text"
-            :style="{ whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}` }"
-          >
+            :style="{ whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}` }">
             {{ storeInfo.characteristic }}
           </view>
           <view class="unfold-btn" @click.stop="" @click="handleAnnouncementFold">
             <i
               class="fa fa-angle-down"
               aria-hidden="true"
-              :style="{
-                transform: `${announcementFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`,
-              }"
-            ></i>
+              :style="{transform: `${announcementFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"/>
           </view>
         </view>
         <view class="discount-container" @click="handleDiscountFold">
           <view
             class="discount-tags"
-            :style="{ height: `${discountFolding ? 'rpx(40)' : 'fit-content'}` }"
-          >
+            :style="{ height: `${discountFolding ? '44rpx' : 'fit-content'}` }">
             <view
               class="tag"
               v-for="(tag, index) in discountTags"
@@ -86,8 +75,8 @@
                 borderColor: tag.borderColor,
                 color: tag.color,
               }"
-              @click="handleGetCoupon(tag.id)"
-            >
+              @click.stop=""
+              @click="handleGetCoupon(tag.id)">
               {{ tag.content }}
             </view>
           </view>
@@ -98,15 +87,13 @@
               aria-hidden="true"
               :style="{
                 transform: `${discountFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`,
-              }"
-            ></i>
+              }"/>
           </view>
         </view>
       </view>
       <view
         class="menu-container"
-        :style="{ height: `${windowHeight - navigationHeight - 130}px` }"
-      >
+        :style="{ height: `${windowHeight - navigationHeight - 130}px` }">
         <!-- 菜单顶部选项卡 -->
         <view class="menu-top-tabs-container">
           <view class="u-tabs-container">
@@ -117,15 +104,13 @@
               :current="currentTab"
               active-color="#f4756b"
               :bar-height="8"
-              @change="handleTabsChange"
-            ></u-tabs>
+              @change="handleTabsChange"/>
           </view>
           <view
             class="search-btn-container"
             v-if="currentTab === 0"
-            @click="handleOpenSearchPopup"
-          >
-            <i class="fa fa-search" aria-hidden="true"></i>
+            @click="handleOpenSearchPopup">
+            <i class="fa fa-search" aria-hidden="true"/>
             搜索
           </view>
         </view>
@@ -137,17 +122,12 @@
               class="type-item-container__default"
               :class="[
                 currentTypeId === type.id ? 'type-item-container__selected' : '',
-                currentTypeId - 1 === type.id
-                  ? 'type-item-container__selected-before'
-                  : '',
-                currentTypeId + 1 === type.id
-                  ? 'type-item-container__selected-after'
-                  : '',
+                currentTypeId - 1 === type.id ? 'type-item-container__selected-before' : '',
+                currentTypeId + 1 === type.id ? 'type-item-container__selected-after' : '',
               ]"
               v-for="type in menuList"
               :key="type.id"
-              @click="handleTypeClick(type.id)"
-            >
+              @click="handleTypeClick(type.id)">
               <view class="type-amount" v-if="!isNaN(type.amount) && type.amount !== 0">
                 {{ type.amount <= 99 ? type.amount : "99+" }}
               </view>
@@ -157,12 +137,7 @@
             </view>
             <view
               class="bottom-empty-box"
-              :style="{
-                borderTopRightRadius: `${
-                  currentTypeId === menuList.length ? '20rpx' : '0'
-                }`,
-              }"
-            >
+              :style="{borderTopRightRadius: `${currentTypeId === menuList.length ? '20rpx' : '0'}`}">
             </view>
           </scroll-view>
           <!-- 菜单商品滚动列表 -->
@@ -170,14 +145,12 @@
             class="commodity-container"
             :scroll-y="true"
             :scroll-into-view="scrollToTypeId"
-            :scroll-with-animation="true"
-          >
+            :scroll-with-animation="true">
             <view
               class="commodity-group-container"
               v-for="(type, typeIndex) in menuList"
               :key="type.id"
-              :id="`type${type.id}`"
-            >
+              :id="`type${type.id}`">
               <view class="group-name">
                 {{ type.typeName }}
               </view>
@@ -186,24 +159,20 @@
                 v-for="(commodity, commodityIndex) in type.dishes"
                 :key="commodity.id"
                 :data-typeId="type.id"
-                @touchstart="handleTouchStart"
-              >
+                @touchstart="handleTouchStart">
                 <view
                   class="commodity-image-container"
-                  @click="handleShowCommodityPopup(typeIndex, commodityIndex)"
-                >
+                  @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
                   <view class="commodity-image">
                     <image
                       :src="commodity.imageUrl"
                       mode="aspectFill"
-                      style="width: 100%; height: 100%"
-                    />
+                      style="width: 100%; height: 100%"/>
                   </view>
                 </view>
                 <view
                   class="commodity-info-container"
-                  @click="handleShowCommodityPopup(typeIndex, commodityIndex)"
-                >
+                  @click="handleShowCommodityPopup(typeIndex, commodityIndex)">
                   <view class="commodity-name">
                     {{ commodity.name }}
                   </view>
@@ -240,8 +209,7 @@
                       </view>
                       <view
                         class="origin-price"
-                        v-if="commodity.discountPrice !== commodity.price"
-                      >
+                        v-if="commodity.discountPrice !== commodity.price">
                         {{ commodity.price | showPrice }}
                       </view>
                     </view>
@@ -258,8 +226,7 @@
                           !commodity.isCustom
                         "
                         @click="handleMinusCommodity"
-                        @longpress="handleMinusCommodityLongPress"
-                      ></i>
+                        @longpress="handleMinusCommodityLongPress"/>
                       <view
                         class="amount"
                         v-show="
@@ -267,8 +234,7 @@
                           !isNaN(commodity.amount) &&
                           commodity.amount !== undefined &&
                           !commodity.isCustom
-                        "
-                      >
+                        ">
                         {{ commodity.amount || 0 }}
                       </view>
                       <i
@@ -277,15 +243,13 @@
                         :data-typeId="type.id"
                         :data-commodityId="commodity.id"
                         v-show="!commodity.isCustom"
-                        @click="handleAddCommodity($event, true)"
-                      ></i>
+                        @click="handleAddCommodity($event, true)"/>
                       <view
                         class="options-btn"
                         v-show="commodity.isCustom"
                         :data-typeId="type.id"
                         :data-commodityId="commodity.id"
-                        @click="handleAddCommodity($event, true)"
-                      >
+                        @click="handleAddCommodity($event, true)">
                         选规格
                         <view
                           class="amount"
@@ -293,8 +257,7 @@
                             commodity.amount !== 0 &&
                             !isNaN(commodity.amount) &&
                             commodity.isCustom
-                          "
-                        >
+                          ">
                           {{ commodity.amount }}
                         </view>
                       </view>
@@ -314,13 +277,12 @@
           height="50%"
           border-radius="30"
           z-index="3"
-          safe-area-inset-bottom
-        >
+          safe-area-inset-bottom>
           <view class="shopping-cart-container">
             <view class="title-container">
               <view class="amount-container"> 共 {{ totalAmount }} 件商品</view>
               <view class="clear-btn-container" @click="handleClearCartList">
-                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                <i class="fa fa-trash-o" aria-hidden="true"/>
                 清空购物车
               </view>
             </view>
@@ -332,14 +294,13 @@
                 <scroll-view
                   class="commodity-container"
                   :scroll-y="true"
-                  :scroll-with-animation="true"
-                >
+                  :scroll-with-animation="true">
                   <view class="commodity" v-for="item in cartList" :key="item.id">
                     <view class="image-container">
                       <image
                         class="image"
                         :src="item.imageUrl"
-                        mode="aspectFill" />
+                        mode="aspectFill"/>
                     </view>
                     <view class="info-container">
                       <view class="name">
@@ -393,12 +354,11 @@
           height="80%"
           border-radius="30"
           z-index="5"
-          @close="handleCloseSearchPopup"
-        >
+          @close="handleCloseSearchPopup">
           <view class="search-container">
             <view class="input-container">
               <view class="input">
-                <i class="fa fa-search" aria-hidden="true"></i>
+                <i class="fa fa-search" aria-hidden="true"/>
                 <input
                   type="text"
                   v-model="searchValue"
@@ -413,23 +373,18 @@
               <scroll-view
                 class="result-scroll-view"
                 :scroll-y="true"
-                :scroll-with-animation="true"
-              >
+                :scroll-with-animation="true">
                 <view
                   class="search-result-item"
                   v-for="(result, index) in searchResultList"
                   :key="index"
-                  @click="
-                    handleShowCommodityPopup(result.typeIndex, result.commodityIndex)
-                  "
-                >
+                  @click="handleShowCommodityPopup(result.typeIndex, result.commodityIndex)">
                   <view class="image-container">
                     <view class="image">
                       <image
                         :src="result.commodityImageUrl"
                         style="width: 100%; height: 100%"
-                        mode="aspectFill"
-                      />
+                        mode="aspectFill"/>
                     </view>
                   </view>
                   <view class="info-container">
@@ -454,23 +409,16 @@
           border-radius="30"
           closeable
           z-index="5"
-          @close="handleCloseCommodityPopup"
-        >
+          @close="handleCloseCommodityPopup">
           <view
             class="commodity-detail-container"
-            v-if="currentSelectedCommodity.commodityIndex !== undefined"
-          >
+            v-if="currentSelectedCommodity.commodityIndex !== undefined">
             <view class="image-container">
               <view class="image">
                 <image
-                  :src="
-                    menuList[currentSelectedCommodity.typeIndex].dishes[
-                      currentSelectedCommodity.commodityIndex
-                    ].imageUrl
-                  "
+                  :src="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].imageUrl"
                   mode="aspectFill"
-                  style="width: 100%"
-                />
+                  style="width: 100%"/>
               </view>
             </view>
             <view class="info-container">
@@ -492,8 +440,7 @@
                 <view
                   class="option-container"
                   v-for="(option, optionIndex) in menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptions"
-                  :key="option.customId"
-                >
+                  :key="option.customId">
                   <view class="option-title">
                     {{ option.customName }}
                   </view>
@@ -507,8 +454,7 @@
                       :data-commodityIndex="currentSelectedCommodity.commodityIndex"
                       :data-optionIndex="optionIndex"
                       :data-optionItemIndex="optionItemIndex"
-                      @click="handleCustomOptionClick"
-                    >
+                      @click="handleCustomOptionClick">
                       {{ optionItem.customItemTitle }}
                     </view>
                   </view>
@@ -528,16 +474,14 @@
                 <i
                   class="fa fa-minus-circle"
                   aria-hidden="true"
-                  @click="handleMinusAmountTemp"
-                ></i>
+                  @click="handleMinusAmountTemp"/>
                 <view class="amount">
                   {{ amountTemp }}
                 </view>
                 <i
                   class="fa fa-plus-circle"
                   aria-hidden="true"
-                  @click="handleAddAmountTemp"
-                ></i>
+                  @click="handleAddAmountTemp"/>
               </view>
             </view>
             <view class="add-to-cart-container">
@@ -545,8 +489,7 @@
                 class="add-btn"
                 :data-typeId="menuList[currentSelectedCommodity.typeIndex].id"
                 :data-commodityId="menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].id"
-                @click="handleAddToCartBtnClick"
-              >
+                @click="handleAddToCartBtnClick">
                 加入购物车
               </view>
             </view>
@@ -559,9 +502,8 @@
             @click="handleOpenCartPopup"
             :style="{
               transform: `${showCartPopup ? 'translateX(-100rpx)' : 'translateX(30rpx)'}`,
-            }"
-          >
-            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+            }">
+            <i class="fa fa-shopping-cart" aria-hidden="true"/>
             <view class="total-amount" v-show="totalAmount !== 0">
               {{ totalAmount }}
             </view>
@@ -572,16 +514,13 @@
               :style="{
                 marginLeft: `${showCartPopup ? '40rpx' : '150rpx'}`,
                 color: `${showCartPopup ? '#f4756b' : '#333'}`,
-              }"
-            >
+              }">
               <text>
                 {{ parseInt(totalPrice) | showPrice }}
               </text>
               <text>
                 {{
-                  totalPrice.toString().split(".")[1] === undefined
-                    ? ""
-                    : `.${totalPrice.toString().split(".")[1]}`
+                  totalPrice.toString().split(".")[1] === undefined ? "" : `.${totalPrice.toString().split(".")[1]}`
                 }}
               </text>
               <text class="origin-price" v-show="totalOriginalPrice !== totalPrice">
@@ -591,8 +530,7 @@
             <view
               class="pay-container"
               :class="payable ? 'pay-container__default' : 'pay-container__reject'"
-              @click="handlePayBtnClick"
-            >
+              @click="handlePayBtnClick">
               结算
             </view>
           </view>
@@ -608,7 +546,6 @@
     import {loading} from "@/components/loading/loading.vue";
     import {storeInfoPopup} from "@/components/store/storeInfoPopup/storeInfoPopup.vue";
     import {selectTimePopup} from "@/components/selectPopup/selectTime/selectTime.vue";
-    import menuList from "@/common/js/fakeData/storeMenu.js";
     import {getCouponByStoreId, getStoreInfo, getStoreMenu, userGetCoupon,} from "@/common/js/api/models";
 
     export default {
@@ -722,34 +659,36 @@
              * @param couponId 优惠券id
              */
             handleGetCoupon(couponId) {
-                userGetCoupon({
-                    urlParam: {
-                        storeId: this.storeInfo.id,
-                        couponId,
-                    },
-                }).then(res => {
-                    if (res.success) {
-                        this.$refs.toast.show({
-                            text: '领取成功',
-                            type: 'success',
-                            direction: 'top'
-                        });
-                    }
-                    else {
+                this.utils.throttle(() => {
+                    userGetCoupon({
+                        urlParam: {
+                            storeId: this.storeInfo.id,
+                            couponId,
+                        },
+                    }).then(res => {
+                        if (res.success) {
+                            this.$refs.toast.show({
+                                text: '领取成功',
+                                type: 'success',
+                                direction: 'top'
+                            });
+                        }
+                        else {
+                            this.$refs.toast.show({
+                                text: '领取失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }
+                    }).catch(error => {
+                        console.error(error);
                         this.$refs.toast.show({
                             text: '领取失败',
                             type: 'error',
                             direction: 'top'
                         });
-                    }
-                }).catch(error => {
-                    console.error(error);
-                    this.$refs.toast.show({
-                        text: '领取失败',
-                        type: 'error',
-                        direction: 'top'
                     });
-                });
+                }, 2500);
             },
             /**
              * 菜品添加按钮点击事件

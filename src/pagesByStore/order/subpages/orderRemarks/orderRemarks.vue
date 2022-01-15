@@ -56,10 +56,14 @@
             }
         },
         onLoad() {
-            const eventChannel = this.getOpenerEventChannel();
-            eventChannel.on("acceptDataFromOpenerPage", data => {
-                this.remarksContent = data.orderRemarks;
-            });
+            try {
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.on("acceptDataFromOpenerPage", data => {
+                    this.remarksContent = data.orderRemarks;
+                });
+            } catch (e) {
+                uni.navigateBack();
+            }
         },
         mounted() {
             this.$refs.navigationBar.setNavigation({
@@ -71,16 +75,5 @@
 </script>
 
 <style lang="scss" scoped>
-  .order-remarks-container {
-    .confirm-btn {
-      width: calc(100% - 74rpx);
-      height: 80rpx;
-      margin: 20rpx 36rpx;
-      background-color: #f4756b;
-      border-radius: 14rpx;
-      color: #fff;
-      text-align: center;
-      line-height: 80rpx;
-    }
-  }
+  @import "orderRemarks";
 </style>

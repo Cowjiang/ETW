@@ -624,7 +624,7 @@
                         else {
                             this.getChatHistory(this.messageRecords[0].time);
                         }
-                    }, 300);
+                    }, 0);
                 }
                 else {
                     this.refresherTriggered = false;

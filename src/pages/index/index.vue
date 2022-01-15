@@ -52,7 +52,7 @@
 <script>
     import {toast} from "@/components/toast/toast.vue";
     import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
-    import {getMyStoreInfo, getStoreInfo} from "@/common/js/api/models";
+
     export default {
         name: "index",
         components: {
@@ -94,6 +94,10 @@
                     {
                         id: 1,
                         name: '清除缓存'
+                    },
+                    {
+                        id: 2,
+                        name: '订单详情页（调试）'
                     }
                 ], //快捷调试操作列表（自行添加）
                 notes: [
@@ -157,6 +161,16 @@
                             type: 'success'
                         });
                         break;
+                    case 2:
+                        uni.navigateTo({
+                            url: '/pagesByStore/order/subpages/orderDetail/orderDetail',
+                            success: res => {
+                                res.eventChannel.emit("acceptDataFromOpenerPage", {
+                                    orderId: 'daace2d45399de104776342f3a6eedef',
+                                });
+                            },
+                        });
+                        break;
                     default:
                         this.$refs.toast.show({
                             text: `未设置指定操作`,
@@ -178,60 +192,5 @@
 </script>
 
 <style lang="scss" scoped>
-  .index-container {
-    width: 100%;
-    height: fit-content;
-    padding: 30rpx 0;
-
-    .page-btn-list, .operation-btn-list, .note-list {
-      padding: 30rpx 0 40rpx 0;
-
-      .notes {
-        width: 100%;
-        height: fit-content;
-        padding: 0 80rpx;
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-        align-self: center;
-
-        .note {
-          margin: 14rpx 0;
-          color: #888;
-          font-size: 24rpx;
-        }
-      }
-    }
-
-    .title {
-      width: 100%;
-      height: fit-content;
-      padding: 10rpx 0;
-      text-align: center;
-      font-size: 26rpx;
-      color: #333;
-    }
-
-    .btn-list {
-      width: 100%;
-      height: fit-content;
-      padding: 0 40rpx;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-self: center;
-
-      .btn {
-        width: 40%;
-        height: 80rpx;
-        margin: 14rpx 10rpx;
-        background-color: #f6f6f6;
-        color: #333;
-        border-radius: 20rpx;
-        text-align: center;
-        line-height: 80rpx;
-      }
-    }
-  }
+  @import 'index';
 </style>

@@ -2,7 +2,8 @@
   <view>
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <scroll-view scroll-y class="order-list-container" @scrolltolower="nextPage">
-      <view class="order-details-container" :key="index" v-for="(order, index) in orders">
+      <view class="order-details-container" :key="index" v-for="(order, index) in orders"
+            @click="gotoDetail(order.id)">
         <!-- 店铺信息 -->
         <view class="store-title-container">
           <view class="store-title-avatar">
@@ -77,9 +78,9 @@
               v-else
               @click="applyToRefunds(order.id)"
               :disabled="order.stat >= 5"
-            >申请退款
-            </u-button
             >
+              申请退款
+            </u-button>
           </view>
         </view>
         <!-- 底部按钮组 -->
@@ -143,11 +144,16 @@
              * @return {String} 格式化后的联系人姓名
              */
             formatContactName(contactName) {
-                if (contactName.endsWith('{#先生}')) {
-                    return `${contactName.replace('{#先生}', '')}(先生)`;
-                }
-                else if (contactName.endsWith('{#女士}')) {
-                    return `${contactName.replace('{#女士}', '')}(女士)`;
+                if (contactName) {
+                    if (contactName.endsWith('{#先生}')) {
+                        return `${contactName.replace('{#先生}', '')}(先生)`;
+                    }
+                    else if (contactName.endsWith('{#女士}')) {
+                        return `${contactName.replace('{#女士}', '')}(女士)`;
+                    }
+                    else {
+                        return contactName;
+                    }
                 }
                 else {
                     return contactName;
@@ -263,6 +269,16 @@
                     }
                 });
             },
+            gotoDetail(orderId) {
+                uni.navigateTo({
+                    url: '/pagesByStore/order/subpages/orderDetail/orderDetail',
+                    success: res => {
+                        res.eventChannel.emit("acceptDataFromOpenerPage", {
+                            orderId: orderId,
+                        });
+                    },
+                });
+            }
         },
     };
 </script>

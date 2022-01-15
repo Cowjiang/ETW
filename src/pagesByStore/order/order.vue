@@ -2,7 +2,7 @@
   <view>
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
-    <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+    <loading ref="loading" fullscreen maskColor="#f6f6f6" />
     <storeInfoPopup
       v-model="showStoreInfoPopup"
       :info="storeInfo"
@@ -23,11 +23,7 @@
           <!-- 到店自取的标签 -->
           <view
             class="tag--default"
-            :class="
-              isTakeOut
-                ? 'tag--unselect tag-left--unselect'
-                : 'tag--selected tag-left--selected'
-            "
+            :class="isTakeOut ? 'tag--unselect tag-left--unselect' : 'tag--selected tag-left--selected'"
             data-name="tagLeft"
             @click="handleChangeTags"
           >
@@ -36,11 +32,7 @@
           <!-- 外卖配送的标签 -->
           <view
             class="tag--default tag--right"
-            :class="
-              isTakeOut
-                ? 'tag--selected tag-right--selected'
-                : 'tag--unselect tag-right--unselect'
-            "
+            :class="isTakeOut ? 'tag--selected tag-right--selected' : 'tag--unselect tag-right--unselect'"
             data-name="tagRight"
             @click="handleChangeTags"
           >
@@ -178,11 +170,7 @@
                   {{ commodity.originPrice | showPrice }}
                 </view>
                 <view class="discount-price">
-                  {{
-                    commodity.discountPrice === null
-                      ? commodity.originPrice
-                      : commodity.discountPrice | showPrice
-                  }}
+                  {{ commodity.discountPrice === null ? commodity.originPrice : commodity.discountPrice | showPrice }}
                 </view>
               </view>
               <view class="commodity-amount">
@@ -207,14 +195,7 @@
               优惠券
               <view class="coupon-tag"> 券</view>
               <view class="select-coupon__default">
-                {{
-                  currentCouponId == 0
-                    ? "暂无可用"
-                    : "满" +
-                    couponsEnable[currentCouponIndex].withAmount / 100.0 +
-                    "减" +
-                    couponsEnable[currentCouponIndex].usedAmount / 100.0
-                }}
+                {{currentCouponId === 0 ? "暂无可用" : `满${couponsEnable[currentCouponIndex].withAmount / 100.0}减${couponsEnable[currentCouponIndex].usedAmount / 100.0}` }}
                 <i class="fa fa-angle-right" aria-hidden="true"></i>
               </view>
             </view>
@@ -245,21 +226,12 @@
       <view class="fixed-bar-container">
         <view class="discount-price">
           已优惠
-          {{
-            currentCouponId == 0
-              ? totalDiscount
-              : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | showPrice
-          }}
+          {{ currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | showPrice }}
         </view>
         <view class="total-price">
           <text style="font-size: 30rpx">
             <text style="font-size: 42rpx">
-              {{
-                currentCouponId == 0
-                  ? parseInt(orderPrice)
-                  : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount)
-                  | showPrice
-              }}
+              {{ currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | showPrice }}
               <!-- <text style="font-size: 30rpx">
                 {{ orderPrice.toString().split(".")[1] || "00" }}
               </text> -->
@@ -479,7 +451,7 @@
             //编辑订单备注
             editRemarks() {
                 uni.navigateTo({
-                    url: '/pagesByStore/order/subpages/orderRemarks',
+                    url: '/pagesByStore/order/subpages/orderRemarks/orderRemarks',
                     success: res => {
                         res.eventChannel.emit("acceptDataFromOpenerPage", {
                             orderRemarks: this.orderRemarks,
@@ -612,15 +584,18 @@
              * @return {String} 格式化后的联系人姓名
              */
             formatContactName(contactName) {
-                if (contactName.endsWith("{#先生}")) {
-                    return `${contactName.replace("{#先生}", "")}（先生）`;
+                if (contactName) {
+                    if (contactName.endsWith("{#先生}")) {
+                        return `${contactName.replace("{#先生}", "")}（先生）`;
+                    }
+                    else if (contactName.endsWith("{#女士}")) {
+                        return `${contactName.replace("{#女士}", "")}（女士）`;
+                    }
+                    else {
+                        return contactName;
+                    }
                 }
-                else if (contactName.endsWith("{#女士}")) {
-                    return `${contactName.replace("{#女士}", "")}（女士）`;
-                }
-                else {
-                    return contactName;
-                }
+                else return '';
             },
         },
         watch: {},

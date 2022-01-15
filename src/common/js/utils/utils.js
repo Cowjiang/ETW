@@ -72,7 +72,7 @@ export class Utils {
         wx.getSystemInfo({
             success: res => windowWidth = res.windowWidth,
         });
-        let { height, top, right } = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+        const { height, top, right } = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
         return height + top + windowWidth - right;
     }
 

@@ -111,42 +111,44 @@
              * @param searchValue {String} 搜索字符串
              */
             addHistory(searchValue) {
-                let searchHistoryList = [];
-                wx.getStorage({
-                    key: 'searchHistoryList',
-                    success: res => {
-                        searchHistoryList = res.data;
-                        searchHistoryList.forEach((item, index) => {
-                            if (item.content === searchValue) {
-                                searchHistoryList.splice(index, 1);
-                            }
-                        });
-                        searchHistoryList.unshift({
-                            id: Date.parse(Date()),
-                            content: searchValue,
-                            isDeleted: false
-                        });
-                        wx.setStorage({
-                            key: 'searchHistoryList',
-                            data: searchHistoryList
-                        });
-                    },
-                    fail: () => {
-                        searchHistoryList = [];
-                        searchHistoryList.unshift({
-                            id: Date.parse(Date()),
-                            content: searchValue,
-                            isDeleted: false
-                        });
-                        wx.setStorage({
-                            key: 'searchHistoryList',
-                            data: searchHistoryList
-                        });
-                    },
-                    complete: () => {
-                        this.init();
-                    }
-                })
+                if(searchValue.replace(/\s*/g, "") !== '') {
+                    let searchHistoryList = [];
+                    wx.getStorage({
+                        key: 'searchHistoryList',
+                        success: res => {
+                            searchHistoryList = res.data;
+                            searchHistoryList.forEach((item, index) => {
+                                if (item.content === searchValue) {
+                                    searchHistoryList.splice(index, 1);
+                                }
+                            });
+                            searchHistoryList.unshift({
+                                id: Date.parse(Date()),
+                                content: searchValue,
+                                isDeleted: false
+                            });
+                            wx.setStorage({
+                                key: 'searchHistoryList',
+                                data: searchHistoryList
+                            });
+                        },
+                        fail: () => {
+                            searchHistoryList = [];
+                            searchHistoryList.unshift({
+                                id: Date.parse(Date()),
+                                content: searchValue,
+                                isDeleted: false
+                            });
+                            wx.setStorage({
+                                key: 'searchHistoryList',
+                                data: searchHistoryList
+                            });
+                        },
+                        complete: () => {
+                            this.init();
+                        }
+                    });
+                }
             },
             // 搜索输入框聚焦事件
             handleSearchInputFocus() {
