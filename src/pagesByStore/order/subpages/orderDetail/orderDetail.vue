@@ -14,8 +14,11 @@
             {{ orderDetail.stat | showStatusDescription }}
           </view>
           <view class="custom-btn" v-if="orderDetail.stat >= 0">
-            <button class="btn" open-type="contact">
-              {{ orderDetail.stat | showBtnText }}
+            <button class="btn" open-type="contact" v-if="showBtnText(orderDetail.stat) === '联系客服'">
+              {{ showBtnText(orderDetail.stat) }}
+            </button>
+            <button class="btn" v-else @click="handleCustomBtnClick(orderDetail.stat)">
+              {{ showBtnText(orderDetail.stat) }}
             </button>
           </view>
         </view>
@@ -74,7 +77,7 @@
               </view>
             </view>
             <view class="order-price-container">
-              <view class="row">
+              <view class="row" v-if="orderDetail.isTakeOut">
                 <view class="title">
                   配送费
                 </view>
@@ -194,8 +197,9 @@
     import {toast} from "@/components/toast/toast.vue";
     import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
     import {loading} from "@/components/loading/loading.vue";
-    import {getOrderDetail} from "@/common/js/api/models";
+    import {applyToRefunds, getOrderDetail, getOrderWxPayInfo} from "@/common/js/api/models";
     import {dateFilter} from "@/common/js/utils/filters";
+    import {toPayment} from "@/common/js/utils/common";
 
     export default {
         name: "orderDetail",
@@ -231,9 +235,6 @@
                         type: 'error',
                         direction: 'top'
                     });
-                    setTimeout(() => {
-                        uni.navigateBack();
-                    }, 3000);
                 });
             },
             // 复制订单编号
@@ -244,20 +245,45 @@
             },
             // 页面底部按钮触发事件
             moreAction() {
+                let ActionSheetItems = []; //菜单项列表
+                if (this.orderDetail.stat === 2 || this.orderDetail.stat === 3) {
+                    ActionSheetItems = ['查看店铺', '我要退款'];
+                }
+                else {
+                    ActionSheetItems = ['查看店铺'];
+                }
                 uni.showActionSheet({
-                    itemList: ['查看店铺', '我要退款'],
+                    itemList: ActionSheetItems,
                     success: res => {
                         switch (res.tapIndex) {
                             case 0:
                                 this.gotoStore();
                                 break;
                             case 1:
-                                //退款
+                                this.gotoRefund();
                                 break;
                         }
                     }
                 });
             },
+            /**
+             * 订单状态自定义按钮点击事件
+             * @param statusCode {Number} 订单状态码
+             */
+            handleCustomBtnClick(statusCode) {
+                switch (statusCode) {
+                    case 1:
+                        this.gotoPay();
+                        break;
+                    case 0:
+                    case 2:
+                    case 3:
+                    case 6:
+                        this.gotoStore();
+                        break;
+                }
+            },
+            // 跳转店铺菜单页面
             gotoStore() {
                 wx.navigateTo({
                     url: "/pagesByStore/storeMenu/storeMenu",
@@ -269,6 +295,57 @@
                         });
                     },
                 });
+            },
+            // 跳转微信支付
+            gotoPay() {
+                getOrderWxPayInfo({
+                    urlParam: {
+                        orderId: this.orderId,
+                    },
+                }).then(res => {
+                    if (res.success) {
+                        toPayment(res.data).then(payRes => {
+                            this.getOrderDetail();
+                        });
+                    }
+                });
+            },
+            // 申请订单退款
+            gotoRefund() {
+                applyToRefunds({
+                    urlParam: {
+                        orderId: this.orderId,
+                    },
+                    queryData: {
+                        reason: "我想退款",
+                    },
+                }).then(res => {
+                    if (res.success) {
+                        this.getOrderDetail();
+                    }
+                });
+            },
+            /**
+             * 显示订单按钮文字
+             * @param statusCode {Number} 订单状态码
+             * @return {String} 订单按钮文字
+             */
+            showBtnText(statusCode) {
+                switch (statusCode) {
+                    case 0:
+                    case 2:
+                    case 3:
+                    case 6:
+                        return '再来一单';
+                    case 1:
+                        return '立即支付';
+                    case 4:
+                    case 5:
+                    case 7:
+                        return '联系店家';
+                    default:
+                        return '联系客服';
+                }
             },
         },
         computed: {},
@@ -325,28 +402,6 @@
                         return '钱款将原路返回到您的钱包';
                     default:
                         return '';
-                }
-            },
-            /**
-             * 显示订单按钮文字
-             * @param statusCode {Number} 订单状态码
-             * @return {String} 订单按钮文字
-             */
-            showBtnText(statusCode) {
-                switch (statusCode) {
-                    case 0:
-                    case 2:
-                    case 3:
-                    case 6:
-                        return '再来一单';
-                    case 1:
-                        return '立即支付';
-                    case 4:
-                    case 5:
-                    case 7:
-                        return '联系店家';
-                    default:
-                        return '联系客服';
                 }
             },
             /**
@@ -420,16 +475,16 @@
             },
         },
         mounted() {
-            this.$refs.loading.startLoading();
             this.$refs.navigationBar.setNavigation({
                 titleText: '订单详情',
                 backgroundColor: '#f6f6f6'
             });
         },
         async onLoad() {
+            this.$refs.loading.startLoading();
             try {
                 const eventChannel = this.getOpenerEventChannel();
-                eventChannel.on("acceptDataFromOpenerPage", async data => {
+                eventChannel.on("orderInfo", async data => {
                     this.orderId = data.orderId;
                     await this.getOrderDetail();
                 });

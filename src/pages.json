@@ -166,6 +166,14 @@
                     }
                 },
                 {
+                    "path": "order/subpages/orderList/orderList",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "order/subpages/orderRemarks/orderRemarks",
                     "style": {
                         "navigationBarTitleText": "",

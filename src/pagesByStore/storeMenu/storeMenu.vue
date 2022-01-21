@@ -1335,10 +1335,15 @@
                             type: 'error',
                             direction: 'top'
                         });
-                        setTimeout(() => {
-                            uni.navigateBack();
-                        }, 3000);
                     })
+                }
+                else {
+                    console.error(storeInfo);
+                    this.$refs.toast.show({
+                        text: '获取店铺菜单失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
                 }
             } catch (err) {
                 uni.navigateBack();

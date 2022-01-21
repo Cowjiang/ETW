@@ -98,6 +98,10 @@
                     {
                         id: 2,
                         name: '订单详情页（调试）'
+                    },
+                    {
+                        id: 3,
+                        name: '订单列表页（新）'
                     }
                 ], //快捷调试操作列表（自行添加）
                 notes: [
@@ -165,10 +169,15 @@
                         uni.navigateTo({
                             url: '/pagesByStore/order/subpages/orderDetail/orderDetail',
                             success: res => {
-                                res.eventChannel.emit("acceptDataFromOpenerPage", {
+                                res.eventChannel.emit("orderInfo", {
                                     orderId: 'daace2d45399de104776342f3a6eedef',
                                 });
                             },
+                        });
+                        break;
+                    case 3:
+                        uni.navigateTo({
+                            url: '/pagesByStore/order/subpages/orderList/orderList'
                         });
                         break;
                     default:
