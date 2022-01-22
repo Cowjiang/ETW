@@ -4,7 +4,9 @@
     <toast ref="toast"/>
     <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
 
-    <view class="order-detail-container">
+    <view
+      class="order-detail-container"
+      :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}">
       <view class="card card-1">
         <view class="order-status-container">
           <view class="status">
@@ -125,7 +127,7 @@
               {{ orderDetail.contacts | formatContactName }} {{ orderDetail.phone }}
             </view>
           </view>
-          <view class="row">
+          <view class="row" v-if="orderDetail.userNotes">
             <view class="title">
               订单备注
             </view>
@@ -208,6 +210,7 @@
         },
         data() {
             return {
+                navigationHeight: 0, //导航栏高度
                 orderId: '', //订单编号
                 orderDetail: {}, //订单详情信息
                 showMoreDetail: false, //是否显示更多订单详情信息
@@ -223,9 +226,16 @@
                 }).then(res => {
                     if (res.success) {
                         this.orderDetail = res.data;
-                        this.orderDetail.userNotes = '哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽哈喽'
                         this.$nextTick(() => {
                             this.$refs.loading.stopLoading();
+                        });
+                    }
+                    else {
+                        console.error(res);
+                        this.$refs.toast.show({
+                            text: '获取订单信息失败',
+                            type: 'error',
+                            direction: 'top'
                         });
                     }
                 }).catch(err => {
@@ -306,8 +316,12 @@
                     if (res.success) {
                         toPayment(res.data).then(payRes => {
                             this.getOrderDetail();
+                        }).catch(err => {
+                            console.log(err);
                         });
                     }
+                }).catch(err => {
+                    console.error(err);
                 });
             },
             // 申请订单退款
@@ -482,6 +496,7 @@
         },
         async onLoad() {
             this.$refs.loading.startLoading();
+            this.navigationHeight = this.utils.getNavigationHeight();
             try {
                 const eventChannel = this.getOpenerEventChannel();
                 eventChannel.on("orderInfo", async data => {

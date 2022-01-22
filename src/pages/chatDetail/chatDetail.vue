@@ -26,20 +26,20 @@
       <view
         class="message-area"
         :style="{
-                    height: `${windowHeight - navigationHeight - 60}px`,
-                    transform: `translateY(-${keyboardHeight}px)`
-                }">
+          height: `${windowHeight - navigationHeight - 60}px`,
+          transform: `translateY(-${keyboardHeight}px)`
+        }">
         <loading
           ref="loading"
           :parentClass="'message-area'"/>
         <scroll-view
           class="message-scroll-view"
           :style="{
-                        top: `${isBlocked ? '80rpx' : '100rpx'}`,
-                        height: `${isBlocked ? 'calc(100% - 80rpx)' : 'calc(100% - 100rpx)'}`,
-                        height: `${isBlocked ? 'calc(100% - 80rpx - constant(safe-area-inset-bottom))' : 'calc(100% - 100rpx - constant(safe-area-inset-bottom))'}`,
-                        height: `${isBlocked ? 'calc(100% - 80rpx - env(safe-area-inset-bottom))' : 'calc(100% - 100rpx - env(safe-area-inset-bottom))'}`
-                    }"
+            top: `${isBlocked ? '80rpx' : '100rpx'}`,
+            height: `${isBlocked ? 'calc(100% - 80rpx)' : 'calc(100% - 100rpx)'}`,
+            height: `${isBlocked ? 'calc(100% - 80rpx - constant(safe-area-inset-bottom))' : 'calc(100% - 100rpx - constant(safe-area-inset-bottom))'}`,
+            height: `${isBlocked ? 'calc(100% - 80rpx - env(safe-area-inset-bottom))' : 'calc(100% - 100rpx - env(safe-area-inset-bottom))'}`
+          }"
           ref="scrollView"
           :scroll-y="true"
           @scroll="handleScroll"
@@ -119,9 +119,9 @@
         <view
           class="more-btn-container"
           :style="{
-                        transform: `translateX(${inputFocusStatus ? '-120': '0'}rpx)`,
-                        opacity: `${isBlocked ? 0.7 : 1}`
-                    }">
+            transform: `translateX(${inputFocusStatus ? '-120': '0'}rpx)`,
+            opacity: `${isBlocked ? 0.7 : 1}`
+          }">
           <i
             class="fa fa-picture-o"
             aria-hidden="true"

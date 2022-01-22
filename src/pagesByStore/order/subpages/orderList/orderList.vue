@@ -4,97 +4,109 @@
     <toast ref="toast"/>
     <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
 
-    <view class="order-list-container">
-      <scroll-view
-        scroll-y
-        @scrolltolower="handleScrollToBottom">
-        <view
-          class="card"
-          v-for="order in orderList"
-          :key="order.id"
-          @click="gotoOrderDetail(order.id)">
-          <view class="order-info-container">
-            <view class="store-info" @click.stop="gotoStore(order.storeSimpleInfo.id)">
-              <view class="store-image">
-                <image
-                  class="image"
-                  :src="order.storeSimpleInfo.imgUrl"
-                  mode="aspectFill"/>
+    <view
+      class="order-list-container"
+      :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}">
+      <view
+        class="card"
+        v-for="order in orderList"
+        :key="order.id"
+        @click="gotoOrderDetail(order.id)">
+        <view class="order-info-container">
+          <view class="store-info" @click.stop="gotoStore(order.storeSimpleInfo.id)">
+            <view class="store-image">
+              <image
+                class="image"
+                :src="order.storeSimpleInfo.imgUrl"
+                mode="aspectFill"/>
+            </view>
+            <view class="store-name">
+              {{ order.storeSimpleInfo.name }}
+            </view>
+            <i class="fa fa-angle-right" aria-hidden="true"/>
+            <view class="order-status" @click.stop>
+              <view>
+                {{ order.stat | showOrderStatus }}
               </view>
-              <view class="store-name">
-                {{ order.storeSimpleInfo.name }}
+            </view>
+          </view>
+          <view class="commodity-info">
+            <view
+              class="commodity-container"
+              v-for="commodity in order.orderItems"
+              :key="commodity.dishesId">
+              <view class="commodity-image-container">
+                <view class="commodity-image">
+                  <image
+                    :src="commodity.imageUrl"
+                    mode="aspectFill"/>
+                </view>
               </view>
-              <i class="fa fa-angle-right" aria-hidden="true"/>
-              <view class="order-status" @click.stop>
-                <view>
-                  {{ order.stat | showOrderStatus }}
+              <view class="commodity-info-container">
+                <view class="commodity-name">
+                  {{ commodity.name }}
+                </view>
+                <view class="commodity-description">
+                  {{ commodity.customItems | showDescription }}
+                </view>
+                <view class="commodity-tags"></view>
+              </view>
+              <view class="commodity-price-container">
+                <view class="commodity-price">
+                  <!--                    <view class="origin-price" v-if="commodity.discountPrice !== null">-->
+                  <!--                      {{ commodity.price | showPrice }}-->
+                  <!--                    </view>-->
+                  <view class="discount-price">
+                    {{ commodity.totalFee | showPrice }}
+                  </view>
+                </view>
+                <view class="commodity-amount">
+                  {{ commodity.num | showAmount }}
                 </view>
               </view>
             </view>
-            <view class="commodity-info">
-              <view
-                class="commodity-container"
-                v-for="commodity in order.orderItems"
-                :key="commodity.dishesId">
-                <view class="commodity-image-container">
-                  <view class="commodity-image">
-                    <image
-                      :src="commodity.imageUrl"
-                      mode="aspectFill"/>
+            <view class="order-price-container">
+              <view class="total-price-container">
+                <view class="total-price-description">
+                  <view>
+                    共 {{ order.totalCount }} 件商品，合计
                   </view>
-                </view>
-                <view class="commodity-info-container">
-                  <view class="commodity-name">
-                    {{ commodity.name }}
-                  </view>
-                  <view class="commodity-description">
-                    {{ commodity.customItems | showDescription }}
-                  </view>
-                  <view class="commodity-tags"></view>
-                </view>
-                <view class="commodity-price-container">
-                  <view class="commodity-price">
-                    <!--                    <view class="origin-price" v-if="commodity.discountPrice !== null">-->
-                    <!--                      {{ commodity.price | showPrice }}-->
-                    <!--                    </view>-->
-                    <view class="discount-price">
-                      {{ commodity.totalFee | showPrice }}
-                    </view>
-                  </view>
-                  <view class="commodity-amount">
-                    {{ commodity.num | showAmount }}
+                  <view class="price">
+                    {{ order.totalPayment | showPrice }}
                   </view>
                 </view>
               </view>
-              <view class="order-price-container">
-                <view class="total-price-container">
-                  <view class="total-price-description">
-                    <view>
-                      共 {{ order.totalCount }} 件商品，合计
-                    </view>
-                    <view class="price">
-                      {{ order.totalPayment | showPrice }}
-                    </view>
+              <view class="row">
+                <view class="content">
+                  <view class="btn btn__light">
+                    查看详情
                   </view>
-                </view>
-                <view class="row">
-                  <view class="content">
-                    <view class="btn btn__light">
-                      查看详情
-                    </view>
-                    <view
-                      class="btn btn__solid"
-                      v-if="order.stat === 1"
-                      @click.stop="gotoPay(order.id)">
-                      立刻支付
-                    </view>
+                  <view
+                    class="btn btn__solid"
+                    v-if="order.stat === 1"
+                    @click.stop="gotoPay(order.id)">
+                    立刻支付
                   </view>
                 </view>
               </view>
             </view>
           </view>
         </view>
-      </scroll-view>
+      </view>
+      <view
+        class="empty"
+        :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}"
+        v-if="!orderList.length">
+        <view class="row">
+          一个订单都没有噢
+        </view>
+        <view class="row">
+          <view class="btn" @click="gotoStoreSearch">
+            到处逛逛
+          </view>
+        </view>
+      </view>
+      <view class="safe-area" v-else></view>
     </view>
   </view>
 </template>
@@ -114,8 +126,12 @@
         },
         data() {
             return {
+                windowWidth: 0, //窗口宽度
+                windowHeight: 0, //窗口高度
+                navigationHeight: 0, //导航栏高度
                 orderList: [], //订单列表数据
                 currentPage: 1, //当前分页页码
+                existMore: true, //是否还有更多记录
             }
         },
         methods: {
@@ -131,20 +147,43 @@
                 }).then(res => {
                     if (res.success) {
                         console.log(res.data.records)
-                        if (page === 1) {
-                            this.orderList = res.data.records;
+                        if (res.data.records.length) {
+                            //查询到订单记录
+                            if (page === 1) {
+                                this.orderList = res.data.records;
+                            }
+                            else {
+                                this.orderList = [...this.orderList, ...res.data.records];
+                            }
+                            this.currentPage += 1;
                         }
                         else {
-                            this.orderList = [...this.orderList, ...res.data.records];
+                            this.existMore = false;
                         }
                         this.$refs.loading.stopLoading();
                     }
+                    else {
+                        console.error(res);
+                        this.$refs.toast.show({
+                            text: '获取订单信息失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    this.$refs.toast.show({
+                        text: '获取订单信息失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
                 });
             },
             // 滚动列表至底部
             handleScrollToBottom() {
-                this.getOrderList(this.currentPage + 1);
-                this.currentPage += 1;
+                if (this.existMore) {
+                    this.getOrderList(this.currentPage + 1);
+                }
             },
             /**
              * 跳转订单详情页
@@ -178,6 +217,12 @@
                     }
                 });
             },
+            // 跳转店铺搜索页
+            gotoStoreSearch() {
+                uni.navigateTo({
+                    url: "/pagesByStore/storeSearch/storeSearch"
+                });
+            },
             /**
              * 跳转微信支付
              * @param {String} orderId 订单ID
@@ -191,8 +236,12 @@
                     if (res.success) {
                         toPayment(res.data).then(payRes => {
                             this.getOrderList();
+                        }).catch(err => {
+                            console.log(err);
                         });
                     }
+                }).catch(err => {
+                    console.error(err);
                 });
             },
         },
@@ -275,6 +324,9 @@
                 }
             },
         },
+        onReachBottom() {
+            this.handleScrollToBottom();
+        },
         mounted() {
             this.$refs.navigationBar.setNavigation({
                 titleText: '我的订单',
@@ -283,6 +335,13 @@
         },
         async onLoad() {
             this.$refs.loading.startLoading();
+            uni.getSystemInfo({
+                success: res => {
+                    this.windowWidth = res.windowWidth;
+                    this.windowHeight = res.windowHeight;
+                },
+            }); //获取窗口尺寸
+            this.navigationHeight = this.utils.getNavigationHeight();
             await this.getOrderList();
         }
     }
