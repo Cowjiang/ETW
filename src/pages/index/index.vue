@@ -83,7 +83,7 @@
                     },
                     {
                         name: '我的订单',
-                        url: '/pagesByStore/order/subpages/orderList'
+                        url: '/pagesByStore/order/subpages/orderList/orderList'
                     },
                 ], //快速跳转页面列表（自行添加）
                 operations: [
@@ -97,11 +97,7 @@
                     },
                     {
                         id: 2,
-                        name: '订单详情页（调试）'
-                    },
-                    {
-                        id: 3,
-                        name: '订单列表页（新）'
+                        name: '微信登陆'
                     }
                 ], //快捷调试操作列表（自行添加）
                 notes: [
@@ -166,18 +162,17 @@
                         });
                         break;
                     case 2:
-                        uni.navigateTo({
-                            url: '/pagesByStore/order/subpages/orderDetail/orderDetail',
-                            success: res => {
-                                res.eventChannel.emit("orderInfo", {
-                                    orderId: 'daace2d45399de104776342f3a6eedef',
+                        const currentPage = this.utils.getCurrentPage();
+                        uni.redirectTo({
+                            url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`,
+                            fail: err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: `路径错误`,
+                                    direction: 'top',
+                                    type: 'error'
                                 });
-                            },
-                        });
-                        break;
-                    case 3:
-                        uni.navigateTo({
-                            url: '/pagesByStore/order/subpages/orderList/orderList'
+                            }
                         });
                         break;
                     default:

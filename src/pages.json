@@ -90,6 +90,24 @@
             }
         },
         {
+            "path": "pages/login/wxLogin",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "disableScroll": true,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/login/wxRegisterPhone",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "disableScroll": true,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/home/home",
             "style": {
                 "navigationBarTitleText": "",

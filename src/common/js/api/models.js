@@ -28,9 +28,18 @@ export const getEmailCode = (requestConfig) =>
         method: "GET",
         requestConfig,
     });
-//微信登陆
+//微信登录
 export const wxLogin = (requestConfig) =>
-    apiRequest(`${httpBaseUrl}/user/wx/login`, {method: "POST", requestConfig});
+    apiRequest(`${httpBaseUrl}/login/wx`, {method: "POST", requestConfig});
+//微信注册
+export const wxRegister = (requestConfig) =>
+    apiRequest(`${httpBaseUrl}/user/register/wx`, {method: "POST", requestConfig});
+//微信注册：绑定微信个人信息
+export const wxUserProfile = (requestConfig) =>
+    apiRequest(`${httpBaseUrl}/user/wx/info`, {method: "PUT", requestConfig});
+//微信注册：绑定手机号码
+export const wxUserPhone = (requestConfig) =>
+    apiRequest(`${httpBaseUrl}/user/wx/phone`, {method: "PUT", requestConfig});
 //获取用户
 export const getUser = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/getUser`, {method: "GET", requestConfig});

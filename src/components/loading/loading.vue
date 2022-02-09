@@ -11,7 +11,7 @@
         top: `${positionConfig.top}px`,
         left: `${positionConfig.left}px`,
         opacity: `${isLoading ? '1' : '0'}`,
-        pointerEvents: `${pointerEvents}`,
+        pointerEvents: `${pointerEvents}`
       }">
       <view
         class="loading-box"
@@ -287,7 +287,7 @@
     z-index: 9999998;
     opacity: 0;
     transition-property: opacity;
-    transition-duration: 0ms;
+    transition-duration: 300ms;
 
     .loading-box {
       width: 10rpx;

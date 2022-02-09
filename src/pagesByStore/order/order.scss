@@ -665,6 +665,13 @@
       line-height: 78rpx;
       background-color: #f4756b;
       border-radius: 50rpx;
+      transition-duration: 300ms;
+      transition-property: background-color;
+    }
+
+    .pay-btn__disabled {
+      background-color: rgba(244, 117, 107, 0.5);
+      pointer-events: none;
     }
   }
 }

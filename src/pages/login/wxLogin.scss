@@ -1,0 +1,67 @@
+.wx-login-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 200rpx 0 80rpx 0;
+  padding-bottom: 50rpx;
+  padding-bottom: calc(constant(safe-area-inset-bottom) + 50rpx);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 50rpx);
+
+  .logo-container {
+    width: 100%;
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+      .image {
+        width: 100%;
+        text-align: center;
+
+        image {
+          width: 130rpx;
+          height: 130rpx;
+          border-radius: 50%;
+          overflow: hidden;
+        }
+      }
+
+      .name {
+        width: 100%;
+        margin-top: 10rpx;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+      }
+  }
+
+  .login-btn-container {
+    width: 100%;
+
+    .wx-login-btn {
+      width: 80%;
+      max-width: 800rpx;
+      height: 90rpx;
+      background-color: #f4756b;
+      border-radius: 100rpx;
+      color: #fff;
+      line-height: 90rpx;
+    }
+
+    .username-login {
+      width: 100%;
+      margin-top: 40rpx;
+      font-size: 28rpx;
+      color: #576991;
+      text-align: center;
+    }
+  }
+
+  .bottom-container {
+    width: 100%;
+    margin-top: auto;
+    text-align: center;
+  }
+}

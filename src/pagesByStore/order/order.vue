@@ -2,7 +2,7 @@
   <view>
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
-    <loading ref="loading" fullscreen maskColor="#f6f6f6" />
+    <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
     <storeInfoPopup
       v-model="showStoreInfoPopup"
       :info="storeInfo"
@@ -195,7 +195,9 @@
               优惠券
               <view class="coupon-tag"> 券</view>
               <view class="select-coupon__default">
-                {{currentCouponId === 0 ? "暂无可用" : `满${couponsEnable[currentCouponIndex].withAmount / 100.0}减${couponsEnable[currentCouponIndex].usedAmount / 100.0}` }}
+                {{
+                  currentCouponIndex === 0 ? "暂无可用" : `满${couponsEnable[currentCouponIndex].withAmount / 100.0}减${couponsEnable[currentCouponIndex].usedAmount / 100.0}`
+                }}
                 <i class="fa fa-angle-right" aria-hidden="true"></i>
               </view>
             </view>
@@ -226,19 +228,28 @@
       <view class="fixed-bar-container">
         <view class="discount-price">
           已优惠
-          {{ currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | showPrice }}
+          {{
+            currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | showPrice
+          }}
         </view>
         <view class="total-price">
           <text style="font-size: 30rpx">
             <text style="font-size: 42rpx">
-              {{ currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | showPrice }}
+              {{
+                currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | showPrice
+              }}
               <!-- <text style="font-size: 30rpx">
                 {{ orderPrice.toString().split(".")[1] || "00" }}
               </text> -->
             </text>
           </text>
         </view>
-        <view class="pay-btn" @click="toPay"> 支付</view>
+        <view
+          class="pay-btn"
+          :class="allowPay ? '' : 'pay-btn__disabled'"
+          @click="toPay">
+          支付
+        </view>
       </view>
     </view>
     <!-- 优惠券弹窗 -->
@@ -345,13 +356,13 @@
         methods: {
             // 切换自取/外送标签
             handleChangeTags(e) {
-                this.utils.throttle(() => {
+                this.utils.throttle(async () => {
                     if (
                         e.currentTarget.dataset.name === "tagRight" &&
                         this.takeOutInfo.id === undefined
                     ) {
                         //获取用户当前默认地址
-                        getDefaultAddress()
+                        await getDefaultAddress()
                             .then(res => {
                                 if (res.success && res.data.id != null) {
                                     this.takeOutInfo = {
@@ -367,11 +378,10 @@
                                 else {
                                     this.takeOutInfo = {};
                                 }
-                            },
-                            error => {
+                            })
+                            .catch(err => {
                                 this.takeOutInfo = {};
-                            }
-                        );
+                            });
                     }
                     this.isTakeOut = e.currentTarget.dataset.name !== "tagLeft";
                 }, 300);
@@ -493,13 +503,23 @@
                         },
                         queryData: params,
                         headerData: {"Content-type": "application/json"},
-                    }).then((res) => {
-                        console.log(res);
+                    }).then(res => {
                         toPayment(res.data).then((res) => {
-                            console.log("支付成功");
                             uni.navigateBack({
                                 delta: 999,
                             });
+                        }).catch(err => {
+                            this.$refs.toast.show({
+                                text: '支付失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        });
+                    }).catch(err => {
+                        this.$refs.toast.show({
+                            text: '下单失败',
+                            type: 'error',
+                            direction: 'top'
                         });
                     });
                 });
@@ -530,8 +550,7 @@
             totalPrice() {
                 let totalPrice = 0;
                 this.orderContent.forEach((v, k) => {
-                    totalPrice +=
-                        (v.discountPrice === null ? v.originPrice : v.discountPrice) * v.amount;
+                    totalPrice += (v.discountPrice === null ? v.originPrice : v.discountPrice) * v.amount;
                 });
                 totalPrice = totalPrice + this.deliveryFee;
                 this.orderPrice = totalPrice;
@@ -550,6 +569,14 @@
                 });
                 return totalDiscount;
             },
+            allowPay() {
+                if (this.isTakeOut) {
+                    return this.takeOutInfo.id != null;
+                }
+                else {
+                    return !(this.contactName === '' || this.contactPhone === '' || this.reservationTime === '');
+                }
+            }
         },
         filters: {
             /**
@@ -701,8 +728,7 @@
                     this.orderContent = orderContent;
                     this.packagingFee = packagingFee;
                 });
-            }
-            catch (e) {
+            } catch (e) {
                 uni.navigateBack();
             }
         },

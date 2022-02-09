@@ -421,10 +421,10 @@
                             })
                     },
                     fail: err => {
-                        // console.log(err);
+                        console.log(err);
                         let currentPage = this.utils.getCurrentPage();
                         uni.redirectTo({
-                            url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                            url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
                         });
                     }
                 });
@@ -530,10 +530,6 @@
                 titleText: '消息',
                 backgroundColor: '#f6f6f6'
             });
-            // getBlockList({})
-            //     .then(res => {
-            //         console.log(res)
-            //     })
         },
         onHide() {
             this.stopCheckingUpdate();

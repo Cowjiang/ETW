@@ -219,9 +219,9 @@
                                                     text: '登陆成功',
                                                     type: "success",
                                                 });
-                                                let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                                                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "/pages/chatList/chatList" : redirectPage}`,
+                                                    url: `/${redirectPage === null ? "/pages/index/index" : redirectPage}`,
                                                 });
                                             },
                                         });
@@ -284,29 +284,7 @@
             // 微信登陆按钮点击事件
             wechatLogin() {
                 this.utils.throttle(() => {
-                    // this.isShow = true;
-
-                    // uni.navigateTo({
-                    //     url: '/pages/amap/amap',
-                    // })
-                    uni.login({
-                        provider: 'weixin',
-                        success: res => {
-                            uni.request({
-                                url: 'https://shitukj.cn/service/user/wx/login',
-                                header: {
-                                    'content-type': 'application/x-www-form-urlencoded'
-                                },
-                                method: 'POST',
-                                data: {
-                                    code: res.code
-                                },
-                                success: res => {
-                                    console.log(res);
-                                }
-                            })
-                        }
-                    })
+                    uni.navigateBack();
                 });
             },
             /**

@@ -145,10 +145,6 @@
         onLoad() {
         },
         mounted() {
-            // wx.clearStorage();
-            wx.removeStorage({
-                key: 'userInfo'
-            });
             setTimeout(() => {
                 this.splashScreenExit();
             }, this.splashScreenDuration); //在启动界面持续时间结束后进入登录界面

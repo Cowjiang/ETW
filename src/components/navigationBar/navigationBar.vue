@@ -146,7 +146,7 @@
                             wx.navigateBack({
                                 fail: res => {
                                     uni.redirectTo({
-                                        url: `/pages/home/home`
+                                        url: `/pages/index/index`
                                     });
                                 }
                             }); //返回上一页
@@ -155,7 +155,7 @@
                         break;
                     case 2:
                         wx.navigateTo({
-                            url: "/pages/home/home",
+                            url: "/pages/index/index",
                         }); //跳转首页
                         this.resetNavigation();
                         break;
