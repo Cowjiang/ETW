@@ -1,93 +1,106 @@
 <template>
-    <view
-        id="page"
-        :style="{
-            backgroundColor: '#f6f6f6',
-            height: `calc(100vh - ${navigationHeight}px)`
-        }"
-        @touchstart="handleScreenTouchStart"
-        @touchend="handleScreenTouchEnd"
-        @touchcancel="handleScreenTouchEnd">
-        <navigationBar ref="navigationBar" class="navigation-bar"/>
-        <toast ref="toast"/>
-        <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
-        <!-- 地址簿容器 -->
-        <view class="address-book-container">
-            <view class="address-records">
-                <!-- 批量渲染地址记录 -->
-                <view
-                    class="address"
-                    :class="addressTouchingId === `address${index}` ? 'address--touching' : ''"
-                    v-for="(address, index) in addressRecords"
-                    :key="index"
-                    :data-name="`address${index}`"
-                    @click="handleClick"
-                    @touchstart="handleTouchStart"
-                    @touchend="handleTouchEnd"
-                    @touchcancel="handleTouchEnd"
-                    @longpress="handleLongPress">
-                    <view class="info">
-                        <view class="contact-name">
-                            {{ address.contactName | formatContactName }}
-                            <text class="contact-phone">
-                                {{ address.contactPhone }}
-                            </text>
-                        </view>
-                        <view class="contact-address">
-                            {{ address.addressDetail | formatAddressDetail(address.areaName) }}
-                        </view>
-                        <view
-                            class="default-address"
-                            v-show="address.isDefaultAddress">
-                            默认地址
-                        </view>
-                    </view>
-                    <view
-                        class="btn"
-                        v-if="!isSelectMode"
-                        :data-name="`address${index}`"
-                        @click="handleEdit">
-                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                    </view>
-                </view>
-                <!-- 加载更多容器 -->
-                <view class="load-more-container">
-                    <view v-show="existMore && !loadingMore" class="load-more">
-                        <text>{{ releaseToLoadMore ? '松开加载更多' : '下拉加载更多' }}</text>
-                    </view>
-                    <view
-                        v-show="loadingMore"
-                        class="load-more loading-more">
-                        <loading
-                            ref="loadingMore"
-                            maskColor="#f6f6f6"></loading>
-                    </view>
-                    <view
-                        v-show="!existMore && addressRecords.length !== 0"
-                        class="load-more">
-                        <text>没有更多了哦 ~</text>
-                    </view>
-                </view>
+  <view
+    id="page"
+    :style="{
+      backgroundColor: '#f6f6f6',
+      height: `calc(100vh - ${navigationHeight}px)`
+    }"
+    @touchstart="handleScreenTouchStart"
+    @touchend="handleScreenTouchEnd"
+    @touchcancel="handleScreenTouchEnd">
+    <navigationBar ref="navigationBar" class="navigation-bar"/>
+    <toast ref="toast"/>
+    <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+    <!-- 地址簿容器 -->
+    <view class="address-book-container">
+      <view class="address-records">
+        <!-- 批量渲染地址记录 -->
+        <view
+          class="address"
+          :class="addressTouchingId === `address${index}` ? 'address--touching' : ''"
+          v-for="(address, index) in addressRecords"
+          :key="index"
+          :data-name="`address${index}`"
+          @click="handleClick"
+          @touchstart="handleTouchStart"
+          @touchend="handleTouchEnd"
+          @touchcancel="handleTouchEnd"
+          @longpress="handleLongPress">
+          <view class="info">
+            <view class="contact-name">
+              {{ address.contactName | formatContactName }}
+              <text class="contact-phone">
+                {{ address.contactPhone }}
+              </text>
             </view>
-            <!-- 底部按钮区域 -->
+            <view class="contact-address">
+              {{ address.addressDetail | formatAddressDetail(address.areaName) }}
+            </view>
             <view
-                class="new-address-btn"
-                v-if="!isSelectMode"
-                :style="{opacity: `${isShowBottomBtn && !loadingMore ? 1 : 0}`}"
-                @click="handleAddAddress">
-                <view class="btn-text">
-                    新增地址
-                </view>
+              class="default-address"
+              v-show="address.isDefaultAddress">
+              默认地址
             </view>
+          </view>
+          <view
+            class="btn"
+            v-if="!isSelectMode"
+            :data-name="`address${index}`"
+            @click="handleEdit">
+            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+          </view>
         </view>
+        <!-- 加载更多容器 -->
+        <view class="load-more-container">
+          <view v-show="existMore && !loadingMore" class="load-more">
+            <text>{{ releaseToLoadMore ? '松开加载更多' : '下拉加载更多' }}</text>
+          </view>
+          <view
+            v-show="loadingMore"
+            class="load-more loading-more">
+            <loading
+              ref="loadingMore"
+              maskColor="#f6f6f6"></loading>
+          </view>
+          <view
+            v-show="!existMore && addressRecords.length !== 0"
+            class="load-more">
+            <text>没有更多了哦 ~</text>
+          </view>
+        </view>
+        <view
+          class="empty"
+          :style="{minHeight: `calc(100vh - ${navigationHeight + 40}px)`}"
+          v-if="!addressRecords.length">
+          <view class="row">
+            一个地址都没有噢
+          </view>
+          <view class="row">
+            <view class="btn" @click="handleAddAddress">
+              新增地址
+            </view>
+          </view>
+        </view>
+      </view>
+      <!-- 底部按钮区域 -->
+      <view
+        class="new-address-btn"
+        v-if="!isSelectMode && addressRecords.length"
+        :style="{opacity: `${isShowBottomBtn && !loadingMore ? 1 : 0}`}"
+        @click="handleAddAddress">
+        <view class="btn-text">
+          新增地址
+        </view>
+      </view>
     </view>
+  </view>
 </template>
 
 <script>
-    import {toast} from '../../components/toast/toast.vue';
-    import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {loading} from '../../components/loading/loading.vue';
-    import {deleteAddressBook, getAddressBook, setDefaultAddress} from "../../common/js/api/models.js";
+    import {toast} from '@/components/toast/toast.vue';
+    import {navigationBar} from '@/components/navigationBar/navigationBar.vue';
+    import {loading} from '@/components/loading/loading.vue';
+    import {deleteAddressBook, getAddressBook, setDefaultAddress} from "@/common/js/api/models.js";
 
     export default {
         components: {
@@ -124,56 +137,51 @@
                         pageSize: this.pageSize,
                         pageNumber: pageNumber
                     }
-                })
-                    .then(res => {
-                        console.log(res);
-                        let addressTemp = [];
-                        for (const addressRecords of res.data.records) {
-                            addressTemp.push(
-                                {
-                                    id: addressRecords.id,
-                                    contactName: addressRecords.contacts,
-                                    contactPhone: addressRecords.phone,
-                                    areaCode: addressRecords.areaCode,
-                                    areaName: [addressRecords.province, addressRecords.city, addressRecords.area],
-                                    addressDetail: addressRecords.addressDetail,
-                                    isDefaultAddress: addressRecords.isDefault
-                                }
-                            )
+                }).then(res => {
+                    let addressTemp = [];
+                    res.data.records.forEach(addressRecords => {
+                        addressTemp.push({
+                            id: addressRecords.id,
+                            contactName: addressRecords.contacts,
+                            contactPhone: addressRecords.phone,
+                            areaCode: addressRecords.areaCode,
+                            areaName: [addressRecords.province, addressRecords.city, addressRecords.area],
+                            addressDetail: addressRecords.addressDetail,
+                            isDefaultAddress: addressRecords.isDefault
+                        });
+                    });
+                    if (pageNumber === 1) {
+                        this.addressRecords = addressTemp;
+                    }
+                    else {
+                        addressTemp.forEach(address => {
+                            this.addressRecords.push(address);
+                        });
+                    }
+                    if (res.data.pages <= this.currentPage) {
+                        if (pageNumber !== 1) {
+                            this.existMore = false;
                         }
-                        if (pageNumber === 1) {
-                            this.addressRecords = addressTemp;
+                        this.currentPage = res.data.pages;
+                        if (res.data.total <= this.pageSize) {
+                            this.existMore = false;
                         }
-                        else {
-                            for (const addressTempElement of addressTemp) {
-                                this.addressRecords.push(addressTempElement);
-                            }
-                        }
-                        if (res.data.pages <= this.currentPage) {
-                            if (pageNumber !== 1) {
-                                this.existMore = false;
-                            }
-                            this.currentPage = res.data.pages;
-                            if (res.data.total <= this.pageSize) {
-                                this.existMore = false;
-                            }
-                        }
-                        else {
-                            this.existMore = true;
-                        }
-                        setTimeout(() => {
-                            this.loadingMore = false;
-                            if (pageNumber !== 1) {
-
-                            }
-                            this.$refs.loading.stopLoading();
-                        }, 0);
-                    })
-                    .catch(err => {
-                        console.log(err);
+                    }
+                    else {
+                        this.existMore = true;
+                    }
+                    setTimeout(() => {
                         this.loadingMore = false;
+                        if (pageNumber !== 1) {
+
+                        }
                         this.$refs.loading.stopLoading();
-                    })
+                    }, 0);
+                }).catch(err => {
+                    console.error(err);
+                    this.loadingMore = false;
+                    this.$refs.loading.stopLoading();
+                })
             },
             handleClick(e) {
                 if (this.isSelectMode) {
@@ -185,8 +193,7 @@
                             address: address
                         });
                         uni.navigateBack();
-                    }
-                    catch (e) {
+                    } catch (e) {
                         this.$refs.toast.show({
                             text: '网络异常',
                             type: 'error',
@@ -223,7 +230,6 @@
                     let address = JSON.parse(JSON.stringify(this.addressRecords[addressIndex])); //强制深拷贝
                     uni.showActionSheet({
                         itemList: ['复制', '设为默认地址', '删除地址'],
-                        // itemColor: '#f35b56',
                         success: res => {
                             if (res.tapIndex === 0) {
                                 //复制地址
@@ -512,130 +518,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .address-book-container {
-        width: 100vw;
-        height: fit-content;
-        background-color: #f6f6f6;
-
-        .address-records {
-            width: 100vw;
-            height: fit-content;
-            padding-top: rpx(8);
-
-            .address {
-                width: 100vw;
-                height: fit-content;
-                display: flex;
-                flex-direction: row;
-                padding: rpx(20) rpx(50);
-                margin-bottom: rpx(20);
-                background-color: #fff;
-                border-radius: rpx(30);
-
-                .info {
-                    width: calc(100% - 70rpx);
-                    height: 100%;
-
-                    .contact-name {
-                        font-size: rpx(30);
-                        color: #333;
-
-                        .contact-phone {
-                            margin-left: rpx(20);
-                            font-size: rpx(26);
-                            color: #888;
-                        }
-                    }
-
-                    .contact-address {
-                        margin-top: rpx(14);
-                        font-size: rpx(24);
-                        color: #555;
-                        line-height: rpx(40);
-                    }
-
-                    .default-address {
-                        width: fit-content;
-                        height: rpx(36);
-                        padding: 0 rpx(14);
-                        margin-top: rpx(14);
-                        margin-bottom: rpx(6);
-                        font-size: rpx(22);
-                        line-height: rpx(36);
-                        color: #fff;
-                        background-color: #f4756b;
-                        border-radius: rpx(30);
-                    }
-                }
-
-                .btn {
-                    width: rpx(70);
-                    height: initial;
-                    display: flex;
-                    justify-content: flex-end;
-                    align-items: center;
-                    font-size: rpx(36);
-                    color: #f4756b;
-                }
-            }
-
-            .address--touching {
-                filter: brightness(90%);
-            }
-
-            .load-more-container {
-                .load-more {
-                    font-size: rpx(28);
-                    height: fit-content;
-                    text-align: center;
-                    width: 100%;
-                    color: $uni-text-color-placeholder;
-                    //background-color: #fff;
-                    margin-top: rpx(40);
-                    padding-bottom: rpx(140);
-
-                    text {
-                        margin-left: rpx(10);
-                    }
-                }
-
-                .loading-more {
-                    height: rpx(150);
-                    padding-bottom: rpx(20);
-                    margin-top: 0;
-                }
-            }
-
-            .bottom-space {
-                width: 100vw;
-                height: rpx(120);
-            }
-        }
-
-        .new-address-btn {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100vw;
-            height: rpx(120);
-            z-index: 99999;
-            box-shadow: 0 0 rpx(16) rpx(-10) #888888;
-            background-color: #fff;
-            border-radius: rpx(30) rpx(30) 0;
-            transition-property: opacity;
-            transition-duration: 300ms;
-
-            .btn-text {
-                width: 50%;
-                height: 70%;
-                margin: rpx(18) auto;
-                border-radius: rpx(50);
-                text-align: center;
-                font-size: rpx(30);
-                line-height: rpx(84);
-                color: #fff;
-                background-color: #f4756b;
-            }
-        }
-    }
+  @import 'addressBook';
 </style>

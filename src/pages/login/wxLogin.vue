@@ -96,7 +96,7 @@
                                             success: () => {
                                                 const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "/pages/index/index" : redirectPage}`,
+                                                    url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`,
                                                 });
                                             },
                                         });
@@ -197,15 +197,18 @@
             },
             // 获取用户手机号
             getUserPhone() {
+                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
                 uni.navigateTo({
                     url: '/pages/login/wxRegisterPhone',
                     events: {
                         acceptDataFromOpenedPage: (data) => {
                             if (data.success) {
-                                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
-                                uni.redirectTo({
-                                    url: `/${redirectPage === null ? "/pages/index/index" : redirectPage}`,
-                                });
+                                this.$refs.loading.startLoading();
+                                setTimeout(() => {
+                                    uni.redirectTo({
+                                        url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`
+                                    });
+                                }, 300);
                             }
                             else {
                                 this.$refs.toast.show({
@@ -220,10 +223,33 @@
             },
             // 输入用户名密码登录
             usernameLogin() {
-                const currentPage = this.utils.getCurrentPage();
-                uni.navigateTo({
-                    url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-                });
+                this.utils.throttle(() => {
+                    if (this.agreeCheckbox) {
+                        const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                        uni.navigateTo({
+                            url: `/pages/login/login`,
+                            events: {
+                                acceptDataFromOpenedPage: (data) => {
+                                    if (data.success) {
+                                        this.$refs.loading.startLoading();
+                                        setTimeout(() => {
+                                            uni.redirectTo({
+                                                url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`
+                                            });
+                                        }, 300);
+                                    }
+                                },
+                            },
+                        });
+                    }
+                    else {
+                        this.$refs.toast.show({
+                            text: "请阅读并同意用户协议",
+                            type: "warning",
+                            direction: "top"
+                        });
+                    }
+                }, 2000);
             }
         },
         mounted() {

@@ -154,7 +154,7 @@
                         }
                         break;
                     case 2:
-                        wx.navigateTo({
+                        wx.redirectTo({
                             url: "/pages/index/index",
                         }); //跳转首页
                         this.resetNavigation();

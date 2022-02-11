@@ -176,14 +176,6 @@
                     }
                 },
                 {
-                    "path": "order/subpages/orderList",
-                    "style": {
-                        "navigationBarTitleText": "",
-                        "enablePullDownRefresh": false,
-                        "navigationStyle": "custom"
-                    }
-                },
-                {
                     "path": "order/subpages/orderList/orderList",
                     "style": {
                         "navigationBarTitleText": "",

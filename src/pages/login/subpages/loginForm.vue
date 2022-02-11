@@ -69,7 +69,6 @@
     import {toast} from '@/components/toast/toast.vue';
     import {imageVerify} from '@/components/imageVerify/imageVerify.vue';
 
-
     export default {
         components: {
             toast, imageVerify
@@ -215,14 +214,7 @@
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
-                                                this.$refs.toast.show({
-                                                    text: '登陆成功',
-                                                    type: "success",
-                                                });
-                                                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
-                                                uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "/pages/index/index" : redirectPage}`,
-                                                });
+                                                this.$emit('loginSuccess');
                                             },
                                         });
                                     }

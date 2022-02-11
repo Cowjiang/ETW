@@ -95,7 +95,7 @@
       </view>
       <view
         class="empty"
-        :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}"
+        :style="{minHeight: `calc(100vh - ${navigationHeight + 40}px)`}"
         v-if="!orderList.length">
         <view class="row">
           一个订单都没有噢

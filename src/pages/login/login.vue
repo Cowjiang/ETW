@@ -34,7 +34,7 @@
         class="bg-image"
         :class="loginScreenAnimation"></image>
       <!-- 登录表单 -->
-      <loginForm ref="loginForm"></loginForm>
+      <loginForm ref="loginForm" @loginSuccess="onLoginSuccess"></loginForm>
       <!-- 注册表单 -->
       <registerForm ref="registerForm"></registerForm>
       <!-- 验证码表单 -->
@@ -141,6 +141,13 @@
                     }, 300);
                 }, 300);
             },
+            onLoginSuccess() {
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.emit("acceptDataFromOpenedPage", {
+                    success: true
+                });
+                uni.navigateBack();
+            }
         },
         onLoad() {
         },

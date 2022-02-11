@@ -20,7 +20,7 @@
       @scrolltolower="handleScrollToBottom">
       <view class="list-scroll-view">
         <!-- 顶部按钮列表容器 -->
-        <view class="top-list-container">
+        <view class="top-list-container" v-if="showTopBtnArea">
           <!-- 顶部通知按钮区域 -->
           <view
             class="btn-container first-btn"
@@ -135,6 +135,19 @@
           <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
             <text>没有更多了哦 ~</text>
           </view>
+          <view
+            class="empty"
+            :style="{minHeight: `calc(100vh - ${navigationHeight + 40}px)`}"
+            v-if="!chatMessages.length">
+            <view class="row">
+              一个聊天都没有噢
+            </view>
+            <view class="row">
+              <view class="btn" @click="handleEmptyBtnClick">
+                回到首页
+              </view>
+            </view>
+          </view>
         </view>
       </view>
     </scroll-view>
@@ -142,11 +155,11 @@
 </template>
 
 <script>
-    import {toast} from '../../components/toast/toast.vue';
-    import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {loading} from '../../components/loading/loading.vue';
-    import {deleteChatWithFriend, getMyChatList} from "../../common/js/api/models.js";
-    import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
+    import {toast} from '@/components/toast/toast.vue';
+    import {navigationBar} from '@/components/navigationBar/navigationBar.vue';
+    import {loading} from '@/components/loading/loading.vue';
+    import {deleteChatWithFriend, getMyChatList} from "@/common/js/api/models.js";
+    import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
 
     export default {
         components: {
@@ -164,6 +177,7 @@
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 loadingMore: false, //正在加载更多消息
                 existMore: true, //是否存在更多消息记录
+                showTopBtnArea: false, //是否显示顶部按钮区域
             }
         },
         methods: {
@@ -182,7 +196,7 @@
                     .then(res => {
                         if (time === null) {
                             let recordsTemp = [];
-                            for (const records of res.data.records) {
+                            res.data.records.forEach(records => {
                                 recordsTemp.push({
                                     senderName: records.friendInfo.username, //用户名称
                                     senderId: records.friendId, //用户ID
@@ -193,8 +207,8 @@
                                     time: records.createdTime, //消息发送时间
                                     isRead: records.isRead, //消息是否已读
                                     unreadCount: records.unread //当前对话消息未读数量
-                                })
-                            }
+                                });
+                            });
                             this.chatMessages = [];
                             this.chatMessages = recordsTemp;
                             this.existMore = recordsTemp.length > 14;
@@ -203,7 +217,7 @@
                         }
                         else {
                             if (res.data.records.length !== 0) {
-                                for (const records of res.data.records) {
+                                res.data.records.forEach(records => {
                                     this.chatMessages.push({
                                         senderName: records.friendInfo.username, //用户名称
                                         senderId: records.friendId, //用户ID
@@ -214,11 +228,11 @@
                                         time: records.createdTime, //消息发送时间
                                         isRead: records.isRead, //消息是否已读
                                         unreadCount: records.unread //当前对话消息未读数量
-                                    })
+                                    });
                                     if (res.data.records.length < this.pageSize) {
                                         this.existMore = false;
                                     }
-                                }
+                                });
                             }
                             else {
                                 this.existMore = false;
@@ -253,14 +267,11 @@
              * @param {Object} data 接收到的新消息
              */
             receiveNewMessage(data) {
-                console.log(data);
                 if (data.errorCode === 120) {
-                    let newMessage = data.data;
-                    let findIndex = this.chatMessages.findIndex(message => {
-                        return message.senderId === newMessage.friendId
-                    });
+                    const newMessage = data.data;
+                    const findIndex = this.chatMessages.findIndex(message => message.senderId === newMessage.friendId);
                     if (findIndex !== -1) {
-                        let messageTemp = this.chatMessages[findIndex];
+                        const messageTemp = this.chatMessages[findIndex];
                         this.chatMessages.splice(findIndex, 1);
                         this.chatMessages.unshift({
                             senderName: messageTemp.senderName, //用户名称
@@ -291,8 +302,8 @@
             },
             // 跳转聊天详情页
             toChatDetail(e) {
-                let targetId = parseInt(e.target.dataset.name.replace('message', ''));
-                let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
+                const targetId = parseInt(e.target.dataset.name.replace('message', ''));
+                const senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
                 this.chatMessages[targetId].isRead = true;
                 uni.navigateTo({
                     url: `/pages/chatDetail/chatDetail?${senderInfo}`,
@@ -301,7 +312,7 @@
             // 监听长按事件
             handleLongPress(e) {
                 wx.vibrateShort();
-                let targetId = parseInt(e.target.dataset.name.replace('message', ''));
+                const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', '加入黑名单'],
                     success: res => {
@@ -314,34 +325,32 @@
                                     if (res.confirm) {
                                         deleteChatWithFriend({
                                             urlParam: this.chatMessages[targetId].senderId
-                                        })
-                                            .then(res => {
-                                                if (res.success) {
-                                                    this.chatMessages.forEach((v, k) => {
-                                                        if (v.senderId === this.chatMessages[targetId].senderId) {
-                                                            this.chatMessages.splice(k, 1);
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    console.log(res);
-                                                    this.$refs.toast.show({
-                                                        text: '删除失败',
-                                                        type: 'error',
-                                                        direction: 'top'
-                                                    });
-                                                    this.getChatList();
-                                                }
-                                            })
-                                            .catch(err => {
-                                                console.log(err);
+                                        }).then(res => {
+                                            if (res.success) {
+                                                this.chatMessages.forEach((v, k) => {
+                                                    if (v.senderId === this.chatMessages[targetId].senderId) {
+                                                        this.chatMessages.splice(k, 1);
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                console.error(res);
                                                 this.$refs.toast.show({
                                                     text: '删除失败',
                                                     type: 'error',
                                                     direction: 'top'
                                                 });
                                                 this.getChatList();
+                                            }
+                                        }).catch(err => {
+                                            console.error(err);
+                                            this.$refs.toast.show({
+                                                text: '删除失败',
+                                                type: 'error',
+                                                direction: 'top'
                                             });
+                                            this.getChatList();
+                                        });
                                     }
                                 }
                             });
@@ -434,28 +443,31 @@
                 uni.onSocketClose(res => {
                     console.log('已关闭Socket');
                 });
-                closeSocket()
-                    .then(res => {
-                        //存放聊天列表到本地缓存
-                        uni.setStorage({
-                            key: "chatList",
-                            data: this.chatMessages.slice(0, 14),
-                            success: res => {
-                            },
-                            fail: err => {
-                                console.error(err);
-                            }
-                        });
-                    })
-                    .catch(err => {
-                        if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
-                            return;
+                closeSocket().then(res => {
+                    //存放聊天列表到本地缓存
+                    uni.setStorage({
+                        key: "chatList",
+                        data: this.chatMessages.slice(0, 14),
+                        success: res => {
+                        },
+                        fail: err => {
+                            console.error(err);
                         }
-                        console.error(err);
-                    })
+                    });
+                }).catch(err => {
+                    if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
+                        return;
+                    }
+                    console.error(err);
+                });
             },
+            // 消息列表为空的按钮点击事件
+            handleEmptyBtnClick() {
+                uni.redirectTo({
+                    url: '/pages/index/index'
+                });
+            }
         },
-        computed: {},
         filters: {
             /**
              * 格式化时间
@@ -463,9 +475,9 @@
              * @return {String} 格式化后的时间字符串
              */
             formatTime(time) {
-                let messageDate = new Date(time);
-                let nowDate = new Date();
-                let messageTime = {
+                const messageDate = new Date(time);
+                const nowDate = new Date();
+                const messageTime = {
                     year: messageDate.getFullYear(),
                     month: messageDate.getMonth() + 1,
                     day: messageDate.getDate(),
@@ -473,7 +485,7 @@
                     min: messageDate.getMinutes().toString().padStart(2, '0'),
                     second: messageDate.getSeconds()
                 }
-                let nowTime = {
+                const nowTime = {
                     year: nowDate.getFullYear(),
                     month: nowDate.getMonth() + 1,
                     day: nowDate.getDate()
@@ -494,10 +506,7 @@
              * @return {String|Number} 返回格式化后的结果
              */
             unreadCount(count) {
-                if (count > 99) {
-                    return '99+';
-                }
-                else return count;
+                return count > 99 ? '99+' : count;
             }
         },
         watch: {

@@ -1,0 +1,158 @@
+.address-book-container {
+  width: 100vw;
+  height: fit-content;
+  background-color: #f6f6f6;
+
+  .address-records {
+    width: 100vw;
+    height: fit-content;
+    padding-top: 8rpx;
+
+    .address {
+      width: 100vw;
+      height: fit-content;
+      display: flex;
+      flex-direction: row;
+      padding: 20rpx 50rpx;
+      margin-bottom: 20rpx;
+      background-color: #fff;
+      border-radius: 30rpx;
+
+      .info {
+        width: calc(100% - 70rpx);
+        height: 100%;
+
+        .contact-name {
+          font-size: 30rpx;
+          color: #333;
+
+          .contact-phone {
+            margin-left: 20rpx;
+            font-size: 26rpx;
+            color: #888;
+          }
+        }
+
+        .contact-address {
+          margin-top: 14rpx;
+          font-size: 24rpx;
+          color: #555;
+          line-height: 40rpx;
+        }
+
+        .default-address {
+          width: fit-content;
+          height: 36rpx;
+          padding: 0 14rpx;
+          margin-top: 14rpx;
+          margin-bottom: 6rpx;
+          font-size: 22rpx;
+          line-height: 36rpx;
+          color: #fff;
+          background-color: #f4756b;
+          border-radius: 30rpx;
+        }
+      }
+
+      .btn {
+        width: 70rpx;
+        height: initial;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        font-size: 36rpx;
+        color: #f4756b;
+      }
+    }
+
+    .address--touching {
+      filter: brightness(90%);
+    }
+
+    .load-more-container {
+      .load-more {
+        font-size: 28rpx;
+        height: fit-content;
+        text-align: center;
+        width: 100%;
+        color: $uni-text-color-placeholder;
+        margin-top: 40rpx;
+        padding-bottom: 140rpx;
+
+        text {
+          margin-left: 10rpx;
+        }
+      }
+
+      .loading-more {
+        height: 150rpx;
+        padding-bottom: 20rpx;
+        margin-top: 0;
+      }
+    }
+
+    .empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+
+      .row {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding: 8rpx 0;
+        font-size: 26rpx;
+        color: #888;
+      }
+
+      .btn {
+        width: fit-content;
+        height: fit-content;
+        margin: 10rpx 0 10rpx 20rpx;
+        padding: 10rpx 24rpx;
+        font-size: 28rpx;
+        line-height: unset;
+        border-radius: 100rpx;
+        background-color: #f4756b;
+        color: #fff;
+      }
+    }
+
+    .bottom-space {
+      width: 100vw;
+      height: 120rpx;
+    }
+  }
+
+  .new-address-btn {
+    position: fixed;
+    bottom: 0;
+    padding-bottom: 0;
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+    left: 0;
+    width: 100vw;
+    z-index: 99999;
+    box-shadow: 0 0 16rpx -10rpx #888888;
+    background-color: #fff;
+    border-radius: 30rpx 30rpx 0;
+    transition-property: opacity;
+    transition-duration: 300ms;
+
+    .btn-text {
+      width: 50%;
+      height: 70%;
+      margin: 18rpx auto;
+      border-radius: 50rpx;
+      text-align: center;
+      font-size: 30rpx;
+      line-height: 84rpx;
+      color: #fff;
+      background-color: #f4756b;
+    }
+  }
+}
