@@ -79,7 +79,7 @@
               </view>
             </view>
             <view class="order-price-container">
-              <view class="row" v-if="orderDetail.isTakeOut">
+              <view class="row" v-if="orderDetail.isTakeOut" style="display: none">
                 <view class="title">
                   配送费
                 </view>
@@ -87,20 +87,20 @@
                   {{ orderDetail.packagingFee | showPrice }}
                 </view>
               </view>
-              <view class="row">
+              <view class="row" v-if="orderDetail.totalPackingCharges">
                 <view class="title">
                   打包费
                 </view>
                 <view class="content">
-                  {{ orderDetail.packagingFee | showPrice }}
+                  {{ orderDetail.totalPackingCharges | showPrice }}
                 </view>
               </view>
-              <view class="row total-discount">
+              <view class="row total-discount" v-if="orderDetail.totalOriginalPrice - orderDetail.totalPayment >= 0">
                 <view class="title">
                   优惠合计
                 </view>
                 <view class="content">
-                  -{{ orderDetail.discountPrice | showPrice }}
+                  -{{ orderDetail.totalOriginalPrice - orderDetail.totalPayment | showPrice }}
                 </view>
               </view>
               <view class="total-price-container">
@@ -494,17 +494,23 @@
                 backgroundColor: '#f6f6f6'
             });
         },
-        async onLoad() {
+        onLoad(option) {
             this.$refs.loading.startLoading();
             this.navigationHeight = this.utils.getNavigationHeight();
-            try {
-                const eventChannel = this.getOpenerEventChannel();
-                eventChannel.on("orderInfo", async data => {
-                    this.orderId = data.orderId;
-                    await this.getOrderDetail();
-                });
-            } catch (e) {
-                uni.navigateBack();
+            if (option.id) {
+                this.orderId = JSON.parse(decodeURIComponent(option.id));
+                this.getOrderDetail();
+            }
+            else {
+                try {
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.on("orderInfo", async data => {
+                        this.orderId = data.orderId;
+                        await this.getOrderDetail();
+                    });
+                } catch (e) {
+                    uni.navigateBack();
+                }
             }
         }
     }

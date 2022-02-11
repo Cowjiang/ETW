@@ -362,8 +362,7 @@
                         this.takeOutInfo.id === undefined
                     ) {
                         //获取用户当前默认地址
-                        await getDefaultAddress()
-                            .then(res => {
+                        await getDefaultAddress().then(res => {
                                 if (res.success && res.data.id != null) {
                                     this.takeOutInfo = {
                                         id: res.data.id,
@@ -378,8 +377,7 @@
                                 else {
                                     this.takeOutInfo = {};
                                 }
-                            })
-                            .catch(err => {
+                            }).catch(err => {
                                 this.takeOutInfo = {};
                             });
                     }
@@ -415,7 +413,7 @@
                 this.utils.throttle(() => {
                     uni.showActionSheet({
                         itemList: ["从地址簿中选择", "新建地址"],
-                        success: (res) => {
+                        success: res => {
                             if (res.tapIndex === 0) {
                                 //从地址簿中选择
                                 uni.navigateTo({
@@ -504,16 +502,11 @@
                         queryData: params,
                         headerData: {"Content-type": "application/json"},
                     }).then(res => {
-                        toPayment(res.data).then((res) => {
-                            uni.navigateBack({
-                                delta: 999,
-                            });
+                        const orderId = res.data.orderId;
+                        toPayment(res.data).then(res => {
+                            this.gotoOrderDetail(orderId);
                         }).catch(err => {
-                            this.$refs.toast.show({
-                                text: '支付失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
+                            this.gotoOrderDetail(orderId);
                         });
                     }).catch(err => {
                         this.$refs.toast.show({
@@ -529,6 +522,15 @@
                 this.currentCouponId = id;
                 this.currentCouponIndex = index;
                 this.showCoupons = false;
+            },
+            /**
+             * 跳转订单详情页
+             * @param {String} orderId 订单ID
+             */
+            gotoOrderDetail(orderId) {
+                uni.redirectTo({
+                    url: `/pagesByStore/order/subpages/orderDetail/orderDetail?id=${encodeURIComponent(JSON.stringify(orderId))}`
+                });
             },
         },
         computed: {

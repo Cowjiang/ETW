@@ -199,8 +199,6 @@
                     },
                 });
             },
-            // 跳转店铺菜单页面
-
             /**
              * 跳转店铺菜单页
              * @param {String|Number} storeId 店铺ID
@@ -333,7 +331,7 @@
                 backgroundColor: '#f6f6f6'
             });
         },
-        async onLoad() {
+        onLoad() {
             this.$refs.loading.startLoading();
             uni.getSystemInfo({
                 success: res => {
@@ -342,6 +340,8 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight();
+        },
+        async onShow() {
             await this.getOrderList();
         }
     }

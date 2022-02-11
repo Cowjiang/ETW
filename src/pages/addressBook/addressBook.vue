@@ -46,7 +46,7 @@
             class="btn"
             v-if="!isSelectMode"
             :data-name="`address${index}`"
-            @click="handleEdit">
+            @click.stop="handleEdit">
             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
           </view>
         </view>

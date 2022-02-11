@@ -1249,7 +1249,7 @@
         },
         mounted() {
         },
-        onLoad() {
+        async onLoad() {
             wx.getSystemInfo({
                 success: res => {
                     this.windowWidth = res.windowWidth;
@@ -1263,89 +1263,90 @@
                 const eventChannel = this.getOpenerEventChannel();
                 eventChannel.on("storeInfo", data => {
                     storeInfo = data.storeInfo;
-                });
-                if (storeInfo.id) {
-                    //获取店铺信息
-                    const getInfoPromise = new Promise((resolve, reject) => {
-                        getStoreInfo({
-                            urlParam: {
-                                storeId: storeInfo.id
-                            }
-                        }).then(res => {
-                            if (res.success) {
-                                this.storeInfo = res.data;
-                                resolve();
-                            }
-                            else {
-                                reject(res);
-                            }
-                        }).catch(err => {
-                            reject(err);
+                    if (storeInfo.id) {
+                        const getInfoPromise = new Promise((resolve, reject) => {
+                            getStoreInfo({
+                                urlParam: {
+                                    storeId: storeInfo.id
+                                }
+                            }).then(res => {
+                                if (res.success) {
+                                    this.storeInfo = res.data;
+                                    resolve();
+                                }
+                                else {
+                                    reject(res);
+                                }
+                            }).catch(err => {
+                                reject(err);
+                            });
                         });
-                    });
-                    //获取优惠券信息
-                    const getCouponPromise = new Promise((resolve, reject) => {
-                        getCouponByStoreId({
-                            urlParam: {
-                                storeId: storeInfo.id
-                            },
-                        }).then(res => {
-                            let coupons = this.discountTags;
-                            if (res.success) {
-                                res.data.forEach(coupon => {
-                                    coupons.push({
-                                        id: coupon.id,
-                                        content: coupon.withAmount / 100.0 + "减" + coupon.usedAmount / 100.0,
-                                        backgroundColor: "#fff",
-                                        color: "#f4756b",
-                                        borderColor: "#f4756b",
+                        //获取优惠券信息
+                        const getCouponPromise = new Promise((resolve, reject) => {
+                            getCouponByStoreId({
+                                urlParam: {
+                                    storeId: storeInfo.id
+                                },
+                            }).then(res => {
+                                let coupons = this.discountTags;
+                                if (res.success) {
+                                    res.data.forEach(coupon => {
+                                        coupons.push({
+                                            id: coupon.id,
+                                            content: coupon.withAmount / 100.0 + "减" + coupon.usedAmount / 100.0,
+                                            backgroundColor: "#fff",
+                                            color: "#f4756b",
+                                            borderColor: "#f4756b",
+                                        });
                                     });
-                                });
-                                this.discountTags = coupons;
-                                resolve();
-                            }
-                            else {
-                                reject(res);
-                            }
-                        }).catch(err => {
-                            reject(err);
+                                    this.discountTags = coupons;
+                                    resolve();
+                                }
+                                else {
+                                    reject(res);
+                                }
+                            }).catch(err => {
+                                reject(err);
+                            });
                         });
-                    });
-                    //获取店铺菜单
-                    const getMenuPromise = new Promise((resolve, reject) => {
-                        getStoreMenu({
-                            urlParam: storeInfo.id,
-                        }).then(res => {
-                            if (res.success) {
-                                this.menuList = res.data;
-                                resolve();
-                            }
-                            else {
-                                reject(res);
-                            }
-                        }).catch(err => {
-                            reject(err);
+                        //获取店铺菜单
+                        const getMenuPromise = new Promise((resolve, reject) => {
+                            getStoreMenu({
+                                urlParam: storeInfo.id,
+                            }).then(res => {
+                                if (res.success) {
+                                    this.menuList = res.data;
+                                    resolve();
+                                }
+                                else {
+                                    reject(res);
+                                }
+                            }).catch(err => {
+                                reject(err);
+                            });
                         });
-                    });
-                    Promise.all([getInfoPromise, getCouponPromise, getMenuPromise]).then(res => {
-                        this.$refs.loading.stopLoading();
-                    }).catch(err => {
+                        Promise.all([getInfoPromise, getCouponPromise, getMenuPromise]).then(res => {
+                            this.$refs.loading.stopLoading();
+                        }).catch(err => {
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: '获取店铺菜单失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        });
+                    }
+                    else {
+                        console.error(storeInfo);
                         this.$refs.toast.show({
                             text: '获取店铺菜单失败',
                             type: 'error',
                             direction: 'top'
                         });
-                    })
-                }
-                else {
-                    console.error(storeInfo);
-                    this.$refs.toast.show({
-                        text: '获取店铺菜单失败',
-                        type: 'error',
-                        direction: 'top'
-                    });
-                }
+                    }
+                });
             } catch (err) {
+                console.error(err);
                 uni.navigateBack();
             }
         },
