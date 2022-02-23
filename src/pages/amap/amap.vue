@@ -127,8 +127,8 @@
 </template>
 
 <script>
-    import {toast} from "../../components/toast/toast.vue";
-    import {loading} from "../../components/loading/loading.vue";
+    import toast from "@/components/toast/toast";
+    import loading from "@/components/loading/loading";
 
     export default {
         components: {
@@ -198,7 +198,7 @@
                     };
                     //开启位置变化监听
                     wx.startLocationUpdate({
-                        success: (res) => {
+                        success: res => {
                             wx.onLocationChange((res) => {
                                 this.markers[0] = {
                                     latitude: res.latitude,
@@ -218,20 +218,17 @@
                                 this.$forceUpdate();
                             });
                         },
-                        fail: (error) => {
+                        fail: error => {
                             this.$refs.toast.show({
                                 text: "获取定位失败",
                                 type: "error",
                                 direction: "top",
                             });
-                            console.log(error);
+                            console.error(error);
                         },
                     });
                 }
-                else if (
-                    location === null &&
-                    Date.now() - this.positioningTimer < 3000
-                ) {
+                else if (location === null && Date.now() - this.positioningTimer < 3000) {
                     this.onLoadReady = true;
                     this.addressTips = this.currentAddressTips;
                     this.markers[0] = {
@@ -266,7 +263,7 @@
                         this.amap.getPoiAround({
                             location: location,
                             querytypes: "050000|060100|120000|150500|150200|150104|141200", //餐饮服务|商场|商务住宅|地铁站|火车站|机场|学校
-                            success: (data) => {
+                            success: data => {
                                 if (data !== null) {
                                     this.onLoadReady = true;
                                     this.addressTips = data.markers;
@@ -275,7 +272,7 @@
                                 }
                                 resolve(data);
                             },
-                            fail: (error) => {
+                            fail: error => {
                                 reject(error);
                             },
                         });
@@ -300,10 +297,10 @@
                                 type: "error",
                                 direction: "top",
                             });
-                            console.log("用户拒绝定位权限");
+                            console.error("用户拒绝定位权限");
                             break;
                         default:
-                            console.log(err);
+                            console.error(err);
                     }
                 });
             },
@@ -314,15 +311,15 @@
                         keywords: this.searchShowInput,
                         location: `${this.currentLongitude},${this.currentLatitude}`,
                         pageSize: 20,
-                        success: (data) => {
+                        success: data => {
                             resolve(data);
                         },
-                        fail: (e) => {
+                        fail: e => {
                             reject(e);
                         },
                     });
-                }).catch((err) => {
-                    console.log(err);
+                }).catch(err => {
+                    console.error(err);
                 });
             },
             /**
@@ -598,12 +595,7 @@
             },
             // 加载完毕状态变化
             onLoadReady(nval) {
-                if (nval === true) {
-                    this.$refs.loading.stopLoading();
-                }
-                else if (nval === false) {
-                    this.$refs.loading.startLoading();
-                }
+                nval ? this.$refs.loading.stopLoading() : this.$refs.loading.startLoading();
             },
         },
         created() {
@@ -613,8 +605,6 @@
                     this.windowHeight = res.screenHeight;
                 },
             });
-        },
-        mounted() {
         },
         onLoad() {
             this.utils.resetThrottle();

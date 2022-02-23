@@ -97,9 +97,9 @@
 </template>
 
 <script>
-    import {toast} from '@/components/toast/toast.vue';
-    import {navigationBar} from '@/components/navigationBar/navigationBar.vue';
-    import {loading} from '@/components/loading/loading.vue';
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import toast from "@/components/toast/toast";
+    import loading from "@/components/loading/loading";
     import {deleteAddressBook, getAddressBook, setDefaultAddress} from "@/common/js/api/models.js";
 
     export default {
@@ -183,6 +183,7 @@
                     this.$refs.loading.stopLoading();
                 })
             },
+            // 地址点击事件
             handleClick(e) {
                 if (this.isSelectMode) {
                     let addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
@@ -337,15 +338,14 @@
             },
             // 地址编辑按钮点击事件
             handleEdit(e) {
-                // wx.vibrateShort();
                 if (e.currentTarget.dataset.name != null) {
-                    let addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
+                    const addressIndex = Number(e.currentTarget.dataset.name.replace('address', ''));
                     let address = JSON.parse(JSON.stringify(this.addressRecords[addressIndex])); //强制深拷贝
-                    let contactNameTemp = this.$options.filters['getContactGender'](address.contactName);
+                    const contactNameTemp = this.$options.filters['getContactGender'](address.contactName);
                     address.contactName = contactNameTemp[0];
                     address.contactGender = contactNameTemp[1];
                     uni.navigateTo({
-                        url: '/pages/addressBook/subpages/editAddress',
+                        url: '/pages/addressBook/subpages/editAddress/editAddress',
                         success: res => {
                             res.eventChannel.emit('editAddress', {data: address})
                         }
@@ -371,7 +371,6 @@
                 }
             }
         },
-        computed: {},
         filters: {
             /**
              * 格式化联系人姓名

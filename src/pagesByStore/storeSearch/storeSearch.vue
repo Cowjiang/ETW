@@ -45,11 +45,11 @@
 </template>
 
 <script>
-    import {toast} from '@/components/toast/toast.vue';
-    import {navigationBar} from '@/components/navigationBar/navigationBar.vue';
-    import {loading} from '@/components/loading/loading.vue';
-    import {storeSearchEmpty} from '@/components/store/storeSearchEmpty/storeSearchEmpty';
-    import {storeSearchResult} from '@/components/store/storeSearchResult/storeSearchResult';
+    import toast from '@/components/toast/toast';
+    import navigationBar from '@/components/navigationBar/navigationBar';
+    import loading from '@/components/loading/loading';
+    import storeSearchEmpty from '@/pagesByStore/storeSearch/subpages/storeSearchEmpty/storeSearchEmpty';
+    import storeSearchResult from '@/pagesByStore/storeSearch/subpages/storeSearchResult/storeSearchResult';
 
     export default {
         name: "storeSearch",

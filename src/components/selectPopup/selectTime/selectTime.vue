@@ -150,18 +150,8 @@
             propsChange() {
                 this.init(); //重新初始化
             }
-        },
-        mounted() {
-        },
-        onload() {
-        },
-        created() {
-        },
-        onshow() {
         }
     }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

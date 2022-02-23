@@ -42,9 +42,9 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast.vue";
-    import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
-    import {loading} from "@/components/loading/loading.vue";
+    import loading from "@/components/loading/loading";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import toast from "@/components/toast/toast";
     import {wxLogin, wxRegister, wxUserProfile} from "@/common/js/api/models";
 
     export default {

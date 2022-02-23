@@ -541,20 +541,16 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast.vue";
-    import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
-    import {loading} from "@/components/loading/loading.vue";
-    import {storeInfoPopup} from "@/components/store/storeInfoPopup/storeInfoPopup.vue";
-    import {selectTimePopup} from "@/components/selectPopup/selectTime/selectTime.vue";
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import loading from "@/components/loading/loading";
+    import storeInfoPopup from "@/components/store/storeInfoPopup/storeInfoPopup";
+    import selectTimePopup from "@/components/selectPopup/selectTime/selectTime";
     import {getCouponByStoreId, getStoreInfo, getStoreMenu, userGetCoupon,} from "@/common/js/api/models";
 
     export default {
         components: {
-            toast,
-            navigationBar,
-            loading,
-            storeInfoPopup,
-            selectTimePopup,
+            toast, navigationBar, loading, storeInfoPopup, selectTimePopup
         },
         data() {
             return {
@@ -1158,12 +1154,7 @@
                 this.cartList.forEach(cartItem => {
                     totalPrice += (cartItem.discountPrice === null ? cartItem.price : cartItem.discountPrice) * cartItem.amount;
                 });
-                if (parseInt(totalPrice) !== totalPrice) {
-                    return totalPrice.toFixed(2);
-                }
-                else {
-                    return totalPrice;
-                }
+                return parseInt(totalPrice) !== totalPrice ? totalPrice.toFixed(2) : totalPrice;
             },
             /**
              * 计算购物车总价（原价，不含优惠）
@@ -1174,12 +1165,7 @@
                 this.cartList.forEach(cartItem => {
                     totalOriginalPrice += cartItem.price * cartItem.amount;
                 });
-                if (parseInt(totalOriginalPrice) !== totalOriginalPrice) {
-                    return totalOriginalPrice.toFixed(2);
-                }
-                else {
-                    return totalOriginalPrice;
-                }
+                return parseInt(totalOriginalPrice) !== totalOriginalPrice ? totalOriginalPrice.toFixed(2) : totalOriginalPrice;
             },
             /**
              * 计算购物车总数量
@@ -1200,12 +1186,7 @@
              * @return {String} 格式化后的价格
              */
             showPrice(price) {
-                if (typeof price !== "number") {
-                    return `￥NaN`;
-                }
-                else {
-                    return `￥${price / 100.0}`;
-                }
+                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
             },
             /**
              * 格式化购物车中商品的定制选项信息
@@ -1355,12 +1336,6 @@
                 // titleText: '',
                 // backgroundColor: ''
             });
-        },
-        onHide() {
-        },
-        onUnload() {
-        },
-        beforeDestroy() {
         },
     };
 </script>

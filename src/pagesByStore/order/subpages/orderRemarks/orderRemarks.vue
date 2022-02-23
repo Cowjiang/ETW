@@ -23,8 +23,8 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast.vue";
-    import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
 
     export default {
         name: "orderRemarks",

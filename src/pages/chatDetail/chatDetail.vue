@@ -188,12 +188,12 @@
 </template>
 
 <script>
-    import {toast} from '../../components/toast/toast.vue';
-    import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {upload} from '../../components/upload/upload.vue';
-    import {loading} from '../../components/loading/loading.vue';
-    import {deleteChatHistory, getChatHistory, getUploadSignature, sendMessage} from "../../common/js/api/models.js";
-    import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import toast from "@/components/toast/toast";
+    import loading from "@/components/loading/loading";
+    import upload from "@/components/upload/upload";
+    import {deleteChatHistory, getChatHistory, getUploadSignature, sendMessage} from "@/common/js/api/models.js";
+    import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
 
     export default {
         components: {
@@ -265,61 +265,58 @@
                 let queryTime = time === null ? Date.now() : time;
                 getChatHistory({
                     urlParam: `${this.friendInfo.userId}?pageSize=${this.pageSize}&time=${queryTime}`,
-                })
-                    .then(res => {
-                        console.log(res.data)
-                        if (time === null) {
-                            let recordsTemp = [];
-                            for (const records of res.data.records) {
-                                recordsTemp.unshift({
+                }).then(res => {
+                    if (time === null) {
+                        let recordsTemp = [];
+                        res.data.records.forEach(records => {
+                            recordsTemp.unshift({
+                                id: records.id,
+                                content: records.content,
+                                isPhoto: !records.isText,
+                                isMe: records.senderId.toString() !== this.friendInfo.userId,
+                                time: records.createdTime
+                            });
+                        });
+                        this.messageRecords = [];
+                        this.messageRecords = recordsTemp;
+                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
+                        this.recordsLength = res.data.total;
+                        if (this.recordsLength <= this.pageSize) {
+                            this.existMore = false;
+                        }
+                        setTimeout(() => {
+                            this.isReadyToShow = true;
+                            this.$refs.loading.stopLoading();
+                        }, 500);
+                    }
+                    else {
+                        if (res.data.records.length !== 0) {
+                            res.data.records.forEach(records => {
+                                this.messageRecords.unshift({
                                     id: records.id,
                                     content: records.content,
                                     isPhoto: !records.isText,
                                     isMe: records.senderId.toString() !== this.friendInfo.userId,
                                     time: records.createdTime
                                 });
-                            }
-                            this.messageRecords = [];
-                            this.messageRecords = recordsTemp;
-                            this.scrollToViewId = `message${this.messageRecords.length - 1}`;
-                            this.recordsLength = res.data.total;
-                            if (this.recordsLength <= this.pageSize) {
-                                this.existMore = false;
-                            }
-                            setTimeout(() => {
-                                this.isReadyToShow = true;
-                                this.$refs.loading.stopLoading();
-                            }, 500);
+                            });
                         }
-                        else {
-                            if (res.data.records.length !== 0) {
-                                for (const records of res.data.records) {
-                                    this.messageRecords.unshift({
-                                        id: records.id,
-                                        content: records.content,
-                                        isPhoto: !records.isText,
-                                        isMe: records.senderId.toString() !== this.friendInfo.userId,
-                                        time: records.createdTime
-                                    });
-                                }
-                            }
-                            this.recordsLength = res.data.total;
-                            if (this.recordsLength <= this.pageSize) {
-                                this.existMore = false;
-                            }
+                        this.recordsLength = res.data.total;
+                        if (this.recordsLength <= this.pageSize) {
+                            this.existMore = false;
                         }
-                        this.refresherTriggered = false;
-                        this._freshing = false;
-                    })
-                    .catch(err => {
-                        this.refresherTriggered = false;
-                        this._freshing = false;
-                        this.$refs.toast.show({
-                            text: '网络异常',
-                            type: 'error',
-                            direction: 'top'
-                        });
-                    })
+                    }
+                    this.refresherTriggered = false;
+                    this._freshing = false;
+                }).catch(err => {
+                    this.refresherTriggered = false;
+                    this._freshing = false;
+                    this.$refs.toast.show({
+                        text: '网络异常',
+                        type: 'error',
+                        direction: 'top'
+                    });
+                });
             },
             /**
              * 监听接收到新消息
@@ -385,39 +382,36 @@
                                 content: this.rawInputValue,
                                 isText: true
                             }
-                        })
-                            .then(res => {
-                                if (res.success) {
-                                    wx.hideLoading();
-                                    this.messageRecords.push({
-                                        id: res.data.id,
-                                        isMe: true,
-                                        isPhoto: false,
-                                        content: this.rawInputValue,
-                                        time: new Date()
-                                    });
-                                    this.recordsLength += 1;
-                                    this.rawInputValue = '';
-                                    // this.inputFocusStatus = true;
-                                }
-                                else {
-                                    wx.hideLoading();
-                                    this.$refs.toast.show({
-                                        text: '发送失败',
-                                        type: 'error',
-                                        direction: 'top'
-                                    });
-                                }
-                            })
-                            .catch(err => {
-                                console.log(err);
+                        }).then(res => {
+                            if (res.success) {
+                                wx.hideLoading();
+                                this.messageRecords.push({
+                                    id: res.data.id,
+                                    isMe: true,
+                                    isPhoto: false,
+                                    content: this.rawInputValue,
+                                    time: new Date()
+                                });
+                                this.recordsLength += 1;
+                                this.rawInputValue = '';
+                            }
+                            else {
                                 wx.hideLoading();
                                 this.$refs.toast.show({
                                     text: '发送失败',
                                     type: 'error',
                                     direction: 'top'
                                 });
+                            }
+                        }).catch(err => {
+                            console.error(err);
+                            wx.hideLoading();
+                            this.$refs.toast.show({
+                                text: '发送失败',
+                                type: 'error',
+                                direction: 'top'
                             });
+                        });
                     }
                     else {
                         this.inputFocusStatus = true;
@@ -447,33 +441,31 @@
                 return new Promise((resolve, reject) => {
                     let dir = "chat-images";
                     let fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                    getUploadSignature({urlParam: dir})
-                        .then((res) => {
-                            let signData = res.data;
-                            this.action = signData.host;
-                            let key = signData.dir + signData.uuid + fileSuffix; //文件路径
-                            if (res.success) {
-                                this.$refs.upload.formData = {
-                                    key: key,
-                                    policy: signData.policy,
-                                    OSSAccessKeyId: signData.accessId,
-                                    success_action_status: "200",
-                                    signature: signData.signature,
-                                };
-                                this.tempFinalSrc = signData.host + "/" + key;
-                                resolve();
-                            }
-                            else {
-                                this.recordsLength -= 1;
-                                this.$refs.upload.clear();
-                                reject();
-                            }
-                        })
-                        .catch((err) => {
+                    getUploadSignature({urlParam: dir}).then((res) => {
+                        let signData = res.data;
+                        this.action = signData.host;
+                        let key = signData.dir + signData.uuid + fileSuffix; //文件路径
+                        if (res.success) {
+                            this.$refs.upload.formData = {
+                                key: key,
+                                policy: signData.policy,
+                                OSSAccessKeyId: signData.accessId,
+                                success_action_status: "200",
+                                signature: signData.signature,
+                            };
+                            this.tempFinalSrc = signData.host + "/" + key;
+                            resolve();
+                        }
+                        else {
                             this.recordsLength -= 1;
                             this.$refs.upload.clear();
-                            console.log(err);
-                        });
+                            reject();
+                        }
+                    }).catch((err) => {
+                        this.recordsLength -= 1;
+                        this.$refs.upload.clear();
+                        console.error(err);
+                    });
                 });
             },
             // 上传图片成功的钩子函数
@@ -487,37 +479,35 @@
                         content: this.tempFinalSrc,
                         isText: false
                     }
-                })
-                    .then(res => {
-                        if (res.success) {
-                            wx.hideLoading();
-                            this.scrollToViewId = `messageTopView`;
-                            setTimeout(() => {
-                                this.messageRecords.push({
-                                    id: res.data.id,
-                                    isMe: true,
-                                    isPhoto: true,
-                                    content: this.tempFinalSrc,
-                                    time: new Date()
-                                });
-                            }, 0);
-                            this.$refs.upload.clear();
-                        }
-                        else {
-                            wx.hideLoading();
-                            this.$refs.toast.show({
-                                text: '发送失败',
-                                type: 'error',
-                                direction: 'top'
+                }).then(res => {
+                    if (res.success) {
+                        wx.hideLoading();
+                        this.scrollToViewId = `messageTopView`;
+                        setTimeout(() => {
+                            this.messageRecords.push({
+                                id: res.data.id,
+                                isMe: true,
+                                isPhoto: true,
+                                content: this.tempFinalSrc,
+                                time: new Date()
                             });
-                            this.recordsLength -= 1;
-                            this.$refs.upload.clear();
-                        }
-                    })
-                    .catch(error => {
-                        console.log(error)
+                        }, 0);
+                        this.$refs.upload.clear();
+                    }
+                    else {
+                        wx.hideLoading();
+                        this.$refs.toast.show({
+                            text: '发送失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
                         this.recordsLength -= 1;
-                    })
+                        this.$refs.upload.clear();
+                    }
+                }).catch(error => {
+                    console.error(error)
+                    this.recordsLength -= 1;
+                });
             },
             // scroll-view监听滚动事件
             handleScroll(e) {
@@ -568,7 +558,7 @@
             previewImage(url) {
                 wx.previewImage({
                     urls: [url]
-                })
+                });
             },
             /**
              * 删除聊天消息
@@ -580,37 +570,35 @@
                 })
                 deleteChatHistory({
                     urlParam: "?ids=" + targetId
-                })
-                    .then(res => {
-                        wx.hideLoading();
-                        if (res.success) {
-                            this.recordsLength -= 1;
-                            this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
-                            this.$refs.toast.show({
-                                text: '已删除',
-                                type: 'success',
-                                direction: 'top'
-                            });
-                        }
-                        else {
-                            wx.hideLoading();
-                            this.$refs.toast.show({
-                                text: '删除失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
-                            console.log(res)
-                        }
-                    })
-                    .catch(err => {
+                }).then(res => {
+                    wx.hideLoading();
+                    if (res.success) {
+                        this.recordsLength -= 1;
+                        this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
+                        this.$refs.toast.show({
+                            text: '已删除',
+                            type: 'success',
+                            direction: 'top'
+                        });
+                    }
+                    else {
                         wx.hideLoading();
                         this.$refs.toast.show({
                             text: '删除失败',
                             type: 'error',
                             direction: 'top'
                         });
-                        console.log(err);
-                    })
+                        console.log(res)
+                    }
+                }).catch(err => {
+                    wx.hideLoading();
+                    this.$refs.toast.show({
+                        text: '删除失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
+                    console.error(err);
+                })
             },
             // scroll-view下拉刷新开始事件
             handleRefreshStart() {
@@ -674,24 +662,21 @@
                 uni.getStorage({
                     key: 'userInfo',
                     success: res => {
-                        connectSocket(res.data.userId)
-                            .then(res => {
-                                console.log(res);
-                                // this.$refs.toast.show({
-                                //     text: '网络异常',
-                                //     type: 'error',
-                                //     direction: 'top'
-                                // });
-                                uni.onSocketMessage(res => {
-                                    this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
-                                });
-                            })
-                            .catch(err => {
-                                console.log(err);
-                            })
+                        connectSocket(res.data.userId).then(res => {
+                            // this.$refs.toast.show({
+                            //     text: '网络异常',
+                            //     type: 'error',
+                            //     direction: 'top'
+                            // });
+                            uni.onSocketMessage(res => {
+                                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                            });
+                        }).catch(err => {
+                            console.error(err);
+                        });
                     },
                     fail: err => {
-                        console.log(err);
+                        console.error(err);
                         let currentPage = utils.getCurrentPage();
                         uni.redirectTo({
                             url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
@@ -704,15 +689,13 @@
                 uni.onSocketClose(res => {
                     console.log('已关闭Socket');
                 });
-                closeSocket()
-                    .then(res => {
-                    })
-                    .catch(err => {
-                        if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
-                            return;
-                        }
-                        console.error(err);
-                    })
+                closeSocket().then(res => {
+                }).catch(err => {
+                    if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
+                        return;
+                    }
+                    console.error(err);
+                })
             },
         },
         computed: {
@@ -755,13 +738,12 @@
         },
         watch: {
             // 消息原始输入框的值
-            rawInputValue(nval, oval) {
+            rawInputValue(nval) {
                 this.isSendReady = nval.replace(/\s*/g, "") !== ''; //判断输入框中是否为空白内容
             },
             // 消息记录数组
-            messageRecords(nval, oval) {
+            messageRecords() {
                 this.scrollToViewId = `scrollBottomView`; //将scroll-view移动到底部
-                // this.scrollToViewId = `message${nval.length - 1}`;
                 this.$forceUpdate();
             },
             isReadyToShow(nval, oval) {
@@ -772,8 +754,6 @@
                     this.$refs.loading.stopLoading();
                 }
             }
-        },
-        mounted() {
         },
         onLoad() {
             wx.getSystemInfo({

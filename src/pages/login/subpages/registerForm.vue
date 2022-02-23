@@ -82,9 +82,9 @@
 </template>
 
 <script>
+    import toast from '@/components/toast/toast';
+    import imageVerify from '@/components/imageVerify/imageVerify';
     import {Validator} from "@/common/js/validate/validate.js";
-    import {toast} from '@/components/toast/toast.vue';
-    import {imageVerify} from '@/components/imageVerify/imageVerify.vue';
 
     export default {
         components: {

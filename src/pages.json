@@ -26,7 +26,7 @@
             }
         },
         {
-            "path": "pages/addressBook/subpages/editAddress",
+            "path": "pages/addressBook/subpages/editAddress/editAddress",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,

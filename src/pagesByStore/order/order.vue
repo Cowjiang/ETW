@@ -296,23 +296,18 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast.vue";
-    import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
-    import {loading} from "@/components/loading/loading.vue";
-    import {storeInfoPopup} from "@/components/store/storeInfoPopup/storeInfoPopup.vue";
-    import {selectTimePopup} from "@/components/selectPopup/selectTime/selectTime.vue";
-    import {addOrder, getDefaultAddress, getUserCoupon} from "@/common/js/api/models.js";
-    import {toPayment, toWxLogin} from "@/common/js/utils/common";
+    import loading from "@/components/loading/loading";
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import storeInfoPopup from "@/components/store/storeInfoPopup/storeInfoPopup";
+    import selectTimePopup from "@/components/selectPopup/selectTime/selectTime";
     import couponItem from "@/components/couponItem/couponItem.vue";
+    import {toPayment, toWxLogin} from "@/common/js/utils/common";
+    import {addOrder, getDefaultAddress, getUserCoupon} from "@/common/js/api/models.js";
 
     export default {
         components: {
-            toast,
-            navigationBar,
-            loading,
-            storeInfoPopup,
-            selectTimePopup,
-            couponItem,
+            toast, navigationBar, loading, storeInfoPopup, selectTimePopup, couponItem
         },
         data() {
             return {
@@ -322,14 +317,14 @@
                 isTakeOut: false, //是否外送
                 orderItems: [], //请求用的订单项参数
                 storeInfo: {
-                    storeId: 0, // {Number} 店铺id，必需
-                    name: "必胜客（太平店）", // {String} 店铺名字，必需
-                    addressDetails: "广东省广州市从化区太平镇乐东路385号（峰达电器城旁）", // {String} 店铺地址详情，必需
-                    phone: "020-88900280", // {String} 店铺联系电话，必需
-                    openingTime: "工作日9:00-21:00，节假日9:00-24:00", // {String} 店铺营业时间，必需
-                    longitude: 113.492195, // {Number|NaN} 店铺经度，必需
-                    latitude: 23.452394, // {Number|NaN} 店铺纬度，必需
-                    areaCode: "440103", // {String} 行政编码
+                    storeId: NaN, // {Number} 店铺id，必需
+                    name: "", // {String} 店铺名字，必需
+                    addressDetails: "", // {String} 店铺地址详情，必需
+                    phone: "", // {String} 店铺联系电话，必需
+                    openingTime: "", // {String} 店铺营业时间，必需
+                    longitude: NaN, // {Number|NaN} 店铺经度，必需
+                    latitude: NaN, // {Number|NaN} 店铺纬度，必需
+                    areaCode: "", // {String} 行政编码
                     imageUrl: "", // {String} 店铺Logo的Url
                 }, //店铺信息
                 contactName: "", //到店自取联系人姓名
@@ -346,40 +341,37 @@
                 deliveryFee: 0, // {Number} 配送费
                 packagingFee: 0, // {Number} 打包费
                 orderPrice: 0, //订单总金额
-                couponsEnable: [],
-                couponsDisable: [],
-                showCoupons: false,
+                couponsEnable: [], //优惠券可用列表
+                couponsDisable: [], //优惠券不可用列表
+                showCoupons: false, //是否显示优惠券
                 currentCouponId: "", // 当前选中优惠券
-                currentCouponIndex: 0,
+                currentCouponIndex: 0, //当前优惠券序号
             };
         },
         methods: {
             // 切换自取/外送标签
             handleChangeTags(e) {
                 this.utils.throttle(async () => {
-                    if (
-                        e.currentTarget.dataset.name === "tagRight" &&
-                        this.takeOutInfo.id === undefined
-                    ) {
+                    if (e.currentTarget.dataset.name === "tagRight" && this.takeOutInfo.id === undefined) {
                         //获取用户当前默认地址
                         await getDefaultAddress().then(res => {
-                                if (res.success && res.data.id != null) {
-                                    this.takeOutInfo = {
-                                        id: res.data.id,
-                                        contactName: res.data.contacts,
-                                        contactPhone: res.data.phone,
-                                        areaCode: res.data.areaCode,
-                                        addressDetail: res.data.addressDetail,
-                                        areaName: [res.data.province, res.data.city, res.data.area],
-                                        isDefaultAddress: res.data.isDefault,
-                                    };
-                                }
-                                else {
-                                    this.takeOutInfo = {};
-                                }
-                            }).catch(err => {
+                            if (res.success && res.data.id != null) {
+                                this.takeOutInfo = {
+                                    id: res.data.id,
+                                    contactName: res.data.contacts,
+                                    contactPhone: res.data.phone,
+                                    areaCode: res.data.areaCode,
+                                    addressDetail: res.data.addressDetail,
+                                    areaName: [res.data.province, res.data.city, res.data.area],
+                                    isDefaultAddress: res.data.isDefault,
+                                };
+                            }
+                            else {
                                 this.takeOutInfo = {};
-                            });
+                            }
+                        }).catch(err => {
+                            this.takeOutInfo = {};
+                        });
                     }
                     this.isTakeOut = e.currentTarget.dataset.name !== "tagLeft";
                 }, 300);
@@ -425,7 +417,7 @@
                                             }
                                         },
                                     },
-                                    success: (res) => {
+                                    success: res => {
                                         res.eventChannel.emit("selectAddress", {data: true});
                                     },
                                 });
@@ -447,7 +439,7 @@
                                             }
                                         },
                                     },
-                                    success: (res) => {
+                                    success: res => {
                                         res.eventChannel.emit("selectAddress", {data: true});
                                     },
                                 });
@@ -571,13 +563,9 @@
                 });
                 return totalDiscount;
             },
+            // 是否允许支付
             allowPay() {
-                if (this.isTakeOut) {
-                    return this.takeOutInfo.id != null;
-                }
-                else {
-                    return !(this.contactName === '' || this.contactPhone === '' || this.reservationTime === '');
-                }
+                return this.isTakeOut ? this.takeOutInfo.id != null : !(this.contactName === '' || this.contactPhone === '' || this.reservationTime === '');
             }
         },
         filters: {
@@ -587,12 +575,7 @@
              * @return {String} 格式化后的价格
              */
             showPrice(price) {
-                if (typeof price !== "number") {
-                    return `￥NaN`;
-                }
-                else {
-                    return `￥${price / 100.0}`;
-                }
+                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
             },
             /**
              * 格式化商品数量显示
@@ -600,12 +583,7 @@
              * @return {String} 格式化后的商品数量
              */
             showAmount(amount) {
-                if (typeof amount !== "number") {
-                    return `x NaN`;
-                }
-                else {
-                    return `x ${amount}`;
-                }
+                return typeof amount !== "number" ? `x NaN` : `x ${amount}`;
             },
             /**
              * 格式化联系人姓名
@@ -627,7 +605,6 @@
                 else return '';
             },
         },
-        watch: {},
         mounted() {
         },
         onLoad() {
@@ -643,8 +620,7 @@
                 const eventChannel = this.getOpenerEventChannel();
                 eventChannel.on("acceptDataFromOpenerPage", (data) => {
                     // 填充店铺信息
-                    let storeInfo = data.storeInfo;
-                    console.log(storeInfo);
+                    const storeInfo = data.storeInfo;
                     this.storeInfo = {
                         storeId: storeInfo.id, // {Number} 店铺id，必需
                         name: storeInfo.name, // {String} 店铺名字，必需
@@ -688,7 +664,7 @@
                         this.orderItems = orderItems;
                         // 填充订单信息
                         packagingFee += cartItem.packingCharges * cartItem.amount;
-                        let orderItem = {
+                        const orderItem = {
                             imageUrl: cartItem.imageUrl,
                             name: cartItem.name, // {String} 商品名称
                             description: customSelectedItems.join(";"), // {String} 商品规格/描述
@@ -704,7 +680,7 @@
                             storeId: storeInfo.id,
                             pageNumber: 1,
                             pageSize: -1,
-                            stat: 0, // 未使用
+                            stat: 0, //未使用
                         },
                     }).then(res => {
                         if (res.success) {

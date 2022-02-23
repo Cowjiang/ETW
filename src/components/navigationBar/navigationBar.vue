@@ -43,7 +43,6 @@
                   class="navigation-home-image"
                   mode="heightFix">
                 </image>
-                <!--<i class="fa fa-cog" aria-hidden="true" :style="{fontSize: `${0.6 * navigationBarHeight}px`}"></i>-->
               </view>
             </view>
           </view>
@@ -198,67 +197,5 @@
 </script>
 
 <style lang="scss" scoped>
-  .navigation-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 300rpx;
-    z-index: 99999999;
-  }
-
-  .navigation-bar {
-    width: 100vw;
-    position: fixed;
-    display: flex;
-    left: 0;
-    z-index: 99999999;
-
-    .navigation-menu-button {
-      height: 100%;
-      border-radius: 50rpx;
-      border: 1rpx solid rgba(125, 125, 125, 0.1);
-      background-color: rgba(255, 255, 255, 0.6);
-
-      .navigation-menu-button-content {
-        display: flex;
-
-        .navigation-back {
-          height: 100%;
-          width: 100%;
-          text-align: center;
-
-          .navigation-back-image {
-            height: 100%;
-          }
-        }
-
-        .navigation-home {
-          height: 100%;
-          width: 100%;
-          text-align: center;
-          border-left: 1rpx solid rgba(100, 100, 100, 0.1);
-
-          .navigation-home-image {
-            height: 100%;
-          }
-        }
-      }
-    }
-
-    .navigation-title {
-      height: 100%;
-      margin-left: 10px;
-      text-align: center;
-      font-size: 36rpx;
-      color: #333;
-      white-space: nowrap;
-      overflow: hidden;
-
-      .title {
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-  }
+  @import 'navigationBar';
 </style>

@@ -196,12 +196,12 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast.vue";
-    import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
-    import {loading} from "@/components/loading/loading.vue";
-    import {applyToRefunds, getOrderDetail, getOrderWxPayInfo} from "@/common/js/api/models";
+    import loading from "@/components/loading/loading";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import toast from "@/components/toast/toast";
     import {dateFilter} from "@/common/js/utils/filters";
     import {toPayment} from "@/common/js/utils/common";
+    import {applyToRefunds, getOrderDetail, getOrderWxPayInfo} from "@/common/js/api/models";
 
     export default {
         name: "orderDetail",
@@ -278,7 +278,7 @@
             },
             /**
              * 订单状态自定义按钮点击事件
-             * @param statusCode {Number} 订单状态码
+             * @param {Number} statusCode 订单状态码
              */
             handleCustomBtnClick(statusCode) {
                 switch (statusCode) {
@@ -341,7 +341,7 @@
             },
             /**
              * 显示订单按钮文字
-             * @param statusCode {Number} 订单状态码
+             * @param {Number} statusCode 订单状态码
              * @return {String} 订单按钮文字
              */
             showBtnText(statusCode) {
@@ -362,7 +362,6 @@
                 }
             },
         },
-        computed: {},
         filters: {
             /**
              * 显示订单状态
@@ -424,12 +423,7 @@
              * @return {String} 格式化后的价格
              */
             showPrice(price) {
-                if (typeof price !== "number") {
-                    return `￥NaN`;
-                }
-                else {
-                    return `￥${price / 100.0}`;
-                }
+                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
             },
             /**
              * 格式化商品数量显示
@@ -437,12 +431,7 @@
              * @return {String} 格式化后的商品数量
              */
             showAmount(amount) {
-                if (typeof amount !== "number") {
-                    return `x NaN`;
-                }
-                else {
-                    return `x ${amount}`;
-                }
+                return typeof amount !== "number" ? `x NaN` : `x ${amount}`;
             },
             /**
              * 格式化商品描述显示

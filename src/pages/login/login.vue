@@ -44,17 +44,14 @@
 </template>
 
 <script>
-    import {navigationBar} from "../../components/navigationBar/navigationBar.vue";
-    import {loginForm} from "./subpages/loginForm.vue";
-    import {registerForm} from "./subpages/registerForm.vue";
-    import {captchaForm} from "./subpages/captchaForm.vue";
+    import navigationBar from "../../components/navigationBar/navigationBar";
+    import loginForm from "@/pages/login/subpages/loginForm";
+    import registerForm from "@/pages/login/subpages/registerForm";
+    import captchaForm from "@/pages/login/subpages/captchaForm";
 
     export default {
         components: {
-            loginForm,
-            registerForm,
-            captchaForm,
-            navigationBar,
+            loginForm, registerForm, captchaForm, navigationBar,
         },
         data() {
             return {

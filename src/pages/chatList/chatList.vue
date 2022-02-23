@@ -155,9 +155,9 @@
 </template>
 
 <script>
-    import {toast} from '@/components/toast/toast.vue';
-    import {navigationBar} from '@/components/navigationBar/navigationBar.vue';
-    import {loading} from '@/components/loading/loading.vue';
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import loading from "@/components/loading/loading";
     import {deleteChatWithFriend, getMyChatList} from "@/common/js/api/models.js";
     import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
 
@@ -383,7 +383,6 @@
             // 监听下拉刷新事件结束
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
-                // this.$refs.loading.stopLoading();
             },
             // 监听scroll-view滚动到底部
             handleScrollToBottom() {
@@ -401,9 +400,6 @@
                     key: 'chatList',
                     success: res => {
                         this.chatMessages = res.data;
-                    },
-                    fail: err => {
-                        // console.log(err)
                     },
                     complete: res => {
                         if (this.chatMessages.length === 0) {
@@ -448,8 +444,6 @@
                     uni.setStorage({
                         key: "chatList",
                         data: this.chatMessages.slice(0, 14),
-                        success: res => {
-                        },
                         fail: err => {
                             console.error(err);
                         }

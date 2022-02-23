@@ -79,9 +79,9 @@
      * @property {Boolean} value 是否显示Popup弹窗，默认为false
      * @property {Object} info 店铺信息，必须包含name、addressDetails、phone、longitude、latitude，具体参考props中的描述
      * @property {Boolean} showCloseBtn 是否显示关闭按钮，默认为true
-     * @example <storeInformation v-model="show" :info="storeInfo" @close="handleClose"></storeInformation>
      * @event open popup被打开
      * @event close popup被关闭
+     * @example <storeInformation v-model="show" :info="storeInfo" @close="handleClose"></storeInformation>
      */
     export default {
         name: "storeInfoPopup",
@@ -142,11 +142,7 @@
                             }
                             else {
                                 wx.makePhoneCall({
-                                    phoneNumber: this.info.phone,
-                                    success: res => {
-                                    },
-                                    fail: err => {
-                                    }
+                                    phoneNumber: this.info.phone
                                 });
                             }
                         }
@@ -168,14 +164,6 @@
                     });
                 }
             },
-        },
-        mounted() {
-        },
-        onload() {
-        },
-        created() {
-        },
-        onshow() {
         }
     }
 </script>

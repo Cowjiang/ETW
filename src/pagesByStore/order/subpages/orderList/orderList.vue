@@ -112,12 +112,12 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast";
-    import {navigationBar} from "@/components/navigationBar/navigationBar";
-    import {loading} from "@/components/loading/loading";
-    import {getMyOrder, getOrderWxPayInfo} from "@/common/js/api/models";
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import loading from "@/components/loading/loading";
     import {dateFilter} from "@/common/js/utils/filters";
     import {toPayment} from "@/common/js/utils/common";
+    import {getMyOrder, getOrderWxPayInfo} from "@/common/js/api/models";
 
     export default {
         name: "orderList",

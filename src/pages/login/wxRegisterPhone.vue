@@ -27,9 +27,9 @@
 </template>
 
 <script>
-    import {toast} from "@/components/toast/toast.vue";
-    import {navigationBar} from "@/components/navigationBar/navigationBar.vue";
-    import {wxLogin, wxRegister, wxUserPhone, wxUserProfile} from "@/common/js/api/models";
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import {wxUserPhone} from "@/common/js/api/models";
 
     export default {
         name: "wxRegisterPhone",

@@ -89,14 +89,13 @@
 </template>
 
 <script>
-    import {loading} from "@/components/loading/loading.vue";
-    import storeSearchResult from "@/common/js/fakeData/storeSearch.js";
-    import {getSearchResult} from "@/common/js/api/models";
+    import loading from "@/components/loading/loading";
+    import {searchStore} from "@/common/js/api/models";
 
     export default {
         name: "storeSearchResult",
         components: {
-            loading,
+            loading
         },
         data() {
             return {
@@ -110,8 +109,8 @@
                 existMore: true, //是否存在更多搜索结果
                 searchKeyword: "", //搜索关键词
                 storeSearchResult: [], //店铺搜索结果
-                longitude: 0,
-                latitude: 0,
+                longitude: 0, //经度
+                latitude: 0, //纬度
             };
         },
         methods: {
@@ -126,22 +125,13 @@
             },
             /**
              * 执行搜索操作
-             * @param keyword {String} 搜索关键词
+             * @param {String} keyword 搜索关键词
              * @return {Promise}
              */
             doSearch(keyword) {
                 return new Promise((resolve, reject) => {
                     this.searchKeyword = keyword;
-                    if (keyword === "必胜客") {
-                        //测试用，后续删除
-                        this.storeSearchResult = storeSearchResult;
-                        this.loadingMore = false;
-                        this.existMore = false;
-                        setTimeout(() => {
-                            resolve(storeSearchResult);
-                        }, 0);
-                    }
-                    getSearchResult({
+                    searchStore({
                         queryData: {
                             keywords: keyword,
                             pageSize: this.pageSize,
@@ -187,12 +177,10 @@
             },
             // 跳转店铺菜单页
             toStoreMenu(e) {
-                const storeInfo = this.storeSearchResult.find(
-                    (store) => store.id === e.currentTarget.dataset.storeid
-                );
+                const storeInfo = this.storeSearchResult.find(store => store.id === e.currentTarget.dataset.storeid);
                 wx.navigateTo({
                     url: "/pagesByStore/storeMenu/storeMenu",
-                    success: (res) => {
+                    success: res => {
                         res.eventChannel.emit("storeInfo", {
                             storeInfo: storeInfo,
                         });
@@ -201,38 +189,29 @@
             },
             /**
              * 格式化店铺评分显示
-             * @param score {Number | String} 店铺评分
+             * @param {Number|String} score 店铺评分
              * @return {String} 格式化后的店铺评分
              */
             formatScore(score) {
-                let scoreNumber = Number(score);
-                if (scoreNumber > 0 && scoreNumber <= 5) {
-                    return `${scoreNumber}分`;
-                }
-                else {
-                    return "暂无评分";
-                }
+                const scoreNumber = Number(score);
+                return scoreNumber > 0 && scoreNumber <= 5 ? `${scoreNumber}分` : '暂无评分';
             },
             /**
              * 格式化人均消费显示
-             * @param perCost {Number | String} 人均消费
+             * @param {Number|String} perCost 人均消费
              * @return {String} 格式化后的人均消费
              */
             formatPerCost(perCost) {
-                let perCostNumber = Number(perCost);
-                if (!isNaN(perCost) && perCost > 0) {
-                    return `￥${perCostNumber}/人`;
-                }
-                else {
-                    return "";
-                }
+                const perCostNumber = Number(perCost);
+                return !isNaN(perCost) && perCost > 0 ? `￥${perCostNumber}/人` : '';
             },
+            // 格式化距离显示
             formatDistance(distance) {
                 if (distance === undefined) {
-                    return "未知";
+                    return "";
                 }
                 else if (distance < 1000) {
-                    return Math.round(distance) + " m";
+                    return Math.round(distance) + "m";
                 }
                 else if (distance > 1000) {
                     return (distance / 1000.0).toFixed(1) + "km";

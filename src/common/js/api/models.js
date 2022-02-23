@@ -6,14 +6,11 @@ export const wsBaseUrl = `wss://${host}/websocket`; //WebSocket请求服务器�
 
 // mock
 // 获取作品列表
-export const getWorkList = (requestConfig) =>
-    apiRequest("mockApi/test", {method: "GET", requestConfig});
+export const getWorkList = (requestConfig) => apiRequest("mockApi/test", {method: "GET", requestConfig});
 // 获取常看作者
-export const getAuthorList = (requestConfig) =>
-    apiRequest("mockApi/authorList", {method: "GET", requestConfig});
+export const getAuthorList = (requestConfig) => apiRequest("mockApi/authorList", {method: "GET", requestConfig});
 // 获取动态列表
-export const getTrendList = (requestConfig) =>
-    apiRequest("mockApi/trendsList", {method: "GET", requestConfig});
+export const getTrendList = (requestConfig) => apiRequest("mockApi/trendsList", {method: "GET", requestConfig});
 
 //用户相关
 //登录
@@ -30,7 +27,10 @@ export const getEmailCode = (requestConfig) =>
     });
 //微信登录
 export const wxLogin = (requestConfig) =>
-    apiRequest(`${httpBaseUrl}/login/wx`, {method: "POST", requestConfig});
+    apiRequest(`${httpBaseUrl}/login/wx`, {
+        method: "POST",
+        requestConfig
+    });
 //微信注册
 export const wxRegister = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/user/register/wx`, {method: "POST", requestConfig});
@@ -62,6 +62,12 @@ export const addBlockList = (requestConfig) =>
 export const deleteBlockList = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, {
         method: "DELETE",
+        requestConfig,
+    });
+//搜索用户
+export const searchUser = (requestConfig) =>
+    apiRequest(`${httpBaseUrl}/user/search`, {
+        method: "GET",
         requestConfig,
     });
 //关注用户
@@ -243,7 +249,7 @@ export const getUserToken = (requestConfig) =>
 
 //店铺相关
 //搜索店铺
-export const getSearchResult = (requestConfig) =>
+export const searchStore = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/store/search`, {
         method: "POST",
         requestConfig
