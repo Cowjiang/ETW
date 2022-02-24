@@ -97,7 +97,7 @@
                     },
                     {
                         id: 2,
-                        name: '微信登陆'
+                        name: '用户搜索页'
                     }
                 ], //快捷调试操作列表（自行添加）
                 notes: [
@@ -162,17 +162,8 @@
                         });
                         break;
                     case 2:
-                        const currentPage = this.utils.getCurrentPage();
-                        uni.redirectTo({
-                            url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`,
-                            fail: err => {
-                                console.error(err);
-                                this.$refs.toast.show({
-                                    text: `路径错误`,
-                                    direction: 'top',
-                                    type: 'error'
-                                });
-                            }
+                        uni.navigateTo({
+                            url: '/pagesByStore/userSearch/userSearch'
                         });
                         break;
                     default:
