@@ -66,7 +66,7 @@
 <script>
     import toast from '@/components/toast/toast';
     import imageVerify from '@/components/imageVerify/imageVerify';
-    import {loginTest} from "@/common/js/api/models.js";
+    import {traditionalLogin} from "@/common/js/api/models.js";
     import {Validator} from "@/common/js/validate/validate.js";
 
     export default {
@@ -202,7 +202,7 @@
                     //判断是否经过邮箱/手机格式验证
                     if (usernameValidatedInfo.required && passwordValidatedInfo.required) {
                         if (usernameValidatedInfo.regExp.length < 2) {
-                            loginTest({
+                            traditionalLogin({
                                 queryData: {
                                     username: this.username,
                                     password: this.password,

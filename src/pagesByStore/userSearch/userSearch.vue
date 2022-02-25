@@ -102,7 +102,7 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                searchValue: '新用户', //搜索输入框的值
+                searchValue: '', //搜索输入框的值
                 currentSearchValue: '', //当前搜索输入框的值
                 searchInputFocus: false, //搜索输入框聚焦状态
                 showHistory: true, //是否显示搜索历史
@@ -168,7 +168,7 @@
                             duration: 'top'
                         });
                     });
-                }, 1000);
+                }, 0);
             },
             // 搜索输入框确认事件
             handleInputConfirm() {
@@ -288,7 +288,7 @@
                 if (!nval && oval) {
                     this.$refs.loadingMore.stopLoading();
                 }
-            },
+            }
         },
         mounted() {
             wx.getSystemInfo({
@@ -298,7 +298,6 @@
                 },
             }); //获取窗口尺寸
             this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
-            this.searchResult();
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
@@ -306,6 +305,10 @@
                 backgroundColor: '#fff'
             });
             this.searchInputFocus = false;
+            if (this.searchValue.replace(/\s*/g, "") !== '') {
+                this.currentSearchValue = '';
+                this.searchResult();
+            }
         }
     }
 </script>

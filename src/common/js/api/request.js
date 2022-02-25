@@ -79,7 +79,7 @@ export const apiRequest = (url, paramObject) => {
                         case 999:
                             if (res.data.data !== '用户登录过期') {
                                 if (res.data.errorMsg === '失败') {
-                                    reject(res.data);
+                                    // reject(res.data);
                                 }
                                 break;
                             }
@@ -88,14 +88,14 @@ export const apiRequest = (url, paramObject) => {
                             console.log('该功能需要登录才能使用');
                             const currentPage = utils.getCurrentPage();
                             if (currentPage.curUrl === 'pages/login/wxLogin') {
-                                reject(res);
+                                // reject(res);
                                 break;
                             }
                             else {
                                 uni.redirectTo({
                                     url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
                                 });
-                                reject(res);
+                                // reject(res);
                                 break;
                             }
                         case 4004:

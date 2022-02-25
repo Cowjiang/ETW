@@ -52,6 +52,7 @@
 <script>
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
+    import {logOut} from "@/common/js/api/models";
 
     export default {
         name: "index",
@@ -139,9 +140,10 @@
              * 执行快捷操作（自行添加）
              * @param id {Number} 快捷操作的id
              */
-            operate(id) {
+            async operate(id) {
                 switch (id) {
                     case 0:
+                        await logOut();
                         uni.removeStorage({
                             key: 'cookie',
                             success: res => {

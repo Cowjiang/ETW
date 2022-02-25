@@ -52,7 +52,7 @@
 <script>
     import toast from '@/components/toast/toast';
     import imageVerify from '@/components/imageVerify/imageVerify';
-    import {getEmailCode, registerTest} from "@/common/js/api/models.js";
+    import {getEmailCode, traditionalRegister} from "@/common/js/api/models.js";
 
     export default {
         components: {
@@ -170,7 +170,7 @@
             registerCheck() {
                 this.utils.throttle(() => {
                     if (this.captchaRawInputValue.length === 6) {
-                        registerTest({
+                        traditionalRegister({
                             queryData: {
                                 key: this.$parent.username,
                                 password: this.$parent.password,
