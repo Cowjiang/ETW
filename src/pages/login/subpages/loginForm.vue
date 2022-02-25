@@ -1,74 +1,73 @@
 <template>
-    <!-- 登录表单 -->
-    <view
-        class="login-form"
-        :class="loginFormAnimation"
-        :style="{ display: showLoginForm }">
-        <text class="title">登 录</text>
-        <!-- 输入框区域 -->
-        <view class="input-area">
-            <view class="username-container" :class="usernameContainerStyle">
-                <view class="input-placeholder" :class="usernamePlaceholderStyle">
-                    电子邮箱 / 手机
-                </view>
-                <input
-                    type="text"
-                    class="username-input"
-                    v-model="username"
-                    :focus="usernameFocusState"
-                    @focus="inputFocus(1)"
-                    @blur="inputBlur"
-                    @input="usernameWatcher"
-                    @confirm="usernameConfirm"
-                    :confirm-type="`next`"/>
-            </view>
-            <view class="password-container" :class="passwordContainerStyle">
-                <view class="input-placeholder" :class="passwordPlaceholderStyle">
-                    密码
-                </view>
-                <input
-                    type="password"
-                    class="password-input"
-                    v-model="password"
-                    :focus="passwordFocusState"
-                    @focus="inputFocus(2)"
-                    @blur="inputBlur"
-                    @input="passwordWatcher"
-                    @confirm="passwordConfirm"
-                    :confirm-type="`done`"/>
-            </view>
+  <!-- 登录表单 -->
+  <view
+    class="login-form"
+    :class="loginFormAnimation"
+    :style="{ display: showLoginForm }">
+    <text class="title">登 录</text>
+    <!-- 输入框区域 -->
+    <view class="input-area">
+      <view class="username-container" :class="usernameContainerStyle">
+        <view class="input-placeholder" :class="usernamePlaceholderStyle">
+          电子邮箱 / 手机
         </view>
-        <!-- 忘记密码 -->
-        <view class="forget-password" @click="forgetPassword">
-            <text>忘记密码 ?</text>
+        <input
+          type="text"
+          class="username-input"
+          v-model="username"
+          :focus="usernameFocusState"
+          @focus="inputFocus(1)"
+          @blur="inputBlur"
+          @input="usernameWatcher"
+          @confirm="usernameConfirm"
+          :confirm-type="`next`"/>
+      </view>
+      <view class="password-container" :class="passwordContainerStyle">
+        <view class="input-placeholder" :class="passwordPlaceholderStyle">
+          密码
         </view>
-        <!-- 下方按钮区域 -->
-        <view class="button-area">
-            <view class="login-button" @click="loginCheck">
-                <text>登 录</text>
-            </view>
-            <view class="wechat-login-button" @click="wechatLogin">
-                <text>微信登录</text>
-            </view>
-            <view class="no-account">
-                <text>没有账号？</text>
-                <text class="register-now" @click="registerNow">立即注册</text>
-            </view>
-        </view>
-
-        <toast ref="toast"></toast>
-        <mask :isShow="isShow" @click="isShow = false">
-            <imageVerify></imageVerify>
-        </mask>
+        <input
+          type="password"
+          class="password-input"
+          v-model="password"
+          :focus="passwordFocusState"
+          @focus="inputFocus(2)"
+          @blur="inputBlur"
+          @input="passwordWatcher"
+          @confirm="passwordConfirm"
+          :confirm-type="`done`"/>
+      </view>
     </view>
+    <!-- 忘记密码 -->
+    <view class="forget-password" @click="forgetPassword">
+      <text>忘记密码 ?</text>
+    </view>
+    <!-- 下方按钮区域 -->
+    <view class="button-area">
+      <view class="login-button" @click="loginCheck">
+        <text>登 录</text>
+      </view>
+      <view class="wechat-login-button" @click="wechatLogin">
+        <text>微信登录</text>
+      </view>
+      <view class="no-account">
+        <text>没有账号？</text>
+        <text class="register-now" @click="registerNow">立即注册</text>
+      </view>
+    </view>
+
+    <toast ref="toast"></toast>
+    <mask :isShow="isShow" @click="isShow = false">
+      <imageVerify></imageVerify>
+    </mask>
+  </view>
 </template>
 
 <script>
-    import {loginTest} from "../../common/js/api/models.js";
-    import {Validator} from "../../common/js/validate/validate.js";
-    import {toast} from '../../components/toast/toast.vue';
-    import {imageVerify} from '../../components/imageVerify/imageVerify.vue';
-
+    import toast from '@/components/toast/toast';
+    import imageVerify from '@/components/imageVerify/imageVerify';
+    import {traditionalLogin} from "@/common/js/api/models.js";
+    import {Validator} from "@/common/js/validate/validate.js";
 
     export default {
         components: {
@@ -203,7 +202,7 @@
                     //判断是否经过邮箱/手机格式验证
                     if (usernameValidatedInfo.required && passwordValidatedInfo.required) {
                         if (usernameValidatedInfo.regExp.length < 2) {
-                            loginTest({
+                            traditionalLogin({
                                 queryData: {
                                     username: this.username,
                                     password: this.password,
@@ -215,14 +214,7 @@
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
-                                                this.$refs.toast.show({
-                                                    text: '登陆成功',
-                                                    type: "success",
-                                                });
-                                                let redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
-                                                uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "/pages/chatList/chatList" : redirectPage}`,
-                                                });
+                                                this.$emit('loginSuccess');
                                             },
                                         });
                                     }
@@ -284,29 +276,7 @@
             // 微信登陆按钮点击事件
             wechatLogin() {
                 this.utils.throttle(() => {
-                    // this.isShow = true;
-
-                    // uni.navigateTo({
-                    //     url: '/pages/amap/amap',
-                    // })
-                    uni.login({
-                        provider: 'weixin',
-                        success: res => {
-                            uni.request({
-                                url: 'https://shitukj.cn/service/user/wx/login',
-                                header: {
-                                    'content-type': 'application/x-www-form-urlencoded'
-                                },
-                                method: 'POST',
-                                data: {
-                                    code: res.code
-                                },
-                                success: res => {
-                                    console.log(res);
-                                }
-                            })
-                        }
-                    })
+                    uni.navigateBack();
                 });
             },
             /**
@@ -341,132 +311,131 @@
 </script>
 
 <style lang="scss" scoped>
-    .login-form {
-        width: 100vw;
-        position: absolute;
-        padding: rpx(54);
-        margin-top: 11vh;
-        animation-duration: 600ms;
+  .login-form {
+    width: 100vw;
+    position: absolute;
+    margin-top: 11vh;
+    padding: 54rpx;
+    animation-duration: 600ms;
 
-        .title {
-            font-size: rpx(64);
-            font-weight: bold;
-            color: $uni-text-color;
-        }
-
-        .input-area {
-            margin-top: rpx(74);
-            width: 100%;
-
-            .username-container {
-                height: rpx(110);
-                border-bottom: rpx(4) solid #ededed;
-                margin-bottom: rpx(46);
-                transition-property: border-bottom-color;
-                transition-duration: 0.2s;
-
-                .input-placeholder {
-                    font-size: rpx(34);
-                    color: $uni-text-color-placeholder;
-                    transition-duration: 0.2s;
-                    transition-property: transform, font-size;
-                    transform: translateY(rpx(40));
-                }
-
-                .username-input {
-                    height: rpx(80);
-                    font-size: rpx(32);
-                    color: $uni-text-color;
-                    transform: translateY(rpx(-10));
-                }
-
-                .placeholder-focus {
-                    transform: translateY(0);
-                    font-size: rpx(32);
-                }
-            }
-
-            .password-container {
-                height: rpx(110);
-                border-bottom: rpx(4) solid #ededed;
-                transition-property: border-bottom-color;
-                transition-duration: 0.2s;
-
-                .input-placeholder {
-                    font-size: rpx(34);
-                    color: $uni-text-color-placeholder;
-                    transition-duration: 0.2s;
-                    transition-property: transform, font-size;
-                    transform: translateY(rpx(40));
-                }
-
-                .password-input {
-                    height: rpx(80);
-                    font-size: rpx(32);
-                    color: $uni-text-color;
-                    transform: translateY(rpx(-10));
-                }
-
-                .placeholder-focus {
-                    transform: translateY(0);
-                    font-size: rpx(32);
-                }
-            }
-
-            .container-focus {
-                border-bottom-color: $uni-color-primary;
-            }
-        }
-
-        .forget-password {
-            font-size: rpx(30);
-            color: $uni-text-color-placeholder;
-            text-align: right;
-            padding: rpx(30) 0;
-        }
-
-        .button-area {
-            width: 100%;
-            padding: rpx(30) 0;
-
-            .login-button {
-                width: 100%;
-                height: rpx(94);
-                text-align: center;
-                font-size: rpx(35);
-                font-weight: bold;
-                line-height: rpx(94);
-                color: $uni-text-color-inverse;
-                background-color: $uni-color-primary;
-                border-radius: rpx(14);
-            }
-
-            .no-account {
-                width: 100%;
-                height: rpx(180);
-                text-align: center;
-                font-size: rpx(32);
-                line-height: rpx(180);
-                color: #444444;
-
-                .register-now {
-                    color: $uni-color-primary;
-                }
-            }
-
-            .wechat-login-button {
-                margin-top: rpx(40);
-                width: 100%;
-                height: rpx(94);
-                text-align: center;
-                font-size: rpx(34);
-                font-weight: bold;
-                line-height: rpx(94);
-                color: $uni-text-color-inverse;
-                //background-color: #00B268;
-                background-color: #5f76ea;
-                border-radius: rpx(14);
-            }
-        }
+    .title {
+      font-size: 64rpx;
+      font-weight: bold;
+      color: $uni-text-color;
     }
+
+    .input-area {
+      width: 100%;
+      margin-top: 74rpx;
+
+      .username-container {
+        height: 110rpx;
+        margin-bottom: 46rpx;
+        border-bottom: 4rpx solid #ededed;
+        transition-property: border-bottom-color;
+        transition-duration: 0.2s;
+
+        .input-placeholder {
+          font-size: 34rpx;
+          color: $uni-text-color-placeholder;
+          transition-duration: 0.2s;
+          transition-property: transform, font-size;
+          transform: translateY(40rpx);
+        }
+
+        .username-input {
+          height: 80rpx;
+          font-size: 32rpx;
+          color: $uni-text-color;
+          transform: translateY(-10rpx);
+        }
+
+        .placeholder-focus {
+          transform: translateY(0);
+          font-size: 32rpx;
+        }
+      }
+
+      .password-container {
+        height: 110rpx;
+        border-bottom: 4rpx solid #ededed;
+        transition-property: border-bottom-color;
+        transition-duration: 0.2s;
+
+        .input-placeholder {
+          font-size: 34rpx;
+          color: $uni-text-color-placeholder;
+          transition-duration: 0.2s;
+          transition-property: transform, font-size;
+          transform: translateY(40rpx);
+        }
+
+        .password-input {
+          height: 80rpx;
+          font-size: 32rpx;
+          color: $uni-text-color;
+          transform: translateY(-10rpx);
+        }
+
+        .placeholder-focus {
+          transform: translateY(0);
+          font-size: 32rpx;
+        }
+      }
+
+      .container-focus {
+        border-bottom-color: $uni-color-primary;
+      }
+    }
+
+    .forget-password {
+      padding: 30rpx 0;
+      font-size: 30rpx;
+      color: $uni-text-color-placeholder;
+      text-align: right;
+    }
+
+    .button-area {
+      width: 100%;
+      padding: 30rpx 0;
+
+      .login-button {
+        width: 100%;
+        height: 94rpx;
+        text-align: center;
+        font-size: 35rpx;
+        font-weight: bold;
+        line-height: 94rpx;
+        color: $uni-text-color-inverse;
+        background-color: $uni-color-primary;
+        border-radius: 14rpx;
+      }
+
+      .no-account {
+        width: 100%;
+        height: 180rpx;
+        text-align: center;
+        font-size: 32rpx;
+        line-height: 180rpx;
+        color: #444444;
+
+        .register-now {
+          color: $uni-color-primary;
+        }
+      }
+
+      .wechat-login-button {
+        width: 100%;
+        height: 94rpx;
+        margin-top: 40rpx;
+        text-align: center;
+        font-size: 34rpx;
+        font-weight: bold;
+        line-height: 94rpx;
+        color: $uni-text-color-inverse;
+        background-color: #5f76ea;
+        border-radius: 14rpx;
+      }
+    }
+  }
 </style>

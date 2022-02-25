@@ -1,0 +1,133 @@
+.popup {
+  .store-info-container {
+    width: 100%;
+    height: 100%;
+    padding: 40rpx;
+    display: flex;
+    flex-direction: column;
+
+    .image-container {
+      width: 100%;
+      height: fit-content;
+      padding: 60rpx 0 40rpx;
+
+      .image {
+        margin: 0 auto;
+        width: 20vw;
+        height: 20vw;
+        background-color: #e9e9e9;
+        border-radius: 30rpx;
+        text-align: center;
+        line-height: 20vw;
+        font-size: 42rpx;
+        font-weight: bold;
+        color: white;
+        overflow: hidden;
+
+        image {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .name-container {
+      width: 100%;
+      height: fit-content;
+
+      .name {
+        text-align: center;
+        font-size: 38rpx;
+        font-weight: bold;
+        color: #555;
+      }
+    }
+
+    .info-container {
+      width: 100%;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      margin-top: 20rpx;
+      padding: 40rpx;
+      font-size: 26rpx;
+      color: #808080;
+
+      .opening-time-container {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 36rpx;
+      }
+
+      .tel-container {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 36rpx;
+      }
+
+      .address-container {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 36rpx;
+      }
+
+      .info-title {
+        white-space: nowrap;
+
+        .fa {
+          margin-right: 10rpx;
+        }
+      }
+
+      .info-detail {
+        word-break: break-all;
+      }
+    }
+
+    .btn-container {
+      width: 100%;
+      height: fit-content;
+      display: flex;
+      flex-direction: row;
+      margin-bottom: 50rpx;
+
+      .btn {
+        width: calc(100% - 90rpx);
+        height: 80rpx;
+        border-radius: 50rpx;
+        text-align: center;
+        line-height: 80rpx;
+        font-size: 30rpx;
+      }
+
+      .btn-left {
+        width: 50%;
+        height: fit-content;
+
+        .btn {
+          border: 2rpx solid #f4756b;
+          color: #f4756b;
+          margin-left: auto;
+          margin-right: 30rpx;
+        }
+      }
+
+      .btn-right {
+        width: 50%;
+        height: fit-content;
+
+        .btn {
+          background-color: #f4756b;
+          color: #fff;
+          margin-left: 30rpx;
+        }
+      }
+    }
+  }
+}

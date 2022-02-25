@@ -7,8 +7,7 @@
             :mask-close-able="false"
             confirm-color="#f4756b"
             @cancel="handleCancel"
-            @confirm="handleConfirm">
-        </u-select>
+            @confirm="handleConfirm" />
     </view>
 </template>
 
@@ -19,7 +18,7 @@
      * @property {Boolean} showCloseBtn 是否显示关闭按钮，默认为true
      * @property {String} timeLimit 可选的时间段，格式如："9:00-21:00"
      * @property {Number} timeInterval 时间段间隔，默认为30
-     * @example <selectTimePopup v-model="show" timeLimit="9:00-21:00" @confirm="handleConfirm"></selectTimePopup>
+     * @example <selectTime v-model="show" timeLimit="9:00-21:00" @confirm="handleConfirm"></selectTime>
      * @event cancel 用户点击取消按钮
      * @event confirm 用户点击确定按钮
      */
@@ -151,18 +150,8 @@
             propsChange() {
                 this.init(); //重新初始化
             }
-        },
-        mounted() {
-        },
-        onload() {
-        },
-        created() {
-        },
-        onshow() {
         }
     }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

@@ -1,90 +1,90 @@
 <template>
-    <!-- 注册表单 -->
-    <view
-        class="register-form"
-        :class="registerFormAnimation"
-        :style="{ display: showRegisterForm }">
-        <text class="title">注 册</text>
-        <!-- 输入框区域 -->
-        <view class="input-area">
-            <view
-                class="username-container"
-                :class="usernameContainerStyle"
-                v-if="isEmailInput">
-                <view class="input-placeholder" :class="usernamePlaceholderStyle">
-                    电子邮箱
-                </view>
-                <input
-                    type="text"
-                    class="username-input"
-                    v-model="email"
-                    :focus="emailFocusState"
-                    @focus="inputFocus(1)"
-                    @blur="inputBlur"
-                    @input="usernameWatcher"
-                    @confirm="usernameConfirm"
-                    confirm-type="next"
-                />
-            </view>
-            <view class="username-container" :class="usernameContainerStyle" v-else>
-                <view class="input-placeholder" :class="usernamePlaceholderStyle">
-                    手机号
-                </view>
-                <input
-                    type="number"
-                    class="username-input"
-                    v-model="phone"
-                    :focus="phoneFocusState"
-                    @focus="inputFocus(1)"
-                    @blur="inputBlur"
-                    @input="usernameWatcher"
-                    maxlength="11"
-                    @confirm="usernameConfirm"
-                    confirm-type="next"/>
-            </view>
-            <view class="password-container" :class="passwordContainerStyle">
-                <view class="input-placeholder" :class="passwordPlaceholderStyle">
-                    密码
-                </view>
-                <input
-                    type="password"
-                    class="password-input"
-                    v-model="password"
-                    :focus="passwordFocusState"
-                    @focus="inputFocus(2)"
-                    @blur="inputBlur"
-                    @input="passwordWatcher"
-                    @confirm="passwordConfirm"
-                    confirm-type="done"/>
-            </view>
+  <!-- 注册表单 -->
+  <view
+    class="register-form"
+    :class="registerFormAnimation"
+    :style="{ display: showRegisterForm }">
+    <text class="title">注 册</text>
+    <!-- 输入框区域 -->
+    <view class="input-area">
+      <view
+        class="username-container"
+        :class="usernameContainerStyle"
+        v-if="isEmailInput">
+        <view class="input-placeholder" :class="usernamePlaceholderStyle">
+          电子邮箱
         </view>
-        <!-- 更改注册方式按钮 -->
-        <view class="change-username">
-            <text v-if="!isEmailInput" @click="changeUsername">使用电子邮箱注册</text>
-            <text v-else @click="changeUsername">使用手机号注册</text>
+        <input
+          type="text"
+          class="username-input"
+          v-model="email"
+          :focus="emailFocusState"
+          @focus="inputFocus(1)"
+          @blur="inputBlur"
+          @input="usernameWatcher"
+          @confirm="usernameConfirm"
+          confirm-type="next"
+        />
+      </view>
+      <view class="username-container" :class="usernameContainerStyle" v-else>
+        <view class="input-placeholder" :class="usernamePlaceholderStyle">
+          手机号
         </view>
-        <!-- 下方按钮区域 -->
-        <view class="button-area">
-            <view class="register-button" @click="registerCheck">
-                <text>注 册</text>
-            </view>
-            <view class="exist-account">
-                <text>已有账号？</text>
-                <text class="login-now" @click="loginNow">立即登录</text>
-            </view>
+        <input
+          type="number"
+          class="username-input"
+          v-model="phone"
+          :focus="phoneFocusState"
+          @focus="inputFocus(1)"
+          @blur="inputBlur"
+          @input="usernameWatcher"
+          maxlength="11"
+          @confirm="usernameConfirm"
+          confirm-type="next"/>
+      </view>
+      <view class="password-container" :class="passwordContainerStyle">
+        <view class="input-placeholder" :class="passwordPlaceholderStyle">
+          密码
         </view>
-
-        <toast ref="toast"/>
-        <mask :isShow="isShowImageVerify" @click="isShowImageVerify = false">
-            <imageVerify ref="imageVerify"></imageVerify>
-        </mask>
+        <input
+          type="password"
+          class="password-input"
+          v-model="password"
+          :focus="passwordFocusState"
+          @focus="inputFocus(2)"
+          @blur="inputBlur"
+          @input="passwordWatcher"
+          @confirm="passwordConfirm"
+          confirm-type="done"/>
+      </view>
     </view>
+    <!-- 更改注册方式按钮 -->
+    <view class="change-username">
+      <text v-if="!isEmailInput" @click="changeUsername">使用电子邮箱注册</text>
+      <text v-else @click="changeUsername">使用手机号注册</text>
+    </view>
+    <!-- 下方按钮区域 -->
+    <view class="button-area">
+      <view class="register-button" @click="registerCheck">
+        <text>注 册</text>
+      </view>
+      <view class="exist-account">
+        <text>已有账号？</text>
+        <text class="login-now" @click="loginNow">立即登录</text>
+      </view>
+    </view>
+
+    <toast ref="toast"/>
+    <mask :isShow="isShowImageVerify" @click="isShowImageVerify = false">
+      <imageVerify ref="imageVerify"></imageVerify>
+    </mask>
+  </view>
 </template>
 
 <script>
-    import {Validator} from "../../common/js/validate/validate.js";
-    import {toast} from '../../components/toast/toast.vue';
-    import {imageVerify} from '../../components/imageVerify/imageVerify.vue';
+    import toast from '@/components/toast/toast';
+    import imageVerify from '@/components/imageVerify/imageVerify';
+    import {Validator} from "@/common/js/validate/validate.js";
 
     export default {
         components: {
@@ -250,8 +250,6 @@
                             // this.isShowImageVerify = true;
 
 
-
-
                             if (this.isEmailInput === true) {
                                 this.$parent.$refs["captchaForm"].setUserInfo('email', this.email);
                             }
@@ -334,118 +332,118 @@
 </script>
 
 <style lang="scss" scoped>
-    .register-form {
-        width: 100vw;
-        position: absolute;
-        padding: rpx(54);
-        margin-top: 11vh;
-        animation-duration: 600ms;
+  .register-form {
+    width: 100vw;
+    position: absolute;
+    padding: 54rpx;
+    margin-top: 11vh;
+    animation-duration: 600ms;
 
-        .title {
-            font-size: rpx(64);
-            font-weight: bold;
-            color: $uni-text-color;
-        }
-
-        .input-area {
-            margin-top: rpx(74);
-            width: 100%;
-
-            .username-container {
-                height: rpx(110);
-                border-bottom: rpx(4) solid #ededed;
-                margin-bottom: rpx(46);
-                transition-property: border-bottom-color;
-                transition-duration: 0.2s;
-
-                .input-placeholder {
-                    font-size: rpx(34);
-                    color: $uni-text-color-placeholder;
-                    transition-duration: 0.2s;
-                    transition-property: transform, font-size;
-                    transform: translateY(rpx(40));
-                }
-
-                .username-input {
-                    height: rpx(80);
-                    font-size: rpx(32);
-                    color: $uni-text-color;
-                    transform: translateY(rpx(-10));
-                }
-
-                .placeholder-focus {
-                    transform: translateY(0);
-                    font-size: rpx(32);
-                }
-            }
-
-            .password-container {
-                height: rpx(110);
-                border-bottom: rpx(4) solid #ededed;
-                transition-property: border-bottom-color;
-                transition-duration: 0.2s;
-
-                .input-placeholder {
-                    font-size: rpx(34);
-                    color: $uni-text-color-placeholder;
-                    transition-duration: 0.2s;
-                    transition-property: transform, font-size;
-                    transform: translateY(rpx(40));
-                }
-
-                .password-input {
-                    height: rpx(80);
-                    font-size: rpx(32);
-                    color: $uni-text-color;
-                    transform: translateY(rpx(-10));
-                }
-
-                .placeholder-focus {
-                    transform: translateY(0);
-                    font-size: rpx(32);
-                }
-            }
-
-            .container-focus {
-                border-bottom-color: $uni-color-primary;
-            }
-        }
-
-        .change-username {
-            font-size: rpx(30);
-            color: $uni-text-color-placeholder;
-            text-align: right;
-            padding: rpx(30) 0;
-        }
-
-        .button-area {
-            width: 100%;
-            padding: rpx(30) 0;
-
-            .register-button {
-                width: 100%;
-                height: rpx(94);
-                text-align: center;
-                font-size: rpx(35);
-                font-weight: bold;
-                line-height: rpx(94);
-                color: $uni-text-color-inverse;
-                background-color: $uni-color-primary;
-                border-radius: rpx(14);
-            }
-
-            .exist-account {
-                width: 100%;
-                height: rpx(180);
-                text-align: center;
-                font-size: rpx(32);
-                line-height: rpx(180);
-                color: #444444;
-
-                .login-now {
-                    color: $uni-color-primary;
-                }
-            }
-        }
+    .title {
+      font-size: 64rpx;
+      font-weight: bold;
+      color: $uni-text-color;
     }
+
+    .input-area {
+      margin-top: 74rpx;
+      width: 100%;
+
+      .username-container {
+        height: 110rpx;
+        border-bottom: 4rpx solid #ededed;
+        margin-bottom: 46rpx;
+        transition-property: border-bottom-color;
+        transition-duration: 0.2s;
+
+        .input-placeholder {
+          font-size: 34rpx;
+          color: $uni-text-color-placeholder;
+          transition-duration: 0.2s;
+          transition-property: transform, font-size;
+          transform: translateY(40rpx);
+        }
+
+        .username-input {
+          height: 80rpx;
+          font-size: 32rpx;
+          color: $uni-text-color;
+          transform: translateY(-10rpx);
+        }
+
+        .placeholder-focus {
+          transform: translateY(0);
+          font-size: 32rpx;
+        }
+      }
+
+      .password-container {
+        height: 110rpx;
+        border-bottom: 4rpx solid #ededed;
+        transition-property: border-bottom-color;
+        transition-duration: 0.2s;
+
+        .input-placeholder {
+          font-size: 34rpx;
+          color: $uni-text-color-placeholder;
+          transition-duration: 0.2s;
+          transition-property: transform, font-size;
+          transform: translateY(40rpx);
+        }
+
+        .password-input {
+          height: 80rpx;
+          font-size: 32rpx;
+          color: $uni-text-color;
+          transform: translateY(-10rpx);
+        }
+
+        .placeholder-focus {
+          transform: translateY(0);
+          font-size: 32rpx;
+        }
+      }
+
+      .container-focus {
+        border-bottom-color: $uni-color-primary;
+      }
+    }
+
+    .change-username {
+      font-size: 30rpx;
+      color: $uni-text-color-placeholder;
+      text-align: right;
+      padding: 30rpx 0;
+    }
+
+    .button-area {
+      width: 100%;
+      padding: 30rpx 0;
+
+      .register-button {
+        width: 100%;
+        height: 94rpx;
+        text-align: center;
+        font-size: 35rpx;
+        font-weight: bold;
+        line-height: 94rpx;
+        color: $uni-text-color-inverse;
+        background-color: $uni-color-primary;
+        border-radius: 14rpx;
+      }
+
+      .exist-account {
+        width: 100%;
+        height: 180rpx;
+        text-align: center;
+        font-size: 32rpx;
+        line-height: 180rpx;
+        color: #444444;
+
+        .login-now {
+          color: $uni-color-primary;
+        }
+      }
+    }
+  }
 </style>

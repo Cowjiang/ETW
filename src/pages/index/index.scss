@@ -1,0 +1,56 @@
+.index-container {
+  width: 100%;
+  height: fit-content;
+  padding: 30rpx 0;
+
+  .page-btn-list, .operation-btn-list, .note-list {
+    padding: 30rpx 0 40rpx 0;
+
+    .notes {
+      width: 100%;
+      height: fit-content;
+      padding: 0 80rpx;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-self: center;
+
+      .note {
+        margin: 14rpx 0;
+        color: #888;
+        font-size: 26rpx;
+      }
+    }
+  }
+
+  .title {
+    width: 100%;
+    height: fit-content;
+    padding: 10rpx 0;
+    text-align: center;
+    font-size: 28rpx;
+    color: #333;
+  }
+
+  .btn-list {
+    width: 100%;
+    height: fit-content;
+    padding: 0 40rpx;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-self: center;
+
+    .btn {
+      width: 40%;
+      height: 80rpx;
+      margin: 14rpx 10rpx;
+      background-color: #f6f6f6;
+      color: #333;
+      border-radius: 20rpx;
+      text-align: center;
+      line-height: 80rpx;
+    }
+  }
+}

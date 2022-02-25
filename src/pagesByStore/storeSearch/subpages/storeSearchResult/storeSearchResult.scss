@@ -1,0 +1,184 @@
+.store-search-result-container {
+  width: 100vw;
+  height: 100%;
+  padding: 20rpx 40rpx 0 40rpx;
+  --animate-duration: 500ms;
+
+  .search-filter-container {
+    width: 100%;
+    height: fit-content;
+    display: none;
+  }
+
+  .result-container {
+    width: 100%;
+    height: 100%;
+
+    .result-scroll-view {
+      width: 100%;
+      height: 100%;
+
+      ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        color: transparent;
+      }
+
+      .store-container {
+        width: 100%;
+        height: fit-content;
+        padding: 24rpx 0;
+
+        .info-container {
+          width: 100%;
+          height: fit-content;
+          display: flex;
+          flex-direction: row;
+
+          .img-container {
+            width: 21vw;
+            height: fit-content;
+            flex-shrink: 0;
+
+            .image {
+              width: 100%;
+              height: 21vw;
+              overflow: hidden;
+              background-color: #f6f6f6;
+              border-radius: 20rpx;
+            }
+          }
+
+          .info {
+            width: 100%;
+            height: fit-content;
+            padding: 0 0 20rpx 20rpx;
+
+            .name {
+              display: flex;
+              flex-direction: row;
+              font-size: 30rpx;
+              color: #000;
+              line-height: 48rpx;
+
+              text:first-child {
+                max-width: calc(100vw - 21vw - 120rpx);
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              }
+
+              .fa-ellipsis-v {
+                margin-left: auto;
+                color: #eee;
+                line-height: 48rpx;
+              }
+            }
+
+            .score-container {
+              display: flex;
+              flex-direction: row;
+              font-size: 24rpx;
+              line-height: 48rpx;
+              color: #555;
+
+              .u-rate {
+                margin-right: 10rpx;
+              }
+
+              .score__default {
+                color: #f4756b;
+              }
+
+              .score__grey {
+                color: #888;
+              }
+
+              .per-cost {
+                margin-left: 20rpx;
+              }
+
+              .distance {
+                margin-left: auto;
+              }
+            }
+
+            .description {
+              max-width: calc(100vw - 21vw - 100rpx);
+              font-size: 22rpx;
+              line-height: 40rpx;
+              color: #555;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            }
+
+            .tags {
+              display: flex;
+              flex-direction: row;
+              flex-wrap: wrap;
+              margin-top: 10rpx;
+
+              .tag {
+                width: fit-content;
+                height: 30rpx;
+                margin: 0 10rpx 8rpx 0;
+                padding: 0 8rpx;
+                flex-shrink: 0;
+                font-size: 20rpx;
+                line-height: 24rpx;
+                background-color: #f4756b;
+                color: #fff;
+                //color: #f4756b;
+                border-radius: 8rpx;
+                border: 2rpx solid #f4756b;
+              }
+            }
+          }
+        }
+
+        .combo-container {
+          width: 100%;
+          height: fit-content;
+        }
+      }
+
+      .store-container:first-child {
+        padding-top: 0;
+      }
+
+      .store-container:last-child {
+        padding-bottom: 0;
+      }
+
+      .load-more, .no-result {
+        height: fit-content;
+        width: 100%;
+        margin-top: 30rpx;
+        padding-bottom: 70rpx;
+        background-color: #fff;
+        border-radius: 30rpx;
+        color: $uni-text-color-placeholder;
+        font-size: 26rpx;
+        text-align: center;
+
+        text {
+          margin-left: 10rpx;
+        }
+      }
+
+      .loading-more {
+        height: 150rpx;
+        padding-bottom: 0;
+        margin-top: 0;
+      }
+
+      .safe-area {
+        width: 100%;
+        height: 0;
+        height: calc(constant(safe-area-inset-bottom));
+        height: calc(env(safe-area-inset-bottom));
+      }
+    }
+  }
+}

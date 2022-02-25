@@ -1,96 +1,96 @@
 <template>
-    <!-- u-popup弹出框 -->
-    <u-popup
-        :maskCloseAble="maskCloseAble"
-        mode="bottom"
-        :popup="false"
-        v-model="value"
-        length="auto"
-        :safeAreaInsetBottom="safeAreaInsetBottom"
-        @close="close">
-        <!-- 标题栏区域 -->
+  <!-- u-popup弹出框 -->
+  <u-popup
+    :maskCloseAble="maskCloseAble"
+    mode="bottom"
+    :popup="false"
+    v-model="value"
+    length="auto"
+    :safeAreaInsetBottom="safeAreaInsetBottom"
+    @close="close">
+    <!-- 标题栏区域 -->
+    <view
+      class="u-picker-header"
+      @touchmove.stop.prevent="">
+      <view
+        class="u-btn-picker u-btn-picker--tips"
+        :style="{ color: cancelColor }"
+        :hover-stay-time="150"
+        @click="handleCancel">
+        {{ cancelText }}
+      </view>
+      <view class="u-picker__title">{{ title }}</view>
+      <view
+        class="u-btn-picker u-btn-picker--primary"
+        :style="{ color: isMoving ? cancelColor : confirmColor }"
+        :hover-stay-time="150"
+        @touchmove.stop=""
+        @click="handleConfirm">
+        {{ confirmText }}
+      </view>
+    </view>
+    <!-- 热门城市 -->
+    <view
+      class="popular-city"
+      v-if="showPopularCity">
+      <view class="title">热门城市</view>
+      <view class="popular-city-container">
         <view
-            class="u-picker-header"
-            @touchmove.stop.prevent="">
-            <view
-                class="u-btn-picker u-btn-picker--tips"
-                :style="{ color: cancelColor }"
-                :hover-stay-time="150"
-                @click="handleCancel">
-                {{ cancelText }}
-            </view>
-            <view class="u-picker__title">{{ title }}</view>
-            <view
-                class="u-btn-picker u-btn-picker--primary"
-                :style="{ color: isMoving ? cancelColor : confirmColor }"
-                :hover-stay-time="150"
-                @touchmove.stop=""
-                @click="handleConfirm">
-                {{ confirmText }}
-            </view>
+          class="popular-city-item"
+          :class="popularCitySelected === index ? 'popular-city-selected' : ''"
+          v-for="(city, index) in popularCity"
+          :key="index"
+          @click="selectPopularCity(index)">
+          {{ city.name }}
         </view>
-        <!-- 热门城市 -->
-        <view
-            class="popular-city"
-            v-if="showPopularCity">
-            <view class="title">热门城市</view>
-            <view class="popular-city-container">
-                <view
-                    class="popular-city-item"
-                    :class="popularCitySelected === index ? 'popular-city-selected' : ''"
-                    v-for="(city, index) in popularCity"
-                    :key="index"
-                    @click="selectPopularCity(index)">
-                    {{ city.name }}
-                </view>
-            </view>
-            <view class="title">选择地区</view>
-        </view>
-        <!-- 地区选择器 -->
-        <view class="u-datetime-picker">
+      </view>
+      <view class="title">选择地区</view>
+    </view>
+    <!-- 地区选择器 -->
+    <view class="u-datetime-picker">
+      <view
+        class="u-picker-body"
+        :style="{height: `${showPopularCity ? '400rpx' : '500rpx'}`}">
+        <picker-view
+          class="u-picker-view"
+          :value="valueArr"
+          @pickstart="pickStart"
+          @change="pickChange"
+          @pickend="pickEnd">
+          <picker-view-column v-if="!reset">
             <view
-                class="u-picker-body"
-                :style="{height: `${showPopularCity ? '400rpx' : '500rpx'}`}">
-                <picker-view
-                    class="u-picker-view"
-                    :value="valueArr"
-                    @pickstart="pickStart"
-                    @change="pickChange"
-                    @pickend="pickEnd">
-                    <picker-view-column v-if="!reset">
-                        <view
-                            class="u-column-item"
-                            v-for="(item, index) in provinces"
-                            :key="index">
-                            <view class="u-line-1">{{ item.label }}</view>
-                        </view>
-                    </picker-view-column>
-                    <picker-view-column v-if="!reset">
-                        <view
-                            class="u-column-item"
-                            v-for="(item, index) in citys"
-                            :key="index">
-                            <view class="u-line-1">{{ item.label }}</view>
-                        </view>
-                    </picker-view-column>
-                    <picker-view-column v-if="!reset">
-                        <view
-                            class="u-column-item"
-                            v-for="(item, index) in areas"
-                            :key="index">
-                            <view class="u-line-1">{{ item.label }}</view>
-                        </view>
-                    </picker-view-column>
-                </picker-view>
+              class="u-column-item"
+              v-for="(item, index) in provinces"
+              :key="index">
+              <view class="u-line-1">{{ item.label }}</view>
             </view>
-        </view>
-    </u-popup>
+          </picker-view-column>
+          <picker-view-column v-if="!reset">
+            <view
+              class="u-column-item"
+              v-for="(item, index) in citys"
+              :key="index">
+              <view class="u-line-1">{{ item.label }}</view>
+            </view>
+          </picker-view-column>
+          <picker-view-column v-if="!reset">
+            <view
+              class="u-column-item"
+              v-for="(item, index) in areas"
+              :key="index">
+              <view class="u-line-1">{{ item.label }}</view>
+            </view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+    </view>
+  </u-popup>
 </template>
 
 <script>
-    import provinces from '../../../node_modules/uview-ui/libs/util/province.js';
-    import citys from '../../../node_modules/uview-ui/libs/util/city.js';
-    import areas from '../../../node_modules/uview-ui/libs/util/area.js';
+    import provinces from 'uview-ui/libs/util/province.js';
+    import citys from 'uview-ui/libs/util/city.js';
+    import areas from 'uview-ui/libs/util/area.js';
 
     export default {
         /**
@@ -344,7 +344,7 @@
             /**
              * 根据行政编码查询地区名称
              * @param {String} adCode 行政编码，例："440104"
-             * @return {Boolean | Array} 查询失败返回false，查询成功返回名称数组，格式：[省份, 城市, 区县]
+             * @return {Boolean|Array} 查询失败返回false，查询成功返回名称数组，格式：[省份, 城市, 区县]
              */
             queryAreaName(adCode) {
                 let result = [];
@@ -368,8 +368,7 @@
                             result[2] = v.label;
                         }
                     });
-                }
-                catch (e) {
+                } catch (e) {
                     console.error(e)
                     return false;
                 }
@@ -404,140 +403,10 @@
                     setTimeout(() => this.init(), 10);
                 }
             }
-        },
-        mounted() {
-        },
-        onLoad() {
-        },
-        created() {
         }
     }
 </script>
 
 <style lang="scss" scoped>
-    /deep/ .u-drawer-content, .u-picker-header {
-        border-radius: rpx(30);
-    }
-
-    .u-picker-header {
-        width: 100%;
-        height: rpx(90);
-        padding: 0 rpx(30);
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        box-sizing: border-box;
-        font-size: rpx(30);
-        background: #fff;
-        position: relative;
-
-        .u-picker__title {
-            color: $u-content-color;
-        }
-
-        .u-btn-picker {
-            padding: rpx(16);
-            box-sizing: border-box;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .u-btn-picker--primary {
-            color: $u-type-primary;
-        }
-
-        .u-btn-picker--tips {
-            color: $u-tips-color;
-        }
-    }
-
-    .u-picker-header::after {
-        content: '';
-        position: absolute;
-        border-bottom: rpx(1) solid #eaeef1;
-        -webkit-transform: scaleY(0.5);
-        transform: scaleY(0.5);
-        bottom: 0;
-        right: 0;
-        left: 0;
-    }
-
-    .popular-city {
-        width: 100%;
-        height: fit-content;
-
-        .title {
-            width: 100%;
-            height: fit-content;
-            padding-left: rpx(30);
-            font-size: rpx(26);
-            line-height: rpx(70);
-            color: #f4756b;
-        }
-
-        .title:last-child {
-            margin-bottom: rpx(20);
-        }
-
-        .popular-city-container {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            text-align: center;
-            margin-bottom: rpx(20);
-            padding: 0 rpx(30);
-
-            .popular-city-item {
-                width: 22vw;
-                height: rpx(70);
-                margin: rpx(8) calc((100vw - 60rpx - 88vw) / 6);
-                text-align: center;
-                font-size: rpx(28);
-                line-height: rpx(70);
-                color: #666;
-                background-color: #f7f7f7;
-                border-radius: rpx(50);
-            }
-
-            .popular-city-item:first-child, .popular-city-item:nth-child(5) {
-                margin-left: 0;
-            }
-
-            .popular-city-item:last-child, .popular-city-item:nth-child(4) {
-                margin-right: 0;
-            }
-
-            .popular-city-selected {
-                background-color: #f4756b;
-                color: #fff;
-            }
-        }
-    }
-
-    .u-datetime-picker {
-        position: relative;
-        z-index: 999;
-
-        .u-picker-body {
-            width: 100%;
-            overflow: hidden;
-            background-color: #fff;
-
-            .u-picker-view {
-                height: 100%;
-                box-sizing: border-box;
-
-                .u-column-item {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: rpx(30);
-                    color: $u-main-color;
-                    padding: 0 rpx(8);
-                }
-            }
-        }
-    }
+  @import 'selectArea';
 </style>

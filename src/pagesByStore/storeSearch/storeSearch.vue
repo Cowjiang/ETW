@@ -45,12 +45,11 @@
 </template>
 
 <script>
-    import {toast} from '../../components/toast/toast.vue';
-    import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {loading} from '../../components/loading/loading.vue';
-    import {storeSearchEmpty} from '../../components/storeSearchEmpty/storeSearchEmpty';
-    import {storeSearchResult} from '../../components/storeSearchResult/storeSearchResult';
-    import {getSearchResult} from '../../common/js/api/models.js';
+    import toast from '@/components/toast/toast';
+    import navigationBar from '@/components/navigationBar/navigationBar';
+    import loading from '@/components/loading/loading';
+    import storeSearchEmpty from '@/pagesByStore/storeSearch/subpages/storeSearchEmpty/storeSearchEmpty';
+    import storeSearchResult from '@/pagesByStore/storeSearch/subpages/storeSearchResult/storeSearchResult';
 
     export default {
         name: "storeSearch",
@@ -150,67 +149,14 @@
                     }
                 }
             });
-            this.searchInputFocus = true;
+            this.searchInputFocus = false;
+        },
+        mounted() {
+            this.searchResult();
         }
     }
 </script>
 
 <style lang="scss" scoped>
-  .store-search-container {
-    width: 100%;
-    height: fit-content;
-    padding: 30rpx 0 20rpx 0;
-
-    .input-container {
-      width: 100%;
-      height: 70rpx;
-      display: flex;
-      flex-direction: row;
-      flex-shrink: 0;
-      padding: 0 40rpx;
-
-      .input {
-        width: calc(100% - 90rpx);
-        height: 100%;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: row;
-        padding: 0 20rpx;
-        background-color: #f1f1f1;
-        border-radius: 50rpx;
-        overflow: hidden;
-        transition-property: width;
-        transition-duration: 500ms;
-
-        .fa {
-          margin-right: 20rpx;
-          font-size: 36rpx;
-          line-height: 70rpx;
-          color: #aaa;
-          font-weight: lighter;
-        }
-
-        input {
-          width: 100%;
-          height: 70rpx;
-          font-size: 28rpx;
-          line-height: 70rpx;
-          color: #333;
-        }
-      }
-
-      .cancel-btn {
-        width: 90rpx;
-        height: 100%;
-        padding-left: 30rpx;
-        font-size: 30rpx;
-        color: #888;
-        line-height: 70rpx;
-        overflow: hidden;
-        transition-property: opacity;
-        transition-duration: 500ms;
-        transition-delay: 500ms;
-      }
-    }
-  }
+  @import 'storeSearch';
 </style>

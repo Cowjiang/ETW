@@ -1,160 +1,165 @@
 <template>
-    <view>
-        <navigationBar ref="navigationBar"/>
-        <toast ref="toast"/>
-        <loading
-            ref="loading"
-            fullscreen
-            maskColor="#f6f6f6"></loading>
-        <!-- 可滑动区域 -->
-        <scroll-view
-            class="chat-list-container"
-            :style="{height: `${windowHeight - navigationHeight}px`}"
-            :scroll-y="true"
-            :scroll-with-animation="true"
-            :refresher-enabled="true"
-            refresher-threshold="300"
-            :refresher-triggered="refresherTriggered"
-            @refresherrefresh="handleRefreshStart"
-            @refresherrestore="handleRefreshEnd"
-            @scrolltolower="handleScrollToBottom">
-            <view class="list-scroll-view">
-                <!-- 顶部按钮列表容器 -->
-                <view class="top-list-container">
-                    <!-- 顶部通知按钮区域 -->
-                    <view
-                        class="btn-container first-btn"
-                        :data-name="`btn0`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        @click="stopCheckingUpdate"
-                        :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view class="btn-icon-container">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[0]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">赞</view>
-                    </view>
-                    <view
-                        class="btn-container second-btn"
-                        :data-name="`btn1`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view class="btn-icon-container">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[1]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">回复我的</view>
-                    </view>
-                    <view
-                        class="btn-container third-btn"
-                        :data-name="`btn2`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view class="btn-icon-container">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[2]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">关注</view>
-                    </view>
-                    <view
-                        class="btn-container fourth-btn"
-                        :data-name="`btn3`"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd"
-                        :style="{filter: `${messageTouchingId === 'btn3' ? 'brightness(90%)' : 'brightness(100%)'}`}">
-                        <view
-                            class="btn-icon-container"
-                            @touchstart="handleTouchStart"
-                            @touchend="handleTouchEnd"
-                            @touchcancel="handleTouchEnd">
-                            <view class="btn-icon"></view>
-                            <view
-                                class="btn-unread"
-                                v-if="!btnMessageIsRead[3]"
-                            ></view>
-                        </view>
-                        <view class="btn-title">通知消息</view>
-                    </view>
-                </view>
-                <!-- 聊天记录列表容器 -->
-                <view class="main-list-container">
-                    <view
-                        class="message-container"
-                        v-for="(message, index) in chatMessages"
-                        :key="index"
-                        :data-name="`message${index}`"
-                        :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}"
-                        @click="toChatDetail"
-                        @longpress="handleLongPress"
-                        @touchstart="handleTouchStart"
-                        @touchend="handleTouchEnd"
-                        @touchcancel="handleTouchEnd">
-                        <view class="avatar-container">
-                            <view class="avatar">
-                                <image :src="message.senderAvatar" mode="widthFix"></image>
-                            </view>
-                        </view>
-                        <view class="content-container">
-                            <view class="sender-name">
-                                <view class="name">
-                                    {{ message.senderName }}
-                                </view>
-<!--                                <view class="blacklist-user">-->
-<!--                                    黑名单-->
-<!--                                </view>-->
-                            </view>
-                            <view class="message-content">
-                                {{ message.isPhoto ? '[图片]' : message.content }}
-                            </view>
-                        </view>
-                        <view class="time-container">
-                            <view class="time">
-                                {{ message.time | formatTime }}
-                            </view>
-                            <view
-                                :class="message.isRead ? 'isread' : 'unread'"
-                            >
-                                {{ message.isRead ? '' : message.unreadCount | unreadCount }}
-                            </view>
-                        </view>
-                    </view>
-                    <view v-show="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
-                        <text>下拉加载更多</text>
-                    </view>
-                    <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
-                        <loading ref="loadingMore"></loading>
-                    </view>
-                    <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
-                        <text>没有更多了哦 ~</text>
-                    </view>
-                </view>
+  <view>
+    <navigationBar ref="navigationBar"/>
+    <toast ref="toast"/>
+    <loading
+      ref="loading"
+      fullscreen
+      maskColor="#f6f6f6"></loading>
+    <!-- 可滑动区域 -->
+    <scroll-view
+      class="chat-list-container"
+      :style="{height: `${windowHeight - navigationHeight}px`}"
+      :scroll-y="true"
+      :scroll-with-animation="true"
+      :refresher-enabled="true"
+      refresher-threshold="300"
+      :refresher-triggered="refresherTriggered"
+      @refresherrefresh="handleRefreshStart"
+      @refresherrestore="handleRefreshEnd"
+      @scrolltolower="handleScrollToBottom">
+      <view class="list-scroll-view">
+        <!-- 顶部按钮列表容器 -->
+        <view class="top-list-container" v-if="showTopBtnArea">
+          <!-- 顶部通知按钮区域 -->
+          <view
+            class="btn-container first-btn"
+            :data-name="`btn0`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            @click="stopCheckingUpdate"
+            :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view class="btn-icon-container">
+              <view class="btn-icon"></view>
+              <view
+                class="btn-unread"
+                v-if="!btnMessageIsRead[0]"
+              ></view>
             </view>
-        </scroll-view>
-    </view>
+            <view class="btn-title">赞</view>
+          </view>
+          <view
+            class="btn-container second-btn"
+            :data-name="`btn1`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view class="btn-icon-container">
+              <view class="btn-icon"></view>
+              <view
+                class="btn-unread"
+                v-if="!btnMessageIsRead[1]"
+              ></view>
+            </view>
+            <view class="btn-title">回复我的</view>
+          </view>
+          <view
+            class="btn-container third-btn"
+            :data-name="`btn2`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view class="btn-icon-container">
+              <view class="btn-icon"></view>
+              <view class="btn-unread" v-if="!btnMessageIsRead[2]"></view>
+            </view>
+            <view class="btn-title">关注</view>
+          </view>
+          <view
+            class="btn-container fourth-btn"
+            :data-name="`btn3`"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+            :style="{filter: `${messageTouchingId === 'btn3' ? 'brightness(90%)' : 'brightness(100%)'}`}">
+            <view
+              class="btn-icon-container"
+              @touchstart="handleTouchStart"
+              @touchend="handleTouchEnd"
+              @touchcancel="handleTouchEnd">
+              <view class="btn-icon"></view>
+              <view class="btn-unread" v-if="!btnMessageIsRead[3]"></view>
+            </view>
+            <view class="btn-title">通知消息</view>
+          </view>
+        </view>
+        <!-- 聊天记录列表容器 -->
+        <view class="main-list-container">
+          <view
+            class="message-container"
+            v-for="(message, index) in chatMessages"
+            :key="index"
+            :data-name="`message${index}`"
+            :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}"
+            @click="toChatDetail"
+            @longpress="handleLongPress"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd">
+            <view class="avatar-container">
+              <view class="avatar">
+                <image :src="message.senderAvatar" mode="widthFix"></image>
+              </view>
+            </view>
+            <view class="content-container">
+              <view class="sender-name">
+                <view class="name">
+                  {{ message.senderName }}
+                </view>
+                <!--                                <view class="blacklist-user">-->
+                <!--                                    黑名单-->
+                <!--                                </view>-->
+              </view>
+              <view class="message-content">
+                {{ message.isPhoto ? '[图片]' : message.content }}
+              </view>
+            </view>
+            <view class="time-container">
+              <view class="time">
+                {{ message.time | formatTime }}
+              </view>
+              <view :class="message.isRead ? 'isread' : 'unread'">
+                {{ message.isRead ? '' : message.unreadCount | unreadCount }}
+              </view>
+            </view>
+          </view>
+          <view v-show="existMore && !loadingMore && chatMessages.length !== 0" class="load-more">
+            <text>下拉加载更多</text>
+          </view>
+          <view v-show="loadingMore && chatMessages.length !== 0" class="load-more loading-more">
+            <loading ref="loadingMore"></loading>
+          </view>
+          <view v-show="!existMore && chatMessages.length !== 0" class="load-more">
+            <text>没有更多了哦 ~</text>
+          </view>
+          <view
+            class="empty"
+            :style="{minHeight: `calc(100vh - ${navigationHeight + 40}px)`}"
+            v-if="!chatMessages.length">
+            <view class="row">
+              一个聊天都没有噢
+            </view>
+            <view class="row">
+              <view class="btn" @click="handleEmptyBtnClick">
+                回到首页
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
 </template>
 
 <script>
-    import {toast} from '../../components/toast/toast.vue';
-    import {navigationBar} from '../../components/navigationBar/navigationBar.vue';
-    import {loading} from '../../components/loading/loading.vue';
-    import {getBlockList, getMyChatList, deleteChatWithFriend} from "../../common/js/api/models.js";
-    import {closeSocket, connectSocket} from "../../common/js/api/socket.js";
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+    import loading from "@/components/loading/loading";
+    import {deleteChatWithFriend, getMyChatList} from "@/common/js/api/models.js";
+    import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
 
     export default {
         components: {
@@ -172,6 +177,7 @@
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 loadingMore: false, //正在加载更多消息
                 existMore: true, //是否存在更多消息记录
+                showTopBtnArea: false, //是否显示顶部按钮区域
             }
         },
         methods: {
@@ -190,7 +196,7 @@
                     .then(res => {
                         if (time === null) {
                             let recordsTemp = [];
-                            for (const records of res.data.records) {
+                            res.data.records.forEach(records => {
                                 recordsTemp.push({
                                     senderName: records.friendInfo.username, //用户名称
                                     senderId: records.friendId, //用户ID
@@ -201,8 +207,8 @@
                                     time: records.createdTime, //消息发送时间
                                     isRead: records.isRead, //消息是否已读
                                     unreadCount: records.unread //当前对话消息未读数量
-                                })
-                            }
+                                });
+                            });
                             this.chatMessages = [];
                             this.chatMessages = recordsTemp;
                             this.existMore = recordsTemp.length > 14;
@@ -211,7 +217,7 @@
                         }
                         else {
                             if (res.data.records.length !== 0) {
-                                for (const records of res.data.records) {
+                                res.data.records.forEach(records => {
                                     this.chatMessages.push({
                                         senderName: records.friendInfo.username, //用户名称
                                         senderId: records.friendId, //用户ID
@@ -222,11 +228,11 @@
                                         time: records.createdTime, //消息发送时间
                                         isRead: records.isRead, //消息是否已读
                                         unreadCount: records.unread //当前对话消息未读数量
-                                    })
+                                    });
                                     if (res.data.records.length < this.pageSize) {
                                         this.existMore = false;
                                     }
-                                }
+                                });
                             }
                             else {
                                 this.existMore = false;
@@ -261,14 +267,11 @@
              * @param {Object} data 接收到的新消息
              */
             receiveNewMessage(data) {
-                console.log(data);
                 if (data.errorCode === 120) {
-                    let newMessage = data.data;
-                    let findIndex = this.chatMessages.findIndex(message => {
-                        return message.senderId === newMessage.friendId
-                    });
+                    const newMessage = data.data;
+                    const findIndex = this.chatMessages.findIndex(message => message.senderId === newMessage.friendId);
                     if (findIndex !== -1) {
-                        let messageTemp = this.chatMessages[findIndex];
+                        const messageTemp = this.chatMessages[findIndex];
                         this.chatMessages.splice(findIndex, 1);
                         this.chatMessages.unshift({
                             senderName: messageTemp.senderName, //用户名称
@@ -299,8 +302,8 @@
             },
             // 跳转聊天详情页
             toChatDetail(e) {
-                let targetId = parseInt(e.target.dataset.name.replace('message', ''));
-                let senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
+                const targetId = parseInt(e.target.dataset.name.replace('message', ''));
+                const senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
                 this.chatMessages[targetId].isRead = true;
                 uni.navigateTo({
                     url: `/pages/chatDetail/chatDetail?${senderInfo}`,
@@ -309,7 +312,7 @@
             // 监听长按事件
             handleLongPress(e) {
                 wx.vibrateShort();
-                let targetId = parseInt(e.target.dataset.name.replace('message', ''));
+                const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', '加入黑名单'],
                     success: res => {
@@ -322,34 +325,32 @@
                                     if (res.confirm) {
                                         deleteChatWithFriend({
                                             urlParam: this.chatMessages[targetId].senderId
-                                        })
-                                            .then(res => {
-                                                if (res.success) {
-                                                    this.chatMessages.forEach((v, k) => {
-                                                        if (v.senderId === this.chatMessages[targetId].senderId) {
-                                                            this.chatMessages.splice(k, 1);
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    console.log(res);
-                                                    this.$refs.toast.show({
-                                                        text: '删除失败',
-                                                        type: 'error',
-                                                        direction: 'top'
-                                                    });
-                                                    this.getChatList();
-                                                }
-                                            })
-                                            .catch(err => {
-                                                console.log(err);
+                                        }).then(res => {
+                                            if (res.success) {
+                                                this.chatMessages.forEach((v, k) => {
+                                                    if (v.senderId === this.chatMessages[targetId].senderId) {
+                                                        this.chatMessages.splice(k, 1);
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                console.error(res);
                                                 this.$refs.toast.show({
                                                     text: '删除失败',
                                                     type: 'error',
                                                     direction: 'top'
                                                 });
                                                 this.getChatList();
+                                            }
+                                        }).catch(err => {
+                                            console.error(err);
+                                            this.$refs.toast.show({
+                                                text: '删除失败',
+                                                type: 'error',
+                                                direction: 'top'
                                             });
+                                            this.getChatList();
+                                        });
                                     }
                                 }
                             });
@@ -382,7 +383,6 @@
             // 监听下拉刷新事件结束
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
-                // this.$refs.loading.stopLoading();
             },
             // 监听scroll-view滚动到底部
             handleScrollToBottom() {
@@ -400,9 +400,6 @@
                     key: 'chatList',
                     success: res => {
                         this.chatMessages = res.data;
-                    },
-                    fail: err => {
-                        // console.log(err)
                     },
                     complete: res => {
                         if (this.chatMessages.length === 0) {
@@ -429,10 +426,10 @@
                             })
                     },
                     fail: err => {
-                        // console.log(err);
+                        console.log(err);
                         let currentPage = this.utils.getCurrentPage();
                         uni.redirectTo({
-                            url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                            url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
                         });
                     }
                 });
@@ -442,28 +439,29 @@
                 uni.onSocketClose(res => {
                     console.log('已关闭Socket');
                 });
-                closeSocket()
-                    .then(res => {
-                        //存放聊天列表到本地缓存
-                        uni.setStorage({
-                            key: "chatList",
-                            data: this.chatMessages.slice(0, 14),
-                            success: res => {
-                            },
-                            fail: err => {
-                                console.error(err);
-                            }
-                        });
-                    })
-                    .catch(err => {
-                        if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
-                            return;
+                closeSocket().then(res => {
+                    //存放聊天列表到本地缓存
+                    uni.setStorage({
+                        key: "chatList",
+                        data: this.chatMessages.slice(0, 14),
+                        fail: err => {
+                            console.error(err);
                         }
-                        console.error(err);
-                    })
+                    });
+                }).catch(err => {
+                    if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
+                        return;
+                    }
+                    console.error(err);
+                });
             },
+            // 消息列表为空的按钮点击事件
+            handleEmptyBtnClick() {
+                uni.redirectTo({
+                    url: '/pages/index/index'
+                });
+            }
         },
-        computed: {},
         filters: {
             /**
              * 格式化时间
@@ -471,9 +469,9 @@
              * @return {String} 格式化后的时间字符串
              */
             formatTime(time) {
-                let messageDate = new Date(time);
-                let nowDate = new Date();
-                let messageTime = {
+                const messageDate = new Date(time);
+                const nowDate = new Date();
+                const messageTime = {
                     year: messageDate.getFullYear(),
                     month: messageDate.getMonth() + 1,
                     day: messageDate.getDate(),
@@ -481,7 +479,7 @@
                     min: messageDate.getMinutes().toString().padStart(2, '0'),
                     second: messageDate.getSeconds()
                 }
-                let nowTime = {
+                const nowTime = {
                     year: nowDate.getFullYear(),
                     month: nowDate.getMonth() + 1,
                     day: nowDate.getDate()
@@ -502,10 +500,7 @@
              * @return {String|Number} 返回格式化后的结果
              */
             unreadCount(count) {
-                if (count > 99) {
-                    return '99+';
-                }
-                else return count;
+                return count > 99 ? '99+' : count;
             }
         },
         watch: {
@@ -538,10 +533,6 @@
                 titleText: '消息',
                 backgroundColor: '#f6f6f6'
             });
-            // getBlockList({})
-            //     .then(res => {
-            //         console.log(res)
-            //     })
         },
         onHide() {
             this.stopCheckingUpdate();
@@ -556,209 +547,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .chat-list-container {
-        width: 100vw;
-        height: 100vh;
-        background-color: #f6f6f6;
-
-        .list-scroll-view {
-            width: 100vw;
-            height: fit-content;
-
-            .top-list-container {
-                width: 100vw;
-                height: fit-content;
-                background-color: #fff;
-                border-radius: rpx(30);
-                margin-bottom: rpx(20);
-                padding: rpx(40) rpx(20);
-                display: flex;
-                flex-direction: row;
-
-                .btn-container {
-                    flex: 1;
-                    margin: 0 rpx(30);
-                    text-align: center;
-
-                    .btn-icon-container {
-                        width: rpx(80);
-                        height: rpx(80);
-                        margin: 0 auto rpx(20);
-                        pointer-events: none;
-
-                        .btn-icon {
-                            width: 100%;
-                            height: 100%;
-                            background-color: deepskyblue;
-                            border-radius: rpx(150);
-                        }
-
-                        .btn-unread {
-                            width: rpx(25);
-                            height: rpx(25);
-                            position: relative;
-                            top: rpx(-80);
-                            left: rpx(55);
-                            background-color: #f35b56;
-                            color: #fff;
-                            text-align: center;
-                            font-size: rpx(22);
-                            line-height: rpx(40);
-                            border-radius: rpx(150);
-                        }
-                    }
-
-                    .btn-title {
-                        font-size: rpx(26);
-                        color: #333;
-                    }
-                }
-            }
-
-            .main-list-container {
-                width: 100vw;
-                height: fit-content;
-                background-color: #fff;
-                border-radius: rpx(30);
-
-                .message-container:first-child {
-                    border-top: none;
-                    border-radius: rpx(30) rpx(30) 0 0;
-                }
-
-                .message-container:last-child {
-                    border-radius: 0 0 rpx(30) rpx(30);
-                }
-
-                .message-container {
-                    width: 100vw;
-                    height: rpx(150);
-                    background-color: #fff;
-                    padding: 0 rpx(30);
-                    display: flex;
-                    flex-direction: row;
-                    border-top: rpx(1) solid #f6f6f6;
-
-                    .avatar-container {
-                        width: rpx(120);
-                        height: 100%;
-                        margin-top: rpx(30);
-                        pointer-events: none;
-
-                        .avatar {
-                            width: rpx(90);
-                            height: rpx(90);
-                            border-radius: rpx(150);
-                            //background-color: orange;
-                            overflow: hidden;
-
-                            image {
-                                width: 100%;
-                            }
-                        }
-                    }
-
-                    .content-container {
-                        flex: 1;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        margin: auto 0;
-                        pointer-events: none;
-
-                        .sender-name {
-                            display: flex;
-                            flex-direction: row;
-
-                            .name {
-                                font-size: rpx(32);
-                                line-height: rpx(50);
-                                color: #333;
-                                text-overflow: ellipsis;
-                                overflow: hidden;
-                                max-width: calc(100% - 110rpx);
-                            }
-
-                            .blacklist-user {
-                                position: relative;
-                                top: rpx(12);
-                                width: fit-content;
-                                height: rpx(28);
-                                margin-left: rpx(15);
-                                padding: 0 rpx(10);
-                                font-size: rpx(20);
-                                line-height: rpx(28);
-                                color: #fff;
-                                border-radius: rpx(30);
-                                background-color: #f4756b;
-                            }
-                        }
-
-                        .message-content {
-                            overflow: hidden;
-                            font-size: rpx(26);
-                            line-height: rpx(50);
-                            color: #999999;
-                        }
-                    }
-
-                    .time-container {
-                        width: fit-content;
-                        height: fit-content;
-                        margin-top: rpx(30);
-                        margin-left: auto;
-                        pointer-events: none;
-
-                        .time {
-                            margin-bottom: rpx(20);
-                            font-size: rpx(24);
-                            color: #999999;
-                        }
-
-                        .unread {
-                            width: fit-content;
-                            min-width: rpx(32);
-                            height: rpx(32);
-                            padding: 0 rpx(8);
-                            background-color: #f35b56;
-                            color: #fff;
-                            text-align: center;
-                            font-size: rpx(22);
-                            line-height: rpx(32);
-                            border-radius: rpx(150);
-                            font-weight: bold;
-                            float: right;
-                        }
-
-                        .isread {
-                            min-width: rpx(40);
-                            height: rpx(40);
-                            float: right;
-                        }
-                    }
-                }
-
-                .load-more {
-                    height: fit-content;
-                    width: 100%;
-                    margin-top: rpx(30);
-                    padding-bottom: rpx(70);
-                    background-color: #fff;
-                    border-radius: rpx(30);
-                    color: $uni-text-color-placeholder;
-                    font-size: rpx(28);
-                    text-align: center;
-
-                    text {
-                        margin-left: rpx(10);
-                    }
-                }
-
-                .loading-more {
-                    height: rpx(150);
-                    padding-bottom: 0;
-                    margin-top: 0;
-                }
-            }
-        }
-    }
+  @import 'chatList.scss';
 </style>

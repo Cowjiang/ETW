@@ -1,0 +1,309 @@
+.address-container {
+  width: 100vw;
+  height: fit-content;
+
+  .bg-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+
+  .title-container {
+    width: 100%;
+    height: 180rpx;
+    padding: 50rpx 50rpx 30rpx;
+
+    .title-text {
+      width: fit-content;
+      height: fit-content;
+      display: inline;
+      font-size: 54rpx;
+      font-weight: bold;
+      color: $uni-text-color;
+    }
+
+    .delete-btn {
+      float: right;
+      margin-top: 32rpx;
+      font-size: 30rpx;
+      color: #555555;
+
+      .fa {
+        margin-right: 6rpx;
+      }
+    }
+  }
+
+  .address-container {
+    width: 100%;
+    height: fit-content;
+    padding: 0 50rpx;
+
+    .address-form {
+      width: 100%;
+      height: fit-content;
+
+      .name-container {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 200rpx;
+        border-bottom: 1rpx solid #ededed;
+
+        .name-left {
+          display: flex;
+          flex-direction: column;
+          width: 150rpx;
+          color: $uni-text-color;
+
+          view {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            font-size: 30rpx;
+            font-weight: bold;
+            line-height: 100rpx;
+          }
+        }
+
+        .name-right {
+          display: flex;
+          flex-direction: column;
+          width: calc(100% - 150rpx);
+          height: 100%;
+
+          .name-input-container {
+            width: 100%;
+            height: 50%;
+            font-size: 30rpx;
+            line-height: 100rpx;
+            border-bottom: 1rpx solid #efefef;
+
+            input {
+              width: 100%;
+              height: 100%;
+              color: $uni-text-color;
+            }
+
+            .name-placeholder {
+              width: 100%;
+              height: 100%;
+              position: relative;
+              top: -100%;
+              pointer-events: none;
+              color: #c0c0c0;
+            }
+          }
+
+          .gender-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: 50%;
+
+            .gender-btn {
+              width: 140rpx;
+              height: 60rpx;
+              margin-top: 20rpx;
+              margin-right: 20rpx;
+              border-radius: 14rpx;
+              text-align: center;
+              line-height: 58rpx;
+              transition-property: border, color;
+              transition-duration: 300ms;
+            }
+
+            .gender-btn--default {
+              border: 1rpx solid #e3e3e3;
+              color: #808080;
+            }
+
+            .gender-btn--selected {
+              border: 1rpx solid #f4756b !important;
+              color: #f4756b !important;
+            }
+          }
+        }
+      }
+
+      .phone-container {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100rpx;
+        border-bottom: 1rpx solid #efefef;
+
+        .phone-left {
+          width: 150rpx;
+          height: 100%;
+          color: $uni-text-color;
+
+          view {
+            width: 100%;
+            height: 100%;
+            font-size: 30rpx;
+            font-weight: bold;
+            line-height: 100rpx;
+          }
+        }
+
+        .phone-right {
+          width: calc(100% - 150rpx);
+          height: 100%;
+          font-size: 30rpx;
+          line-height: 100rpx;
+
+          input {
+            width: 100%;
+            height: 100%;
+            color: $uni-text-color;
+          }
+
+          .phone-placeholder {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            top: -100%;
+            pointer-events: none;
+            color: #c0c0c0;
+          }
+        }
+      }
+
+      .area-container {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100rpx;
+        border-bottom: 1rpx solid #efefef;
+
+        .area-left {
+          width: 150rpx;
+          height: 100%;
+          color: $uni-text-color;
+
+          view {
+            width: 100%;
+            height: 100%;
+            font-size: 30rpx;
+            font-weight: bold;
+            line-height: 100rpx;
+          }
+        }
+
+        .area-right {
+          width: calc(100% - 150rpx);
+          height: 100%;
+          font-size: 30rpx;
+          line-height: 100rpx;
+          overflow: hidden;
+
+          .input {
+            width: calc(100% - 80rpx);
+            height: 100%;
+            color: $uni-text-color;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+          }
+
+          .area-placeholder {
+            width: calc(100% - 80rpx);
+            height: 100%;
+            position: relative;
+            top: -100%;
+            pointer-events: none;
+            color: #c0c0c0;
+          }
+
+          .picker-btn {
+            width: 80rpx;
+            height: 100%;
+            float: right;
+            position: relative;
+            top: -200%;
+            color: #555555;
+            text-align: center;
+            font-size: 48rpx;
+          }
+        }
+      }
+
+      .detail-container {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100rpx;
+        border-bottom: 1rpx solid #efefef;
+
+        .detail-left {
+          width: 150rpx;
+          height: 100%;
+          color: $uni-text-color;
+
+          view {
+            width: 100%;
+            height: 100%;
+            font-size: 30rpx;
+            font-weight: bold;
+            line-height: 100rpx;
+          }
+        }
+
+        .detail-right {
+          width: calc(100% - 150rpx);
+          height: 100%;
+          font-size: 30rpx;
+          line-height: 100rpx;
+
+          input {
+            width: calc(100% - 80rpx);
+            height: 100%;
+            color: $uni-text-color;
+          }
+
+          .detail-placeholder {
+            width: calc(100% - 80rpx);
+            height: 100%;
+            position: relative;
+            top: -100%;
+            pointer-events: none;
+            color: #c0c0c0;
+          }
+
+          .map-btn {
+            width: 80rpx;
+            height: 100%;
+            float: right;
+            position: relative;
+            top: -200%;
+            color: #555555;
+            text-align: center;
+            font-size: 42rpx;
+          }
+        }
+      }
+
+      .set-default-container {
+        width: 100%;
+        height: 120rpx;
+        margin-top: 30rpx;
+      }
+    }
+
+    .confirm-btn {
+      width: 100%;
+      height: 94rpx;
+      text-align: center;
+      font-size: 35rpx;
+      font-weight: bold;
+      line-height: 94rpx;
+      color: $uni-text-color-inverse;
+      background-color: $uni-color-primary;
+      border-radius: 14rpx;
+    }
+  }
+}

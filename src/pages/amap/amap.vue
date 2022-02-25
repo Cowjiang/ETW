@@ -1,136 +1,134 @@
 <template>
-    <view class="select-position">
-        <!-- 顶部半透明蒙版 -->
-        <view class="top-mask">
-            <view class="cancel-btn" @click="handleCancel"> 取消</view>
-        </view>
-        <!-- 地图主体 -->
-        <map
-            id="mapContext"
-            ref="mapContext"
-            :latitude="latitude"
-            :longitude="longitude"
-            :scale="16"
-            :max-scale="18"
-            :show-location="true"
-            :markers="markers"
-            :include-points="markers"
-            @tap="tapSelect"
-            :style="{
-                transform: `${isScrollChange ? 'translateY(-' + windowHeight * 0.11 + 'px)' : 0}`,
-                pointerEvents: `${onLoadReady ? 'all' : 'none'}`,
-            }">
-        </map>
-        <!-- 定位到当前位置按钮 -->
-        <view
-            class="positioning-btn"
-            @click="getCurrentPosition"
-            v-if="!isScrollChange"
-            :style="{
-                transform: `${
-                  isScrollChange ? 'translateY(-' + windowHeight * 0.28 + 'px)' : 0
-                }`,
-                color: `${onLoadReady ? '#333' : '#f35b56'}`,
-            }">
-            <i class="fa fa-location-arrow" aria-hidden="true"></i>
-        </view>
-        <!-- 地点结果列表容器 -->
-        <view
-            class="result-container"
-            :style="{
-                height: `${isScrollChange ? windowHeight * 0.75 + 'px' : 100 + '%'}`,
-                transform: `${isScrollChange ? 'translateY(30vh)' : 'translateY(55vh)'}`,
-                overflowY: `${isScrollChange ? 'scroll' : ''}`,
-                pointerEvents: `${onLoadReady ? 'all' : 'none'}`,
-            }"
-            @touchmove="isShowConfirmBtn = false">
-            <!-- 附近地点推荐列表容器 -->
-            <view class="address-tips-container">
-                <view
-                    class="item"
-                    v-for="(add, index) in addressTips"
-                    :key="add.id"
-                    @click="selectTips(index)"
-                    v-if="add.id.length !== 0 && onLoadReady">
-                    <view
-                        class="name"
-                        :style="{ color: `${add.selected ? '#f4756b' : '#333'}` }">
-                        {{ add.name }}
-                    </view>
-                    <view
-                        class="address"
-                        :style="{ color: `${add.selected ? '#f4756b' : '#ccc'}` }">
-                        {{
-                            distance(
-                                currentLatitude,
-                                currentLongitude,
-                                add.location,
-                                add.latitude,
-                                add.longitude
-                            )
-                        }}
-                        | {{ add.district || "" }}{{ add.address || "" }}
-                    </view>
-                </view>
-                <!-- 没有结果 -->
-                <view
-                    class="no-result"
-                    v-if="addressTips.length === 0 || !onLoadReady"
-                    @click="reGetAuthorization"
-                    :style="{
-                        fontSize: `${userAuthorization === 1 ? '32rpx' : '42rpx'}`,
-                        fontWeight: `${userAuthorization === 1 ? 'normal' : 'bold'}`,
-                    }">
-                    {{ userAuthorization === 1 ? "无搜索结果" : "点此授权获取位置信息" }}
-                </view>
-            </view>
-        </view>
-        <!-- 搜索蒙版 -->
-        <view
-            class="search-mask"
-            :style="{
-                transform: `${isScrollChange ? 'translateY(30vh)' : 'translateY(55vh)'}`,
-            }">
-        </view>
-        <!-- 搜索容器 -->
-        <view
-            class="search-container"
-            @click="showSearch"
-            :style="{
-                transform: `${isScrollChange ? 'translateY(-' + windowHeight * 0.275 + 'px)' : '-40rpx'}`,
-                textAlign: `${searchRawInputFocus ? 'left' : 'center'}`,
-                pointerEvents: `${onLoadReady ? 'all' : 'none'}`,
-            }">
-            <i
-                class="fa fa-search"
-                aria-hidden="true"
-                :style="{ textIndent: `${searchRawInputFocus ? '30rpx' : '0'}` }"></i>
-            <text v-if="!searchRawInputFocus">{{ searchShowInput }}</text>
-            <input
-                type="text"
-                v-model="searchRawInput"
-                :focus="searchRawInputFocus"
-                @blur="bindInputBlur"
-                v-if="searchRawInputFocus"
-                @confirm="doSearch"
-                :confirm-type="`搜索`"/>
-        </view>
-        <!-- 确认按钮容器 -->
-        <view
-            class="confirm-container"
-            v-if="isShowConfirmBtn"
-            :style="{ pointerEvents: `${onLoadReady ? 'all' : 'none'}` }">
-            <view class="confirm-mask"></view>
-            <view class="confirm-btn" @click="handleConfirm"> 确定</view>
-        </view>
-        <toast ref="toast" class="toast"/>
-        <loading ref="loading" fullscreen></loading>
+  <view class="select-position">
+    <!-- 顶部半透明蒙版 -->
+    <view class="top-mask">
+      <view class="cancel-btn" @click="handleCancel"> 取消</view>
     </view>
+    <!-- 地图主体 -->
+    <map
+      id="mapContext"
+      ref="mapContext"
+      :latitude="latitude"
+      :longitude="longitude"
+      :scale="16"
+      :max-scale="18"
+      :show-location="true"
+      :markers="markers"
+      :include-points="markers"
+      @tap="tapSelect"
+      :style="{
+        transform: `${isScrollChange ? 'translateY(-' + windowHeight * 0.11 + 'px)' : 0}`,
+        pointerEvents: `${onLoadReady ? 'all' : 'none'}`,
+      }">
+    </map>
+    <!-- 定位到当前位置按钮 -->
+    <view
+      class="positioning-btn"
+      @click="getCurrentPosition"
+      v-if="!isScrollChange"
+      :style="{
+        transform: `${isScrollChange ? 'translateY(-' + windowHeight * 0.28 + 'px)' : 0}`,
+        color: `${onLoadReady ? '#333' : '#f35b56'}`,
+      }">
+      <i class="fa fa-location-arrow" aria-hidden="true"></i>
+    </view>
+    <!-- 地点结果列表容器 -->
+    <view
+      class="result-container"
+      :style="{
+        height: `${isScrollChange ? windowHeight * 0.75 + 'px' : 100 + '%'}`,
+        transform: `${isScrollChange ? 'translateY(30vh)' : 'translateY(55vh)'}`,
+        overflowY: `${isScrollChange ? 'scroll' : ''}`,
+        pointerEvents: `${onLoadReady ? 'all' : 'none'}`,
+      }"
+      @touchmove="isShowConfirmBtn = false">
+      <!-- 附近地点推荐列表容器 -->
+      <view class="address-tips-container">
+        <view
+          class="item"
+          v-for="(add, index) in addressTips"
+          :key="add.id"
+          @click="selectTips(index)"
+          v-if="add.id.length !== 0 && onLoadReady">
+          <view
+            class="name"
+            :style="{ color: `${add.selected ? '#f4756b' : '#333'}` }">
+            {{ add.name }}
+          </view>
+          <view
+            class="address"
+            :style="{ color: `${add.selected ? '#f4756b' : '#ccc'}` }">
+            {{
+              distance(
+                currentLatitude,
+                currentLongitude,
+                add.location,
+                add.latitude,
+                add.longitude
+              )
+            }}
+            | {{ add.district || "" }}{{ add.address || "" }}
+          </view>
+        </view>
+        <!-- 没有结果 -->
+        <view
+          class="no-result"
+          v-if="addressTips.length === 0 || !onLoadReady"
+          @click="reGetAuthorization"
+          :style="{
+            fontSize: `${userAuthorization === 1 ? '32rpx' : '42rpx'}`,
+            fontWeight: `${userAuthorization === 1 ? 'normal' : 'bold'}`,
+          }">
+          {{ userAuthorization === 1 ? "无搜索结果" : "点此授权获取位置信息" }}
+        </view>
+      </view>
+    </view>
+    <!-- 搜索蒙版 -->
+    <view
+      class="search-mask"
+      :style="{
+        transform: `${isScrollChange ? 'translateY(30vh)' : 'translateY(55vh)'}`,
+      }">
+    </view>
+    <!-- 搜索容器 -->
+    <view
+      class="search-container"
+      @click="showSearch"
+      :style="{
+        transform: `${isScrollChange ? 'translateY(-' + windowHeight * 0.275 + 'px)' : '-40rpx'}`,
+        textAlign: `${searchRawInputFocus ? 'left' : 'center'}`,
+        pointerEvents: `${onLoadReady ? 'all' : 'none'}`,
+      }">
+      <i
+        class="fa fa-search"
+        aria-hidden="true"
+        :style="{ textIndent: `${searchRawInputFocus ? '30rpx' : '0'}` }"></i>
+      <text v-if="!searchRawInputFocus">{{ searchShowInput }}</text>
+      <input
+        type="text"
+        v-model="searchRawInput"
+        :focus="searchRawInputFocus"
+        @blur="bindInputBlur"
+        v-if="searchRawInputFocus"
+        @confirm="doSearch"
+        :confirm-type="`搜索`"/>
+    </view>
+    <!-- 确认按钮容器 -->
+    <view
+      class="confirm-container"
+      v-if="isShowConfirmBtn"
+      :style="{ pointerEvents: `${onLoadReady ? 'all' : 'none'}` }">
+      <view class="confirm-mask"></view>
+      <view class="confirm-btn" @click="handleConfirm"> 确定</view>
+    </view>
+    <toast ref="toast" class="toast"/>
+    <loading ref="loading" fullscreen></loading>
+  </view>
 </template>
 
 <script>
-    import {toast} from "../../components/toast/toast.vue";
-    import {loading} from "../../components/loading/loading.vue";
+    import toast from "@/components/toast/toast";
+    import loading from "@/components/loading/loading";
 
     export default {
         components: {
@@ -200,7 +198,7 @@
                     };
                     //开启位置变化监听
                     wx.startLocationUpdate({
-                        success: (res) => {
+                        success: res => {
                             wx.onLocationChange((res) => {
                                 this.markers[0] = {
                                     latitude: res.latitude,
@@ -220,20 +218,17 @@
                                 this.$forceUpdate();
                             });
                         },
-                        fail: (error) => {
+                        fail: error => {
                             this.$refs.toast.show({
                                 text: "获取定位失败",
                                 type: "error",
                                 direction: "top",
                             });
-                            console.log(error);
+                            console.error(error);
                         },
                     });
                 }
-                else if (
-                    location === null &&
-                    Date.now() - this.positioningTimer < 3000
-                ) {
+                else if (location === null && Date.now() - this.positioningTimer < 3000) {
                     this.onLoadReady = true;
                     this.addressTips = this.currentAddressTips;
                     this.markers[0] = {
@@ -268,7 +263,7 @@
                         this.amap.getPoiAround({
                             location: location,
                             querytypes: "050000|060100|120000|150500|150200|150104|141200", //餐饮服务|商场|商务住宅|地铁站|火车站|机场|学校
-                            success: (data) => {
+                            success: data => {
                                 if (data !== null) {
                                     this.onLoadReady = true;
                                     this.addressTips = data.markers;
@@ -277,7 +272,7 @@
                                 }
                                 resolve(data);
                             },
-                            fail: (error) => {
+                            fail: error => {
                                 reject(error);
                             },
                         });
@@ -302,10 +297,10 @@
                                 type: "error",
                                 direction: "top",
                             });
-                            console.log("用户拒绝定位权限");
+                            console.error("用户拒绝定位权限");
                             break;
                         default:
-                            console.log(err);
+                            console.error(err);
                     }
                 });
             },
@@ -316,15 +311,15 @@
                         keywords: this.searchShowInput,
                         location: `${this.currentLongitude},${this.currentLatitude}`,
                         pageSize: 20,
-                        success: (data) => {
+                        success: data => {
                             resolve(data);
                         },
-                        fail: (e) => {
+                        fail: e => {
                             reject(e);
                         },
                     });
-                }).catch((err) => {
-                    console.log(err);
+                }).catch(err => {
+                    console.error(err);
                 });
             },
             /**
@@ -379,10 +374,10 @@
                     if (searchResult !== null) {
                         searchResult.tips.forEach((v, k) => {
                             if (v.name.includes('公交站')) {
-                                searchResult.tips.splice(k ,1);
+                                searchResult.tips.splice(k, 1);
                             }
                             if (v.address == null) {
-                                searchResult.tips.splice(k ,1);
+                                searchResult.tips.splice(k, 1);
                             }
                         });
                         this.addressTips = searchResult.tips;
@@ -600,12 +595,7 @@
             },
             // 加载完毕状态变化
             onLoadReady(nval) {
-                if (nval === true) {
-                    this.$refs.loading.stopLoading();
-                }
-                else if (nval === false) {
-                    this.$refs.loading.startLoading();
-                }
+                nval ? this.$refs.loading.stopLoading() : this.$refs.loading.startLoading();
             },
         },
         created() {
@@ -615,8 +605,6 @@
                     this.windowHeight = res.screenHeight;
                 },
             });
-        },
-        mounted() {
         },
         onLoad() {
             this.utils.resetThrottle();
@@ -639,185 +627,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .select-position {
-        width: 100vw;
-        height: 100vh;
-
-        .top-mask {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: rpx(250);
-            background: linear-gradient(
-                    to bottom,
-                    rgba(0, 0, 0, 0.4),
-                    rgba(0, 0, 0, 0)
-            );
-            z-index: 10;
-            pointer-events: none;
-
-            .cancel-btn {
-                font-size: rpx(34);
-                color: #ffffff;
-                margin: rpx(100) rpx(40) 0;
-                pointer-events: all;
-            }
-        }
-
-        map {
-            width: 100%;
-            height: 60vh;
-            transition-duration: 500ms;
-        }
-
-        .positioning-btn {
-            position: fixed;
-            top: calc(55vh - 150rpx);
-            right: rpx(30);
-            width: rpx(90);
-            height: rpx(90);
-            color: $uni-text-color;
-            background-color: $uni-bg-color;
-            border-radius: 50%;
-            text-align: center;
-            font-size: rpx(48);
-            line-height: rpx(90);
-            box-shadow: rpx(6) rpx(6) rpx(10) #dddddd;
-            transition-duration: 500ms;
-        }
-
-        .result-container {
-            background-color: $uni-bg-color;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            border-radius: rpx(30) rpx(30) 0 0;
-            transition-duration: 500ms;
-            padding-top: rpx(100);
-            padding-bottom: rpx(30);
-
-            .address-tips-container {
-                width: 100%;
-
-                .item {
-                    width: 100%;
-                    height: fit-content;
-                    padding: rpx(26) rpx(40);
-
-                    .name {
-                        font-size: rpx(32);
-                        color: $uni-text-color;
-                        margin-bottom: rpx(5);
-                    }
-
-                    .address {
-                        font-size: rpx(26);
-                        color: #cccccc;
-                    }
-                }
-
-                .item:last-child {
-                    margin-bottom: rpx(100);
-                }
-
-                .item:first-child {
-                    margin-top: rpx(48);
-                }
-
-                .no-result {
-                    width: 100%;
-                    height: 35vh;
-                    text-align: center;
-                    font-size: rpx(32);
-                    line-height: 35vh;
-                    color: #cccccc;
-                    pointer-events: all;
-                }
-            }
-        }
-
-        .search-mask {
-            width: 100%;
-            height: rpx(150);
-            position: absolute;
-            top: 0;
-            left: 0;
-            border-radius: rpx(30) rpx(30) 0 0;
-            background-color: $uni-bg-color;
-            transition-duration: 500ms;
-        }
-
-        .search-container {
-            width: 90%;
-            height: rpx(70);
-            margin: 0 auto;
-            border-radius: rpx(15);
-            background-color: $uni-color-grey;
-            text-align: center;
-            font-size: rpx(32);
-            line-height: rpx(70);
-            color: $uni-color-gray;
-            transform: translateY(rpx(-40));
-            transition-duration: 500ms;
-
-            text {
-                margin-left: rpx(15);
-            }
-
-            input {
-                position: relative;
-                top: rpx(-70);
-                left: rpx(75);
-                width: 80%;
-                height: rpx(70);
-                line-height: rpx(70);
-            }
-        }
-
-        .confirm-container {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: rpx(200);
-            transition-duration: 100ms;
-            transition-property: opacity;
-            pointer-events: none;
-
-            .confirm-mask {
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(
-                        to top,
-                        rgba(255, 255, 255, 1),
-                        rgba(255, 255, 255, 0.5)
-                );
-                pointer-events: none;
-            }
-
-            .confirm-btn {
-                width: 36%;
-                height: rpx(70);
-                text-align: center;
-                line-height: rpx(70);
-                font-size: rpx(32);
-                color: #fff;
-                border-radius: rpx(15);
-                position: absolute;
-                left: 32%;
-                letter-spacing: rpx(2);
-                bottom: rpx(55);
-                margin: 0 auto;
-                background-color: $uni-color-primary;
-                pointer-events: all;
-            }
-        }
-    }
-
-    .toast {
-        position: absolute;
-        top: rpx(150);
-        width: 100%;
-    }
+  @import 'amap.scss';
 </style>

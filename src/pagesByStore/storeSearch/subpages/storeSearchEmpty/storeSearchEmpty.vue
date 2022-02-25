@@ -73,7 +73,7 @@
             },
             /**
              * 搜索历史过滤器
-             * @param historyList {Array} 搜索历史列表
+             * @param {Array} historyList 搜索历史列表
              */
             historyFilter(historyList) {
                 if (historyList ?? '') {
@@ -108,45 +108,47 @@
             },
             /**
              * 新增搜索历史
-             * @param searchValue {String} 搜索字符串
+             * @param {String} searchValue 搜索字符串
              */
             addHistory(searchValue) {
-                let searchHistoryList = [];
-                wx.getStorage({
-                    key: 'searchHistoryList',
-                    success: res => {
-                        searchHistoryList = res.data;
-                        searchHistoryList.forEach((item, index) => {
-                            if (item.content === searchValue) {
-                                searchHistoryList.splice(index, 1);
-                            }
-                        });
-                        searchHistoryList.unshift({
-                            id: Date.parse(Date()),
-                            content: searchValue,
-                            isDeleted: false
-                        });
-                        wx.setStorage({
-                            key: 'searchHistoryList',
-                            data: searchHistoryList
-                        });
-                    },
-                    fail: () => {
-                        searchHistoryList = [];
-                        searchHistoryList.unshift({
-                            id: Date.parse(Date()),
-                            content: searchValue,
-                            isDeleted: false
-                        });
-                        wx.setStorage({
-                            key: 'searchHistoryList',
-                            data: searchHistoryList
-                        });
-                    },
-                    complete: () => {
-                        this.init();
-                    }
-                })
+                if(searchValue.replace(/\s*/g, "") !== '') {
+                    let searchHistoryList = [];
+                    wx.getStorage({
+                        key: 'searchHistoryList',
+                        success: res => {
+                            searchHistoryList = res.data;
+                            searchHistoryList.forEach((item, index) => {
+                                if (item.content === searchValue) {
+                                    searchHistoryList.splice(index, 1);
+                                }
+                            });
+                            searchHistoryList.unshift({
+                                id: Date.parse(Date()),
+                                content: searchValue,
+                                isDeleted: false
+                            });
+                            wx.setStorage({
+                                key: 'searchHistoryList',
+                                data: searchHistoryList
+                            });
+                        },
+                        fail: () => {
+                            searchHistoryList = [];
+                            searchHistoryList.unshift({
+                                id: Date.parse(Date()),
+                                content: searchValue,
+                                isDeleted: false
+                            });
+                            wx.setStorage({
+                                key: 'searchHistoryList',
+                                data: searchHistoryList
+                            });
+                        },
+                        complete: () => {
+                            this.init();
+                        }
+                    });
+                }
             },
             // 搜索输入框聚焦事件
             handleSearchInputFocus() {
@@ -185,79 +187,5 @@
 </script>
 
 <style lang="scss" scoped>
-  .store-search-empty-container {
-    width: 100%;
-    height: fit-content;
-    padding: 40rpx 0;
-    --animate-duration: 500ms;
-
-    .search-history-container {
-      width: 100%;
-      height: fit-content;
-
-      .title-container {
-        width: 100%;
-        height: fit-content;
-        display: flex;
-        flex-direction: row;
-        padding: 0 40rpx;
-        font-size: 26rpx;
-        color: #888;
-
-        text:first-child {
-
-        }
-
-        text:last-child {
-          margin-left: auto;
-        }
-      }
-
-      .content-container {
-        width: 100%;
-        height: 50rpx;
-        padding: 0 34rpx;
-        margin-top: 20rpx;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-
-        .content {
-          padding: 8rpx 22rpx;
-          margin: 8rpx 6rpx;
-          display: flex;
-          flex-direction: row;
-          font-size: 26rpx;
-          color: #333;
-          background-color: #f6f6f6;
-          border-radius: 30rpx;
-
-          .content-text {
-            max-width: 45vw;
-            height: 100%;
-            flex-shrink: 0;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-          }
-
-          .close-btn {
-            width: fit-content;
-            height: 100%;
-            flex-shrink: 0;
-            display: inline;
-            margin-left: 10rpx;
-          }
-        }
-
-        .empty-content {
-          width: 100%;
-          font-size: 24rpx;
-          color: #999;
-          text-align: center;
-          line-height: 90rpx;
-        }
-      }
-    }
-  }
+  @import 'storeSearchEmpty';
 </style>

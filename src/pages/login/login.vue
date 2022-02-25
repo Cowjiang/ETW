@@ -1,62 +1,57 @@
 <template>
-    <view>
-        <!-- 导航栏 -->
-        <navigationBar ref="navigationBar"></navigationBar>
-        <!-- 背景占位 -->
-        <view class="background-placeholder"></view>
-        <!-- 启动界面 -->
-        <view
-            v-if="splashScreenDuration !== 0"
-            class="splash-screen"
-            :class="splashScreenAnimation"
-            :style="{
-                display: showSplashScreen,
-                animationDuration: splashScreenDuration,
-            }">
-            <!-- 启动界面背景图 -->
-            <image
-                src="../../static/images/background/background@splashScreen.png"
-                class="bg-image"
-            ></image>
-            <!-- LOGO容器 -->
-            <view class="logo-container">
-                <image
-                    src="../../static/images/logo-white.png"
-                    class="logo-image"
-                    mode="widthFix"
-                ></image>
-            </view>
-        </view>
-        <!-- 登录界面 -->
-        <view class="login-screen">
-            <!-- 登录界面背景图 -->
-            <image
-                src="../../static/images/background/background@loginScreen.png"
-                class="bg-image"
-                :class="loginScreenAnimation"
-            ></image>
-            <!-- 登录表单 -->
-            <loginForm ref="loginForm"></loginForm>
-            <!-- 注册表单 -->
-            <registerForm ref="registerForm"></registerForm>
-            <!-- 验证码表单 -->
-            <captchaForm ref="captchaForm"></captchaForm>
-        </view>
+  <view>
+    <!-- 导航栏 -->
+    <navigationBar ref="navigationBar"></navigationBar>
+    <!-- 背景占位 -->
+    <view class="background-placeholder"></view>
+    <!-- 启动界面 -->
+    <view
+      v-if="splashScreenDuration !== 0"
+      class="splash-screen"
+      :class="splashScreenAnimation"
+      :style="{
+        display: showSplashScreen,
+        animationDuration: splashScreenDuration,
+      }">
+      <!-- 启动界面背景图 -->
+      <image
+        src="../../static/images/background/background@splashScreen.png"
+        class="bg-image"
+      ></image>
+      <!-- LOGO容器 -->
+      <view class="logo-container">
+        <image
+          src="../../static/images/logo-white.png"
+          class="logo-image"
+          mode="widthFix"></image>
+      </view>
     </view>
+    <!-- 登录界面 -->
+    <view class="login-screen">
+      <!-- 登录界面背景图 -->
+      <image
+        src="../../static/images/background/background@loginScreen.png"
+        class="bg-image"
+        :class="loginScreenAnimation"></image>
+      <!-- 登录表单 -->
+      <loginForm ref="loginForm" @loginSuccess="onLoginSuccess"></loginForm>
+      <!-- 注册表单 -->
+      <registerForm ref="registerForm"></registerForm>
+      <!-- 验证码表单 -->
+      <captchaForm ref="captchaForm"></captchaForm>
+    </view>
+  </view>
 </template>
 
 <script>
-    import {navigationBar} from "../../components/navigationBar/navigationBar.vue";
-    import {loginForm} from "./loginForm.vue";
-    import {registerForm} from "./registerForm.vue";
-    import {captchaForm} from "./captchaForm.vue";
+    import navigationBar from "../../components/navigationBar/navigationBar";
+    import loginForm from "@/pages/login/subpages/loginForm";
+    import registerForm from "@/pages/login/subpages/registerForm";
+    import captchaForm from "@/pages/login/subpages/captchaForm";
 
     export default {
         components: {
-            loginForm,
-            registerForm,
-            captchaForm,
-            navigationBar,
+            loginForm, registerForm, captchaForm, navigationBar,
         },
         data() {
             return {
@@ -143,14 +138,17 @@
                     }, 300);
                 }, 300);
             },
+            onLoginSuccess() {
+                const eventChannel = this.getOpenerEventChannel();
+                eventChannel.emit("acceptDataFromOpenedPage", {
+                    success: true
+                });
+                uni.navigateBack();
+            }
         },
         onLoad() {
         },
         mounted() {
-            // wx.clearStorage();
-            wx.removeStorage({
-                key: 'userInfo'
-            });
             setTimeout(() => {
                 this.splashScreenExit();
             }, this.splashScreenDuration); //在启动界面持续时间结束后进入登录界面
@@ -164,51 +162,51 @@
 </script>
 
 <style lang="scss" scoped>
-    .background-placeholder {
-        width: 100vw;
-        height: 100vh;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: white;
+  .background-placeholder {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: white;
+  }
+
+  .splash-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+
+    .bg-image {
+      width: 100vw;
+      height: 100vh;
     }
 
-    .splash-screen {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 99999;
+    .logo-container {
+      position: absolute;
+      top: 45vh;
+      width: 100%;
+      text-align: center;
 
-        .bg-image {
-            width: 100vw;
-            height: 100vh;
-        }
-
-        .logo-container {
-            position: absolute;
-            top: 45vh;
-            width: 100%;
-            text-align: center;
-
-            .logo-image {
-                width: 60%;
-            }
-        }
+      .logo-image {
+        width: 60%;
+      }
     }
+  }
 
-    .login-screen {
-        width: 100vw;
-        height: 100vh;
-        position: absolute;
-        top: 0;
-        left: 0;
+  .login-screen {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
 
-        .bg-image {
-            position: absolute;
-            width: 100vw;
-            height: 100vh;
-        }
+    .bg-image {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
     }
+  }
 </style>

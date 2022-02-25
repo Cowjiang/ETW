@@ -64,15 +64,34 @@ $uni-text-color-inverse: #fff; //反色
 $uni-text-color-grey: #ededed; //辅助灰色，如加载更多的提示信息
 $uni-text-color-placeholder: #808080;
 $uni-text-color-disable: #c0c0c0;
+$font-color-dark: #303133;
+$font-color-base: #606266;
+$font-color-light: #909399;
+$font-color-disabled: #c0c4cc;
+$font-color-spec: #d6003c;
+$font-color-gray: #999999;
+$font-color-red: #dd0037;
+$font-color-ccc: #cccccc;
+$font-color-999: #999999;
+$font-color-666: #666666;
+$font-color-333: #333333;
+$font-color-000: #000000;
 
 /* 背景颜色 */
 $uni-bg-color: #ffffff;
 $uni-bg-color-grey: #f8f8f8;
 $uni-bg-color-hover: #f1f1f1; //点击状态颜色
 $uni-bg-color-mask: rgba(0, 0, 0, 0.4); //遮罩颜色
+$image-bg-color: #eeeeee;
+$bgcolor_white: #ffffff;
+$all_bgcolor: #f4f4f4;
+$vui_bgcolor: #8c0027;
 
 /* 边框颜色 */
 $uni-border-color: #c8c7cc;
+$border-color-dark: #dcdfe6;
+$border-color-base: #e4e7ed;
+$border-color-light: #ebeef5;
 
 /* 尺寸变量 */
 
@@ -80,6 +99,11 @@ $uni-border-color: #c8c7cc;
 $uni-font-size-sm: 24rpx;
 $uni-font-size-base: 28rpx;
 $uni-font-size-lg: 32rpx;
+
+/* 文字尺寸 */
+$font-sm: 24upx;
+$font-base: 28upx;
+$font-lg: 32upx;
 
 /* 图片尺寸 */
 $uni-img-size-sm: 40rpx;

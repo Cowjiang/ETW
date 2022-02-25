@@ -55,7 +55,7 @@ export const apiRequest = (url, paramObject) => {
             success: (res) => {
                 // console.log(res.data.errorCode)
                 // console.log(queryData,method,headerData);
-                console.log(`【${url.split('/').slice(-2)}】 ${method}请求 状态码${res.statusCode}：`, res.data ? res.data : res)
+                // console.log(`【${url.split('/').slice(-2)}】 ${method}请求 状态码${res.statusCode}：`, res.data ? res.data : res)
                 //HTTP状态码
                 const { statusCode } = res
                 // 和后端约定的状态码
@@ -79,26 +79,30 @@ export const apiRequest = (url, paramObject) => {
                         case 999:
                             if (res.data.data !== '用户登录过期') {
                                 if (res.data.errorMsg === '失败') {
-                                    reject(res.data);
+                                    // reject(res.data);
                                 }
                                 break;
                             }
                         case 3002:
                             // 未登录
                             console.log('该功能需要登录才能使用');
-                            let currentPage = utils.getCurrentPage();
-                            if (currentPage.curUrl === 'pages/login/login') {
-                                reject(res);
+                            const currentPage = utils.getCurrentPage();
+                            if (currentPage.curUrl === 'pages/login/wxLogin') {
+                                // reject(res);
                                 break;
                             }
                             else {
                                 uni.redirectTo({
-                                    url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
+                                    url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
                                 });
-                                reject(res);
+                                // reject(res);
                                 break;
                             }
+                        case 4004:
+                            reject(res);
+                            break;
                         default:
+                            reject(res);
                             break;
                     }
                 }

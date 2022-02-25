@@ -1,24 +1,24 @@
 <template>
-    <view class="loading-fake-container">
-        <view
-            class="loading-container"
-            :class="fullscreen ? 'full-screen' : ''"
-            :style="{
-                '--loading-color': loadingColor,
-                '--mask-color': `${showMask ? maskColor : 'transparent'}`,
-                width: `${positionConfig.width}px`,
-                height: `${positionConfig.height}px`,
-                top: `${positionConfig.top}px`,
-                left: `${positionConfig.left}px`,
-                opacity: `${isLoading ? '1' : '0'}`,
-                pointerEvents: `${pointerEvents}`,
-            }">
-            <view
-                class="loading-box"
-                :style="{animationPlayState: `${isLoading ? 'running' : 'pause'}`}">
-            </view>
-        </view>
+  <view class="loading-fake-container">
+    <view
+      class="loading-container"
+      :class="fullscreen ? 'full-screen' : ''"
+      :style="{
+        '--loading-color': loadingColor,
+        '--mask-color': `${showMask ? maskColor : 'transparent'}`,
+        width: `${positionConfig.width}px`,
+        height: `${positionConfig.height}px`,
+        top: `${positionConfig.top}px`,
+        left: `${positionConfig.left}px`,
+        opacity: `${isLoading ? '1' : '0'}`,
+        pointerEvents: `${pointerEvents}`
+      }">
+      <view
+        class="loading-box"
+        :style="{animationPlayState: `${isLoading ? 'running' : 'pause'}`}">
+      </view>
     </view>
+  </view>
 </template>
 
 <script>
@@ -31,9 +31,9 @@
      * @property {String} loadingColor Loading主体颜色，默认为'#f4756b'
      * @property {Boolean} allowTouch 是否允许触摸穿透遮罩层，默认为false
      * @property {Boolean} isShowRepeatedError 是否抛出重复开启/关闭错误，默认为false
-     * @example <loading parentClass="parent" maskColor="#111111" showMask loadingColor="#cccccc" allowTouch fullscreen isShowRepeatedError></loading>
      * @method startLoading(null|Object) 开始Loading动画
      * @method stopLoading() 停止Loading动画
+     * @example <loading parentClass="parent" maskColor="#111111" showMask loadingColor="#cccccc" allowTouch fullscreen isShowRepeatedError></loading>
      */
     export default {
         name: "loading",
@@ -86,8 +86,6 @@
             /**
              * 开始Loading动画
              * @param {null|Object} positionOptions 手动配置的位置尺寸信息，参数可选，为空对象时必须设置组件属性fullscreen或parentClass
-             * @return {Promise<Boolean>} 以Promise形式返回执行情况
-             * @example startLoading({width=100,height=100,top=0,left=0})
              */
             startLoading(positionOptions = null) {
                 return new Promise((resolve, reject) => {
@@ -205,11 +203,7 @@
                     }
                 });
             },
-            /**
-             * 开始Loading动画
-             * @return {Promise<Boolean>} 以Promise形式返回执行情况
-             * @example stopLoading()
-             */
+            // 停止Loading动画
             stopLoading() {
                 return new Promise((resolve, reject) => {
                     if (this.isLoading) {
@@ -238,13 +232,7 @@
              * @return {String} pointer-events的值
              */
             pointerEvents() {
-                let canTouch;
-                if (this.allowTouch) {
-                    canTouch = true;
-                }
-                else {
-                    canTouch = !this.isLoading;
-                }
+                const canTouch = this.allowTouch ? true : !this.isLoading;
                 return canTouch ? 'none' : 'all';
             }
         },
@@ -255,10 +243,6 @@
                     this.stopLoading();
                 }
             }
-        },
-        mounted() {
-        },
-        onLoad() {
         },
         created() {
             wx.getSystemInfo({
@@ -273,75 +257,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .loading-fake-container {
-        position: relative;
-        width: 0;
-        height: 0;
-        top: 0;
-        left: 0;
-    }
-
-    .loading-container {
-        position: absolute;
-        background-color: var(--mask-color);
-        z-index: 9999999;
-        opacity: 0;
-        transition-property: opacity;
-        transition-duration: 500ms;
-
-        .loading-box {
-            width: rpx(10);
-            height: rpx(25);
-            position: relative;
-            top: 50%;
-            left: 50%;
-            z-index: 99999;
-            background-color: var(--loading-color);
-            animation-delay: 0.4s;
-            border-radius: rpx(15);
-            animation: loading-animation 1s ease-in-out infinite;
-        }
-
-        .loading-box:before, .loading-box:after {
-            content: '';
-            position: absolute;
-            width: inherit;
-            height: inherit;
-            z-index: 99999;
-            background-color: inherit;
-            border-radius: rpx(15);
-            animation: inherit;
-        }
-
-        .loading-box:before {
-            right: rpx(18);
-            animation-delay: 0.2s;
-        }
-
-        .loading-box:after {
-            left: rpx(18);
-            animation-delay: 0.6s;
-        }
-
-        @keyframes loading-animation {
-            0%, 100% {
-                box-shadow: 0 0 0 var(--loading-color), 0 0 0 var(--loading-color);
-            }
-            50% {
-                box-shadow: 0 rpx(-15) 0 var(--loading-color), 0 rpx(15) 0 var(--loading-color);
-            }
-        }
-    }
-
-    .full-screen {
-        width: 100vw !important;
-        height: 100vh !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-
-        .loading-container {
-            position: fixed !important;
-        }
-    }
+  @import 'loading';
 </style>
