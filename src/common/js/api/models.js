@@ -71,13 +71,13 @@ export const searchUser = (requestConfig) =>
         requestConfig,
     });
 //关注用户
-export const addUserFriend = (requestConfig) =>
+export const addFriend = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}`, {
         method: "POST",
         requestConfig,
     });
-// 取消关注
-export const cancleUserFriend = (requestConfig) =>
+// 取消关注用户
+export const removeFriend = (requestConfig) =>
     apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}`, {
         method: "DELETE",
         requestConfig,

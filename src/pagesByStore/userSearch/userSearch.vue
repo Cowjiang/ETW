@@ -60,7 +60,7 @@
               class="btn__default"
               :class="user.isFriend ? 'btn__friend' : ''"
               @click.stop="handleAddFriend(user.id)">
-              {{ user.isFriend ? '已是好友' : '加好友' }}
+              {{ user.isFriend ? '已关注' : '关注' }}
             </view>
           </view>
         </view>
@@ -90,7 +90,7 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {searchUser} from "@/common/js/api/models";
+    import {addFriend, removeFriend, searchUser} from "@/common/js/api/models";
 
     export default {
         name: "userSearch",
@@ -212,7 +212,69 @@
              * @param {String} uid 操作目标用户的id
              */
             handleAddFriend(uid) {
-                console.log(this.userSearchResult.find(user => user.id === uid), '好友操作');
+                this.utils.throttle(() => {
+                    this.$refs.loading.startLoading();
+                    this.userSearchResult.find(user => {
+                        if (user.id === uid) {
+                            if (user.isFriend) {
+                                removeFriend({
+                                    urlParam: {
+                                        userId: user.id
+                                    }
+                                }).then(res => {
+                                    this.$refs.loading.stopLoading();
+                                    if (res.success) {
+                                        user.isFriend = false;
+                                    }
+                                    else {
+                                        console.error(res);
+                                        this.$refs.toast.show({
+                                            text: '取消关注失败',
+                                            type: 'error',
+                                            direction: 'top'
+                                        });
+                                    }
+                                }).catch(err => {
+                                    this.$refs.loading.stopLoading();
+                                    console.error(err);
+                                    this.$refs.toast.show({
+                                        text: '取消关注失败',
+                                        type: 'error',
+                                        direction: 'top'
+                                    });
+                                });
+                            }
+                            else {
+                                addFriend({
+                                    urlParam: {
+                                        userId: user.id
+                                    }
+                                }).then(res => {
+                                    this.$refs.loading.stopLoading();
+                                    if (res.success) {
+                                        user.isFriend = true;
+                                    }
+                                    else {
+                                        console.error(res);
+                                        this.$refs.toast.show({
+                                            text: '关注失败',
+                                            type: 'error',
+                                            direction: 'top'
+                                        });
+                                    }
+                                }).catch(err => {
+                                    this.$refs.loading.stopLoading();
+                                    console.error(err);
+                                    this.$refs.toast.show({
+                                        text: '关注失败',
+                                        type: 'error',
+                                        direction: 'top'
+                                    });
+                                });
+                            }
+                        }
+                    });
+                }, 1000);
             }
         },
         watch: {
