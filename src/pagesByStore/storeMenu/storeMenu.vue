@@ -187,22 +187,15 @@
                       <view class="current-price">
                         <text>
                           {{
-                            parseInt(
-                              commodity.discountPrice === null
-                                ? commodity.price
-                                : commodity.discountPrice
-                            ) | showPrice
+                            parseInt(commodity.discountPrice === null ? commodity.price : commodity.discountPrice) | showPrice
                           }}
                         </text>
                         <text>
                           {{
                             commodity.discountPrice === null
-                              ? commodity.price.toString().split(".")[1] === undefined
-                                ? ""
+                              ? commodity.price.toString().split(".")[1] === undefined ? ""
                                 : `.${commodity.price.toString().split(".")[1]}`
-                              : commodity.discountPrice.toString().split(".")[1] ===
-                              undefined
-                                ? ""
+                              : commodity.discountPrice.toString().split(".")[1] === undefined ? ""
                                 : `.${commodity.discountPrice.toString().split(".")[1]}`
                           }}
                         </text>
@@ -424,16 +417,12 @@
             <view class="info-container">
               <view class="title">
                 {{
-                  menuList[currentSelectedCommodity.typeIndex].dishes[
-                    currentSelectedCommodity.commodityIndex
-                    ].name
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].name
                 }}
               </view>
               <view class="description">
                 {{
-                  menuList[currentSelectedCommodity.typeIndex].dishes[
-                    currentSelectedCommodity.commodityIndex
-                    ].description
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].description
                 }}
               </view>
               <scroll-view class="custom-options-container" scroll-y="true">
@@ -463,12 +452,7 @@
             </view>
             <view class="price-container">
               <view class="price">
-                {{
-                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice == null
-                    ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].price + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
-                    : (menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice + menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice)
-                    | showPrice
-                }}
+                {{ menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice | showPrice }}
               </view>
               <view class="amount-btn">
                 <i
@@ -1072,8 +1056,8 @@
                                             currentCustomOptions.typeIndex === typeIndex &&
                                             currentCustomOptions.commodityIndex === commodityIndex
                                         ) {
-                                            price = commodityItem.price + currentCustomOptions.customOptionPrice;
-                                            discountPrice = commodityItem.discountPrice === null ? null : commodityItem.discountPrice + currentCustomOptions.customOptionPrice;
+                                            price = currentCustomOptions.customOptionPrice;
+                                            discountPrice = commodityItem.discountPrice === null ? null : currentCustomOptions.customOptionPrice;
                                             customOptions = currentCustomOptions;
                                         }
                                         else {
