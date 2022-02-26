@@ -70,7 +70,7 @@ export default {
     onUploadSuccess(data, listsIndex, lists) {
       this.imageList.push(this.tempFinalSrc);
       console.log(
-        `下标【${listsIndex}】的图片上传成功，云端访问路径为：`,
+        // `下标【${listsIndex}】的图片上传成功，云端访问路径为：`,
         this.tempFinalSrc
       );
     },
@@ -78,7 +78,7 @@ export default {
      * @description: 所有图片上传成功后的回调
      */
     onUploaded(lists) {
-      console.log("所有图片上传成功");
+      // console.log("所有图片上传成功");
       this.$emit("onImageUploaded", this.imageList, this.uploadId);
     },
     /**

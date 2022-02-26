@@ -11,7 +11,7 @@
       @confirm="pickerConfirm"></selectArea>
     <view class="address-container">
       <image
-        src="../../../static/images/background/background@loginScreen.png"
+        src="@/static/images/background/background@loginScreen.png"
         class="bg-image"/>
       <view class="title-container">
         <view class="title-text">

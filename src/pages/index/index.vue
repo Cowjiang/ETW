@@ -71,8 +71,8 @@
                         url: '/pagesByStore/storeSearch/storeSearch',
                     },
                     {
-                        name: '发布动态',
-                        url: '/pages/trending/subpages/trendPostPage',
+                        name: '发布动态（新）',
+                        url: '/pages/trending/subpages/trendEdit/trendEdit',
                     },
                     {
                         name: '消息页',
@@ -86,20 +86,20 @@
                         name: '我的订单',
                         url: '/pagesByStore/order/subpages/orderList/orderList'
                     },
+                    {
+                        name: '用户搜索',
+                        url: '/pagesByStore/userSearch/userSearch'
+                    },
                 ], //快速跳转页面列表（自行添加）
                 operations: [
                     {
                         id: 0,
-                        name: '清除登陆状态'
+                        name: '退出登录'
                     },
                     {
                         id: 1,
                         name: '清除缓存'
                     },
-                    {
-                        id: 2,
-                        name: '用户搜索页'
-                    }
                 ], //快捷调试操作列表（自行添加）
                 notes: [
                     '1. 首次使用体验版，需点击右上角"···"，点击菜单中的"开发调试"，然后点击"开启调试"，重新进入小程序才可正常使用',
@@ -161,11 +161,6 @@
                             text: `已清除缓存`,
                             direction: 'top',
                             type: 'success'
-                        });
-                        break;
-                    case 2:
-                        uni.navigateTo({
-                            url: '/pagesByStore/userSearch/userSearch'
                         });
                         break;
                     default:

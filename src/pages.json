@@ -116,6 +116,14 @@
             }
         },
         {
+            "path": "pages/trending/subpages/trendEdit/trendEdit",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/trending/subpages/trendPostPage",
             "style": {
                 "navigationBarTitleText": "",
