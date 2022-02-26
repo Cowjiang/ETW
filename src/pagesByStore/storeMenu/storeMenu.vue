@@ -452,7 +452,9 @@
             </view>
             <view class="price-container">
               <view class="price">
-                {{ menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice | showPrice }}
+                {{
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice | showPrice
+                }}
               </view>
               <view class="amount-btn">
                 <i
@@ -636,7 +638,7 @@
             },
             /**
              * 用户领取优惠券
-             * @param couponId 优惠券id
+             * @param {Number|String} couponId 优惠券id
              */
             handleGetCoupon(couponId) {
                 this.utils.throttle(() => {
@@ -672,8 +674,8 @@
             },
             /**
              * 菜品添加按钮点击事件
-             * @param e {Object} 默认事件
-             * @param isFromMenu {Boolean} 是否从菜单调用，默认为false
+             * @param {Object} e 默认事件
+             * @param {Boolean} isFromMenu 是否从菜单调用，默认为false
              */
             handleAddCommodity(e, isFromMenu = false) {
                 this.utils.throttle(() => {
@@ -686,12 +688,12 @@
                         let isExist = false; //购物车中是否已存在该商品
                         this.menuList.forEach((typeItem, typeIndex) => {
                             if (typeItem.id === typeId) {
-                                !isNaN(typeItem.amount) ? (typeItem.amount += 1) : (typeItem.amount = 1);
+                                !isNaN(typeItem.amount) ? typeItem.amount += 1 : typeItem.amount = 1;
                                 //索引对应类型Id
                                 typeItem.dishes.forEach((commodityItem, commodityIndex) => {
                                     if (commodityItem.id === commodityId) {
                                         //索引对应商品Id
-                                        !isNaN(commodityItem.amount) ? (commodityItem.amount += 1) : (commodityItem.amount = 1);
+                                        !isNaN(commodityItem.amount) ? commodityItem.amount += 1 : commodityItem.amount = 1;
                                         this.cartList.forEach((cartItem) => {
                                             if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
                                                 //购物车列表中已存在当前商品
@@ -714,9 +716,7 @@
                                             //购物车列表中不存在当前商品
                                             let cartIdMax = Math.max.apply(
                                                 Math,
-                                                this.cartList.map((item) => {
-                                                    return item.cartId;
-                                                })
+                                                this.cartList.map(item => item.cartId)
                                             );
                                             cartIdMax = cartIdMax < 0 ? -1 : cartIdMax;
                                             let price, discountPrice, customOptions;
@@ -783,16 +783,14 @@
                     const cartId = e.currentTarget.dataset.cartid == null ? null : parseInt(e.currentTarget.dataset.cartid); //当前商品的购物车Id
                     this.menuList.forEach(typeItem => {
                         if (typeItem.id === typeId) {
-                            !isNaN(typeItem.amount) ? (typeItem.amount -= 1) : (typeItem.amount = 0);
+                            !isNaN(typeItem.amount) ? typeItem.amount -= 1 : typeItem.amount = 0;
                             typeItem.dishes.forEach((commodityItem) => {
                                 if (commodityItem.id === commodityId) {
                                     if (commodityItem.amount !== 0) {
                                         //当前商品已选数量不为零
-                                        !isNaN(commodityItem.amount) ? (commodityItem.amount -= 1) : (commodityItem.amount = 0);
+                                        !isNaN(commodityItem.amount) ? commodityItem.amount -= 1 : commodityItem.amount = 0;
                                         this.cartList.forEach((cartItem, cartItemIndex) => {
-                                            if (
-                                                cartItem.typeId === typeId && cartItem.commodityId === commodityId
-                                            ) {
+                                            if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
                                                 if (cartId !== null) {
                                                     //购物车id不为空
                                                     if (cartItem.cartId === cartId) {
@@ -829,9 +827,9 @@
             handleMinusCommodityLongPress(e) {
                 const typeId = parseInt(e.currentTarget.dataset.typeid); //当前商品的类型Id
                 const commodityId = parseInt(e.currentTarget.dataset.commodityid); //当前商品Id
-                this.menuList.forEach((typeItem) => {
+                this.menuList.forEach(typeItem => {
                     if (typeItem.id === typeId) {
-                        typeItem.dishes.forEach((commodity) => {
+                        typeItem.dishes.forEach(commodity => {
                             if (commodity.id === commodityId) {
                                 typeItem.amount -= commodity.amount;
                                 commodity.amount = 0;
@@ -869,8 +867,8 @@
             },
             /**
              * 商品详情弹出层显示事件
-             * @param typeIndex {Number} 类型索引
-             * @param commodityIndex {Number} 商品索引
+             * @param {Number} typeIndex 类型索引
+             * @param {Number} commodityIndex 商品索引
              */
             handleShowCommodityPopup(typeIndex, commodityIndex) {
                 this.utils.throttle(() => {
@@ -884,32 +882,30 @@
                         this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice = 0; //初始化当前菜品的定制选项总增值价格
                         if (this.menuList[typeIndex].dishes[commodityIndex].customOptions) {
                             this.currentCustomOptions = {};
-                            this.menuList[typeIndex].dishes[commodityIndex].customOptions.forEach(
-                                (customOption) => {
-                                    if (customOption.isSingle) {
-                                        //单选必选
-                                        customOption.customItems.forEach((customItem, customItemIndex) => {
-                                            if (customItemIndex === 0) {
-                                                this.$set(customItem, "isSelected", true);
-                                                this.$set(
-                                                    this.menuList[typeIndex].dishes[commodityIndex],
-                                                    "customOptionPrice",
-                                                    (this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += customItem.customItemPrice)
-                                                ); //增加默认选中的定制选项价格
-                                            }
-                                            else {
-                                                this.$set(customItem, "isSelected", false);
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        //多选可选
-                                        customOption.customItems.forEach(customItem => {
+                            this.menuList[typeIndex].dishes[commodityIndex].customOptions.forEach(customOption => {
+                                if (customOption.isSingle) {
+                                    //单选必选
+                                    customOption.customItems.forEach((customItem, customItemIndex) => {
+                                        if (customItemIndex === 0) {
+                                            this.$set(customItem, "isSelected", true);
+                                            this.$set(
+                                                this.menuList[typeIndex].dishes[commodityIndex],
+                                                "customOptionPrice",
+                                                this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += customItem.customItemPrice
+                                            ); //增加默认选中的定制选项价格
+                                        }
+                                        else {
                                             this.$set(customItem, "isSelected", false);
-                                        });
-                                    }
+                                        }
+                                    });
                                 }
-                            );
+                                else {
+                                    //多选可选
+                                    customOption.customItems.forEach(customItem => {
+                                        this.$set(customItem, "isSelected", false);
+                                    });
+                                }
+                            });
                             this.currentCustomOptions = {
                                 typeIndex: typeIndex,
                                 commodityIndex: commodityIndex,
@@ -949,7 +945,7 @@
                                 this.$set(
                                     this.menuList[typeIndex].dishes[commodityIndex],
                                     "customOptionPrice",
-                                    (this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice -= item.customItemPrice)
+                                    this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice -= item.customItemPrice
                                 ); //减去定制选项的价格
                                 this.$set(item, "isSelected", false);
                             }
@@ -958,7 +954,7 @@
                                 this.$set(
                                     this.menuList[typeIndex].dishes[commodityIndex],
                                     "customOptionPrice",
-                                    (this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += item.customItemPrice)
+                                    this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += item.customItemPrice
                                 ); //增加定制选项的价格
                                 this.$set(item, "isSelected", true);
                             }
@@ -971,7 +967,7 @@
                             this.$set(
                                 this.menuList[typeIndex].dishes[commodityIndex],
                                 "customOptionPrice",
-                                (this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice -= this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].customItemPrice)
+                                this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice -= this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].customItemPrice
                             );
                             this.$set(this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex], "isSelected", false);
                         }
@@ -980,7 +976,7 @@
                             this.$set(
                                 this.menuList[typeIndex].dishes[commodityIndex],
                                 "customOptionPrice",
-                                (this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].customItemPrice)
+                                this.menuList[typeIndex].dishes[commodityIndex].customOptionPrice += this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex].customItemPrice
                             );
                             this.$set(this.menuList[typeIndex].dishes[commodityIndex].customOptions[optionIndex].customItems[optionItemIndex], "isSelected", true);
                         }
@@ -1017,12 +1013,12 @@
                     let isExist = false; //购物车中是否已存在该商品
                     this.menuList.forEach((typeItem, typeIndex) => {
                         if (typeItem.id === typeId) {
-                            !isNaN(typeItem.amount) ? (typeItem.amount += currentAmount) : (typeItem.amount = currentAmount);
+                            !isNaN(typeItem.amount) ? typeItem.amount += currentAmount : typeItem.amount = currentAmount;
                             //索引对应类型Id
                             typeItem.dishes.forEach((commodityItem, commodityIndex) => {
                                 if (commodityItem.id === commodityId) {
                                     //索引对应商品Id
-                                    !isNaN(commodityItem.amount) ? (commodityItem.amount += currentAmount) : (commodityItem.amount = currentAmount);
+                                    !isNaN(commodityItem.amount) ? commodityItem.amount += currentAmount : commodityItem.amount = currentAmount;
                                     this.cartList.forEach(cartItem => {
                                         if (cartItem.typeId === typeId && cartItem.commodityId === commodityId) {
                                             //购物车列表中已存在当前商品
@@ -1045,9 +1041,7 @@
                                         //购物车列表中不存在当前商品
                                         let cartIdMax = Math.max.apply(
                                             Math,
-                                            this.cartList.map((item) => {
-                                                return item.cartId;
-                                            })
+                                            this.cartList.map(item => item.cartId)
                                         );
                                         cartIdMax = cartIdMax < 0 ? -1 : cartIdMax;
                                         let price, discountPrice, customOptions;
@@ -1070,7 +1064,7 @@
                                             cartId: cartIdMax + 1, // {Number} 购物车id
                                             typeId: typeId, // {Number} 类型id
                                             commodityId: commodityId, // {Number} 商品id
-                                            amount: 1, // {Number} 商品数量
+                                            amount: currentAmount, // {Number} 商品数量
                                             name: commodityItem.name, // {String} 商品名字
                                             imageUrl: commodityItem.imageUrl, // {String} 商品图片url
                                             description: commodityItem.description, // {String} 商品描述
@@ -1090,7 +1084,7 @@
             },
             /**
              * 查询搜索结果
-             * @param keyword {String} 搜索的关键字
+             * @param {String} keyword 搜索的关键字
              * @return {Array} 结果数组
              */
             querySearchResult(keyword) {
@@ -1166,7 +1160,7 @@
         filters: {
             /**
              * 格式化价格显示
-             * @param price {Number} 价格
+             * @param {Number} price 价格
              * @return {String} 格式化后的价格
              */
             showPrice(price) {
@@ -1196,7 +1190,7 @@
         },
         watch: {
             // 搜索输入框监听事件
-            searchValue(nval, oval) {
+            searchValue(nval) {
                 if (nval == null || nval === "") {
                     this.searchResultList = [];
                 }
