@@ -21,7 +21,7 @@
           class="delete-btn"
           v-show="!isNewAddress"
           @click="handleDeleteClick">
-          <i class="fa fa-trash-o" aria-hidden="true"></i>
+          <i class="far fa-trash-can"/>
           删除
         </view>
       </view>
@@ -97,7 +97,7 @@
               <view
                 class="picker-btn"
                 @click="handleAreaClick">
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                <i class="fas fa-angle-right"/>
               </view>
             </view>
           </view>
@@ -118,7 +118,7 @@
               <view
                 class="map-btn"
                 @click="handleMapBtnClick">
-                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                <i class="fas fa-location-dot"/>
               </view>
             </view>
           </view>
@@ -176,7 +176,7 @@
             handleMapBtnClick() {
                 //跳转到amap页面，并接收回传数据
                 uni.navigateTo({
-                    url: "/pages/amap/amap",
+                    url: "/pagesByStore/amap/amap",
                     events: {
                         acceptDataFromOpenedPage: data => {
                             if (data) {

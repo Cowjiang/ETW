@@ -168,7 +168,7 @@
                 <view class="id">
                   {{ orderDetail.id }}
                 </view>
-                <i class="fa fa-clone" aria-hidden="true" @click="copyOrderId"/>
+                <i class="fa far fa-clone" aria-hidden="true" @click="copyOrderId"/>
               </view>
             </view>
           </view>

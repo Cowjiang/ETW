@@ -7,7 +7,6 @@
       v-model="showStoreInfoPopup"
       :info="storeInfo"
       @close="showStoreInfoPopup = false"/>
-
     <view class="store-menu-container">
       <view
         class="store-image-container"
@@ -23,14 +22,11 @@
             <image class="avatar" :src="storeInfo.imgUrl" mode="aspectFill"/>
           </view>
           <view class="title-container">
-            <view class="title">
+            <view class="title" @click="handleStoreTitleClick">
               <view class="title-text">
                 {{ storeInfo.name }}
               </view>
-              <i
-                class="fa fa-angle-right"
-                aria-hidden="true"
-                @click="handleStoreTitleClick"/>
+              <i class="fas fa-angle-right"/>
             </view>
             <view class="tags-container">
               <view>营业中</view>
@@ -40,8 +36,8 @@
           </view>
           <view class="favorite-container">
             <view class="favorite-btn" @click="handleChangeFavorite">
-              <i class="fa fa-star-o" aria-hidden="true" v-show="!isFavourite"/>
-              <i class="fa fa-star" aria-hidden="true" v-show="isFavourite"/>
+              <i class="fas fa-star-o" v-show="!isFavourite"/>
+              <i class="fas fa-star" v-show="isFavourite"/>
             </view>
           </view>
         </view>
@@ -49,7 +45,7 @@
           class="announcement-container"
           v-if="storeInfo.characteristic != null"
           @click="handleAnnouncementFold">
-          <i class="fa fa-volume-down" aria-hidden="true"/>
+          <i class="fas fa-gift"/>
           <view
             class="announcement-text"
             :style="{ whiteSpace: `${announcementFolding ? 'nowrap' : 'normal'}` }">
@@ -57,8 +53,7 @@
           </view>
           <view class="unfold-btn" @click.stop="" @click="handleAnnouncementFold">
             <i
-              class="fa fa-angle-down"
-              aria-hidden="true"
+              class="fas fa-angle-down"
               :style="{transform: `${announcementFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`}"/>
           </view>
         </view>
@@ -83,11 +78,8 @@
           <view class="unfold-btn" @click.stop="" @click="handleDiscountFold">
             <view :style="{ opacity: `${discountFolding ? 1 : 0}` }"> 更多</view>
             <i
-              class="fa fa-angle-down"
-              aria-hidden="true"
-              :style="{
-                transform: `${discountFolding ? 'rotate(0deg)' : 'rotate(180deg)'}`,
-              }"/>
+              class="fas fa-angle-down"
+              :style="{ transform: `${discountFolding ? 'rotate(0deg)' : 'rotate(180deg)'}` }"/>
           </view>
         </view>
       </view>
@@ -110,7 +102,7 @@
             class="search-btn-container"
             v-if="currentTab === 0"
             @click="handleOpenSearchPopup">
-            <i class="fa fa-search" aria-hidden="true"/>
+            <i class="fas fa-magnifying-glass"/>
             搜索
           </view>
         </view>
@@ -208,8 +200,7 @@
                     </view>
                     <view class="amount-btn-container" @click.stop="">
                       <i
-                        class="fa fa-minus-circle"
-                        aria-hidden="true"
+                        class="fas fa-circle-minus"
                         :data-typeId="type.id"
                         :data-commodityId="commodity.id"
                         v-show="
@@ -231,8 +222,8 @@
                         {{ commodity.amount || 0 }}
                       </view>
                       <i
-                        class="fa fa-plus-circle"
-                        aria-hidden="true"
+                        class="fas fa-circle-plus"
+
                         :data-typeId="type.id"
                         :data-commodityId="commodity.id"
                         v-show="!commodity.isCustom"
@@ -275,8 +266,8 @@
             <view class="title-container">
               <view class="amount-container"> 共 {{ totalAmount }} 件商品</view>
               <view class="clear-btn-container" @click="handleClearCartList">
-                <i class="fa fa-trash-o" aria-hidden="true"/>
-                清空购物车
+                <i class="far fa-trash-can"/>
+                <text>清空购物车</text>
               </view>
             </view>
             <view class="content-container">
@@ -310,25 +301,21 @@
                         </view>
                         <view class="amount-btn-container">
                           <i
-                            class="fa fa-minus-circle"
-                            aria-hidden="true"
+                            class="fas fa-circle-minus"
                             :data-typeId="item.typeId"
                             :data-commodityId="item.commodityId"
                             :data-cartId="item.cartId"
                             @click="handleMinusCommodity"
-                            @longpress="handleMinusCommodityLongPress"
-                          ></i>
+                            @longpress="handleMinusCommodityLongPress"/>
                           <view class="amount">
                             {{ item.amount || 0 }}
                           </view>
                           <i
-                            class="fa fa-plus-circle"
-                            aria-hidden="true"
+                            class="fas fa-circle-plus"
                             :data-typeId="item.typeId"
                             :data-commodityId="item.commodityId"
                             :data-cartId="item.cartId"
-                            @click="handleAddCommodity"
-                          ></i>
+                            @click="handleAddCommodity"/>
                         </view>
                       </view>
                     </view>
@@ -351,7 +338,7 @@
           <view class="search-container">
             <view class="input-container">
               <view class="input">
-                <i class="fa fa-search" aria-hidden="true"/>
+                <i class="fas fa-magnifying-glass"/>
                 <input
                   type="text"
                   v-model="searchValue"
@@ -458,15 +445,13 @@
               </view>
               <view class="amount-btn">
                 <i
-                  class="fa fa-minus-circle"
-                  aria-hidden="true"
+                  class="fas fa-circle-minus"
                   @click="handleMinusAmountTemp"/>
                 <view class="amount">
                   {{ amountTemp }}
                 </view>
                 <i
-                  class="fa fa-plus-circle"
-                  aria-hidden="true"
+                  class="fas fa-circle-plus"
                   @click="handleAddAmountTemp"/>
               </view>
             </view>
@@ -489,7 +474,7 @@
             :style="{
               transform: `${showCartPopup ? 'translateX(-100rpx)' : 'translateX(30rpx)'}`,
             }">
-            <i class="fa fa-shopping-cart" aria-hidden="true"/>
+            <i class="fas fa-shopping-cart"/>
             <view class="total-amount" v-show="totalAmount !== 0">
               {{ totalAmount }}
             </view>

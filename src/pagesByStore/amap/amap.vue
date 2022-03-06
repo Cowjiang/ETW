@@ -627,5 +627,5 @@
 </script>
 
 <style lang="scss" scoped>
-  @import 'amap.scss';
+  @import 'amap';
 </style>

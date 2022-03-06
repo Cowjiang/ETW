@@ -9,7 +9,7 @@
         <view
           class="input"
           :style="{width: `${showResult ? '100%' : 'calc(100% - 90rpx)'}`}">
-          <i class="fa fa-search" aria-hidden="true"></i>
+          <i class="fa fa-search"/>
           <input
             type="text"
             v-model="searchValue"

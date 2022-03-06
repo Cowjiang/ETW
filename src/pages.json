@@ -51,14 +51,6 @@
             }
         },
         {
-            "path": "pages/amap/amap",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/home/subpages/upload-file",
             "style": {
                 "navigationBarTitleText": "",
@@ -167,6 +159,14 @@
             "root": "pagesByStore",
             "pages": [
                 {
+                    "path": "amap/amap",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "userSearch/userSearch",
                     "style": {
                         "navigationBarTitleText": "",
@@ -207,7 +207,6 @@
                         "navigationStyle": "custom"
                     }
                 },
-
                 {
                     "path": "order/subpages/orderDetail/orderDetail",
                     "style": {
@@ -222,6 +221,14 @@
                         "navigationBarTitleText": "",
                         "enablePullDownRefresh": false,
                         "disableScroll": true,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "myUserProfile/myUserProfile",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
                         "navigationStyle": "custom"
                     }
                 },

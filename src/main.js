@@ -13,7 +13,6 @@ import * as filters from '@/common/js/utils/filters.js'
 //高德地图sdk（已修改为适配uni-app）
 import amap from '@/common/js/sdk/amap-uni.js'
 
-
 //过滤器
 Object.keys(filters).forEach(key => { Vue.filter(key, filters[key]) })
 

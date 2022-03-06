@@ -31,7 +31,7 @@
       font-size: 30rpx;
       color: #555555;
 
-      .fa {
+      .far {
         margin-right: 6rpx;
       }
     }
@@ -283,6 +283,10 @@
             color: #555555;
             text-align: center;
             font-size: 42rpx;
+
+            .fas {
+              color: #999;
+            }
           }
         }
       }

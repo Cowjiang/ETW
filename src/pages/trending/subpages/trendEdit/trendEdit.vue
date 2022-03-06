@@ -90,7 +90,7 @@
                 switch (itemId) {
                     case 1:
                         uni.navigateTo({
-                            url: "/pages/amap/amap",
+                            url: "/pagesByStore/amap/amap",
                             events: {
                                 acceptDataFromOpenedPage: data => {
                                     if (data) {
@@ -135,30 +135,61 @@
                 postTrend({
                     queryData: trendContent,
                 }).then(res => {
-                    this.$refs.loading.stopLoading();
+                    console.log(res);
                     if (res.success) {
-                        console.log(res);
                         uni.redirectTo({
                             url: "/pages/trending/trending",
                         });
                     }
                     else {
-                        console.error(res);
                         this.$refs.toast.show({
                             text: '发布失败',
-                            type: 'error',
-                            direction: 'top'
+                            type: 'error'
                         });
                     }
                 }).catch(err => {
                     console.error(err);
-                    this.$refs.loading.stopLoading();
-                    this.$refs.toast.show({
-                        text: '发布失败',
-                        type: 'error',
-                        direction: 'top'
-                    });
-                });
+                })
+                // postDiscuss({
+                //     queryData: {
+                //         title: this.titleValue,
+                //         content: postContent,
+                //         upload: uploadedImageList
+                //     }
+                // }).then(res => {
+                //         console.log(res);
+                //         this.$refs.loading.stopLoading();
+                //     }).catch(err => {
+                //         console.log(err);
+                //         if (err.data.code === 403) {
+                //             uni.navigateTo({
+                //                 url: '/pages/login/login'
+                //             });
+                //         }
+                //         else if (err.data.code === 500) {
+                //             this.$refs.toast.show({
+                //                 text: '请上传图片',
+                //                 type: 'error'
+                //             });
+                //         }
+                //         else if (err.data.code === 200) {
+                //             this.$refs.toast.show({
+                //                 text: '发布成功',
+                //                 type: 'success'
+                //             });
+                //             const postId = err.data.post.id;
+                //             uni.redirectTo({
+                //                 url: `/pages/postDetail/postDetail?id=${postId}`
+                //             });
+                //         }
+                //         else {
+                //             this.$refs.toast.show({
+                //                 text: '发布失败',
+                //                 type: 'error'
+                //             });
+                //         }
+                //         this.$refs.loading.stopLoading();
+                //     });
             },
         },
         watch: {

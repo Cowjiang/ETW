@@ -23,7 +23,7 @@
             <view class="store-name">
               {{ order.storeSimpleInfo.name }}
             </view>
-            <i class="fa fa-angle-right" aria-hidden="true"/>
+            <i class="fa fas fa-angle-right"/>
             <view class="order-status" @click.stop>
               <view>
                 {{ order.stat | showOrderStatus }}

@@ -63,8 +63,8 @@
             return {
                 pages: [
                     {
-                        name: '首页',
-                        url: '',
+                        name: '动态页',
+                        url: '/pages/trending/trending',
                     },
                     {
                         name: '店铺搜索页',
@@ -90,6 +90,14 @@
                         name: '用户搜索',
                         url: '/pagesByStore/userSearch/userSearch'
                     },
+                    {
+                        name: '用户主页',
+                        url: ''
+                    },
+                    {
+                        name: '我的个人资料',
+                        url: '/pagesByStore/myUserProfile/myUserProfile'
+                    }
                 ], //快速跳转页面列表（自行添加）
                 operations: [
                     {
@@ -144,15 +152,16 @@
                 switch (id) {
                     case 0:
                         await logOut();
-                        uni.removeStorage({
-                            key: 'cookie',
-                            success: res => {
-                                this.$refs.toast.show({
-                                    text: `已清除登陆状态`,
-                                    direction: 'top',
-                                    type: 'success'
-                                });
-                            }
+                        await uni.removeStorage({
+                            key: 'cookie'
+                        });
+                        await uni.removeStorage({
+                            key: 'userInfo'
+                        });
+                        this.$refs.toast.show({
+                            text: `已清除登陆状态`,
+                            direction: 'top',
+                            type: 'success'
                         });
                         break;
                     case 1:

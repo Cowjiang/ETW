@@ -47,7 +47,7 @@
             v-if="!isSelectMode"
             :data-name="`address${index}`"
             @click.stop="handleEdit">
-            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+            <i class="fas fa-pen"/>
           </view>
         </view>
         <!-- 加载更多容器 -->
@@ -355,7 +355,7 @@
             // 新增地址按钮点击事件
             handleAddAddress() {
                 uni.navigateTo({
-                    url: '/pages/addressBook/subpages/editAddress',
+                    url: '/pages/addressBook/subpages/editAddress/editAddress'
                 });
             },
             // 监听屏幕触摸开始事件
