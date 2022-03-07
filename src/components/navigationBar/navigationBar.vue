@@ -31,19 +31,9 @@
                 margin: `${0.23 * navigationBarHeight}px 0`,
               }">
               <view class="navigation-back" @click="backButtonClickEvent">
-<!--                <image-->
-<!--                  src="../../static/images/navigation/navigation@back.png"-->
-<!--                  class="navigation-back-image"-->
-<!--                  mode="heightFix">-->
-<!--                </image>-->
                 <i class="fas fa-angle-left"/>
               </view>
               <view class="navigation-home" @click="homeButtonClickEvent">
-<!--                <image-->
-<!--                  src="../../static/images/navigation/navigation@home.png"-->
-<!--                  class="navigation-home-image"-->
-<!--                  mode="heightFix">-->
-<!--                </image>-->
                 <i class="fas fa-house"/>
               </view>
             </view>

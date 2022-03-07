@@ -71,13 +71,11 @@
               <image
                 v-if="message.isMe"
                 :src="myInfo.avgPath"
-                mode="widthFix"
-              ></image>
+                mode="widthFix"/>
               <image
                 v-if="!message.isMe"
                 :src="friendInfo.avgPath"
-                mode="widthFix"
-              ></image>
+                mode="widthFix"/>
             </view>
             <!-- 消息内容 -->
             <view
@@ -98,8 +96,7 @@
                 :data-name="`message${index}`"
                 mode="widthFix"
                 @longpress="handleLongPress"
-                @click="previewImage(message.content)"
-              ></image>
+                @click="previewImage(message.content)"/>
             </view>
           </view>
           <!-- 滚动区域底部 -->
@@ -123,17 +120,17 @@
             opacity: `${isBlocked ? 0.7 : 1}`
           }">
           <i
-            class="fa fa-picture-o"
+            class="fas fa-image"
             aria-hidden="true"
             :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
             @click="chooseImage(0)"></i>
           <i
-            class="fa fa-camera"
+            class="fas fa-camera"
             aria-hidden="true"
             :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
             @click="chooseImage(1)"></i>
           <i
-            class="fa fa-chevron-right"
+            class="fas fa-chevron-right"
             aria-hidden="true"
             :style="{opacity: `${inputFocusStatus ? '1': '0'}`}"></i>
         </view>
@@ -168,7 +165,7 @@
             class="send-btn-container"
             @click="sendMessage"
             :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
-            <i class="fa fa-paper-plane" aria-hidden="true"></i>
+            <i class="fas fa-paper-plane"/>
           </view>
         </view>
       </view>
@@ -663,11 +660,6 @@
                     key: 'userInfo',
                     success: res => {
                         connectSocket(res.data.userId).then(res => {
-                            // this.$refs.toast.show({
-                            //     text: '网络异常',
-                            //     type: 'error',
-                            //     direction: 'top'
-                            // });
                             uni.onSocketMessage(res => {
                                 this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
                             });

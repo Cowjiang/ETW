@@ -28,7 +28,7 @@
             <view class="info">
               <view class="name">
                 <text>{{ store.name }}</text>
-                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                <i class="fas fa-ellipsis-v"/>
               </view>
               <view class="score-container">
                 <u-rate
@@ -203,7 +203,7 @@
              */
             formatPerCost(perCost) {
                 const perCostNumber = Number(perCost);
-                return !isNaN(perCost) && perCost > 0 ? `￥${perCostNumber}/人` : '';
+                return !isNaN(perCost) && perCost > 0 ? `￥${Math.ceil(perCostNumber / 100)}/人` : '';
             },
             // 格式化距离显示
             formatDistance(distance) {

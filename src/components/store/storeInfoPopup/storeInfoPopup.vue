@@ -22,7 +22,7 @@
         <view class="info-container">
           <view class="opening-time-container">
             <view class="info-title">
-              <i class="fa fa-clock-o" aria-hidden="true"></i>
+              <i class="fas fa-clock"/>
               营业时间：
             </view>
             <view class="info-detail">
@@ -33,7 +33,7 @@
             class="tel-container"
             @click="handleCallBtn">
             <view class="info-title">
-              <i class="fa fa-phone" aria-hidden="true"></i>
+              <i class="fas fa-phone"/>
               联系电话：
             </view>
             <view class="info-detail">
@@ -44,7 +44,7 @@
             class="address-container"
             @click="handleAddressClick">
             <view class="info-title">
-              <i class="fa fa-map-marker" aria-hidden="true"></i>
+              <i class="fas fa-location-dot" aria-hidden="true"></i>
               店铺地址：
             </view>
             <view class="info-detail">

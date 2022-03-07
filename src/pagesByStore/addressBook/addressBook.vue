@@ -345,7 +345,7 @@
                     address.contactName = contactNameTemp[0];
                     address.contactGender = contactNameTemp[1];
                     uni.navigateTo({
-                        url: '/pages/addressBook/subpages/editAddress/editAddress',
+                        url: '/pagesByStore/addressBook/subpages/editAddress/editAddress',
                         success: res => {
                             res.eventChannel.emit('editAddress', {data: address})
                         }
@@ -355,7 +355,7 @@
             // 新增地址按钮点击事件
             handleAddAddress() {
                 uni.navigateTo({
-                    url: '/pages/addressBook/subpages/editAddress/editAddress'
+                    url: '/pagesByStore/addressBook/subpages/editAddress/editAddress'
                 });
             },
             // 监听屏幕触摸开始事件

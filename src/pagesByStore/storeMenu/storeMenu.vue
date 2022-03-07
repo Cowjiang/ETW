@@ -30,13 +30,14 @@
             </view>
             <view class="tags-container">
               <view>营业中</view>
-              <view>好评率84%</view>
+              <view>人均{{ Math.ceil(storeInfo.perCost) | showPrice }}</view>
               <view>月销{{ storeInfo.sales }}</view>
+              <view>好评率{{ storeInfo.likeRate | showLikeRate }}</view>
             </view>
           </view>
           <view class="favorite-container">
             <view class="favorite-btn" @click="handleChangeFavorite">
-              <i class="fas fa-star-o" v-show="!isFavourite"/>
+              <i class="far fa-star" v-show="!isFavourite"/>
               <i class="fas fa-star" v-show="isFavourite"/>
             </view>
           </view>
@@ -1150,6 +1151,14 @@
              */
             showPrice(price) {
                 return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
+            },
+            /**
+             * 格式化价格显示
+             * @param {Number} likeRate 好评率
+             * @return {String} 格式化后的好评率
+             */
+            showLikeRate(likeRate) {
+                return typeof likeRate !== "number" ? `0%` : `${likeRate * 100}%`;
             },
             /**
              * 格式化购物车中商品的定制选项信息

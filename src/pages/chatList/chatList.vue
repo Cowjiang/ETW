@@ -18,7 +18,9 @@
       @refresherrefresh="handleRefreshStart"
       @refresherrestore="handleRefreshEnd"
       @scrolltolower="handleScrollToBottom">
-      <view class="list-scroll-view">
+      <view
+        class="list-scroll-view"
+        :style="{minHeight: `${windowHeight - navigationHeight}px`}">
         <!-- 顶部按钮列表容器 -->
         <view class="top-list-container" v-if="showTopBtnArea">
           <!-- 顶部通知按钮区域 -->
@@ -87,7 +89,9 @@
           </view>
         </view>
         <!-- 聊天记录列表容器 -->
-        <view class="main-list-container">
+        <view
+          class="main-list-container"
+          :style="{minHeight: `${windowHeight - navigationHeight}px`}">
           <view
             class="message-container"
             v-for="(message, index) in chatMessages"

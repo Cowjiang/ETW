@@ -71,7 +71,7 @@
                         url: '/pagesByStore/storeSearch/storeSearch',
                     },
                     {
-                        name: '发布动态（新）',
+                        name: '发布动态',
                         url: '/pages/trending/subpages/trendEdit/trendEdit',
                     },
                     {
@@ -80,7 +80,7 @@
                     },
                     {
                         name: '地址簿',
-                        url: '/pages/addressBook/addressBook'
+                        url: '/pagesByStore/addressBook/addressBook'
                     },
                     {
                         name: '我的订单',
@@ -118,7 +118,7 @@
         methods: {
             /**
              * 跳转页面
-             * @param page {Object} 页面信息
+             * @param {Object} page 页面信息
              */
             goto(page) {
                 const pageName = page.name;
@@ -146,7 +146,7 @@
             },
             /**
              * 执行快捷操作（自行添加）
-             * @param id {Number} 快捷操作的id
+             * @param {Number} id 快捷操作的id
              */
             async operate(id) {
                 switch (id) {

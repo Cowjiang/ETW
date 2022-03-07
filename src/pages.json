@@ -26,22 +26,6 @@
             }
         },
         {
-            "path": "pages/addressBook/subpages/editAddress/editAddress",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/addressBook/addressBook",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/chatList/chatList",
             "style": {
                 "navigationBarTitleText": "",
@@ -158,6 +142,22 @@
         {
             "root": "pagesByStore",
             "pages": [
+                {
+                    "path": "addressBook/subpages/editAddress/editAddress",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "addressBook/addressBook",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
                 {
                     "path": "amap/amap",
                     "style": {

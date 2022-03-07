@@ -78,6 +78,12 @@ export const getUser = (requestConfig) => apiRequest(`${httpBaseUrl}/getUser`, {
     requestConfig
 });
 
+//获取简要用户信息
+export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam.userId}`, {
+    method: "GET",
+    requestConfig,
+});
+
 //获取黑名单
 export const getBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list`, {
     method: "GET",

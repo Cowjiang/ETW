@@ -105,7 +105,7 @@
             // 跳转地址簿
             toAddressBook() {
                 uni.navigateTo({
-                    url: '/pages/addressBook/addressBook'
+                    url: '/pagesByStore/addressBook/addressBook'
                 });
             },
             // 退出登录

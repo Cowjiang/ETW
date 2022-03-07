@@ -31,7 +31,7 @@
           :key="item.id"
           @click="handleMenuItemClick(item.id)">
           <view class="title-icon">
-            <i class="fa" :class="item.titleIcon" aria-hidden="true"></i>
+            <i class="fas" :class="item.titleIcon" aria-hidden="true"></i>
           </view>
           <view class="title-text">
             {{ item.titleText }}
@@ -75,7 +75,7 @@
                 menuItemList: [{
                     id: 1,
                     titleText: '选择地点',
-                    titleIcon: 'fa-map-marker'
+                    titleIcon: 'fa-location-dot'
                 }], //菜单项列表
                 isPostReady: false, //是否准备发送
                 positionInfo: {}, //位置信息
@@ -149,47 +149,7 @@
                     }
                 }).catch(err => {
                     console.error(err);
-                })
-                // postDiscuss({
-                //     queryData: {
-                //         title: this.titleValue,
-                //         content: postContent,
-                //         upload: uploadedImageList
-                //     }
-                // }).then(res => {
-                //         console.log(res);
-                //         this.$refs.loading.stopLoading();
-                //     }).catch(err => {
-                //         console.log(err);
-                //         if (err.data.code === 403) {
-                //             uni.navigateTo({
-                //                 url: '/pages/login/login'
-                //             });
-                //         }
-                //         else if (err.data.code === 500) {
-                //             this.$refs.toast.show({
-                //                 text: '请上传图片',
-                //                 type: 'error'
-                //             });
-                //         }
-                //         else if (err.data.code === 200) {
-                //             this.$refs.toast.show({
-                //                 text: '发布成功',
-                //                 type: 'success'
-                //             });
-                //             const postId = err.data.post.id;
-                //             uni.redirectTo({
-                //                 url: `/pages/postDetail/postDetail?id=${postId}`
-                //             });
-                //         }
-                //         else {
-                //             this.$refs.toast.show({
-                //                 text: '发布失败',
-                //                 type: 'error'
-                //             });
-                //         }
-                //         this.$refs.loading.stopLoading();
-                //     });
+                });
             },
         },
         watch: {
