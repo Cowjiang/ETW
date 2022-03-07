@@ -67,14 +67,14 @@
               <view class="commodity-price-container">
                 <view class="commodity-price">
                   <view class="origin-price" v-if="commodity.discountPrice !== null">
-                    {{ commodity.price | showPrice }}
+                    {{ commodity.price | formatPrice }}
                   </view>
                   <view class="discount-price">
-                    {{ commodity.totalFee | showPrice }}
+                    {{ commodity.totalFee | formatPrice }}
                   </view>
                 </view>
                 <view class="commodity-amount">
-                  {{ commodity.num | showAmount }}
+                  {{ commodity.num | formatAmount }}
                 </view>
               </view>
             </view>
@@ -84,7 +84,7 @@
                   配送费
                 </view>
                 <view class="content">
-                  {{ orderDetail.packagingFee | showPrice }}
+                  {{ orderDetail.packagingFee | formatPrice }}
                 </view>
               </view>
               <view class="row" v-if="orderDetail.totalPackingCharges">
@@ -92,7 +92,7 @@
                   打包费
                 </view>
                 <view class="content">
-                  {{ orderDetail.totalPackingCharges | showPrice }}
+                  {{ orderDetail.totalPackingCharges | formatPrice }}
                 </view>
               </view>
               <view class="row total-discount" v-if="orderDetail.totalOriginalPrice - orderDetail.totalPayment >= 0">
@@ -100,7 +100,7 @@
                   优惠合计
                 </view>
                 <view class="content">
-                  -{{ orderDetail.totalOriginalPrice - orderDetail.totalPayment | showPrice }}
+                  -{{ orderDetail.totalOriginalPrice - orderDetail.totalPayment | formatPrice }}
                 </view>
               </view>
               <view class="total-price-container">
@@ -109,7 +109,7 @@
                     共 {{ orderDetail.totalCount }} 件商品，合计
                   </view>
                   <view class="price">
-                    {{ orderDetail.totalPayment | showPrice }}
+                    {{ orderDetail.totalPayment | formatPrice }}
                   </view>
                 </view>
               </view>
@@ -140,7 +140,7 @@
               下单时间
             </view>
             <view class="content">
-              {{ orderDetail.createdTime | showDateTime }}
+              {{ orderDetail.createdTime | formatDateTime('yy-mm-dd hh:mm:ss') }}
             </view>
           </view>
           <view class="more-detail" v-show="showMoreDetail">
@@ -149,7 +149,7 @@
                 支付时间
               </view>
               <view class="content">
-                {{ orderDetail.paymentTime | showDateTime }}
+                {{ orderDetail.paymentTime | formatDateTime('yy-mm-dd hh:mm:ss') }}
               </view>
             </view>
             <view class="row" v-if="orderDetail.paymentTime">
@@ -418,22 +418,6 @@
                 }
             },
             /**
-             * 格式化价格显示
-             * @param {Number} price 价格
-             * @return {String} 格式化后的价格
-             */
-            showPrice(price) {
-                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
-            },
-            /**
-             * 格式化商品数量显示
-             * @param {Number} amount 商品数量
-             * @return {String} 格式化后的商品数量
-             */
-            showAmount(amount) {
-                return typeof amount !== "number" ? `x NaN` : `x ${amount}`;
-            },
-            /**
              * 格式化商品描述显示
              * @param {Array|undefined} customItems 商品的自定义选项数组
              * @return {String} 格式化后的商品描述文字
@@ -448,33 +432,6 @@
                     }
                 }
                 return description;
-            },
-            /**
-             * 格式化时间显示
-             * @param {String} timestamp 时间戳
-             * @return {String} 格式化后的时间
-             */
-            showDateTime(timestamp) {
-                return dateFilter(timestamp, "yy-mm-dd hh:mm:ss");
-            },
-            /**
-             * 格式化联系人姓名
-             * @param {String} contactName 联系人姓名（未格式化的）
-             * @return {String} 格式化后的联系人姓名
-             */
-            formatContactName(contactName) {
-                if (contactName) {
-                    if (contactName.endsWith("{#先生}")) {
-                        return `${contactName.replace("{#先生}", "")}（先生）`;
-                    }
-                    else if (contactName.endsWith("{#女士}")) {
-                        return `${contactName.replace("{#女士}", "")}（女士）`;
-                    }
-                    else {
-                        return contactName;
-                    }
-                }
-                else return '';
             },
         },
         mounted() {

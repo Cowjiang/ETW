@@ -161,14 +161,14 @@
             <view class="commodity-price-container">
               <view class="commodity-price">
                 <view class="origin-price" v-if="commodity.discountPrice !== null">
-                  {{ commodity.originPrice | showPrice }}
+                  {{ commodity.originPrice | formatPrice }}
                 </view>
                 <view class="discount-price">
-                  {{ commodity.discountPrice === null ? commodity.originPrice : commodity.discountPrice | showPrice }}
+                  {{ commodity.discountPrice === null ? commodity.originPrice : commodity.discountPrice | formatPrice }}
                 </view>
               </view>
               <view class="commodity-amount">
-                {{ commodity.amount | showAmount }}
+                {{ commodity.amount | formatAmount }}
               </view>
             </view>
           </view>
@@ -176,13 +176,13 @@
             <view class="delivery-price">
               配送费
               <view class="price">
-                {{ deliveryFee | showPrice }}
+                {{ deliveryFee | formatPrice }}
               </view>
             </view>
             <view class="packaging-price">
               打包费
               <view class="price">
-                {{ packagingFee | showPrice }}
+                {{ packagingFee | formatPrice }}
               </view>
             </view>
             <view class="coupon" @click="showCoupons = true">
@@ -200,7 +200,7 @@
             <view class="total-price-description">
               共 {{ commodityCount }} 件商品，合计
               <view class="total-price">
-                {{ totalPrice | showPrice }}
+                {{ totalPrice | formatPrice }}
               </view>
             </view>
           </view>
@@ -223,14 +223,14 @@
         <view class="discount-price">
           已优惠
           {{
-            currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | showPrice
+            currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | formatPrice
           }}
         </view>
         <view class="total-price">
           <text style="font-size: 30rpx">
             <text style="font-size: 42rpx">
               {{
-                currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | showPrice
+                currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | formatPrice
               }}
               <!-- <text style="font-size: 30rpx">
                 {{ orderPrice.toString().split(".")[1] || "00" }}
@@ -561,45 +561,6 @@
             allowPay() {
                 return this.isTakeOut ? this.takeOutInfo.id != null : !(this.contactName === '' || this.contactPhone === '' || this.reservationTime === '');
             }
-        },
-        filters: {
-            /**
-             * 格式化价格显示
-             * @param {Number} price 价格
-             * @return {String} 格式化后的价格
-             */
-            showPrice(price) {
-                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
-            },
-            /**
-             * 格式化商品数量显示
-             * @param {Number} amount 商品数量
-             * @return {String} 格式化后的商品数量
-             */
-            showAmount(amount) {
-                return typeof amount !== "number" ? `x NaN` : `x ${amount}`;
-            },
-            /**
-             * 格式化联系人姓名
-             * @param {String} contactName 联系人姓名（未格式化的）
-             * @return {String} 格式化后的联系人姓名
-             */
-            formatContactName(contactName) {
-                if (contactName) {
-                    if (contactName.endsWith("{#先生}")) {
-                        return `${contactName.replace("{#先生}", "")}（先生）`;
-                    }
-                    else if (contactName.endsWith("{#女士}")) {
-                        return `${contactName.replace("{#女士}", "")}（女士）`;
-                    }
-                    else {
-                        return contactName;
-                    }
-                }
-                else return '';
-            },
-        },
-        mounted() {
         },
         onLoad() {
             wx.getSystemInfo({

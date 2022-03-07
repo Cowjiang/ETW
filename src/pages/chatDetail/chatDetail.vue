@@ -698,36 +698,6 @@
                 }
             }
         },
-        filters: {
-            /**
-             * 格式化时间
-             * @param {String} time 时间字符串
-             * @return {String} 格式化后的时间
-             */
-            formatTime(time) {
-                let messageDate = new Date(time);
-                let nowDate = new Date();
-                let messageTime = {
-                    year: messageDate.getFullYear(),
-                    month: messageDate.getMonth() + 1,
-                    day: messageDate.getDate(),
-                    hour: messageDate.getHours().toString().padStart(2, '0'),
-                    min: messageDate.getMinutes().toString().padStart(2, '0'),
-                    second: messageDate.getSeconds()
-                }
-                let nowTime = {
-                    year: nowDate.getFullYear(),
-                    month: nowDate.getMonth() + 1,
-                    day: nowDate.getDate()
-                }
-                if (messageTime.year === nowTime.year && messageTime.month === nowTime.month && messageTime.day === nowTime.day) {
-                    return `${messageTime.hour}:${messageTime.min}`;
-                }
-                else {
-                    return `${messageTime.year}-${messageTime.month}-${messageTime.day} ${messageTime.hour}:${messageTime.min}`;
-                }
-            }
-        },
         watch: {
             // 消息原始输入框的值
             rawInputValue(nval) {

@@ -126,7 +126,7 @@
                 {{ message.time | formatTime }}
               </view>
               <view :class="message.isRead ? 'isread' : 'unread'">
-                {{ message.isRead ? '' : message.unreadCount | unreadCount }}
+                {{ message.isRead ? '' : message.unreadCount | formatUnreadCount }}
               </view>
             </view>
           </view>
@@ -468,42 +468,11 @@
         },
         filters: {
             /**
-             * 格式化时间
-             * @param {String} time 传入的时间字符串
-             * @return {String} 格式化后的时间字符串
-             */
-            formatTime(time) {
-                const messageDate = new Date(time);
-                const nowDate = new Date();
-                const messageTime = {
-                    year: messageDate.getFullYear(),
-                    month: messageDate.getMonth() + 1,
-                    day: messageDate.getDate(),
-                    hour: messageDate.getHours().toString().padStart(2, '0'),
-                    min: messageDate.getMinutes().toString().padStart(2, '0'),
-                    second: messageDate.getSeconds()
-                }
-                const nowTime = {
-                    year: nowDate.getFullYear(),
-                    month: nowDate.getMonth() + 1,
-                    day: nowDate.getDate()
-                }
-                if (messageTime.year === nowTime.year && messageTime.month === nowTime.month && messageTime.day === nowTime.day) {
-                    return `${messageTime.hour}:${messageTime.min}`;
-                }
-                else if (messageTime.year === nowTime.year) {
-                    return `${messageTime.month}月${messageTime.day}日`;
-                }
-                else {
-                    return `${messageTime.year}年${messageTime.month}月${messageTime.day}日`;
-                }
-            },
-            /**
              * 格式化未读消息数
              * @param {Number} count 未读消息数
              * @return {String|Number} 返回格式化后的结果
              */
-            unreadCount(count) {
+            formatUnreadCount(count) {
                 return count > 99 ? '99+' : count;
             }
         },

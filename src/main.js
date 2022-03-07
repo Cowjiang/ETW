@@ -7,14 +7,12 @@ import uView from "uview-ui";
 import Mock from '@/common/js/mock';
 //封装请求方法
 import { apiRequest } from "@/common/js/api/request.js"
-//util.js-工具集
+//工具集
 import { Utils } from "@/common/js/utils/utils.js"
-import * as filters from '@/common/js/utils/filters.js'
+//过滤器
+import '@/common/js/utils/filters'
 //高德地图sdk（已修改为适配uni-app）
 import amap from '@/common/js/sdk/amap-uni.js'
-
-//过滤器
-Object.keys(filters).forEach(key => { Vue.filter(key, filters[key]) })
 
 Vue.use(uView);
 Vue.config.productionTip = false

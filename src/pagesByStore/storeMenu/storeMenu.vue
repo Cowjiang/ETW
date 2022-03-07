@@ -30,7 +30,7 @@
             </view>
             <view class="tags-container">
               <view>营业中</view>
-              <view>人均{{ Math.ceil(storeInfo.perCost) | showPrice }}</view>
+              <view>人均{{ Math.ceil(storeInfo.perCost) | formatPrice }}</view>
               <view>月销{{ storeInfo.sales }}</view>
               <view>好评率{{ storeInfo.likeRate | showLikeRate }}</view>
             </view>
@@ -180,7 +180,7 @@
                       <view class="current-price">
                         <text>
                           {{
-                            parseInt(commodity.discountPrice === null ? commodity.price : commodity.discountPrice) | showPrice
+                            parseInt(commodity.discountPrice === null ? commodity.price : commodity.discountPrice) | formatPrice
                           }}
                         </text>
                         <text>
@@ -196,7 +196,7 @@
                       <view
                         class="origin-price"
                         v-if="commodity.discountPrice !== commodity.price">
-                        {{ commodity.price | showPrice }}
+                        {{ commodity.price | formatPrice }}
                       </view>
                     </view>
                     <view class="amount-btn-container" @click.stop="">
@@ -298,7 +298,7 @@
                       </view>
                       <view class="price-container">
                         <view class="price">
-                          {{ item.discountPrice ? item.discountPrice : item.price | showPrice }}
+                          {{ item.discountPrice ? item.discountPrice : item.price | formatPrice }}
                         </view>
                         <view class="amount-btn-container">
                           <i
@@ -374,7 +374,7 @@
                     <text>{{ result.commodityName.split(searchValue)[1] }}</text>
                   </view>
                   <view class="price-container">
-                    {{ result.commodityPrice | showPrice }}
+                    {{ result.commodityPrice | formatPrice }}
                   </view>
                 </view>
               </scroll-view>
@@ -441,7 +441,7 @@
             <view class="price-container">
               <view class="price">
                 {{
-                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice | showPrice
+                  menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice | formatPrice
                 }}
               </view>
               <view class="amount-btn">
@@ -488,7 +488,7 @@
                 color: `${showCartPopup ? '#f4756b' : '#333'}`,
               }">
               <text>
-                {{ parseInt(totalPrice) | showPrice }}
+                {{ parseInt(totalPrice) | formatPrice }}
               </text>
               <text>
                 {{
@@ -496,7 +496,7 @@
                 }}
               </text>
               <text class="origin-price" v-show="totalOriginalPrice !== totalPrice">
-                {{ totalOriginalPrice | showPrice }}
+                {{ totalOriginalPrice | formatPrice }}
               </text>
             </view>
             <view
@@ -1144,14 +1144,6 @@
             },
         },
         filters: {
-            /**
-             * 格式化价格显示
-             * @param {Number} price 价格
-             * @return {String} 格式化后的价格
-             */
-            showPrice(price) {
-                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
-            },
             /**
              * 格式化价格显示
              * @param {Number} likeRate 好评率
