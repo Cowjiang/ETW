@@ -91,13 +91,13 @@ export const getBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/b
 });
 
 //添加到黑名单
-export const addBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, {
+export const addToBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam.userId}`, {
     method: "POST",
     requestConfig,
 });
 
 //从黑名单中移除
-export const deleteBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, {
+export const removeFromBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam.userId}`, {
     method: "DELETE",
     requestConfig,
 });
@@ -118,6 +118,12 @@ export const addFriend = (requestConfig) => apiRequest(`${httpBaseUrl}/user/frie
 export const removeFriend = (requestConfig) => apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}`, {
     method: "DELETE",
     requestConfig,
+});
+
+//查询用户关系（是否在黑名单、是否关注）
+export const getUserRelationships = (requestConfig) => apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}/stat`, {
+    method: "GET",
+    requestConfig
 });
 
 //获取我的地址簿

@@ -11,8 +11,17 @@
         class="top-btn-area"
         :style="{top: `${navigationHeight}px`}"
         v-if="!isBlocked && isReadyToShow">
-        <view>关注TA</view>
-        <view @click="handleBlockBtnClick">加入黑名单</view>
+        <view
+          class="btn__default"
+          :class="isFocused ? '' : 'btn__red'"
+          @click="handleFocusBtnClick">
+          {{ isFocused ? '已关注' : '关注TA' }}
+        </view>
+        <view
+          class="btn__default"
+          @click="handleBlockBtnClick">
+          加入黑名单
+        </view>
       </view>
       <view
         class="top-btn-area"
@@ -189,7 +198,14 @@
     import toast from "@/components/toast/toast";
     import loading from "@/components/loading/loading";
     import upload from "@/components/upload/upload";
-    import {deleteChatHistory, getChatHistory, getUploadSignature, sendMessage} from "@/common/js/api/models.js";
+    import {
+        addFriend, addToBlockList,
+        deleteChatHistory,
+        getChatHistory,
+        getUploadSignature,
+        getUserRelationships, removeFriend, removeFromBlockList,
+        sendMessage
+    } from "@/common/js/api/models.js";
     import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
 
     export default {
@@ -228,6 +244,7 @@
                 existMore: true, //是否存在更多历史消息
                 isReadyToShow: false, //是否加载消息记录完毕
                 isBlocked: false, //是否屏蔽该用户（黑名单）
+                isFocused: false, //是否已关注该用户
             }
         },
         methods: {
@@ -341,6 +358,19 @@
                         this.$forceUpdate();
                     }
                 }
+            },
+            // 获取与好友的关系（是否关注、是否屏蔽）
+            async getUserRelationships() {
+                await getUserRelationships({
+                    urlParam: {
+                        userId: this.friendInfo.userId
+                    }
+                }).then(res => {
+                    this.isBlocked = res.data.isBlocked;
+                    this.isFocused = res.data.isFriend;
+                }).catch(err => {
+                    console.error(err);
+                });
             },
             // 显示消息输入框
             showRawInput() {
@@ -622,20 +652,118 @@
                 this.refresherTriggered = 'restore';
             },
             // 黑名单按钮点击事件
-            handleBlockBtnClick() {
+            async handleBlockBtnClick() {
                 this.isReadyToShow = false;
                 this.rawInputValue = '';
                 this.inputFocusStatus = false;
                 this.keyboardHeight = 0;
+                if (this.isBlocked) {
+                    await removeFromBlockList({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isBlocked = false;
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '移除黑名单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                else {
+                    await addToBlockList({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isBlocked = true;
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '加入黑名单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
                 setTimeout(() => {
-                    this.isBlocked = !this.isBlocked;
-                    this.isReadyToShow = true;
                     this.rawInputValue = '';
                     this.inputFocusStatus = false;
                     this.isReadyToShow = true;
                     this.keyboardHeight = 0;
-                }, 1000);
-                this.$forceUpdate();
+                }, 500);
+            },
+            // 关注按钮点击事件
+            async handleFocusBtnClick() {
+                this.isReadyToShow = false;
+                this.rawInputValue = '';
+                this.inputFocusStatus = false;
+                this.keyboardHeight = 0;
+                if (this.isFocused) {
+                    await removeFriend({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isFocused = false;
+                        }
+                        else {
+                            console.error(res);
+                            this.$refs.toast.show({
+                                text: '取消关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '取消关注失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                else {
+                    await addFriend({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isFocused = true;
+                        }
+                        else {
+                            console.error(res);
+                            this.$refs.toast.show({
+                                text: '关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '关注失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                setTimeout(() => {
+                    this.rawInputValue = '';
+                    this.inputFocusStatus = false;
+                    this.isReadyToShow = true;
+                    this.keyboardHeight = 0;
+                }, 500);
             },
             // 重定向至聊天列表页
             redirectToChatList() {
@@ -646,6 +774,7 @@
             },
             // 开启Socket连接
             startCheckingUpdate() {
+                this.getUserRelationships();
                 if (this.messageRecords.length === 0) {
                     this._freshing = false; //还原下拉刷新状态
                     setTimeout(() => {
