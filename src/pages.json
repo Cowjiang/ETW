@@ -100,6 +100,14 @@
             }
         },
         {
+            "path": "pages/trending/subpages/trendDetail/trendDetail",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/trending/subpages/trendPostPage",
             "style": {
                 "navigationBarTitleText": "",

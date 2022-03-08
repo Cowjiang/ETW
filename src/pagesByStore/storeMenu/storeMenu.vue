@@ -30,7 +30,7 @@
             </view>
             <view class="tags-container">
               <view>营业中</view>
-              <view>人均{{ Math.ceil(storeInfo.perCost) | formatPrice }}</view>
+              <view>人均{{ Math.ceil(storeInfo.perCost / 100) * 100 | formatPrice }}</view>
               <view>月销{{ storeInfo.sales }}</view>
               <view>好评率{{ storeInfo.likeRate | showLikeRate }}</view>
             </view>
@@ -1195,13 +1195,9 @@
         mounted() {
         },
         async onLoad() {
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
             this.$refs.loading.startLoading();
             try {
                 let storeInfo = {};

@@ -114,7 +114,7 @@
             },
             /**
              * 改变消息队列的顶部外边距
-             * @param {number} index 删除消息的索引值
+             * @param {Number} index 删除消息的索引值
              */
             changeMarginTop(index) {
                 for (const item of this.toastQueue) {
@@ -149,109 +149,11 @@
             },
         },
         mounted() {
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
     };
 </script>
 
 <style lang="scss" scoped>
-  .toast {
-    position: fixed;
-    z-index: -1;
-    min-width: 30%;
-    min-height: 100rpx;
-    max-height: 100rpx;
-    display: flex;
-    gap: 10rpx;
-    color: #333;
-    border-radius: 16rpx;
-    background: #fff;
-    align-items: center;
-    justify-content: center;
-    font-size: 28rpx;
-    pointer-events: none;
-    padding: 18rpx 40rpx;
-    transition-property: margin-top;
-  }
-
-  .title-text {
-    @include ellipsis(2);
-    text-indent: 10rpx;
-  }
-
-  .left-direction {
-    left: 5%;
-  }
-
-  .top-direction {
-    display: flex;
-    justify-content: center;
-  }
-
-  .right-direction {
-    right: 5%;
-  }
-
-  .type-primary {
-    color: $uni-color-primary;
-    background-color: $uni-color-primary-light;
-    border: 1px solid rgb(215, 234, 254);
-  }
-
-  .type-success {
-    color: #ffffff;
-    background-color: #4caf50;
-    border: 0 solid #bef5c8;
-    //border-left: 3px solid;
-  }
-
-  .type-error {
-    color: #ffffff;
-    background-color: #ff5252;
-    border: 0 solid #fde2e2;
-    //border-left: 3px solid;
-  }
-
-  .type-warning {
-    color: #ffffff;
-    background-color: #fb8c00;
-    border: 0 solid #faecd8;
-    //border-left: 3px solid;
-  }
-
-  @keyframes slideInRight {
-    from {
-      -webkit-transform: translate3d(100vw, 0, 0);
-      transform: translate3d(100vw, 0, 0);
-      visibility: visible;
-    }
-
-    to {
-      -webkit-transform: translate3d(0, 0, 0);
-      transform: translate3d(0, 0, 0);
-    }
-  }
-
-  .animate__slideInRight {
-    -webkit-animation-name: slideInRight;
-    animation-name: slideInRight;
-  }
-
-  @keyframes slideInLeft {
-    from {
-      -webkit-transform: translate3d(-100vw, 0, 0);
-      transform: translate3d(-100vw, 0, 0);
-      visibility: visible;
-    }
-
-    to {
-      -webkit-transform: translate3d(0, 0, 0);
-      transform: translate3d(0, 0, 0);
-    }
-  }
-
-  .animate__slideInLeft {
-    -webkit-animation-name: slideInLeft;
-    animation-name: slideInLeft;
-  }
+  @import 'toast';
 </style>

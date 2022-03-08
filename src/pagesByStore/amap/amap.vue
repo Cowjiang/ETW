@@ -599,12 +599,8 @@
             },
         },
         created() {
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.screenWidth;
-                    this.windowHeight = res.screenHeight;
-                },
-            });
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
         },
         onLoad() {
             this.utils.resetThrottle();

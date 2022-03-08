@@ -170,13 +170,9 @@
         },
         beforeMount() {
             //获取设备信息
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            });
-            let {width, height, left, right, top, bottom} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            let {width, height, left, right, top, bottom} = uni.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
             [
                 this.navigationBarTop,
                 this.navigationBarHeight,

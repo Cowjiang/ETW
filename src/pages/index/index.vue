@@ -67,8 +67,8 @@
                         url: '/pages/trending/trending',
                     },
                     {
-                        name: '店铺搜索页',
-                        url: '/pagesByStore/storeSearch/storeSearch',
+                        name: '动态详情页',
+                        url: '/pages/trending/subpages/trendDetail/trendDetail'
                     },
                     {
                         name: '发布动态',
@@ -81,6 +81,10 @@
                     {
                         name: '地址簿',
                         url: '/pagesByStore/addressBook/addressBook'
+                    },
+                    {
+                        name: '店铺搜索页',
+                        url: '/pagesByStore/storeSearch/storeSearch',
                     },
                     {
                         name: '我的订单',

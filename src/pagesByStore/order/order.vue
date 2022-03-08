@@ -563,13 +563,9 @@
             }
         },
         onLoad() {
-            wx.getSystemInfo({
-                success: (res) => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
             try {
                 // 渲染订单列表
                 const eventChannel = this.getOpenerEventChannel();
@@ -670,12 +666,6 @@
                 titleText: "确认订单",
                 backgroundColor: "#f6f6f6",
             });
-        },
-        onHide() {
-        },
-        onUnload() {
-        },
-        beforeDestroy() {
         },
     };
 </script>

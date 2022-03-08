@@ -206,11 +206,19 @@ export const postTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`,
     requestConfig
 });
 
-//获取最新动态
+//获取动态详情
+export const getTrendDetail = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.dynamicId}`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取我发布的动态
 export const getMyTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
     method: "GET",
     requestConfig
 });
+
+//获取最新动态
 export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/news`, {
     method: "GET",
     requestConfig

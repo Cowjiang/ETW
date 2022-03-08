@@ -299,13 +299,9 @@
         },
         onLoad() {
             this.$refs.loading.startLoading();
-            uni.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight();
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
         async onShow() {
             await this.getOrderList();

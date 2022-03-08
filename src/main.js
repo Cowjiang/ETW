@@ -7,6 +7,8 @@ import uView from "uview-ui";
 import Mock from '@/common/js/mock';
 //封装请求方法
 import { apiRequest } from "@/common/js/api/request.js"
+//Vuex
+import store from '@/common/js/store'
 //工具集
 import { Utils } from "@/common/js/utils/utils.js"
 //过滤器
@@ -18,6 +20,8 @@ Vue.use(uView);
 Vue.config.productionTip = false
 //定义$apiRequest
 Vue.prototype.apiRequest = apiRequest
+//Vuex
+Vue.prototype.store = store
 //工具集
 Vue.prototype.utils = new Utils()
 //高德地图
@@ -30,6 +34,7 @@ Vue.config.warnHandler = function(msg, vm, trace) {}
 App.mpType = 'app'
 
 const app = new Vue({
-    ...App
+    ...App,
+    store
 })
 app.$mount()

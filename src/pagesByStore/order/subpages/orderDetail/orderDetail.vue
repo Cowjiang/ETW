@@ -442,7 +442,7 @@
         },
         onLoad(option) {
             this.$refs.loading.startLoading();
-            this.navigationHeight = this.utils.getNavigationHeight();
+            this.navigationHeight = this.$store.state.navigationHeight;
             if (option.id) {
                 this.orderId = JSON.parse(decodeURIComponent(option.id));
                 this.getOrderDetail();

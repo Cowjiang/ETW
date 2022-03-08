@@ -291,13 +291,9 @@
             }
         },
         mounted() {
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({
