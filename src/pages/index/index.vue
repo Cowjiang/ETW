@@ -54,21 +54,33 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import {logOut} from "@/common/js/api/models";
 
+    /**
+     * @description 调试面板
+     * @property {String} title 页面标题
+     * @property {Array} pages 快速跳转页面列表（name, url, data）
+     * @property {Array} operations 快捷调试操作列表（id, name）
+     * @property {Array} notes 调试说明列表
+     */
     export default {
         name: "index",
         components: {
             toast, navigationBar
         },
-        data() {
-            return {
-                pages: [
+        props: {
+            title: {
+                type: String,
+                default: '食途 - 调试模式'
+            },
+            pages: {
+                type: Array,
+                default: [
                     {
                         name: '动态页',
                         url: '/pages/trending/trending',
                     },
                     {
                         name: '动态详情页',
-                        url: '/pages/trending/subpages/trendDetail/trendDetail'
+                        url: '/pages/trending/subpages/trendDetail/trendDetail?id=81',
                     },
                     {
                         name: '发布动态',
@@ -102,8 +114,11 @@
                         name: '我的个人资料',
                         url: '/pagesByStore/myUserProfile/myUserProfile'
                     }
-                ], //快速跳转页面列表（自行添加）
-                operations: [
+                ]
+            },
+            operations: {
+                type: Array,
+                default: [
                     {
                         id: 0,
                         name: '退出登录'
@@ -112,12 +127,18 @@
                         id: 1,
                         name: '清除缓存'
                     },
-                ], //快捷调试操作列表（自行添加）
-                notes: [
+                ]
+            },
+            notes: {
+                type: Array,
+                default: [
                     '1. 首次使用体验版，需点击右上角"···"，点击菜单中的"开发调试"，然后点击"开启调试"，重新进入小程序才可正常使用',
-                    '2. 在dev编译模式下，可能会出现程序体积过大无法预览的问题（超出2M），使用build编译模式不会出现该问题'
-                ], //调试说明列表（自行添加）
+                    '2. 在dev编译模式下，可能会出现程序体积过大无法预览的问题（超出2M），使用build编译模式可减小程序体积',
+                ]
             }
+        },
+        data() {
+            return {}
         },
         methods: {
             /**
@@ -132,6 +153,22 @@
                         text: `「${pageName}」正在开发中`,
                         direction: 'top',
                         type: 'warning'
+                    });
+                }
+                else if (!!page.data) {
+                    uni.navigateTo({
+                        url: pageUrl,
+                        success: res => {
+                            res.eventChannel.emit(Object.keys(page.data)[0], Object.values(page.data)[0])
+                        },
+                        fail: err => {
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: `「${pageName}」路径错误`,
+                                direction: 'top',
+                                type: 'error'
+                            });
+                        }
                     });
                 }
                 else {
@@ -188,7 +225,7 @@
         },
         mounted() {
             this.$refs.navigationBar.setNavigation({
-                titleText: '食途 - 调试模式',
+                titleText: this.title,
                 backgroundColor: '#fff',
                 isShowButton: false
             });

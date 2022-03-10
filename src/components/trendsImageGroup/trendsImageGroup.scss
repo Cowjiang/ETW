@@ -1,0 +1,45 @@
+$box-length: 680rpx;
+$image-margin: 10rpx;
+$image-border-radius: 20rpx;
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 20rpx 0;
+}
+
+.one-image-box {
+  width: $box-length;
+
+  image {
+    border-radius: $image-border-radius;
+    width: $box-length;
+  }
+}
+
+.two-four-image-box {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  image {
+    border-radius: $image-border-radius;
+    margin: $image-margin;
+    width: ($box-length - $image-margin * 4)/2;
+    height: ($box-length - $image-margin * 4)/2;
+  }
+}
+
+.other-image-box {
+  display: flex;
+  //justify-content: center;
+  flex-wrap: wrap;
+
+  image {
+    border-radius: $image-border-radius;
+    margin: $image-margin;
+    width: ($box-length - $image-margin * 6)/3;
+    height: ($box-length - $image-margin * 6)/3;
+  }
+}

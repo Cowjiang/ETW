@@ -1,4 +1,5 @@
 import { Utils } from "@/common/js/utils/utils.js"
+import store from '@/common/js/store'
 
 /**
  *封装请求
@@ -92,8 +93,9 @@ export const apiRequest = (url, paramObject) => {
                                 break;
                             }
                             else {
+                                store.commit('currentPageUrl', currentPage.curFullUrl);
                                 uni.redirectTo({
-                                    url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
+                                    url: `/pages/login/wxLogin`
                                 });
                                 // reject(res);
                                 break;

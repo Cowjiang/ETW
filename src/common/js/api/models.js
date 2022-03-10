@@ -207,7 +207,7 @@ export const postTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`,
 });
 
 //获取动态详情
-export const getTrendDetail = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.dynamicId}`, {
+export const getTrendDetail = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}`, {
     method: "GET",
     requestConfig
 });
@@ -249,7 +249,7 @@ export const postTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseU
 });
 
 //获取动态评论的二级评论
-export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, {
+export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam}/comment`, {
     method: "GET",
     requestConfig
 });

@@ -62,7 +62,7 @@ Vue.filter('formatTime', time => {
         day: nowDate.getDate()
     }
     if (messageTime.year === nowTime.year && messageTime.month === nowTime.month && messageTime.day === nowTime.day) {
-        return `${messageTime.hour}:${messageTime.min}`;
+        return `今天 ${messageTime.hour}:${messageTime.min}`;
     }
     else {
         return `${messageTime.year}-${messageTime.month}-${messageTime.day} ${messageTime.hour}:${messageTime.min}`;

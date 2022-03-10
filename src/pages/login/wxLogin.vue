@@ -78,7 +78,7 @@
                                     //登陆成功
                                     if (isNewUser) {
                                         //新用户第一次登录
-                                        wx.setStorage({
+                                        uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
@@ -90,13 +90,16 @@
                                     else {
                                         //老用户
                                         this.$refs.loading.stopLoading();
-                                        wx.setStorage({
+                                        uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
-                                                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                                                const redirectPage = this.$store.state.currentPageUrl ?? null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                    url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`,
+                                                    fail: err => {
+                                                        console.error(err);
+                                                    }
                                                 });
                                             },
                                         });
@@ -197,7 +200,7 @@
             },
             // 获取用户手机号
             getUserPhone() {
-                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                const redirectPage = this.$store.state.currentPageUrl ?? null;
                 uni.navigateTo({
                     url: '/pages/login/wxRegisterPhone',
                     events: {
@@ -206,7 +209,7 @@
                                 this.$refs.loading.startLoading();
                                 setTimeout(() => {
                                     uni.redirectTo({
-                                        url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`
+                                        url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`
                                     });
                                 }, 300);
                             }
@@ -225,7 +228,7 @@
             usernameLogin() {
                 this.utils.throttle(() => {
                     if (this.agreeCheckbox) {
-                        const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                        const redirectPage = this.$store.state.currentPageUrl ?? null;
                         uni.navigateTo({
                             url: `/pages/login/login`,
                             events: {
@@ -234,7 +237,7 @@
                                         this.$refs.loading.startLoading();
                                         setTimeout(() => {
                                             uni.redirectTo({
-                                                url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`
+                                                url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`
                                             });
                                         }, 300);
                                     }
