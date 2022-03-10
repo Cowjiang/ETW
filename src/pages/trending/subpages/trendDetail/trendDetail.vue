@@ -14,8 +14,18 @@
             <view class="username">{{ trendDetail.userInfo.username }}</view>
             <view class="post-time">{{ trendDetail.createdTime | formatTime }}</view>
           </view>
+          <view class="focus-btn-container">
+            <view
+              class="focus-btn__default"
+              :class="isFriend ? 'focus-btn__focused' : ''"
+              @click="handleFocusBtnClick">
+              {{ isFriend ? '已关注' : '关注' }}
+            </view>
+          </view>
         </view>
-        <view class="content-container">
+        <view
+          class="content-container"
+          @longpress="moreAction(0, trendDetail)">
           <u-read-more
             text-indent="0"
             color="#808080"
@@ -77,7 +87,9 @@
               <text>{{ comment.commentNumber }}</text>
             </view>
             <view class="comment-btn">
-              <i class="fas fa-ellipsis"/>
+              <i
+                class="fas fa-ellipsis"
+                @click.stop="moreAction(1, comment)"/>
             </view>
           </view>
           <view
@@ -93,7 +105,9 @@
                   <image :src="commentChild.scUserInfo.avgPath" mode="aspectFill"/>
                 </view>
                 <view class="username">{{ commentChild.scUserInfo.username }}</view>
-                <view class="operation-btn">
+                <view
+                  class="operation-btn"
+                  @click.stop="moreAction(2, commentChild)">
                   <i class="fas fa-ellipsis"/>
                 </view>
               </view>
@@ -211,11 +225,12 @@
     import loading from "@/components/loading/loading";
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
+        addFriend,
         getTrendComment,
-        getTrendDetail, getTrendSecondComment,
+        getTrendDetail, getTrendSecondComment, getUserRelationships,
         like,
         postTrendComment,
-        postTrendSecondComment
+        postTrendSecondComment, removeFriend
     } from "@/common/js/api/models";
 
     export default {
@@ -225,7 +240,8 @@
         },
         data() {
             return {
-                readyToShow: false,
+                readyToShow: false, //是否加载数据完成允许显示
+                isFriend: false, //与动态作者是否为好友
                 trendId: '', //动态ID
                 trendDetail: {}, //动态详情信息
                 commentList: [], //评论列表
@@ -254,6 +270,7 @@
                 }).then(res => {
                     if (res.success) {
                         this.trendDetail = res.data.dynamicWithImages;
+                        this.getUserRelationships();
                     }
                 }).catch(err => {
                     console.error(err);
@@ -340,6 +357,18 @@
                         direction: 'top'
                     })
                 })
+            },
+            // 获取与作者的好友关系
+            getUserRelationships() {
+                getUserRelationships({
+                    urlParam: {
+                        userId: this.trendDetail.userId
+                    }
+                }).then(res => {
+                    this.isFriend = res.data.isFriend;
+                }).catch(err => {
+                    console.error(err);
+                });
             },
             // 在地图中显示位置
             showOnMap() {
@@ -582,6 +611,100 @@
                         this.getMoreCommentChild(commentParent);
                     }
                 }, 1000);
+            },
+            // 关注按钮点击事件
+            handleFocusBtnClick() {
+                this.utils.throttle(() => {
+                    if (this.isFriend) {
+                        removeFriend({
+                            urlParam: {
+                                userId: this.trendDetail.userId
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.isFriend = false;
+                            }
+                            else {
+                                throw new Error(res);
+                            }
+                        }).catch(err => {
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: '取消关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        });
+                    }
+                    else {
+                        addFriend({
+                            urlParam: {
+                                userId: this.trendDetail.userId
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.isFriend = true;
+                            }
+                            else {
+                                throw new Error(res);
+                            }
+                        }).catch(err => {
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: '关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        });
+                    }
+                }, 1000);
+            },
+            /**
+             * 动态长按/评论更多操作按钮点击事件
+             * @param {Number} type 目标类型，0:动态，1:一级评论, 2:二级评论
+             * @param {Object|Null} target 操作的目标
+             */
+            moreAction(type = 0, target) {
+                this.utils.throttle(() => {
+                    if (type === 0) {
+                        //动态
+                        wx.vibrateShort();
+                        uni.showActionSheet({
+                            itemList: ['复制内容', '举报'],
+                            success: res => {
+                                if (res.tapIndex === 0) {
+                                    uni.setClipboardData({
+                                        data: target.content
+                                    });
+                                }
+                                else {
+                                    this.$refs.toast.show({
+                                        text: '举报成功',
+                                        type: 'success'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        uni.showActionSheet({
+                            itemList: ['复制内容', '举报'],
+                            success: res => {
+                                if (res.tapIndex === 0) {
+                                    uni.setClipboardData({
+                                        data: target.content
+                                    });
+                                }
+                                else {
+                                    this.$refs.toast.show({
+                                        text: '举报成功',
+                                        type: 'success'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }, 500);
             }
         },
         computed: {
