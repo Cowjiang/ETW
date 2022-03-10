@@ -1036,7 +1036,7 @@
                                         cartIdMax = cartIdMax < 0 ? -1 : cartIdMax;
                                         let price, discountPrice, customOptions;
                                         if (
-                                            currentCustomOptions !== {} &&
+                                            currentCustomOptions.customOptions.length &&
                                             currentCustomOptions.typeIndex === typeIndex &&
                                             currentCustomOptions.commodityIndex === commodityIndex
                                         ) {
