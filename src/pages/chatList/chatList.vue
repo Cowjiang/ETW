@@ -273,6 +273,7 @@
              * @param {Object} data 接收到的新消息
              */
             receiveNewMessage(data) {
+                console.log(data)
                 if (data.errorCode === 120) {
                     const newMessage = data.data;
                     const findIndex = this.chatMessages.findIndex(message => message.senderId === newMessage.friendId);
@@ -295,15 +296,15 @@
                     else {
                         this.chatMessages.unshift({
                             senderName: '', //用户名称
-                            senderId: data.friendId, //用户ID
+                            senderId: data.data.friendId, //用户ID
                             senderAvatar: '', //用户头像地址
-                            messageId: data.id, //消息ID
-                            content: data.content, //消息内容
-                            isPhoto: !data.isText, //是否为图片消息
-                            time: data.createdTime, //消息发送时间
-                            isRead: data.isRead, //消息是否已读
+                            messageId: data.data.id, //消息ID
+                            content: data.data.content, //消息内容
+                            isPhoto: !data.data.isText, //是否为图片消息
+                            time: data.data.createdTime, //消息发送时间
+                            isRead: data.data.isRead, //消息是否已读
                             unreadCount: 1, //当前对话消息未读数量
-                            isBlocked: data.isBlocked, //聊天对象是否在黑名单中
+                            isBlocked: data.data.isBlocked, //聊天对象是否在黑名单中
                         });
                     }
                 }
