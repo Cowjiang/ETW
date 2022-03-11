@@ -139,6 +139,11 @@
             </view>
           </view>
         </view>
+        <view
+          class="comment-empty"
+          v-if="commentList.length === 0">
+          评论区空空如也~
+        </view>
       </view>
       <view
         class="input-area"

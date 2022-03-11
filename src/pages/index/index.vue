@@ -218,7 +218,7 @@
                         });
                         break;
                     case 2:
-                        const senderInfo = `senderId=${37}&senderName=新用户_k8teXaLqjJ73HSsG13ms5&senderAvatar=https://com-etw.oss-cn-guangzhou.aliyuncs.com/user-avatar/1/3876f256ca244d588605da3903a1628d.png`;
+                        const senderInfo = `senderId=${0}&senderName=新用户_k8teXaLqjJ73HSsG13ms5&senderAvatar=https://com-etw.oss-cn-guangzhou.aliyuncs.com/user-avatar/1/3876f256ca244d588605da3903a1628d.png`;
                         uni.navigateTo({
                             url: `/pages/chatDetail/chatDetail?${senderInfo}`
                         });

@@ -64,8 +64,14 @@ Vue.filter('formatTime', time => {
     if (messageTime.year === nowTime.year && messageTime.month === nowTime.month && messageTime.day === nowTime.day) {
         return `今天 ${messageTime.hour}:${messageTime.min}`;
     }
+    else if (messageTime.year === nowTime.year && messageTime.month === nowTime.month && nowTime.day - messageTime.day === 1) {
+        return `昨天 ${messageTime.hour}:${messageTime.min}`;
+    }
+    else if (messageTime.year === nowTime.year) {
+        return `${messageTime.month}月${messageTime.day}日 ${messageTime.hour}:${messageTime.min}`;
+    }
     else {
-        return `${messageTime.year}-${messageTime.month}-${messageTime.day} ${messageTime.hour}:${messageTime.min}`;
+        return `${messageTime.year}年${messageTime.month}月${messageTime.day}日 ${messageTime.hour}:${messageTime.min}`;
     }
 });
 

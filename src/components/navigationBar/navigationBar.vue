@@ -17,13 +17,16 @@
       }">
       <view
         :style="{
-          width: `${navigationButtonWidth}px`,
           marginLeft: `${navigationButtonHorizontalMargin}px`,
+          minWidth: `${navigationButtonWidth}px`
         }">
         <!-- 导航栏左侧胶囊按钮插槽 -->
         <slot>
           <!-- 胶囊按钮模板 -->
-          <view class="navigation-menu-button" v-if="isShowButton">
+          <view
+            class="navigation-menu-button"
+            :style="{width: `${navigationButtonWidth}px`}"
+            v-if="isShowButton">
             <view
               class="navigation-menu-button-content"
               :style="{
