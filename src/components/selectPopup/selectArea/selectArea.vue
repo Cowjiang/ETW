@@ -101,11 +101,11 @@
          * @property {Boolean} value 通过v-model控制组件的弹出与收起，为true时打开Picker
          * @property {String} title 顶部标题内容，默认为空
          * @property {Boolean} showPopularCity 是否显示热门城市，默认为true
-         * @example <selectArea v-model="showPicker" @confirm="handleConfirm"></selectArea>
          * @method init() 初始化Picker
          * @method queryAreaName(String) 根据行政编码查询地区名称
-         * @event {Function} confirm 用户点击确认按钮，返回当前选择地区的结果集
-         * @event {Function} cancel 用户点击取消按钮或点击遮罩层关闭Picker，返回当前选择地区的结果集
+         * @event confirm 用户点击确认按钮，返回当前选择地区的结果集
+         * @event cancel 用户点击取消按钮或点击遮罩层关闭Picker，返回当前选择地区的结果集
+         * @example <selectArea v-model="showPicker" @confirm="handleConfirm"/>
          */
         options: {styleIsolation: 'shared'}, //允许样式穿透
         name: "selectArea",

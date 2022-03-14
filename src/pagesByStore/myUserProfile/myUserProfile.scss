@@ -28,12 +28,27 @@
       }
 
       .row-content {
+        max-width: 60vw;
         display: flex;
         flex-grow: 1;
         align-items: center;
         justify-content: flex-end;
         margin-left: auto;
+        overflow: hidden;
         color: #333;
+
+        .content {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+
+          input {
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
 
         .fas {
           font-size: 30rpx;
@@ -46,6 +61,14 @@
           height: 70rpx;
           border-radius: 50%;
           background-color: #eee;
+        }
+      }
+
+      .gender, .birthday {
+        ::v-deep {
+          .u-select__body, .u-picker-body {
+            height: 400rpx;
+          }
         }
       }
     }
@@ -72,4 +95,20 @@
       transition-duration: 500ms;
     }
   }
+}
+
+::v-deep {
+  .u-drawer-content, .u-picker-header, .u-datetime-picker {
+    border-radius: 30rpx;
+  }
+}
+
+.upload {
+  position: fixed;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -999;
+  pointer-events: none;
 }

@@ -74,7 +74,7 @@
             <i class="far fa-comment"/>
             <text>{{ trend.commentNumber }}</text>
           </view>
-          <view class="comment-btn" @click.stop>
+          <view class="comment-btn" @click.stop="moreAction(trend)">
             <i class="fas fa-ellipsis"/>
           </view>
         </view>
@@ -259,6 +259,29 @@
                     }
                 });
             },
+            /**
+             * 动态的更多操作按钮点击事件
+             * @param {Object} trend 动态
+             */
+            moreAction(trend) {
+                uni.showActionSheet({
+                    itemList: ['复制内容', '举报'],
+                    success: res => {
+                        if (res.tapIndex === 0) {
+                            uni.setClipboardData({
+                                data: trend.content
+                            });
+                        }
+                        else {
+                            this.$refs.toast.show({
+                                text: '举报成功',
+                                type: 'success',
+                                direction: 'top'
+                            });
+                        }
+                    }
+                });
+            }
         },
         onReachBottom() {
             this.utils.throttle(() => {
