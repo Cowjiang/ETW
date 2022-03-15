@@ -18,43 +18,11 @@
             }
         },
         {
-            "path": "pages/testPage/testPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "disableScroll": true
-            }
-        },
-        {
-            "path": "pages/addressBook/subpages/editAddress/editAddress",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/addressBook/addressBook",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/chatList/chatList",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
                 "disableScroll": true,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/amap/amap",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
             }
         },
@@ -69,7 +37,7 @@
             "path": "pages/trending/trending",
             "style": {
                 "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
+                "enablePullDownRefresh": true,
                 "navigationStyle": "custom"
             }
         },
@@ -116,7 +84,7 @@
             }
         },
         {
-            "path": "pages/trending/subpages/trendPostPage",
+            "path": "pages/trending/subpages/trendEdit/trendEdit",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
@@ -124,26 +92,11 @@
             }
         },
         {
-            "path": "pages/trending/subpages/trendDetailPage",
+            "path": "pages/trending/subpages/trendDetail/trendDetail",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/trending/subpages/trendDetailCommentPage",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/testPage/testPage2",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
             }
         },
         {
@@ -158,6 +111,30 @@
         {
             "root": "pagesByStore",
             "pages": [
+                {
+                    "path": "addressBook/subpages/editAddress/editAddress",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "addressBook/addressBook",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "amap/amap",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
                 {
                     "path": "userSearch/userSearch",
                     "style": {
@@ -199,7 +176,6 @@
                         "navigationStyle": "custom"
                     }
                 },
-
                 {
                     "path": "order/subpages/orderDetail/orderDetail",
                     "style": {
@@ -214,6 +190,14 @@
                         "navigationBarTitleText": "",
                         "enablePullDownRefresh": false,
                         "disableScroll": true,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "myUserProfile/myUserProfile",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
                         "navigationStyle": "custom"
                     }
                 },

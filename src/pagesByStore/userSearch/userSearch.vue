@@ -9,7 +9,7 @@
         <view
           class="input"
           :style="{width: `${showResult ? '100%' : 'calc(100% - 90rpx)'}`}">
-          <i class="fa fa-search" aria-hidden="true"></i>
+          <i class="fa fa-search"/>
           <input
             type="text"
             v-model="searchValue"
@@ -291,13 +291,9 @@
             }
         },
         mounted() {
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
         onShow() {
             this.$refs.navigationBar.setNavigation({

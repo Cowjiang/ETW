@@ -78,6 +78,12 @@ export const getUser = (requestConfig) => apiRequest(`${httpBaseUrl}/getUser`, {
     requestConfig
 });
 
+//获取简要用户信息
+export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam.userId}`, {
+    method: "GET",
+    requestConfig,
+});
+
 //获取黑名单
 export const getBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list`, {
     method: "GET",
@@ -85,13 +91,13 @@ export const getBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/b
 });
 
 //添加到黑名单
-export const addBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, {
+export const addToBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam.userId}`, {
     method: "POST",
     requestConfig,
 });
 
 //从黑名单中移除
-export const deleteBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam}`, {
+export const removeFromBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list/${requestConfig.urlParam.userId}`, {
     method: "DELETE",
     requestConfig,
 });
@@ -112,6 +118,12 @@ export const addFriend = (requestConfig) => apiRequest(`${httpBaseUrl}/user/frie
 export const removeFriend = (requestConfig) => apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}`, {
     method: "DELETE",
     requestConfig,
+});
+
+//查询用户关系（是否在黑名单、是否关注）
+export const getUserRelationships = (requestConfig) => apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}/stat`, {
+    method: "GET",
+    requestConfig
 });
 
 //获取我的地址簿
@@ -194,14 +206,28 @@ export const postTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`,
     requestConfig
 });
 
-//获取最新动态
+//获取动态详情
+export const getTrendDetail = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取我发布的动态
 export const getMyTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
     method: "GET",
     requestConfig
 });
+
+//获取最新动态
 export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/news`, {
     method: "GET",
     requestConfig
+});
+
+// 删除动态
+export const deleteTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}`, {
+    method: "DELETE",
+    requestConfig,
 });
 
 //点赞
@@ -229,15 +255,9 @@ export const postTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseU
 });
 
 //获取动态评论的二级评论
-export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, {
+export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam}/comment`, {
     method: "GET",
     requestConfig
-});
-
-// 删除动态
-export const deleteTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.dynamicId}`, {
-    method: "DELETE",
-    requestConfig,
 });
 
 //私信相关

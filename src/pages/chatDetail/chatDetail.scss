@@ -20,14 +20,15 @@
   background-color: #fff;
 
   .top-btn-area {
-    display: flex;
     width: 100%;
     height: fit-content;
+    display: flex;
+    justify-content: center;
     position: fixed;
     z-index: 99;
     background-color: #fff;
 
-    view {
+    .btn__default {
       width: 100%;
       height: 70rpx;
       margin: 15rpx 40rpx;
@@ -38,21 +39,23 @@
       background-color: $uni-color-grey;
     }
 
-    view:nth-child(1) {
+    .btn__red {
+      color: #fff;
+      background-color: #f4756b;
+    }
+
+    .btn__default:nth-child(1) {
       margin-right: 10rpx;
     }
 
-    view:nth-child(2) {
+    .btn__default:nth-child(2) {
       margin-left: 10rpx;
     }
 
     .delete-blacklist {
-      margin-left: 60rpx !important;
-      margin-right: 60rpx !important;
-      //background-color: #f4756b;
       background-color: #fff;
       font-size: 28rpx;
-      line-height: 50rpx;
+      line-height: 60rpx;
       color: #f4756b;
     }
   }
@@ -188,7 +191,7 @@
       color: #666666;
       transition-duration: 200ms;
 
-      .fa:nth-child(1) {
+      .fas:nth-child(1) {
         letter-spacing: 40rpx;
       }
     }

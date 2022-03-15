@@ -23,7 +23,7 @@
             <view class="store-name">
               {{ order.storeSimpleInfo.name }}
             </view>
-            <i class="fa fa-angle-right" aria-hidden="true"/>
+            <i class="fa fas fa-angle-right"/>
             <view class="order-status" @click.stop>
               <view>
                 {{ order.stat | showOrderStatus }}
@@ -54,14 +54,14 @@
               <view class="commodity-price-container">
                 <view class="commodity-price">
                   <!--                    <view class="origin-price" v-if="commodity.discountPrice !== null">-->
-                  <!--                      {{ commodity.price | showPrice }}-->
+                  <!--                      {{ commodity.price | formatPrice }}-->
                   <!--                    </view>-->
                   <view class="discount-price">
-                    {{ commodity.totalFee | showPrice }}
+                    {{ commodity.totalFee | formatPrice }}
                   </view>
                 </view>
                 <view class="commodity-amount">
-                  {{ commodity.num | showAmount }}
+                  {{ commodity.num | formatAmount }}
                 </view>
               </view>
             </view>
@@ -72,7 +72,7 @@
                     共 {{ order.totalCount }} 件商品，合计
                   </view>
                   <view class="price">
-                    {{ order.totalPayment | showPrice }}
+                    {{ order.totalPayment | formatPrice }}
                   </view>
                 </view>
               </view>
@@ -245,32 +245,6 @@
         },
         filters: {
             /**
-             * 格式化价格显示
-             * @param {Number} price 价格
-             * @return {String} 格式化后的价格
-             */
-            showPrice(price) {
-                if (typeof price !== "number") {
-                    return `￥NaN`;
-                }
-                else {
-                    return `￥${price / 100.0}`;
-                }
-            },
-            /**
-             * 格式化商品数量显示
-             * @param {Number} amount 商品数量
-             * @return {String} 格式化后的商品数量
-             */
-            showAmount(amount) {
-                if (typeof amount !== "number") {
-                    return `x NaN`;
-                }
-                else {
-                    return `x ${amount}`;
-                }
-            },
-            /**
              * 格式化商品描述显示
              * @param {Array|undefined} customItems 商品的自定义选项数组
              * @return {String} 格式化后的商品描述文字
@@ -285,14 +259,6 @@
                     }
                 }
                 return description;
-            },
-            /**
-             * 格式化时间显示
-             * @param {String} timestamp 时间戳
-             * @return {String} 格式化后的时间
-             */
-            showDateTime(timestamp) {
-                return dateFilter(timestamp, "yy-mm-dd hh:mm:ss");
             },
             /**
              * 显示订单状态
@@ -333,13 +299,9 @@
         },
         onLoad() {
             this.$refs.loading.startLoading();
-            uni.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight();
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
         async onShow() {
             await this.getOrderList();

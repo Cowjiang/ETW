@@ -78,17 +78,19 @@ export class Utils {
 
     // 获取当前页面URL及参数
     getCurrentPage() {
-        let routes = getCurrentPages(); //获取当前打开过的页面路由数组
-        let curRoute = routes[routes.length - 1].route; //获取当前页面路由
-        let curParam = routes[routes.length - 1].options; //获取路由参数
+        const routes = getCurrentPages(); //获取当前打开过的页面路由数组
+        const curRoute = routes[routes.length - 1].route; //获取当前页面路由
+        const curParam = routes[routes.length - 1].options; //获取路由参数
+        const curFullUrl = routes[routes.length - 1].$page.fullPath;
         // 拼接参数
         let param = '';
         for (let key in curParam) {
             param += '&' + key + '=' + curParam[key];
         }
         return {
-            curUrl: curRoute,
-            curParam: curParam
+            curFullUrl: curFullUrl, //{String} 页面完整路径（含参数）
+            curUrl: curRoute, //{String} 页面路径（不含参数）
+            curParam: curParam, //{Object} 页面参数
         };
     }
     /**

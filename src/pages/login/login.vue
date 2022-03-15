@@ -15,7 +15,7 @@
       }">
       <!-- 启动界面背景图 -->
       <image
-        src="../../static/images/background/background@splashScreen.png"
+        src="@/static/images/background/background@splashScreen.png"
         class="bg-image"
       ></image>
       <!-- LOGO容器 -->
@@ -30,7 +30,7 @@
     <view class="login-screen">
       <!-- 登录界面背景图 -->
       <image
-        src="../../static/images/background/background@loginScreen.png"
+        src="@/static/images/background/background@loginScreen.png"
         class="bg-image"
         :class="loginScreenAnimation"></image>
       <!-- 登录表单 -->
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-    import navigationBar from "../../components/navigationBar/navigationBar";
+    import navigationBar from "@/components/navigationBar/navigationBar";
     import loginForm from "@/pages/login/subpages/loginForm";
     import registerForm from "@/pages/login/subpages/registerForm";
     import captchaForm from "@/pages/login/subpages/captchaForm";

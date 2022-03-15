@@ -6,16 +6,14 @@
     <storeInfoPopup
       v-model="showStoreInfoPopup"
       :info="storeInfo"
-      @close="showStoreInfoPopup = false"
-    >
+      @close="showStoreInfoPopup = false">
     </storeInfoPopup>
     <selectTimePopup
       class="select-time-popup"
       v-model="showSelectTimePopup"
       :timeLimit="reservationTimeLimit"
       @cancel="showSelectTimePopup = false"
-      @confirm="handleReservationTimeConfirm"
-    >
+      @confirm="handleReservationTimeConfirm">
     </selectTimePopup>
     <view class="order-container">
       <view class="address-container">
@@ -25,8 +23,7 @@
             class="tag--default"
             :class="isTakeOut ? 'tag--unselect tag-left--unselect' : 'tag--selected tag-left--selected'"
             data-name="tagLeft"
-            @click="handleChangeTags"
-          >
+            @click="handleChangeTags">
             到店自取
           </view>
           <!-- 外卖配送的标签 -->
@@ -34,8 +31,7 @@
             class="tag--default tag--right"
             :class="isTakeOut ? 'tag--selected tag-right--selected' : 'tag--unselect tag-right--unselect'"
             data-name="tagRight"
-            @click="handleChangeTags"
-          >
+            @click="handleChangeTags">
             外卖配送
           </view>
         </view>
@@ -48,12 +44,12 @@
                   {{ storeInfo.name }}
                 </view>
                 <view class="store-address">
-                  <i class="fa fa-map-marker" aria-hidden="true"></i>
+                  <i class="fas fa-location-dot"/>
                   {{ storeInfo.addressDetails }}
                 </view>
               </view>
               <view class="store-btn">
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                <i class="fas fa-angle-right" aria-hidden="true"></i>
               </view>
             </view>
             <view class="contact-info-container">
@@ -64,10 +60,9 @@
                 <view
                   class="contact-placeholder--default name-placeholder"
                   :style="{ opacity: `${contactName === '' ? '1' : '0'}` }"
-                  @click="handleContactNameFocus"
-                >
-                  请输入姓名
-                  <i class="fa fa-angle-right" aria-hidden="true"></i>
+                  @click="handleContactNameFocus">
+                  <text>请输入姓名</text>
+                  <i class="fas fa-angle-right"/>
                 </view>
                 <view class="contact-value">
                   <input type="text" v-model="contactName" maxlength="10"/>
@@ -75,15 +70,14 @@
               </view>
               <view class="contact-phone">
                 <view class="contact-title--default">
-                  <i class="fa fa-mobile" aria-hidden="true"></i>
+                  <i class="fas fa-mobile-screen-button"/>
                 </view>
                 <view
                   class="contact-placeholder--default"
                   :style="{ opacity: `${contactPhone === '' ? '1' : '0'}` }"
-                  @click="handleContactPhoneFocus"
-                >
-                  请输入手机号
-                  <i class="fa fa-angle-right" aria-hidden="true"></i>
+                  @click="handleContactPhoneFocus">
+                  <text>请输入手机号</text>
+                  <i class="fas fa-angle-right"/>
                 </view>
                 <view class="contact-value">
                   <input type="number" v-model="contactPhone" maxlength="11"/>
@@ -92,11 +86,11 @@
             </view>
             <view class="time-container" @click="handleReservationTimeClick">
               <view class="contact-title--default">
-                <i class="fa fa-clock-o" aria-hidden="true"></i>
+                <i class="fas fa-clock"/>
               </view>
               <view class="contact-placeholder--default">
                 {{ reservationTime === "" ? "请选择自取时间" : "自取时间" }}
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                <i class="fas fa-angle-right"/>
               </view>
               <view class="contact-value" v-if="reservationTime !== ''">
                 {{ reservationTime }}
@@ -119,7 +113,7 @@
                 </view>
               </view>
               <view class="my-address-btn">
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                <i class="fas fa-angle-right"/>
               </view>
             </view>
           </view>
@@ -167,14 +161,14 @@
             <view class="commodity-price-container">
               <view class="commodity-price">
                 <view class="origin-price" v-if="commodity.discountPrice !== null">
-                  {{ commodity.originPrice | showPrice }}
+                  {{ commodity.originPrice | formatPrice }}
                 </view>
                 <view class="discount-price">
-                  {{ commodity.discountPrice === null ? commodity.originPrice : commodity.discountPrice | showPrice }}
+                  {{ commodity.discountPrice === null ? commodity.originPrice : commodity.discountPrice | formatPrice }}
                 </view>
               </view>
               <view class="commodity-amount">
-                {{ commodity.amount | showAmount }}
+                {{ commodity.amount | formatAmount }}
               </view>
             </view>
           </view>
@@ -182,13 +176,13 @@
             <view class="delivery-price">
               配送费
               <view class="price">
-                {{ deliveryFee | showPrice }}
+                {{ deliveryFee | formatPrice }}
               </view>
             </view>
             <view class="packaging-price">
               打包费
               <view class="price">
-                {{ packagingFee | showPrice }}
+                {{ packagingFee | formatPrice }}
               </view>
             </view>
             <view class="coupon" @click="showCoupons = true">
@@ -198,7 +192,7 @@
                 {{
                   currentCouponIndex === 0 ? "暂无可用" : `满${couponsEnable[currentCouponIndex].withAmount / 100.0}减${couponsEnable[currentCouponIndex].usedAmount / 100.0}`
                 }}
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                <i class="fas fa-angle-right"/>
               </view>
             </view>
           </view>
@@ -206,7 +200,7 @@
             <view class="total-price-description">
               共 {{ commodityCount }} 件商品，合计
               <view class="total-price">
-                {{ totalPrice | showPrice }}
+                {{ totalPrice | formatPrice }}
               </view>
             </view>
           </view>
@@ -217,7 +211,7 @@
           <view>备注</view>
           <view class="select-remark__default">
             <view class="content">{{ orderRemarks === "" ? "口味、餐具数量等" : orderRemarks }}</view>
-            <i class="fa fa-angle-right" aria-hidden="true"></i>
+            <i class="fas fa-angle-right"/>
           </view>
         </view>
         <view class="payment-method">
@@ -229,14 +223,14 @@
         <view class="discount-price">
           已优惠
           {{
-            currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | showPrice
+            currentCouponId == 0 ? totalDiscount : (totalDiscount + couponsEnable[currentCouponIndex].usedAmount) | formatPrice
           }}
         </view>
         <view class="total-price">
           <text style="font-size: 30rpx">
             <text style="font-size: 42rpx">
               {{
-                currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | showPrice
+                currentCouponId == 0 ? parseInt(orderPrice) : (parseInt(orderPrice) - couponsEnable[currentCouponIndex].usedAmount) | formatPrice
               }}
               <!-- <text style="font-size: 30rpx">
                 {{ orderPrice.toString().split(".")[1] || "00" }}
@@ -409,9 +403,9 @@
                             if (res.tapIndex === 0) {
                                 //从地址簿中选择
                                 uni.navigateTo({
-                                    url: "/pages/addressBook/addressBook",
+                                    url: "/pagesByStore/addressBook/addressBook",
                                     events: {
-                                        acceptDataFromOpenedPage: (data) => {
+                                        acceptDataFromOpenedPage: data => {
                                             if (data) {
                                                 this.takeOutInfo = data.address;
                                             }
@@ -425,9 +419,9 @@
                             else {
                                 //新建地址
                                 uni.navigateTo({
-                                    url: "/pages/addressBook/subpages/editAddress",
+                                    url: "/pagesByStore/addressBook/subpages/editAddress/editAddress",
                                     events: {
-                                        acceptDataFromOpenedPage: (data) => {
+                                        acceptDataFromOpenedPage: data => {
                                             if (data) {
                                                 this.takeOutInfo = {
                                                     id: data.address.id,
@@ -568,53 +562,10 @@
                 return this.isTakeOut ? this.takeOutInfo.id != null : !(this.contactName === '' || this.contactPhone === '' || this.reservationTime === '');
             }
         },
-        filters: {
-            /**
-             * 格式化价格显示
-             * @param {Number} price 价格
-             * @return {String} 格式化后的价格
-             */
-            showPrice(price) {
-                return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
-            },
-            /**
-             * 格式化商品数量显示
-             * @param {Number} amount 商品数量
-             * @return {String} 格式化后的商品数量
-             */
-            showAmount(amount) {
-                return typeof amount !== "number" ? `x NaN` : `x ${amount}`;
-            },
-            /**
-             * 格式化联系人姓名
-             * @param {String} contactName 联系人姓名（未格式化的）
-             * @return {String} 格式化后的联系人姓名
-             */
-            formatContactName(contactName) {
-                if (contactName) {
-                    if (contactName.endsWith("{#先生}")) {
-                        return `${contactName.replace("{#先生}", "")}（先生）`;
-                    }
-                    else if (contactName.endsWith("{#女士}")) {
-                        return `${contactName.replace("{#女士}", "")}（女士）`;
-                    }
-                    else {
-                        return contactName;
-                    }
-                }
-                else return '';
-            },
-        },
-        mounted() {
-        },
         onLoad() {
-            wx.getSystemInfo({
-                success: (res) => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
             try {
                 // 渲染订单列表
                 const eventChannel = this.getOpenerEventChannel();
@@ -715,12 +666,6 @@
                 titleText: "确认订单",
                 backgroundColor: "#f6f6f6",
             });
-        },
-        onHide() {
-        },
-        onUnload() {
-        },
-        beforeDestroy() {
         },
     };
 </script>

@@ -1,4 +1,5 @@
-import { Utils } from "@/common/js/utils/utils.js"
+import {Utils} from "@/common/js/utils/utils.js"
+import store from '@/common/js/store'
 
 /**
  *封装请求
@@ -42,9 +43,8 @@ export const apiRequest = (url, paramObject) => {
         }
     }
     //判断有无cookie
-    if (uni.getStorageSync("cookie") != undefined) {
-        let cookie = uni.getStorageSync("cookie");
-        headerData["cookie"] = cookie;
+    if (uni.getStorageSync("cookie") !== undefined) {
+        headerData["cookie"] = uni.getStorageSync("cookie");
     }
     return new Promise((resolve, reject) => {
         uni.request({
@@ -71,7 +71,7 @@ export const apiRequest = (url, paramObject) => {
                 else {
                     switch (errorCode) {
                         case 200:
-                            if (res.header["Set-Cookie"] != undefined) {
+                            if (res.header["Set-Cookie"] !== undefined) {
                                 uni.setStorageSync('cookie', res.header["Set-Cookie"])
                             }
                             resolve(res.data);
@@ -92,8 +92,9 @@ export const apiRequest = (url, paramObject) => {
                                 break;
                             }
                             else {
+                                store.commit('currentPageUrl', currentPage.curFullUrl);
                                 uni.redirectTo({
-                                    url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
+                                    url: `/pages/login/wxLogin`
                                 });
                                 // reject(res);
                                 break;

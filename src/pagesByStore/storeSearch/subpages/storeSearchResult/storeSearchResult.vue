@@ -28,7 +28,7 @@
             <view class="info">
               <view class="name">
                 <text>{{ store.name }}</text>
-                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                <i class="fas fa-ellipsis-v"/>
               </view>
               <view class="score-container">
                 <u-rate
@@ -203,7 +203,7 @@
              */
             formatPerCost(perCost) {
                 const perCostNumber = Number(perCost);
-                return !isNaN(perCost) && perCost > 0 ? `￥${perCostNumber}/人` : '';
+                return !isNaN(perCost) && perCost > 0 ? `￥${Math.ceil(perCostNumber / 100)}/人` : '';
             },
             // 格式化距离显示
             formatDistance(distance) {
@@ -242,13 +242,9 @@
                     console.error(err);
                 },
             });
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
     };
 </script>

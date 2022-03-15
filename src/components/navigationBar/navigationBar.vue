@@ -17,13 +17,16 @@
       }">
       <view
         :style="{
-          width: `${navigationButtonWidth}px`,
           marginLeft: `${navigationButtonHorizontalMargin}px`,
+          minWidth: `${navigationButtonWidth}px`
         }">
         <!-- 导航栏左侧胶囊按钮插槽 -->
         <slot>
           <!-- 胶囊按钮模板 -->
-          <view class="navigation-menu-button" v-if="isShowButton">
+          <view
+            class="navigation-menu-button"
+            :style="{width: `${navigationButtonWidth}px`}"
+            v-if="isShowButton">
             <view
               class="navigation-menu-button-content"
               :style="{
@@ -31,18 +34,10 @@
                 margin: `${0.23 * navigationBarHeight}px 0`,
               }">
               <view class="navigation-back" @click="backButtonClickEvent">
-                <image
-                  src="../../static/images/navigation/navigation@back.png"
-                  class="navigation-back-image"
-                  mode="heightFix">
-                </image>
+                <i class="fas fa-angle-left"/>
               </view>
               <view class="navigation-home" @click="homeButtonClickEvent">
-                <image
-                  src="../../static/images/navigation/navigation@home.png"
-                  class="navigation-home-image"
-                  mode="heightFix">
-                </image>
+                <i class="fas fa-house"/>
               </view>
             </view>
           </view>
@@ -178,13 +173,9 @@
         },
         beforeMount() {
             //获取设备信息
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            });
-            let {width, height, left, right, top, bottom} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            let {width, height, left, right, top, bottom} = uni.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
             [
                 this.navigationBarTop,
                 this.navigationBarHeight,

@@ -35,15 +35,14 @@
   .btn-list {
     width: 100%;
     height: fit-content;
-    padding: 0 40rpx;
+    padding: 0 80rpx;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
     align-self: center;
 
     .btn {
-      width: 40%;
+      width: calc(50% - 20rpx);
       height: 80rpx;
       margin: 14rpx 10rpx;
       background-color: #f6f6f6;

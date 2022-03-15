@@ -20,7 +20,7 @@
           微信一键登录
         </button>
         <view class="username-login" @click="usernameLogin">
-          输入账号登录/注册
+          输入账号登录
         </view>
       </view>
       <view class="bottom-container">
@@ -30,7 +30,7 @@
           :label-disabled="false"
           active-color="#f4756b"
           label-size="28"
-          size="28">
+          size="36">
           <span>
             我已阅读并同意
             <span style="color: #f4756b">食途用户协议、隐私协议</span>
@@ -78,10 +78,11 @@
                                     //登陆成功
                                     if (isNewUser) {
                                         //新用户第一次登录
-                                        wx.setStorage({
+                                        uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
+                                                this.$store.commit('userInfo', res.data);
                                                 this.$refs.loading.stopLoading();
                                                 this.getUserProfile();
                                             },
@@ -90,13 +91,17 @@
                                     else {
                                         //老用户
                                         this.$refs.loading.stopLoading();
-                                        wx.setStorage({
+                                        uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
-                                                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                                                this.$store.commit('userInfo', res.data);
+                                                const redirectPage = this.$store.state.currentPageUrl ?? null;
                                                 uni.redirectTo({
-                                                    url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                    url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`,
+                                                    fail: err => {
+                                                        console.error(err);
+                                                    }
                                                 });
                                             },
                                         });
@@ -197,7 +202,7 @@
             },
             // 获取用户手机号
             getUserPhone() {
-                const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                const redirectPage = this.$store.state.currentPageUrl ?? null;
                 uni.navigateTo({
                     url: '/pages/login/wxRegisterPhone',
                     events: {
@@ -206,7 +211,7 @@
                                 this.$refs.loading.startLoading();
                                 setTimeout(() => {
                                     uni.redirectTo({
-                                        url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`
+                                        url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`
                                     });
                                 }, 300);
                             }
@@ -225,7 +230,7 @@
             usernameLogin() {
                 this.utils.throttle(() => {
                     if (this.agreeCheckbox) {
-                        const redirectPage = this.utils.getCurrentPage().curParam.redirectPath || null;
+                        const redirectPage = this.$store.state.currentPageUrl ?? null;
                         uni.navigateTo({
                             url: `/pages/login/login`,
                             events: {
@@ -234,7 +239,7 @@
                                         this.$refs.loading.startLoading();
                                         setTimeout(() => {
                                             uni.redirectTo({
-                                                url: `/${redirectPage === null ? "pages/index/index" : redirectPage}`
+                                                url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`
                                             });
                                         }, 300);
                                     }

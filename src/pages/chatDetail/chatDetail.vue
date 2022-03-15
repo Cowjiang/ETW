@@ -11,8 +11,17 @@
         class="top-btn-area"
         :style="{top: `${navigationHeight}px`}"
         v-if="!isBlocked && isReadyToShow">
-        <view>关注TA</view>
-        <view @click="handleBlockBtnClick">加入黑名单</view>
+        <view
+          class="btn__default"
+          :class="isFocused ? '' : 'btn__red'"
+          @click="handleFocusBtnClick">
+          {{ isFocused ? '已关注' : '关注TA' }}
+        </view>
+        <view
+          class="btn__default"
+          @click="handleBlockBtnClick">
+          加入黑名单
+        </view>
       </view>
       <view
         class="top-btn-area"
@@ -71,13 +80,11 @@
               <image
                 v-if="message.isMe"
                 :src="myInfo.avgPath"
-                mode="widthFix"
-              ></image>
+                mode="widthFix"/>
               <image
                 v-if="!message.isMe"
                 :src="friendInfo.avgPath"
-                mode="widthFix"
-              ></image>
+                mode="widthFix"/>
             </view>
             <!-- 消息内容 -->
             <view
@@ -98,8 +105,7 @@
                 :data-name="`message${index}`"
                 mode="widthFix"
                 @longpress="handleLongPress"
-                @click="previewImage(message.content)"
-              ></image>
+                @click="previewImage(message.content)"/>
             </view>
           </view>
           <!-- 滚动区域底部 -->
@@ -123,17 +129,17 @@
             opacity: `${isBlocked ? 0.7 : 1}`
           }">
           <i
-            class="fa fa-picture-o"
+            class="fas fa-image"
             aria-hidden="true"
             :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
             @click="chooseImage(0)"></i>
           <i
-            class="fa fa-camera"
+            class="fas fa-camera"
             aria-hidden="true"
             :style="{opacity: `${inputFocusStatus ? '0': '1'}`}"
             @click="chooseImage(1)"></i>
           <i
-            class="fa fa-chevron-right"
+            class="fas fa-chevron-right"
             aria-hidden="true"
             :style="{opacity: `${inputFocusStatus ? '1': '0'}`}"></i>
         </view>
@@ -168,7 +174,7 @@
             class="send-btn-container"
             @click="sendMessage"
             :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
-            <i class="fa fa-paper-plane" aria-hidden="true"></i>
+            <i class="fas fa-paper-plane"/>
           </view>
         </view>
       </view>
@@ -192,8 +198,16 @@
     import toast from "@/components/toast/toast";
     import loading from "@/components/loading/loading";
     import upload from "@/components/upload/upload";
-    import {deleteChatHistory, getChatHistory, getUploadSignature, sendMessage} from "@/common/js/api/models.js";
+    import {
+        addFriend, addToBlockList,
+        deleteChatHistory,
+        getChatHistory,
+        getUploadSignature,
+        getUserRelationships, removeFriend, removeFromBlockList,
+        sendMessage
+    } from "@/common/js/api/models.js";
     import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
+    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -231,6 +245,7 @@
                 existMore: true, //是否存在更多历史消息
                 isReadyToShow: false, //是否加载消息记录完毕
                 isBlocked: false, //是否屏蔽该用户（黑名单）
+                isFocused: false, //是否已关注该用户
             }
         },
         methods: {
@@ -344,6 +359,19 @@
                         this.$forceUpdate();
                     }
                 }
+            },
+            // 获取与好友的关系（是否关注、是否屏蔽）
+            async getUserRelationships() {
+                await getUserRelationships({
+                    urlParam: {
+                        userId: this.friendInfo.userId
+                    }
+                }).then(res => {
+                    this.isBlocked = res.data.isBlocked;
+                    this.isFocused = res.data.isFriend;
+                }).catch(err => {
+                    console.error(err);
+                });
             },
             // 显示消息输入框
             showRawInput() {
@@ -625,20 +653,118 @@
                 this.refresherTriggered = 'restore';
             },
             // 黑名单按钮点击事件
-            handleBlockBtnClick() {
+            async handleBlockBtnClick() {
                 this.isReadyToShow = false;
                 this.rawInputValue = '';
                 this.inputFocusStatus = false;
                 this.keyboardHeight = 0;
+                if (this.isBlocked) {
+                    await removeFromBlockList({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isBlocked = false;
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '移除黑名单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                else {
+                    await addToBlockList({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isBlocked = true;
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '加入黑名单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
                 setTimeout(() => {
-                    this.isBlocked = !this.isBlocked;
-                    this.isReadyToShow = true;
                     this.rawInputValue = '';
                     this.inputFocusStatus = false;
                     this.isReadyToShow = true;
                     this.keyboardHeight = 0;
-                }, 1000);
-                this.$forceUpdate();
+                }, 500);
+            },
+            // 关注按钮点击事件
+            async handleFocusBtnClick() {
+                this.isReadyToShow = false;
+                this.rawInputValue = '';
+                this.inputFocusStatus = false;
+                this.keyboardHeight = 0;
+                if (this.isFocused) {
+                    await removeFriend({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isFocused = false;
+                        }
+                        else {
+                            console.error(res);
+                            this.$refs.toast.show({
+                                text: '取消关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '取消关注失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                else {
+                    await addFriend({
+                        urlParam: {
+                            userId: this.friendInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isFocused = true;
+                        }
+                        else {
+                            console.error(res);
+                            this.$refs.toast.show({
+                                text: '关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '关注失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                setTimeout(() => {
+                    this.rawInputValue = '';
+                    this.inputFocusStatus = false;
+                    this.isReadyToShow = true;
+                    this.keyboardHeight = 0;
+                }, 500);
             },
             // 重定向至聊天列表页
             redirectToChatList() {
@@ -649,6 +775,7 @@
             },
             // 开启Socket连接
             startCheckingUpdate() {
+                this.getUserRelationships();
                 if (this.messageRecords.length === 0) {
                     this._freshing = false; //还原下拉刷新状态
                     setTimeout(() => {
@@ -658,31 +785,23 @@
                 else {
                     this.$refs.loading.stopLoading();
                 }
-                //开启Socket连接
-                uni.getStorage({
-                    key: 'userInfo',
-                    success: res => {
-                        connectSocket(res.data.userId).then(res => {
-                            // this.$refs.toast.show({
-                            //     text: '网络异常',
-                            //     type: 'error',
-                            //     direction: 'top'
-                            // });
-                            uni.onSocketMessage(res => {
-                                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
-                            });
-                        }).catch(err => {
-                            console.error(err);
+                const userInfo = this.$store.state.userInfo;
+                if (userInfo) {
+                    connectSocket(userInfo.userId).then(res => {
+                        uni.onSocketMessage(res => {
+                            this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
                         });
-                    },
-                    fail: err => {
+                    }).catch(err => {
                         console.error(err);
-                        let currentPage = utils.getCurrentPage();
-                        uni.redirectTo({
-                            url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-                        });
-                    }
-                });
+                    });
+                }
+                else {
+                    const currentPage = this.utils.getCurrentPage();
+                    store.commit('currentPageUrl', currentPage.curFullUrl);
+                    uni.redirectTo({
+                        url: `/pages/login/wxLogin`
+                    });
+                }
             },
             // 关闭Socket连接
             stopCheckingUpdate() {
@@ -706,36 +825,6 @@
                 }
             }
         },
-        filters: {
-            /**
-             * 格式化时间
-             * @param {String} time 时间字符串
-             * @return {String} 格式化后的时间
-             */
-            formatTime(time) {
-                let messageDate = new Date(time);
-                let nowDate = new Date();
-                let messageTime = {
-                    year: messageDate.getFullYear(),
-                    month: messageDate.getMonth() + 1,
-                    day: messageDate.getDate(),
-                    hour: messageDate.getHours().toString().padStart(2, '0'),
-                    min: messageDate.getMinutes().toString().padStart(2, '0'),
-                    second: messageDate.getSeconds()
-                }
-                let nowTime = {
-                    year: nowDate.getFullYear(),
-                    month: nowDate.getMonth() + 1,
-                    day: nowDate.getDate()
-                }
-                if (messageTime.year === nowTime.year && messageTime.month === nowTime.month && messageTime.day === nowTime.day) {
-                    return `${messageTime.hour}:${messageTime.min}`;
-                }
-                else {
-                    return `${messageTime.year}-${messageTime.month}-${messageTime.day} ${messageTime.hour}:${messageTime.min}`;
-                }
-            }
-        },
         watch: {
             // 消息原始输入框的值
             rawInputValue(nval) {
@@ -756,13 +845,9 @@
             }
         },
         onLoad() {
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
         },
         onShow() {
             this.setChatBaseInfo(); //设置会话信息

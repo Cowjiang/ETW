@@ -47,7 +47,7 @@
             v-if="!isSelectMode"
             :data-name="`address${index}`"
             @click.stop="handleEdit">
-            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+            <i class="fas fa-pen"/>
           </view>
         </view>
         <!-- 加载更多容器 -->
@@ -345,7 +345,7 @@
                     address.contactName = contactNameTemp[0];
                     address.contactGender = contactNameTemp[1];
                     uni.navigateTo({
-                        url: '/pages/addressBook/subpages/editAddress/editAddress',
+                        url: '/pagesByStore/addressBook/subpages/editAddress/editAddress',
                         success: res => {
                             res.eventChannel.emit('editAddress', {data: address})
                         }
@@ -355,7 +355,7 @@
             // 新增地址按钮点击事件
             handleAddAddress() {
                 uni.navigateTo({
-                    url: '/pages/addressBook/subpages/editAddress',
+                    url: '/pagesByStore/addressBook/subpages/editAddress/editAddress'
                 });
             },
             // 监听屏幕触摸开始事件
@@ -473,9 +473,6 @@
                 this.waitingLoadMore = true;
             }
         },
-        mounted() {
-
-        },
         onLoad(options) {
             try {
                 const eventChannel = this.getOpenerEventChannel();
@@ -487,13 +484,9 @@
                 this.isSelectMode = false;
                 this.$forceUpdate();
             }
-            wx.getSystemInfo({
-                success: res => {
-                    this.windowWidth = res.windowWidth;
-                    this.windowHeight = res.windowHeight;
-                },
-            }); //获取窗口尺寸
-            this.navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
             this.$refs.loading.startLoading();
         },
         onShow() {
