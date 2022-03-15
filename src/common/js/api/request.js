@@ -1,4 +1,4 @@
-import { Utils } from "@/common/js/utils/utils.js"
+import {Utils} from "@/common/js/utils/utils.js"
 import store from '@/common/js/store'
 
 /**
@@ -43,9 +43,8 @@ export const apiRequest = (url, paramObject) => {
         }
     }
     //判断有无cookie
-    if (uni.getStorageSync("cookie") != undefined) {
-        let cookie = uni.getStorageSync("cookie");
-        headerData["cookie"] = cookie;
+    if (uni.getStorageSync("cookie") !== undefined) {
+        headerData["cookie"] = uni.getStorageSync("cookie");
     }
     return new Promise((resolve, reject) => {
         uni.request({
@@ -72,7 +71,7 @@ export const apiRequest = (url, paramObject) => {
                 else {
                     switch (errorCode) {
                         case 200:
-                            if (res.header["Set-Cookie"] != undefined) {
+                            if (res.header["Set-Cookie"] !== undefined) {
                                 uni.setStorageSync('cookie', res.header["Set-Cookie"])
                             }
                             resolve(res.data);

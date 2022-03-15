@@ -214,6 +214,7 @@
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
+                                                this.$store.commit('userInfo', res.data);
                                                 this.$emit('loginSuccess');
                                             },
                                         });
@@ -259,19 +260,20 @@
             },
             // 立即注册按钮点击事件
             registerNow() {
-                this.utils.throttle(() => {
-                    [
-                        this.usernameContainerStyle,
-                        this.passwordContainerStyle,
-                        this.usernamePlaceholderStyle,
-                        this.passwordPlaceholderStyle,
-                    ] = ["", "", "", ""]; //还原输入区域样式
-                    this.$parent.$refs.navigationBar.setNavigation({
-                        titleText: '注册',
-                        customBackFunc: this.$parent.toLoginScreen,
-                    });
-                    this.$parent.toRegisterScreen();
-                });
+                // this.utils.throttle(() => {
+                //     [
+                //         this.usernameContainerStyle,
+                //         this.passwordContainerStyle,
+                //         this.usernamePlaceholderStyle,
+                //         this.passwordPlaceholderStyle,
+                //     ] = ["", "", "", ""]; //还原输入区域样式
+                //     this.$parent.$refs.navigationBar.setNavigation({
+                //         titleText: '注册',
+                //         customBackFunc: this.$parent.toLoginScreen,
+                //     });
+                //     this.$parent.toRegisterScreen();
+                // });
+                uni.navigateBack();
             },
             // 微信登陆按钮点击事件
             wechatLogin() {

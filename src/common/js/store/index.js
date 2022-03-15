@@ -8,6 +8,7 @@ const state = {
     windowHeight: 0, //窗口高度
     navigationHeight: 0, //导航栏高度
     currentPageUrl: '', //当前页面Url
+    userInfo: null, //当前登录的用户信息
 };
 
 export default new vuex.Store({

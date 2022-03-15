@@ -224,6 +224,12 @@ export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic
     requestConfig
 });
 
+// 删除动态
+export const deleteTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}`, {
+    method: "DELETE",
+    requestConfig,
+});
+
 //点赞
 export const like = (requestConfig) => apiRequest(`${httpBaseUrl}/like/${requestConfig.urlParam}`, {
     method: "POST",
@@ -252,12 +258,6 @@ export const postTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseU
 export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam}/comment`, {
     method: "GET",
     requestConfig
-});
-
-// 删除动态
-export const deleteTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.dynamicId}`, {
-    method: "DELETE",
-    requestConfig,
 });
 
 //私信相关

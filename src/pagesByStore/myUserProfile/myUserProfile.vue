@@ -255,6 +255,7 @@
                 await uni.removeStorage({
                     key: 'userInfo'
                 });
+                this.$store.commit('userInfo', null);
                 uni.navigateTo({
                     url: '/pages/index/index'
                 });

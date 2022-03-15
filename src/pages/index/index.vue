@@ -203,6 +203,7 @@
                         await uni.removeStorage({
                             key: 'userInfo'
                         });
+                        this.$store.commit('userInfo', null);
                         this.$refs.toast.show({
                             text: `已清除登陆状态`,
                             direction: 'top',
@@ -211,6 +212,7 @@
                         break;
                     case 1:
                         uni.clearStorage();
+                        this.$store.commit('userInfo', null);
                         this.$refs.toast.show({
                             text: `已清除缓存`,
                             direction: 'top',

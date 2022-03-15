@@ -207,6 +207,7 @@
         sendMessage
     } from "@/common/js/api/models.js";
     import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
+    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -784,26 +785,23 @@
                 else {
                     this.$refs.loading.stopLoading();
                 }
-                //开启Socket连接
-                uni.getStorage({
-                    key: 'userInfo',
-                    success: res => {
-                        connectSocket(res.data.userId).then(res => {
-                            uni.onSocketMessage(res => {
-                                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
-                            });
-                        }).catch(err => {
-                            console.error(err);
+                const userInfo = this.$store.state.userInfo;
+                if (userInfo) {
+                    connectSocket(userInfo.userId).then(res => {
+                        uni.onSocketMessage(res => {
+                            this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
                         });
-                    },
-                    fail: err => {
+                    }).catch(err => {
                         console.error(err);
-                        let currentPage = utils.getCurrentPage();
-                        uni.redirectTo({
-                            url: `/pages/login/login?redirectPath=${currentPage.curUrl}`
-                        });
-                    }
-                });
+                    });
+                }
+                else {
+                    const currentPage = this.utils.getCurrentPage();
+                    store.commit('currentPageUrl', currentPage.curFullUrl);
+                    uni.redirectTo({
+                        url: `/pages/login/wxLogin`
+                    });
+                }
             },
             // 关闭Socket连接
             stopCheckingUpdate() {

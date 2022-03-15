@@ -230,7 +230,7 @@
     import loading from "@/components/loading/loading";
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
-        addFriend,
+        addFriend, deleteTrend,
         getTrendComment,
         getTrendDetail, getTrendSecondComment, getUserRelationships,
         like,
@@ -671,11 +671,13 @@
              */
             moreAction(type = 0, target) {
                 this.utils.throttle(() => {
+                    const userInfo = this.$store.state.userInfo;
+                    const isMe = userInfo.userId === target.userId;
                     if (type === 0) {
                         //动态
-                        wx.vibrateShort();
+                        uni.vibrateShort();
                         uni.showActionSheet({
-                            itemList: ['复制内容', '举报'],
+                            itemList: isMe ?  ['复制内容', '删除'] :  ['复制内容', '举报'],
                             success: res => {
                                 if (res.tapIndex === 0) {
                                     uni.setClipboardData({
@@ -683,17 +685,55 @@
                                     });
                                 }
                                 else {
-                                    this.$refs.toast.show({
-                                        text: '举报成功',
-                                        type: 'success'
-                                    });
+                                    if (isMe) {
+                                        uni.showModal({
+                                            title: '确定删除此动态吗？',
+                                            success: res => {
+                                                if (res.confirm) {
+                                                    deleteTrend({
+                                                        urlParam: {
+                                                            trendId: target.id
+                                                        }
+                                                    }).then(res => {
+                                                        if (res.success) {
+                                                            this.$refs.toast.show({
+                                                                text: '删除成功',
+                                                                type: 'success',
+                                                                direction: 'top'
+                                                            });
+                                                            setTimeout(() => {
+                                                                uni.redirectTo({
+                                                                    url: '/pages/trending/trending'
+                                                                });
+                                                            }, 1500);
+                                                        }
+                                                        else throw new Error(res);
+                                                    }).catch(err => {
+                                                        console.error(err);
+                                                        this.$refs.toast.show({
+                                                            text: '删除失败',
+                                                            type: 'error',
+                                                            direction: 'top'
+                                                        });
+                                                    })
+                                                }
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        this.$refs.toast.show({
+                                            text: '举报成功',
+                                            type: 'success',
+                                            direction: 'top'
+                                        });
+                                    }
                                 }
                             }
                         });
                     }
                     else {
                         uni.showActionSheet({
-                            itemList: ['复制内容', '举报'],
+                            itemList: isMe ?  ['复制内容', '删除'] :  ['复制内容', '举报'],
                             success: res => {
                                 if (res.tapIndex === 0) {
                                     uni.setClipboardData({
@@ -701,10 +741,25 @@
                                     });
                                 }
                                 else {
-                                    this.$refs.toast.show({
-                                        text: '举报成功',
-                                        type: 'success'
-                                    });
+                                    if (isMe) {
+                                        uni.showModal({
+                                            title: '确定删除此评论吗？',
+                                            success: res => {
+                                                if (res.confirm) {
+
+                                                }
+                                                else if (res.cancel) {
+
+                                                }
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        this.$refs.toast.show({
+                                            text: '举报成功',
+                                            type: 'success'
+                                        });
+                                    }
                                 }
                             }
                         });

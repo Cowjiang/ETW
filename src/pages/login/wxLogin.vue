@@ -20,7 +20,7 @@
           微信一键登录
         </button>
         <view class="username-login" @click="usernameLogin">
-          输入账号登录/注册
+          输入账号登录
         </view>
       </view>
       <view class="bottom-container">
@@ -30,7 +30,7 @@
           :label-disabled="false"
           active-color="#f4756b"
           label-size="28"
-          size="28">
+          size="36">
           <span>
             我已阅读并同意
             <span style="color: #f4756b">食途用户协议、隐私协议</span>
@@ -82,6 +82,7 @@
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
+                                                this.$store.commit('userInfo', res.data);
                                                 this.$refs.loading.stopLoading();
                                                 this.getUserProfile();
                                             },
@@ -94,6 +95,7 @@
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
+                                                this.$store.commit('userInfo', res.data);
                                                 const redirectPage = this.$store.state.currentPageUrl ?? null;
                                                 uni.redirectTo({
                                                     url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`,
