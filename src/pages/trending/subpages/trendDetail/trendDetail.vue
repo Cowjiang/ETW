@@ -746,10 +746,14 @@
                                             title: '确定删除此评论吗？',
                                             success: res => {
                                                 if (res.confirm) {
-
-                                                }
-                                                else if (res.cancel) {
-
+                                                    switch(type) {
+                                                        case 1:
+                                                            //删除一级评论
+                                                            break;
+                                                        case 2:
+                                                            //删除二级评论
+                                                            break;
+                                                    }
                                                 }
                                             }
                                         });
@@ -757,7 +761,8 @@
                                     else {
                                         this.$refs.toast.show({
                                             text: '举报成功',
-                                            type: 'success'
+                                            type: 'success',
+                                            direction: 'top'
                                         });
                                     }
                                 }

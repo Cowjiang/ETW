@@ -82,7 +82,7 @@
             class="row-content birthday"
             @click="showBirthdaySelector = true">
             <view class="content">
-              {{ userProfile.birthday || '' }}
+              {{ userProfile.birthday || '' | formatDateTime('yy-mm-dd') }}
             </view>
             <i class="fas fa-angle-right"/>
             <u-picker
@@ -159,8 +159,7 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
     import upload from "@/components/upload/upload";
-    import {getUploadSignature, logOut} from "@/common/js/api/models";
-    import store from "@/common/js/store";
+    import {editMyProfile, getMyProfile, getUploadSignature, logOut} from "@/common/js/api/models";
 
     export default {
         name: "myUserProfile",
@@ -206,7 +205,12 @@
              */
             handleUsernameChange(e) {
                 if (e.detail.value !== this.usernameTemp) {
-                    console.log('用户名更改为：', e.detail.value)
+                    this.submitChange({
+                        userId: this.userProfile.userId,
+                        username: e.detail.value
+                    }).then(() => {
+                        this.$set(this.userProfile, 'username', e.detail.value);
+                    });
                 }
             },
             /**
@@ -215,7 +219,12 @@
              */
             handleRealNameChange(e) {
                 if (e.detail.value !== this.realNameTemp) {
-                    console.log('真实姓名更改为：', e.detail.value)
+                    this.submitChange({
+                        userId: this.userProfile.userId,
+                        realName: e.detail.value
+                    }).then(() => {
+                        this.$set(this.userProfile, 'realName', e.detail.value);
+                    });
                 }
             },
             /**
@@ -223,27 +232,72 @@
              * @param {Array} gender 性别
              */
             handleGenderChange(gender) {
-                this.$set(this.userProfile, 'gender', gender[0].value);
+                if (gender[0].value !== this.userProfile.gender) {
+                    this.submitChange({
+                        userId: this.userProfile.userId,
+                        gender: gender[0].value
+                    }).then(() => {
+                        this.$set(this.userProfile, 'gender', gender[0].value);
+                    });
+                }
             },
             /**
              * 出生日期更改回调事件
              * @param {Object} birthday 生日日期
              */
             handleBirthdayChange(birthday) {
-                this.$set(this.userProfile, 'birthday', `${birthday.year}-${birthday.month}-${birthday.day}`);
+                if (`${birthday.year}-${birthday.month}-${birthday.day}` !== this.userProfile.birthday) {
+                    this.submitChange({
+                        userId: this.userProfile.userId,
+                        birthday: `${birthday.year}-${birthday.month}-${birthday.day}`
+                    }).then(() => {
+                        this.$set(this.userProfile, 'birthday', `${birthday.year}-${birthday.month}-${birthday.day}`);
+                    });
+                }
             },
             /**
              * 地区更改回调事件
              * @param {Object} area 地区信息
              */
             handleAreaChange(area) {
-                this.$set(this.userProfile, 'areaCode', area.area.value);
-                this.$set(this.userProfile, 'areaName', `${area.province.label}${area.city.label}${area.area.label}`);
+                if (area.area.value !== this.userProfile.areaCode) {
+                    this.submitChange({
+                        userId: this.userProfile.userId,
+                        areaCode: area.area.value
+                    }).then(() => {
+                        this.$set(this.userProfile, 'areaCode', area.area.value);
+                        this.$set(this.userProfile, 'areaName', `${area.province.label}${area.city.label}${area.area.label}`);
+                    });
+                }
             },
             // 跳转地址簿
             toAddressBook() {
                 uni.navigateTo({
                     url: '/pagesByStore/addressBook/addressBook'
+                });
+            },
+            /**
+             * 提交更改
+             * @param {Object} data 提交的数据
+             * @return {Promise}
+             */
+            submitChange(data) {
+                return new Promise((resolve, reject) => {
+                    editMyProfile({
+                        queryData: data
+                    }).then(res => {
+                        if (res.success) {
+                            resolve();
+                        }
+                        else throw new Error(res);
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '修改失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
                 });
             },
             // 退出登录
@@ -293,7 +347,12 @@
             },
             // 头像上传成功回调事件
             onUploadSuccess() {
-                this.$set(this.userProfile, 'avgPath', this.avatarUploadUrl);
+                this.submitChange({
+                    userId: this.userProfile.userId,
+                    avgPath: this.avatarUploadUrl
+                }).then(() => {
+                    this.$set(this.userProfile, 'avgPath', this.avatarUploadUrl);
+                });
             }
         },
         computed: {
@@ -304,9 +363,7 @@
                         const queryResult = this.$refs.selectArea.queryAreaName(this.userProfile.areaCode);
                         return queryResult ? `${queryResult[0]}${queryResult[1]}${queryResult[2]}` : '';
                     }
-                    else {
-                        return '';
-                    }
+                    else return '';
                 }
             }
         },
@@ -325,19 +382,31 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
-            await uni.getStorage({
-                key: 'userInfo',
-                success: res => {
+            await getMyProfile().then(res => {
+                if (res.success) {
+                    console.log(res.data);
                     this.userProfile = res.data;
-                },
-                fail: () => {
-                    const currentPage = this.utils.getCurrentPage();
-                    store.commit('currentPageUrl', currentPage.curFullUrl);
-                    uni.redirectTo({
-                        url: `/pages/login/wxLogin`
+                }
+                else throw new Error(res);
+            }).catch(err => {
+                console.error(err);
+            })
+        },
+        beforeDestroy() {
+            getMyProfile().then(res => {
+                if (res.success) {
+                    uni.setStorage({
+                        key: "userInfo",
+                        data: res.data,
+                        success: () => {
+                            this.$store.commit('userInfo', res.data);
+                        },
                     });
                 }
-            });
+                else throw new Error(res);
+            }).catch(err => {
+                console.error(err);
+            })
         }
     }
 </script>

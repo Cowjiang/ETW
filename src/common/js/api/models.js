@@ -84,6 +84,18 @@ export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/u
     requestConfig,
 });
 
+//获取我的个人资料
+export const getMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/current/info`, {
+    method: "GET",
+    requestConfig
+});
+
+//编辑我的个人资料
+export const editMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/profile`, {
+    method: "PUT",
+    requestConfig
+});
+
 //获取黑名单
 export const getBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list`, {
     method: "GET",
