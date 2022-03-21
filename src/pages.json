@@ -202,6 +202,14 @@
                     }
                 },
                 {
+                    "path": "myUserProfile/subpages/selectSchool/selectSchool",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "dish/dishFormPage",
                     "style": {
                         "navigationBarTitleText": "",

@@ -2,7 +2,7 @@
   <view>
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
-
+    <loading ref="loading" fullscreen/>
     <view
       class="my-user-profile-container"
       :style="{height: `${windowHeight - navigationHeight}px`}">
@@ -119,9 +119,9 @@
           </view>
           <view
             class="row-content"
-            @click="">
+            @click="handleSchoolChange">
             <view class="content">
-
+              {{ userProfile.schoolName || '' }}
             </view>
             <i class="fas fa-angle-right"/>
           </view>
@@ -170,6 +170,7 @@
 <script>
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
+    import loading from "@/components/loading/loading";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
     import upload from "@/components/upload/upload";
     import {editMyProfile, getMyProfile, getSchoolList, getUploadSignature, logOut} from "@/common/js/api/models";
@@ -177,7 +178,7 @@
     export default {
         name: "myUserProfile",
         components: {
-            toast, navigationBar, selectArea, upload
+            toast, navigationBar, loading, selectArea, upload
         },
         data() {
             return {
@@ -282,6 +283,24 @@
                         this.$set(this.userProfile, 'areaName', `${area.province.label}${area.city.label}${area.area.label}`);
                     });
                 }
+            },
+            handleSchoolChange() {
+                uni.navigateTo({
+                    url: '/pagesByStore/myUserProfile/subpages/selectSchool/selectSchool',
+                    events: {
+                        onSchoolSelected: data => {
+                            if (data) {
+                                this.submitChange({
+                                    userId: this.userProfile.userId,
+                                    schoolId: data.schoolInfo.schoolId
+                                }).then(() => {
+                                    this.$set(this.userProfile, 'schoolName', data.schoolInfo.schoolName);
+                                    this.$set(this.userProfile, 'schoolId', data.schoolInfo.schoolId);
+                                });
+                            }
+                        }
+                    }
+                });
             },
             // 跳转地址簿
             toAddressBook() {
@@ -395,18 +414,7 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
-            await getSchoolList({
-                urlParam: {
-                    province: '44',
-                    city: '01',
-                    area: '',
-                    keywords: ''
-                }
-            }).then(res => {
-                console.log(res);
-            }).catch(err => {
-                console.error(err)
-            });
+            this.$refs.loading.startLoading();
             await getMyProfile().then(res => {
                 if (res.success) {
                     this.userProfile = res.data;
@@ -414,7 +422,9 @@
                 else throw new Error(res);
             }).catch(err => {
                 console.error(err);
-            })
+            }).finally(() => {
+                this.$refs.loading.stopLoading();
+            });
         },
         beforeDestroy() {
             getMyProfile().then(res => {
@@ -430,7 +440,7 @@
                 else throw new Error(res);
             }).catch(err => {
                 console.error(err);
-            })
+            });
         }
     }
 </script>
