@@ -115,6 +115,19 @@
         </view>
         <view class="profile-row">
           <view class="row-title">
+            我的学校
+          </view>
+          <view
+            class="row-content"
+            @click="">
+            <view class="content">
+
+            </view>
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view class="profile-row">
+          <view class="row-title">
             绑定微信
           </view>
           <view class="row-content">
@@ -159,7 +172,7 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
     import upload from "@/components/upload/upload";
-    import {editMyProfile, getMyProfile, getUploadSignature, logOut} from "@/common/js/api/models";
+    import {editMyProfile, getMyProfile, getSchoolList, getUploadSignature, logOut} from "@/common/js/api/models";
 
     export default {
         name: "myUserProfile",
@@ -382,9 +395,20 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
+            await getSchoolList({
+                urlParam: {
+                    province: '44',
+                    city: '01',
+                    area: '',
+                    keywords: ''
+                }
+            }).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.error(err)
+            });
             await getMyProfile().then(res => {
                 if (res.success) {
-                    console.log(res.data);
                     this.userProfile = res.data;
                 }
                 else throw new Error(res);

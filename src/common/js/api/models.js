@@ -96,6 +96,12 @@ export const editMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/
     requestConfig
 });
 
+//获取学校列表
+export const getSchoolList = (requestConfig) => apiRequest(`${httpBaseUrl}/school?province=${requestConfig.urlParam.province}&city=${requestConfig.urlParam.city}&area=${requestConfig.urlParam.area}&keywords=${requestConfig.urlParam.keywords}`, {
+    method: "GET",
+    requestConfig
+});
+
 //获取黑名单
 export const getBlockList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/block-list`, {
     method: "GET",
