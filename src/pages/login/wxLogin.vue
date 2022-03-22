@@ -97,7 +97,6 @@
                                             success: () => {
                                                 this.$store.commit('userInfo', res.data);
                                                 const redirectPage = this.$store.state.currentPageUrl ?? null;
-                                                console.log(`${redirectPage === null ? "pages/index/index" : redirectPage}`)
                                                 uni.switchTab({
                                                     url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
                                                     fail: () => {

@@ -188,6 +188,14 @@
                     }
                 },
                 {
+                    "path": "userPage/userPage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "home/home",
                     "style": {
                         "navigationBarTitleText": "",

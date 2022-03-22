@@ -107,12 +107,12 @@
                         url: '/pagesByStore/userSearch/userSearch'
                     },
                     {
-                        name: '用户主页',
-                        url: ''
-                    },
-                    {
                         name: '我的个人资料',
                         url: '/pagesByStore/myUserProfile/myUserProfile'
+                    },
+                    {
+                        name: '用户主页',
+                        url: '/pagesByStore/userPage/userPage'
                     }
                 ]
             },

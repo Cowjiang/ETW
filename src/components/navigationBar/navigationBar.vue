@@ -5,7 +5,8 @@
       class="navigation-background"
       :style="{
         height: `${topAreaHeight + navigationButtonHorizontalMargin}px`,
-        backgroundColor: `${backgroundColor === '' ? 'transparent' : backgroundColor}`
+        backgroundColor: `${backgroundColor === '' ? 'transparent' : backgroundColor}`,
+        backdropFilter: `${backgroundBlur ? 'blur(10px)' : 'unset'}`
       }">
     </view>
     <!-- 导航栏主体 -->
@@ -21,7 +22,7 @@
           minWidth: `${isShowButton ? navigationButtonWidth : 0}px`
         }">
         <!-- 导航栏左侧胶囊按钮插槽 -->
-        <slot>
+        <slot name="button">
           <!-- 胶囊按钮模板 -->
           <view
             class="navigation-menu-button"
@@ -53,7 +54,9 @@
           textAlign: `${isShowButton ? 'center' : 'left'}`,
           color: `${titleColor}`
         }">
-        <view class="title">{{ titleText }}</view>
+        <slot name="title">
+          <view class="title">{{ titleText }}</view>
+        </slot>
       </view>
     </view>
   </view>
@@ -81,6 +84,7 @@
                 titleText: '', //导航栏标题
                 titleColor: '#333333', //标题字体颜色
                 backgroundColor: '', //导航栏背景颜色，为空时背景颜色为透明，且导航栏不占高度
+                backgroundBlur: false, //导航栏背景是否高斯模糊
                 customBackFunc: null, //自定义返回按钮触发行为方法
             };
         },
@@ -96,6 +100,7 @@
                     titleText: '', //标题内容，为空字符串时不显示标题
                     titleColor: 'dark', //标题字体颜色，可传入"light"/"dark"，或自定义色号
                     backgroundColor: '', //导航栏背景颜色，为空时背景颜色为透明，且导航栏不占高度
+                    backgroundBlur: false, //导航栏背景是否高斯模糊
                     customBackFunc: null, //自定义返回按钮点击事件
                 };
                 if (Object.getOwnPropertyNames(options).length) {
@@ -118,6 +123,7 @@
                 this.backgroundColor = `${config.backgroundColor === '' ? '' : config.backgroundColor}`;
                 this.isShowButton = config.isShowButton;
                 this.titleText = config.titleText;
+                this.backgroundBlur = config.backgroundBlur;
             },
             // 导航栏返回按钮点击事件
             backButtonClickEvent() {

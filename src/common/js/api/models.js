@@ -79,7 +79,7 @@ export const getUser = (requestConfig) => apiRequest(`${httpBaseUrl}/getUser`, {
 });
 
 //获取简要用户信息
-export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam.userId}`, {
+export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam.userId}?extend=${requestConfig.urlParam.extend || false}`, {
     method: "GET",
     requestConfig,
 });
@@ -238,6 +238,12 @@ export const getMyFocusedTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/d
 
 //获取最新动态
 export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/news`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取某用户的动态列表
+export const getUserTrendList = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/user/${requestConfig.urlParam.userId}`, {
     method: "GET",
     requestConfig
 });

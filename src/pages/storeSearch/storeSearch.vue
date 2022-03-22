@@ -2,7 +2,7 @@
   <view>
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
-    <loading ref="loading" fullscreen maskColor="#f6f6f6"></loading>
+    <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
 
     <view class="store-search-container">
       <view class="input-container">

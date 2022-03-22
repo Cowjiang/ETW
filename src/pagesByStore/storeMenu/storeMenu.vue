@@ -92,7 +92,7 @@
           <view class="u-tabs-container">
             <u-tabs
               class="u-tabs"
-              :list="menuTabs"
+              :list="[{name: '点餐'}, {name: '商家'}]"
               :is-scroll="false"
               :current="currentTab"
               active-color="#f4756b"
@@ -547,17 +547,6 @@
                 discountFolding: true, //优惠券折叠状态
                 isFavourite: false, //是否收藏店铺,
                 showStoreInfoPopup: false, //是否显示店铺信息弹出窗
-                menuTabs: [
-                    {
-                        name: "点餐",
-                    },
-                    {
-                        name: "评价",
-                    },
-                    {
-                        name: "商家",
-                    },
-                ], //菜单标签
                 currentTab: 0, //当前标签序号
                 menuList: [], //菜单内容
                 currentTypeId: 1, //当前菜单显示的类型编号
@@ -595,7 +584,7 @@
             // 切换菜单标签
             handleTabsChange(index) {
                 this.currentTab = index;
-                if (index === 2) {
+                if (index === 1) {
                     this.showStoreInfoPopup = true;
                 }
             },

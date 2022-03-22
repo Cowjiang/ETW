@@ -1,27 +1,28 @@
 <template>
   <view>
     <navigationBar ref="navigationBar">
-      <view class="navigation-btn">
-        <view
-          :style="{
-            width: `${submitTrendButtonWidth}px`,
-            height: `${submitTrendButtonHeight}px`,
-          }"
-          class="trend-edit-btn"
-          @click="gotoTrendEdit">
-          <i class="fas fa-pencil fa-fw"/>
-          <text>发布</text>
+      <template v-slot:button>
+        <view style="width: 320rpx">
+          <u-tabs
+            class="u-tabs"
+            :list="[{name: '最新动态'}, {name: '关注'}]"
+            :is-scroll="false"
+            height="80"
+            font-size="34"
+            bold
+            bg-color="transparent"
+            :current="currentTrendType"
+            active-color="#f4756b"
+            inactive-color="#9e9e9e"
+            :bar-height="8"
+            :active-item-style="{
+              fontWeight: 'bold',
+              fontSize: '38rpx',
+              color: '#111'
+            }"
+            @change="handleTabsChange"/>
         </view>
-        <view
-          class="home-btn"
-          :style="{
-            width: `${submitTrendButtonHeight}px`,
-            height: `${submitTrendButtonHeight}px`,
-          }"
-          @click="gotoHomePage">
-          <i class="fas fa-house"/>
-        </view>
-      </view>
+      </template>
     </navigationBar>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen/>
@@ -93,6 +94,11 @@
       class="load-more">
       <text>没有更多了哦 ~</text>
     </view>
+    <view
+      class="edit-trend-btn"
+      @click="gotoTrendEdit">
+      <i class="fas fa-pen"/>
+    </view>
   </view>
 </template>
 
@@ -100,7 +106,7 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import toast from "@/components/toast/toast";
     import loading from "@/components/loading/loading";
-    import {getAuthorList, getMyFocusedTrend, like} from "@/common/js/api/models.js";
+    import {getAuthorList, getMyFocusedTrend, getNewTrend, like} from "@/common/js/api/models.js";
 
     export default {
         components: {
@@ -109,9 +115,7 @@
         data() {
             return {
                 windowWidth: 0, //窗口宽度
-                submitTrendButtonWidth: 0,
-                submitTrendButtonHeight: 0,
-                authorList: [], //常访问作者
+                currentTrendType: 0, //当前动态列表类型，0:最新动态，1:关注用户的动态
                 trendList: [], //动态列表
                 currentPage: 1, //当前页
                 pageSize: 3, //每页多少条
@@ -130,53 +134,105 @@
                     return;
                 }
                 this.isLoading = true;
-                //刷新
                 if (isRefresh) {
+                    //刷新
                     this.currentPage = 1;
-                    getMyFocusedTrend({
-                        queryData: {
-                            pageNumber: this.currentPage,
-                            pageSize: this.pageSize,
-                        },
-                    }).then((res) => {
-                        if (res.success) {
-                            const data = res.data;
-                            if (data.records.length < this.pageSize) {
-                                this.existMore = false;
+                    if (this.currentTrendType === 1) {
+                        //当前动态列表类型为我关注的用户的动态
+                        getMyFocusedTrend({
+                            queryData: {
+                                pageNumber: this.currentPage,
+                                pageSize: this.pageSize,
+                            },
+                        }).then((res) => {
+                            if (res.success) {
+                                const data = res.data;
+                                this.existMore = data.records.length >= this.pageSize;
+                                this.totalPages = data.total; //获取总页数
+                                this.trendList = res.data.records;
                             }
-                            else {
-                                this.existMore = true;
+                        }).catch((err) => {
+                            console.error(err);
+                        }).finally(() => {
+                            this.isLoading = false;
+                            uni.stopPullDownRefresh();
+                        });
+                    }
+                    else if (this.currentTrendType === 0) {
+                        //当前动态列表类型为最新动态
+                        getNewTrend({
+                            queryData: {
+                                pageNumber: this.currentPage,
+                                pageSize: this.pageSize,
+                            },
+                        }).then((res) => {
+                            if (res.success) {
+                                const data = res.data;
+                                this.existMore = data.records.length >= this.pageSize;
+                                this.totalPages = data.total; //获取总页数
+                                this.trendList = res.data.records;
                             }
-                            this.totalPages = data.total; //获取总页数
-                            this.trendList = res.data.records;
-                        }
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.isLoading = false;
-                        uni.stopPullDownRefresh();
-                    });
+                        }).catch((err) => {
+                            console.error(err);
+                        }).finally(() => {
+                            this.isLoading = false;
+                            uni.stopPullDownRefresh();
+                        });
+                    }
                 }
                 else {
                     // 请求下一页内容
                     this.currentPage += 1;
-                    getMyFocusedTrend({
-                        queryData: {
-                            pageNumber: this.currentPage,
-                            pageSize: this.pageSize,
-                        },
-                    }).then(res => {
-                        const data = res.data;
-                        if (data.records.length < this.pageSize) {
-                            this.existMore = false;
-                        }
-                        this.trendList = this.trendList.concat(data.records); //衔接上一页的内容
-                    }).catch(err => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.isLoading = false;
-                    });
+                    if (this.currentTrendType === 1) {
+                        //当前动态列表类型为我关注的用户的动态
+                        getMyFocusedTrend({
+                            queryData: {
+                                pageNumber: this.currentPage,
+                                pageSize: this.pageSize,
+                            },
+                        }).then(res => {
+                            const data = res.data;
+                            if (data.records.length < this.pageSize) {
+                                this.existMore = false;
+                            }
+                            this.trendList = this.trendList.concat(data.records); //衔接上一页的内容
+                        }).catch(err => {
+                            console.error(err);
+                        }).finally(() => {
+                            this.isLoading = false;
+                        });
+                    }
+                    else if (this.currentTrendType === 0) {
+                        //当前动态列表类型为最新动态
+                        getNewTrend({
+                            queryData: {
+                                pageNumber: this.currentPage,
+                                pageSize: this.pageSize,
+                            },
+                        }).then(res => {
+                            const data = res.data;
+                            if (data.records.length < this.pageSize) {
+                                this.existMore = false;
+                            }
+                            this.trendList = this.trendList.concat(data.records); //衔接上一页的内容
+                        }).catch(err => {
+                            console.error(err);
+                        }).finally(() => {
+                            this.isLoading = false;
+                        });
+                    }
                 }
+            },
+            // 切换菜单标签
+            handleTabsChange(index) {
+                this.utils.throttle(() => {
+                    this.currentTrendType = index;
+                    this.getTrendData(true);
+                    uni.pageScrollTo({
+                        scrollTop: 0,
+                        duration: 500
+                    });
+                }, 500);
             },
             // 前往动态编辑发布页面
             gotoTrendEdit() {
@@ -312,19 +368,9 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.$refs.navigationBar.setNavigation({
                 isShowButton: false,
-                backgroundColor: "#fff",
+                backgroundColor: "rgba(255, 255, 255, 0.85)",
+                backgroundBlur: true
             });
-            this.submitTrendButtonWidth =
-                this.$refs.navigationBar.navigationButtonWidth - 12;
-            this.submitTrendButtonHeight = this.$refs.navigationBar.navigationBarHeight;
-            // 获取常访问作者列表
-            getAuthorList()
-                .then((res) => {
-                    this.authorList = res.data;
-                })
-                .catch((err) => {
-                    console.log("获取常访问作者列表", err);
-                });
             this.getTrendData(true);
         },
     };
