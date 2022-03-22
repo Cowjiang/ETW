@@ -15,13 +15,12 @@
       }">
       <!-- 启动界面背景图 -->
       <image
-        src="@/static/images/background/background@splashScreen.png"
-        class="bg-image"
-      ></image>
+        src="https://shitukj.cn/service/backup/image-1.png"
+        class="bg-image"/>
       <!-- LOGO容器 -->
       <view class="logo-container">
         <image
-          src="../../static/images/logo-white.png"
+          src="@/static/images/logo-white.png"
           class="logo-image"
           mode="widthFix"></image>
       </view>

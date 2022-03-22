@@ -230,8 +230,8 @@ export const getTrendDetail = (requestConfig) => apiRequest(`${httpBaseUrl}/dyna
     requestConfig
 });
 
-//获取我发布的动态
-export const getMyTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
+//获取我关注的动态
+export const getMyFocusedTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
     method: "GET",
     requestConfig
 });
@@ -242,7 +242,7 @@ export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic
     requestConfig
 });
 
-// 删除动态
+//删除动态
 export const deleteTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}`, {
     method: "DELETE",
     requestConfig,

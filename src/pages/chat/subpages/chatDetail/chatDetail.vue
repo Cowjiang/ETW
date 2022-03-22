@@ -769,7 +769,7 @@
             // 重定向至聊天列表页
             redirectToChatList() {
                 // uni.redirectTo({
-                //     url: `/pages/chatList/chatList`
+                //     url: `/pages/chat/chat`
                 // });
                 uni.navigateBack();
             },
@@ -871,5 +871,5 @@
 </script>
 
 <style lang="scss" scoped>
-  @import 'chatDetail.scss';
+  @import 'chatDetail';
 </style>

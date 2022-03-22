@@ -166,6 +166,7 @@
     import loading from "@/components/loading/loading";
     import {addToBlockList, deleteChatWithFriend, getMyChatList, removeFromBlockList} from "@/common/js/api/models.js";
     import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
+    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -251,7 +252,7 @@
                     }
                     this.$forceUpdate();
                 }).catch(err => {
-                    console.log(err)
+                    console.error(err)
                     this.refresherTriggered = false;
                     this._freshing = false;
                     this.utils.throttle(() => {
@@ -273,7 +274,6 @@
              * @param {Object} data 接收到的新消息
              */
             receiveNewMessage(data) {
-                console.log(data)
                 if (data.errorCode === 120) {
                     const newMessage = data.data;
                     const findIndex = this.chatMessages.findIndex(message => message.senderId === newMessage.friendId);
@@ -315,7 +315,7 @@
                 const senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
                 this.chatMessages[targetId].isRead = true;
                 uni.navigateTo({
-                    url: `/pages/chatDetail/chatDetail?${senderInfo}`,
+                    url: `/pages/chat/subpages/chatDetail/chatDetail?${senderInfo}`,
                 });
             },
             // 监听长按事件
@@ -323,7 +323,7 @@
                 wx.vibrateShort();
                 const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
-                    itemList: ['删除',  this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单'],
+                    itemList: ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单'],
                     success: res => {
                         if (res.tapIndex === 0) {
                             //用户点击删除记录
@@ -441,7 +441,7 @@
             startCheckingUpdate() {
                 //从本地缓存加载聊天列表
                 uni.getStorage({
-                    key: 'chatList',
+                    key: 'chat',
                     success: res => {
                         this.chatMessages = res.data;
                     },
@@ -459,21 +459,19 @@
                 uni.getStorage({
                     key: 'userInfo',
                     success: res => {
-                        connectSocket(res.data.userId)
-                            .then(res => {
-                                uni.onSocketMessage(res => {
-                                    this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
-                                });
-                            })
-                            .catch(err => {
-                                console.log(err);
-                            })
+                        connectSocket(res.data.userId).then(res => {
+                            uni.onSocketMessage(res => {
+                                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                            });
+                        }).catch(err => {
+                            console.error(err);
+                        });
                     },
-                    fail: err => {
-                        console.log(err);
-                        let currentPage = this.utils.getCurrentPage();
+                    fail: () => {
+                        const currentPage = this.utils.getCurrentPage();
+                        this.$store.commit('currentPageUrl', currentPage.curFullUrl);
                         uni.redirectTo({
-                            url: `/pages/login/wxLogin?redirectPath=${currentPage.curUrl}`
+                            url: `/pages/login/wxLogin`
                         });
                     }
                 });
@@ -486,7 +484,7 @@
                 closeSocket().then(res => {
                     //存放聊天列表到本地缓存
                     uni.setStorage({
-                        key: "chatList",
+                        key: "chat",
                         data: this.chatMessages.slice(0, 14),
                         fail: err => {
                             console.error(err);
@@ -501,8 +499,16 @@
             },
             // 消息列表为空的按钮点击事件
             handleEmptyBtnClick() {
-                uni.redirectTo({
-                    url: '/pages/index/index'
+                uni.switchTab({
+                    url: '/pages/index/index',
+                    fail: () => {
+                        uni.redirectTo({
+                            url: '/pages/index/index',
+                            fail: err => {
+                                console.error(err);
+                            }
+                        });
+                    }
                 });
             }
         },
@@ -538,7 +544,8 @@
             this.startCheckingUpdate();
             this.$refs.navigationBar.setNavigation({
                 titleText: '消息',
-                backgroundColor: '#f6f6f6'
+                backgroundColor: '#f6f6f6',
+                isShowButton: false,
             });
         },
         onHide() {

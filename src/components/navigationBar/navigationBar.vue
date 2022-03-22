@@ -18,7 +18,7 @@
       <view
         :style="{
           marginLeft: `${navigationButtonHorizontalMargin}px`,
-          minWidth: `${navigationButtonWidth}px`
+          minWidth: `${isShowButton ? navigationButtonWidth : 0}px`
         }">
         <!-- 导航栏左侧胶囊按钮插槽 -->
         <slot>
@@ -48,8 +48,9 @@
         class="navigation-title"
         v-if="isShowTitle"
         :style="{
-          lineHeight: `${navigationBarHeight}px`,
           width: `${windowWidth - 2 * navigationButtonWidth - 2 * navigationButtonHorizontalMargin - 20}px`,
+          lineHeight: `${navigationBarHeight}px`,
+          textAlign: `${isShowButton ? 'center' : 'left'}`,
           color: `${titleColor}`
         }">
         <view class="title">{{ titleText }}</view>
@@ -91,7 +92,7 @@
              */
             setNavigation(options) {
                 let config = {
-                    isShowButton: true, //是否显示左侧胶囊按钮
+                    isShowButton: true, //是否显示左侧胶囊按钮（不显示时标题靠左显示）
                     titleText: '', //标题内容，为空字符串时不显示标题
                     titleColor: 'dark', //标题字体颜色，可传入"light"/"dark"，或自定义色号
                     backgroundColor: '', //导航栏背景颜色，为空时背景颜色为透明，且导航栏不占高度
@@ -137,10 +138,18 @@
                             this.customBackFunc(); //执行自定义跳转行为
                         }
                         else {
-                            wx.navigateBack({
-                                fail: res => {
-                                    uni.redirectTo({
-                                        url: `/pages/index/index`
+                            uni.navigateBack({
+                                fail: () => {
+                                    uni.switchTab({
+                                        url: `/pages/index/index`,
+                                        fail: () => {
+                                            uni.redirectTo({
+                                                url: `/pages/index/index`,
+                                                fail: err => {
+                                                    console.error(err);
+                                                }
+                                            });
+                                        }
                                     });
                                 }
                             }); //返回上一页
@@ -148,8 +157,16 @@
                         }
                         break;
                     case 2:
-                        wx.redirectTo({
-                            url: "/pages/index/index",
+                        uni.switchTab({
+                            url: `/pages/index/index`,
+                            fail: () => {
+                                uni.redirectTo({
+                                    url: `/pages/index/index`,
+                                    fail: err => {
+                                        console.error(err);
+                                    }
+                                });
+                            }
                         }); //跳转首页
                         this.resetNavigation();
                         break;

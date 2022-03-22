@@ -97,10 +97,16 @@
                                             success: () => {
                                                 this.$store.commit('userInfo', res.data);
                                                 const redirectPage = this.$store.state.currentPageUrl ?? null;
-                                                uni.redirectTo({
-                                                    url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`,
-                                                    fail: err => {
-                                                        console.error(err);
+                                                console.log(`${redirectPage === null ? "pages/index/index" : redirectPage}`)
+                                                uni.switchTab({
+                                                    url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                    fail: () => {
+                                                        uni.redirectTo({
+                                                            url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                            fail: err => {
+                                                                console.error(err);
+                                                            }
+                                                        });
                                                     }
                                                 });
                                             },
@@ -210,8 +216,16 @@
                             if (data.success) {
                                 this.$refs.loading.startLoading();
                                 setTimeout(() => {
-                                    uni.redirectTo({
-                                        url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`
+                                    uni.switchTab({
+                                        url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                        fail: () => {
+                                            uni.redirectTo({
+                                                url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                fail: err => {
+                                                    console.error(err);
+                                                }
+                                            });
+                                        }
                                     });
                                 }, 300);
                             }
@@ -238,8 +252,16 @@
                                     if (data.success) {
                                         this.$refs.loading.startLoading();
                                         setTimeout(() => {
-                                            uni.redirectTo({
-                                                url: `${redirectPage === null ? "/pages/index/index" : redirectPage}`
+                                            uni.switchTab({
+                                                url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                fail: () => {
+                                                    uni.redirectTo({
+                                                        url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                        fail: err => {
+                                                            console.error(err);
+                                                        }
+                                                    });
+                                                }
                                             });
                                         }, 300);
                                     }

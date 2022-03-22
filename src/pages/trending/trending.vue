@@ -100,7 +100,7 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import toast from "@/components/toast/toast";
     import loading from "@/components/loading/loading";
-    import {getAuthorList, getMyTrend, like} from "@/common/js/api/models.js";
+    import {getAuthorList, getMyFocusedTrend, like} from "@/common/js/api/models.js";
 
     export default {
         components: {
@@ -133,7 +133,7 @@
                 //刷新
                 if (isRefresh) {
                     this.currentPage = 1;
-                    getMyTrend({
+                    getMyFocusedTrend({
                         queryData: {
                             pageNumber: this.currentPage,
                             pageSize: this.pageSize,
@@ -160,7 +160,7 @@
                 else {
                     // 请求下一页内容
                     this.currentPage += 1;
-                    getMyTrend({
+                    getMyFocusedTrend({
                         queryData: {
                             pageNumber: this.currentPage,
                             pageSize: this.pageSize,

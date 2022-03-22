@@ -48,8 +48,8 @@
     import toast from '@/components/toast/toast';
     import navigationBar from '@/components/navigationBar/navigationBar';
     import loading from '@/components/loading/loading';
-    import storeSearchEmpty from '@/pagesByStore/storeSearch/subpages/storeSearchEmpty/storeSearchEmpty';
-    import storeSearchResult from '@/pagesByStore/storeSearch/subpages/storeSearchResult/storeSearchResult';
+    import storeSearchEmpty from '@/pages/storeSearch/subpages/storeSearchEmpty/storeSearchEmpty';
+    import storeSearchResult from '@/pages/storeSearch/subpages/storeSearchResult/storeSearchResult';
 
     export default {
         name: "storeSearch",
@@ -134,20 +134,7 @@
             this.$refs.navigationBar.setNavigation({
                 titleText: '搜索店铺',
                 backgroundColor: '#fff',
-                customBackFunc: () => {
-                    if (this.showHistory) {
-                        wx.navigateBack({
-                            fail: () => {
-                                uni.redirectTo({
-                                    url: `/pages/home/home`
-                                });
-                            }
-                        });
-                    }
-                    else {
-                        this.handleSearchInputFocus();
-                    }
-                }
+                isShowButton: false
             });
             this.searchInputFocus = false;
         },

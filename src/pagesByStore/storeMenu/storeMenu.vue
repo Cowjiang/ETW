@@ -6,7 +6,7 @@
     <storeInfoPopup
       v-model="showStoreInfoPopup"
       :info="storeInfo"
-      @close="showStoreInfoPopup = false"/>
+      @close="showStoreInfoPopup = false; currentTab = 0;"/>
     <view class="store-menu-container">
       <view
         class="store-image-container"
@@ -595,6 +595,9 @@
             // 切换菜单标签
             handleTabsChange(index) {
                 this.currentTab = index;
+                if (index === 2) {
+                    this.showStoreInfoPopup = true;
+                }
             },
             // 打开搜索弹出层事件
             handleOpenSearchPopup() {
@@ -1195,8 +1198,6 @@
                 this.payable = nval.length > 0;
                 this.$forceUpdate();
             },
-        },
-        mounted() {
         },
         async onLoad() {
             this.windowWidth = this.$store.state.windowWidth;
