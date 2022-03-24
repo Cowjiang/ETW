@@ -5,9 +5,51 @@
 </style>
 
 <script>
+    import store from "@/common/js/store";
+
     export default {
         data() {
             return {}
+        },
+        method() {
+        },
+        computed: {
+            // 未读消息的数量（存储在Vuex中的数据）
+            unreadMessageCount() {
+                return this.$store.state.unreadMessageCount;
+            },
+            // 私信消息列表中的未读消息总数（计算）
+            chatMessagesTotalUnread: {
+                get() {
+                    const chatMessages = this.$store.state.chatMessages;
+                    if (this.$store.state.chatMessages.length) {
+                        let totalCount = 0;
+                        chatMessages.map(chat => {
+                            totalCount += chat.isRead ? 0 : chat.unreadCount;
+                        });
+                        return totalCount;
+                    }
+                    else return 0;
+                }
+            }
+        },
+        watch: {
+            unreadMessageCount(nval) {
+                if (nval > 0) {
+                    uni.setTabBarBadge({
+                        index: 2,
+                        text: nval < 100 ? nval.toString() : '99+'
+                    }); //设置底部导航栏消息页的未读上标
+                }
+                else {
+                    uni.removeTabBarBadge({
+                        index: 2
+                    });
+                }
+            },
+            chatMessagesTotalUnread(nval) {
+                store.commit('unreadMessageCount', nval);
+            }
         },
         async mounted() {
             const navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
@@ -15,12 +57,13 @@
             this.$store.commit('navigationHeight', navigationHeight);
             this.$store.commit('windowWidth', systemInfo.windowWidth);
             this.$store.commit('windowHeight', systemInfo.windowHeight);
-            uni.getStorage({
-                key: 'userInfo',
-                success: res => {
-                    this.$store.commit('userInfo', res.data);
-                }
-            });
+            this.$store.commit('userInfo', uni.getStorageSync('userInfo'));
         },
+        async onShow() {
+            await this.utils.connectSocket();
+        },
+        async onHide() {
+            await this.utils.closeSocket();
+        }
     };
 </script>

@@ -74,10 +74,11 @@
                                     queryData: {
                                         code: code
                                     }
-                                }).then(res => {
+                                }).then(async res => {
                                     //登陆成功
                                     if (isNewUser) {
                                         //新用户第一次登录
+                                        await this.utils.connectSocket();
                                         uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
@@ -90,12 +91,13 @@
                                     }
                                     else {
                                         //老用户
-                                        this.$refs.loading.stopLoading();
+                                        await this.utils.connectSocket();
                                         uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
                                             success: () => {
                                                 this.$store.commit('userInfo', res.data);
+                                                this.$refs.loading.stopLoading();
                                                 const redirectPage = this.$store.state.currentPageUrl ?? null;
                                                 uni.switchTab({
                                                     url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,

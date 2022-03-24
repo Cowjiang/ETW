@@ -30,7 +30,6 @@
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
-            @click="stopCheckingUpdate"
             :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
               <view class="btn-icon"></view>
@@ -179,7 +178,7 @@
                 navigationHeight: 0, //导航栏高度
                 btnMessageIsRead: [true, true, false, true],
                 pageSize: 15, //请求聊天记录每页数据的数量
-                chatMessages: [], //聊天列表信息数组
+                // chatMessages: [], //聊天列表信息数组
                 messageTouchingId: '', //当前触摸元素的id
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 loadingMore: false, //正在加载更多消息
@@ -216,16 +215,16 @@
                                 isBlocked: records.isBlocked, //聊天对象是否在黑名单中
                             });
                         });
-                        this.chatMessages = [];
-                        this.chatMessages = recordsTemp;
+                        this.$store.commit('chatMessages', recordsTemp);
                         this.existMore = recordsTemp.length > 14;
                         this.refresherTriggered = false;
                         this._freshing = false;
                     }
                     else {
                         if (res.data.records.length !== 0) {
+                            let chatMessagesTemp = this.$store.state.chatMessages;
                             res.data.records.forEach(records => {
-                                this.chatMessages.push({
+                                chatMessagesTemp.push({
                                     senderName: records.friendInfo.username, //用户名称
                                     senderId: records.friendId, //用户ID
                                     senderAvatar: records.friendInfo.avgPath, //用户头像地址
@@ -241,6 +240,7 @@
                                     this.existMore = false;
                                 }
                             });
+                            this.$store.commit('chatMessages', chatMessagesTemp);
                         }
                         else {
                             this.existMore = false;
@@ -269,51 +269,16 @@
                     this.$forceUpdate();
                 });
             },
-            /**
-             * 监听接收到新消息
-             * @param {Object} data 接收到的新消息
-             */
-            receiveNewMessage(data) {
-                if (data.errorCode === 120) {
-                    const newMessage = data.data;
-                    const findIndex = this.chatMessages.findIndex(message => message.senderId === newMessage.friendId);
-                    if (findIndex !== -1) {
-                        const messageTemp = this.chatMessages[findIndex];
-                        this.chatMessages.splice(findIndex, 1);
-                        this.chatMessages.unshift({
-                            senderName: messageTemp.senderName, //用户名称
-                            senderId: messageTemp.senderId, //用户ID
-                            senderAvatar: messageTemp.senderAvatar, //用户头像地址
-                            messageId: newMessage.id, //消息ID
-                            content: newMessage.content, //消息内容
-                            isPhoto: !newMessage.isText, //是否为图片消息
-                            time: newMessage.createdTime, //消息发送时间
-                            isRead: newMessage.isRead, //消息是否已读
-                            unreadCount: messageTemp.unreadCount + 1 || 1, //当前对话消息未读数量
-                            isBlocked: messageTemp.isBlocked, //聊天对象是否在黑名单中
-                        });
-                    }
-                    else {
-                        this.chatMessages.unshift({
-                            senderName: '', //用户名称
-                            senderId: data.data.friendId, //用户ID
-                            senderAvatar: '', //用户头像地址
-                            messageId: data.data.id, //消息ID
-                            content: data.data.content, //消息内容
-                            isPhoto: !data.data.isText, //是否为图片消息
-                            time: data.data.createdTime, //消息发送时间
-                            isRead: data.data.isRead, //消息是否已读
-                            unreadCount: 1, //当前对话消息未读数量
-                            isBlocked: data.data.isBlocked, //聊天对象是否在黑名单中
-                        });
-                    }
-                }
-            },
             // 跳转聊天详情页
             toChatDetail(e) {
                 const targetId = parseInt(e.target.dataset.name.replace('message', ''));
+                let chatMessagesTemp = this.chatMessages;
                 const senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
-                this.chatMessages[targetId].isRead = true;
+                chatMessagesTemp[targetId].isRead = true;
+                this.$store.commit('chatMessages', chatMessagesTemp);
+                uni.removeTabBarBadge({
+                    index: 2
+                });
                 uni.navigateTo({
                     url: `/pages/chat/subpages/chatDetail/chatDetail?${senderInfo}`,
                 });
@@ -336,11 +301,13 @@
                                             urlParam: this.chatMessages[targetId].senderId
                                         }).then(res => {
                                             if (res.success) {
-                                                this.chatMessages.forEach((v, k) => {
-                                                    if (v.senderId === this.chatMessages[targetId].senderId) {
-                                                        this.chatMessages.splice(k, 1);
+                                                let chatMessagesTemp = this.chatMessages;
+                                                chatMessagesTemp.forEach((v, k) => {
+                                                    if (v.senderId === chatMessagesTemp[targetId].senderId) {
+                                                        chatMessagesTemp.splice(k, 1);
                                                     }
                                                 });
+                                                this.$store.commit('chatMessages', chatMessagesTemp);
                                             }
                                             else {
                                                 console.error(res);
@@ -373,7 +340,9 @@
                                     }
                                 }).then(res => {
                                     if (res.success) {
-                                        this.chatMessages[targetId].isBlocked = false;
+                                        let chatMessagesTemp = this.chatMessages;
+                                        chatMessagesTemp[targetId].isBlocked = false;
+                                        this.$store.commit('chatMessages', chatMessagesTemp);
                                     }
                                 }).catch(err => {
                                     console.error(err);
@@ -391,7 +360,9 @@
                                     }
                                 }).then(res => {
                                     if (res.success) {
-                                        this.chatMessages[targetId].isBlocked = true;
+                                        let chatMessagesTemp = this.chatMessages;
+                                        chatMessagesTemp[targetId].isBlocked = true;
+                                        this.$store.commit('chatMessages', chatMessagesTemp);
                                     }
                                 }).catch(err => {
                                     console.error(err);
@@ -437,65 +408,58 @@
                     }
                 }, 1000);
             },
-            // 开启Socket连接
-            startCheckingUpdate() {
-                //从本地缓存加载聊天列表
-                uni.getStorage({
-                    key: 'chat',
-                    success: res => {
-                        this.chatMessages = res.data;
-                    },
-                    complete: res => {
-                        if (this.chatMessages.length === 0) {
-                            this.$refs.loading.startLoading();
-                        }
+            /**
+             * 监听接收到新消息
+             * @param {Object} data Socket接收到的新消息
+             */
+            receiveNewMessage(data) {
+                if (data.errorCode === 120) {
+                    const newMessage = data.data;
+                    let chatMessages = this.$store.state.chatMessages;
+                    const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
+                    if (findIndex !== -1) {
+                        const messageTemp = chatMessages[findIndex];
+                        chatMessages.splice(findIndex, 1);
+                        chatMessages.unshift({
+                            senderName: messageTemp.senderName, //用户名称
+                            senderId: messageTemp.senderId, //用户ID
+                            senderAvatar: messageTemp.senderAvatar, //用户头像地址
+                            messageId: newMessage.id, //消息ID
+                            content: newMessage.content, //消息内容
+                            isPhoto: !newMessage.isText, //是否为图片消息
+                            time: newMessage.createdTime, //消息发送时间
+                            isRead: newMessage.isRead, //消息是否已读
+                            unreadCount: messageTemp.unreadCount + 1 || 1, //当前对话消息未读数量
+                            isBlocked: messageTemp.isBlocked, //聊天对象是否在黑名单中
+                        });
                     }
-                });
+                    else {
+                        chatMessages.unshift({
+                            senderName: '', //用户名称
+                            senderId: data.data.friendId, //用户ID
+                            senderAvatar: '', //用户头像地址
+                            messageId: data.data.id, //消息ID
+                            content: data.data.content, //消息内容
+                            isPhoto: !data.data.isText, //是否为图片消息
+                            time: data.data.createdTime, //消息发送时间
+                            isRead: data.data.isRead, //消息是否已读
+                            unreadCount: 1, //当前对话消息未读数量
+                            isBlocked: data.data.isBlocked, //聊天对象是否在黑名单中
+                        });
+                    }
+                    this.$store.commit('chatMessages', chatMessages);
+                    this.$forceUpdate();
+                }
+            },
+            // 获取消息更新
+            startCheckingUpdate() {
+                if (this.chatMessages.length === 0) {
+                    this.$refs.loading.startLoading();
+                }
                 this._freshing = false; //还原下拉刷新状态
                 setTimeout(() => {
                     this.refresherTriggered = true; //开启下拉刷新
                 }, 0);
-                //开启Socket连接
-                uni.getStorage({
-                    key: 'userInfo',
-                    success: res => {
-                        connectSocket(res.data.userId).then(res => {
-                            uni.onSocketMessage(res => {
-                                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
-                            });
-                        }).catch(err => {
-                            console.error(err);
-                        });
-                    },
-                    fail: () => {
-                        const currentPage = this.utils.getCurrentPage();
-                        this.$store.commit('currentPageUrl', currentPage.curFullUrl);
-                        uni.redirectTo({
-                            url: `/pages/login/wxLogin`
-                        });
-                    }
-                });
-            },
-            // 关闭Socket连接
-            stopCheckingUpdate() {
-                uni.onSocketClose(res => {
-                    console.log('已关闭Socket');
-                });
-                closeSocket().then(res => {
-                    //存放聊天列表到本地缓存
-                    uni.setStorage({
-                        key: "chat",
-                        data: this.chatMessages.slice(0, 14),
-                        fail: err => {
-                            console.error(err);
-                        }
-                    });
-                }).catch(err => {
-                    if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
-                        return;
-                    }
-                    console.error(err);
-                });
             },
             // 消息列表为空的按钮点击事件
             handleEmptyBtnClick() {
@@ -510,6 +474,13 @@
                         });
                     }
                 });
+            }
+        },
+        computed: {
+            chatMessages: {
+                get() {
+                    return this.$store.state.chatMessages;
+                }
             }
         },
         filters: {
@@ -547,16 +518,15 @@
                 backgroundColor: '#f6f6f6',
                 isShowButton: false,
             });
+            uni.onSocketMessage(res => {
+                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+            });
+            let totalCount = 0;
+            this.chatMessages.map(chat => {
+                totalCount += chat.isRead ? 0 : chat.unreadCount;
+            });
+            this.$store.commit('unreadMessageCount', totalCount);
         },
-        onHide() {
-            this.stopCheckingUpdate();
-        },
-        onUnload() {
-            this.stopCheckingUpdate();
-        },
-        beforeDestroy() {
-            this.stopCheckingUpdate();
-        }
     }
 </script>
 

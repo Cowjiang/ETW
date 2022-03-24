@@ -1,3 +1,7 @@
+import {closeSocket, connectSocket} from "@/common/js/api/socket";
+import store from '@/common/js/store'
+import {logOut} from "@/common/js/api/models";
+
 export class Utils {
     constructor() {
         this.throttleBackTime = 0;
@@ -9,8 +13,8 @@ export class Utils {
 
     /**
      * 节流函数
-     * @param {function} fn 要执行的方法
-     * @param {number} interval 等待时间，默认500ms
+     * @param {Function} fn 要执行的方法
+     * @param {Number} interval 等待时间，默认500ms
      */
     throttle(fn, interval) {
         this.throttleGapTime = interval || 500;
@@ -32,8 +36,8 @@ export class Utils {
 
     /**
      * 防抖函数
-     * @param {function} fn 要执行的方法
-     * @param {number} interval 等待时间，默认500ms
+     * @param {Function} fn 要执行的方法
+     * @param {Number} interval 等待时间，默认500ms
      */
     debounce(fn, interval) {
         this.debounceGapTime = interval || 500;
@@ -69,10 +73,10 @@ export class Utils {
     // 获取导航栏高度
     getNavigationHeight() {
         let windowWidth;
-        wx.getSystemInfo({
+        uni.getSystemInfo({
             success: res => windowWidth = res.windowWidth,
         });
-        const { height, top, right } = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
+        const {height, top, right} = wx.getMenuButtonBoundingClientRect(); //获取胶囊按钮尺寸信息
         return height + top + windowWidth - right;
     }
 
@@ -93,15 +97,16 @@ export class Utils {
             curParam: curParam, //{Object} 页面参数
         };
     }
+
     /**
      * @description: 判断对象的键是否为空
      * @param {*} obj 需要判断的对象
      * @param {*} arr 数组内为该对象可以为空的键
-     */    
-    isObjectAnyKeyEmpty(obj,arr) {
+     */
+    isObjectAnyKeyEmpty(obj, arr) {
         let isAnyKeyEmpty = false
         for (const key in obj) {
-            if (arr&&arr.indexOf(key) !== -1) {
+            if (arr && arr.indexOf(key) !== -1) {
                 continue;
             }
             if (!obj[key] || obj[key] === {} || obj[key] === []) {
@@ -110,6 +115,100 @@ export class Utils {
             }
         }
         return isAnyKeyEmpty
+    }
+
+    // 连接socket
+    async connectSocket() {
+        if (store.state.userInfo) {
+            await connectSocket(store.state.userInfo.userId).then(res => {
+                console.log('已连接socket');
+                store.commit('socketStatus', true);
+                uni.onSocketMessage(res => {
+                    console.log(res)
+                    let chatMessages = store.state.chatMessages;
+                    const data = JSON.parse(res.data);
+                    if (data.errorCode === 120) {
+                        store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
+                        const newMessage = data.data;
+                        const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
+                        if (findIndex !== -1) {
+                            //消息列表中存在的消息
+                            const messageTemp = chatMessages[findIndex];
+                            chatMessages.splice(findIndex, 1);
+                            chatMessages.unshift({
+                                senderName: messageTemp.senderName, //用户名称
+                                senderId: messageTemp.senderId, //用户ID
+                                senderAvatar: messageTemp.senderAvatar, //用户头像地址
+                                messageId: newMessage.id, //消息ID
+                                content: newMessage.content, //消息内容
+                                isPhoto: !newMessage.isText, //是否为图片消息
+                                time: newMessage.createdTime, //消息发送时间
+                                isRead: newMessage.isRead, //消息是否已读
+                                unreadCount: messageTemp.unreadCount + 1 || 1, //当前对话消息未读数量
+                                isBlocked: messageTemp.isBlocked, //聊天对象是否在黑名单中
+                            });
+                        }
+                        else {
+                            //消息列表中不存在的消息
+                            chatMessages.unshift({
+                                senderName: '', //用户名称
+                                senderId: data.data.friendId, //用户ID
+                                senderAvatar: '', //用户头像地址
+                                messageId: data.data.id, //消息ID
+                                content: data.data.content, //消息内容
+                                isPhoto: !data.data.isText, //是否为图片消息
+                                time: data.data.createdTime, //消息发送时间
+                                isRead: data.data.isRead, //消息是否已读
+                                unreadCount: 1, //当前对话消息未读数量
+                                isBlocked: data.data.isBlocked, //聊天对象是否在黑名单中
+                            });
+                        }
+                        store.commit('chatMessages', chatMessages);
+                    }
+                });
+            }).catch(err => {
+                if (err !== '未登录') {
+                    console.error(err);
+                }
+            });
+        }
+    }
+
+    // 关闭socket
+    async closeSocket() {
+        uni.onSocketClose(res => {
+            console.log('已关闭Socket');
+            store.commit('socketStatus', false);
+        });
+        await closeSocket().then(res => {
+            const chatMessages = store.state.chatMessages;
+            store.commit('chatMessages', chatMessages.slice(0, 14));
+            uni.setStorage({
+                key: "chat",
+                data: chatMessages.slice(0, 14),
+                fail: err => {
+                    console.error(err);
+                }
+            });
+        }).catch(err => {
+            if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
+                return;
+            }
+            console.error(err);
+        });
+    }
+
+    // 退出登录
+    async logout() {
+        await logOut();
+        await uni.removeStorage({
+            key: 'cookie'
+        });
+        await uni.removeStorage({
+            key: 'userInfo'
+        });
+        await this.closeSocket();
+        store.commit('userInfo', null);
     }
 }
 

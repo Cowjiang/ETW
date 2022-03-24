@@ -1,41 +1,36 @@
 <template>
   <view>
-    <navigationBar ref="navigationBar"/>
+    <navigationBar ref="navigationBar">
+      <template v-slot:button>
+        <view
+          class="navigation-menu-button"
+          :style="{width: `${navigationButtonWidth}px`}">
+          <view
+            class="navigation-menu-button-content"
+            :style="{
+              height: `${0.54 * navigationButtonHeight}px`,
+              margin: `${0.23 * navigationButtonHeight}px 0`,
+            }">
+            <view class="navigation-back" @click="redirectToChatList">
+              <i class="fas fa-angle-left"/>
+            </view>
+            <view class="navigation-home" @click="handleMenuBtnClick">
+              <i class="fas fa-bars"/>
+            </view>
+          </view>
+        </view>
+      </template>
+    </navigationBar>
     <toast ref="toast" class="toast"/>
     <!-- 私信聊天页面容器 -->
     <view
       class="chat-container"
       :style="{height: `${windowHeight - navigationHeight}px`}">
-      <!-- 顶部功能按钮区域 -->
-      <view
-        class="top-btn-area"
-        :style="{top: `${navigationHeight}px`}"
-        v-if="!isBlocked && isReadyToShow">
-        <view
-          class="btn__default"
-          :class="isFocused ? '' : 'btn__red'"
-          @click="handleFocusBtnClick">
-          {{ isFocused ? '已关注' : '关注TA' }}
-        </view>
-        <view
-          class="btn__default"
-          @click="handleBlockBtnClick">
-          加入黑名单
-        </view>
-      </view>
-      <view
-        class="top-btn-area"
-        :style="{height: `80rpx`}"
-        v-if="isBlocked && isReadyToShow">
-        <view class="delete-blacklist" @click="handleBlockBtnClick">
-          你已屏蔽该用户，点此移出黑名单
-        </view>
-      </view>
       <!-- 聊天消息区域 -->
       <view
         class="message-area"
         :style="{
-          height: `${windowHeight - navigationHeight - 60}px`,
+          height: `${windowHeight - navigationHeight}px`,
           transform: `translateY(-${keyboardHeight}px)`
         }">
         <loading
@@ -44,10 +39,7 @@
         <scroll-view
           class="message-scroll-view"
           :style="{
-            top: `${isBlocked ? '80rpx' : '100rpx'}`,
-            height: `${isBlocked ? 'calc(100% - 80rpx)' : 'calc(100% - 100rpx)'}`,
-            height: `${isBlocked ? 'calc(100% - 80rpx - constant(safe-area-inset-bottom))' : 'calc(100% - 100rpx - constant(safe-area-inset-bottom))'}`,
-            height: `${isBlocked ? 'calc(100% - 80rpx - env(safe-area-inset-bottom))' : 'calc(100% - 100rpx - env(safe-area-inset-bottom))'}`
+            height: `calc(100%)`,
           }"
           ref="scrollView"
           :scroll-y="true"
@@ -218,6 +210,8 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
+                navigationButtonWidth: 0, //导航栏胶囊按钮宽度
+                navigationButtonHeight: 0, //导航栏胶囊按钮高度
                 myInfo: {
                     userId: '',
                     avgPath: '',
@@ -401,7 +395,7 @@
                         this.$forceUpdate();
                     }, 0);
                     if (this.isSendReady === true) {
-                        wx.showLoading({
+                        uni.showLoading({
                             title: '正在发送'
                         });
                         sendMessage({
@@ -412,7 +406,7 @@
                             }
                         }).then(res => {
                             if (res.success) {
-                                wx.hideLoading();
+                                uni.hideLoading();
                                 this.messageRecords.push({
                                     id: res.data.id,
                                     isMe: true,
@@ -424,7 +418,7 @@
                                 this.rawInputValue = '';
                             }
                             else {
-                                wx.hideLoading();
+                                uni.hideLoading();
                                 this.$refs.toast.show({
                                     text: '发送失败',
                                     type: 'error',
@@ -433,7 +427,7 @@
                             }
                         }).catch(err => {
                             console.error(err);
-                            wx.hideLoading();
+                            uni.hideLoading();
                             this.$refs.toast.show({
                                 text: '发送失败',
                                 type: 'error',
@@ -498,7 +492,7 @@
             },
             // 上传图片成功的钩子函数
             onUploadSuccess() {
-                wx.showLoading({
+                uni.showLoading({
                     title: '正在发送'
                 });
                 sendMessage({
@@ -509,7 +503,7 @@
                     }
                 }).then(res => {
                     if (res.success) {
-                        wx.hideLoading();
+                        uni.hideLoading();
                         this.scrollToViewId = `messageTopView`;
                         setTimeout(() => {
                             this.messageRecords.push({
@@ -523,7 +517,7 @@
                         this.$refs.upload.clear();
                     }
                     else {
-                        wx.hideLoading();
+                        uni.hideLoading();
                         this.$refs.toast.show({
                             text: '发送失败',
                             type: 'error',
@@ -561,7 +555,8 @@
                                 else {
                                     this.$refs.toast.show({
                                         text: '举报成功',
-                                        type: 'success'
+                                        type: 'success',
+                                        direction: 'top'
                                     });
                                 }
                             }
@@ -584,7 +579,7 @@
              * @param {String} url 图片Url
              */
             previewImage(url) {
-                wx.previewImage({
+                uni.previewImage({
                     urls: [url]
                 });
             },
@@ -593,13 +588,13 @@
              * @param {Number} targetId 消息ID
              */
             deleteMessage(targetId) {
-                wx.showLoading({
+                uni.showLoading({
                     title: '正在删除'
                 })
                 deleteChatHistory({
                     urlParam: "?ids=" + targetId
                 }).then(res => {
-                    wx.hideLoading();
+                    uni.hideLoading();
                     if (res.success) {
                         this.recordsLength -= 1;
                         this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
@@ -619,7 +614,7 @@
                         console.log(res)
                     }
                 }).catch(err => {
-                    wx.hideLoading();
+                    uni.hideLoading();
                     this.$refs.toast.show({
                         text: '删除失败',
                         type: 'error',
@@ -652,6 +647,25 @@
             handleRefreshEnd() {
                 this.refresherTriggered = 'restore';
             },
+            // 导航栏菜单按钮点击事件
+            handleMenuBtnClick() {
+                uni.showActionSheet({
+                    itemList: ['查看个人主页', `${this.isFocused ? '取消关注' : '关注'}`, `${this.isBlocked ? '移除黑名单' : '加入黑名单'}`],
+                    success: res => {
+                        if (res.tapIndex === 0) {
+                            //查看个人主页
+                        }
+                        else if (res.tapIndex === 1) {
+                            //关注操作
+                            this.handleFocusBtnClick();
+                        }
+                        else if (res.tapIndex === 2) {
+                            //黑名单操作
+                            this.handleBlockBtnClick();
+                        }
+                    }
+                });
+            },
             // 黑名单按钮点击事件
             async handleBlockBtnClick() {
                 this.isReadyToShow = false;
@@ -659,6 +673,7 @@
                 this.inputFocusStatus = false;
                 this.keyboardHeight = 0;
                 if (this.isBlocked) {
+                    //已拉黑
                     await removeFromBlockList({
                         urlParam: {
                             userId: this.friendInfo.userId
@@ -677,6 +692,7 @@
                     });
                 }
                 else {
+                    //未拉黑
                     await addToBlockList({
                         urlParam: {
                             userId: this.friendInfo.userId
@@ -708,6 +724,7 @@
                 this.inputFocusStatus = false;
                 this.keyboardHeight = 0;
                 if (this.isFocused) {
+                    //已关注
                     await removeFriend({
                         urlParam: {
                             userId: this.friendInfo.userId
@@ -734,6 +751,7 @@
                     });
                 }
                 else {
+                    //未关注
                     await addFriend({
                         urlParam: {
                             userId: this.friendInfo.userId
@@ -768,14 +786,10 @@
             },
             // 重定向至聊天列表页
             redirectToChatList() {
-                // uni.redirectTo({
-                //     url: `/pages/chat/chat`
-                // });
                 uni.navigateBack();
             },
-            // 开启Socket连接
+            // 获取消息更新
             startCheckingUpdate() {
-                this.getUserRelationships();
                 if (this.messageRecords.length === 0) {
                     this._freshing = false; //还原下拉刷新状态
                     setTimeout(() => {
@@ -785,36 +799,13 @@
                 else {
                     this.$refs.loading.stopLoading();
                 }
-                const userInfo = this.$store.state.userInfo;
-                if (userInfo) {
-                    connectSocket(userInfo.userId).then(res => {
-                        uni.onSocketMessage(res => {
-                            this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
-                        });
-                    }).catch(err => {
-                        console.error(err);
-                    });
-                }
-                else {
+                if (!this.$store.state.userInfo) {
                     const currentPage = this.utils.getCurrentPage();
                     store.commit('currentPageUrl', currentPage.curFullUrl);
                     uni.redirectTo({
                         url: `/pages/login/wxLogin`
                     });
                 }
-            },
-            // 关闭Socket连接
-            stopCheckingUpdate() {
-                uni.onSocketClose(res => {
-                    console.log('已关闭Socket');
-                });
-                closeSocket().then(res => {
-                }).catch(err => {
-                    if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {
-                        return;
-                    }
-                    console.error(err);
-                })
             },
         },
         computed: {
@@ -848,24 +839,23 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
+            this.navigationButtonWidth = this.$refs.navigationBar.navigationButtonWidth;
+            this.navigationButtonHeight = this.$refs.navigationBar.navigationBarHeight;
         },
         onShow() {
             this.setChatBaseInfo(); //设置会话信息
-            this.stopCheckingUpdate(); //关闭Socket连接
+            this.getUserRelationships();
             this.$refs.loading.startLoading({
                 width: this.windowWidth,
-                height: this.windowHeight - this.navigationHeight - 60
+                height: this.windowHeight - this.navigationHeight
             }); //开启loading动画
-            this.startCheckingUpdate(); //重新开启Socket连接
-        },
-        onHide() {
-            this.stopCheckingUpdate(); //关闭Socket连接
-        },
-        onUnload() {
-            this.stopCheckingUpdate(); //关闭Socket连接
+            this.startCheckingUpdate();
+            uni.onSocketMessage(res => {
+                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+            });
         },
         beforeDestroy() {
-            this.stopCheckingUpdate(); //关闭Socket连接
+            this.getChatHistory();
         }
     }
 </script>

@@ -106,7 +106,7 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import toast from "@/components/toast/toast";
     import loading from "@/components/loading/loading";
-    import {getAuthorList, getMyFocusedTrend, getNewTrend, like} from "@/common/js/api/models.js";
+    import {getMyFocusedTrend, getNewTrend, like} from "@/common/js/api/models.js";
 
     export default {
         components: {
@@ -265,7 +265,8 @@
                 this.changeLikeStatus(!trend.isLike ? 1 : 2, trend.id, 2).then(() => {
                     this.$set(trend, 'isLike', !trend.isLike);
                     this.$set(trend, 'likeNumber', trend.isLike ? trend.likeNumber + 1 : trend.likeNumber - 1);
-                }).catch(() => {});
+                }).catch(() => {
+                });
             },
             /**
              * 改变点赞状态

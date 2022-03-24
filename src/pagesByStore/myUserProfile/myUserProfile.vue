@@ -334,14 +334,7 @@
             },
             // 退出登录
             async logout() {
-                await logOut();
-                await uni.removeStorage({
-                    key: 'cookie'
-                });
-                await uni.removeStorage({
-                    key: 'userInfo'
-                });
-                this.$store.commit('userInfo', null);
+                await this.utils.logout();
                 uni.navigateTo({
                     url: '/pages/index/index'
                 });

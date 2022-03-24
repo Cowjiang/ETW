@@ -1,32 +1,45 @@
-import {getUserToken, wsBaseUrl} from "@/common/js/api/models.js";
+import {getUserToken, httpBaseUrl, wsBaseUrl} from "@/common/js/api/models.js";
 
 /**
  * 连接WebSocket
- * @param {number} uid 用户id
+ * @param {String|Number} uid 用户id
  */
 export const connectSocket = uid => {
     return new Promise((resolve, reject) => {
-        getUserToken({})
-            .then(res => {
-                uni.connectSocket({
-                    url: `${wsBaseUrl}/${res.data}/${uid}`,
-                    header: {
-                        'content-type': 'application/json'
-                    },
-                    method: 'GET',
-                    success: socketResponse => {
-                        uni.onSocketOpen(res => {
-                            resolve(socketResponse);
-                        });
-                    },
-                    fail: err => {
-                        reject(err);
-                    }
-                });
-            })
-            .catch(err => {
+        let headerData = { "Content-type": "application/json" };
+        if (uni.getStorageSync("cookie") !== undefined) {
+            headerData["cookie"] = uni.getStorageSync("cookie");
+        }
+        uni.request({
+            url: `${httpBaseUrl}/socket/connection`,
+            method: 'GET',
+            header: headerData,
+            success: res => {
+                if (res.data.errorCode === 3002) {
+                    reject('未登录');
+                }
+                else {
+                    uni.connectSocket({
+                        url: `${wsBaseUrl}/${res.data.data}/${uid}`,
+                        header: {
+                            'content-type': 'application/json'
+                        },
+                        method: 'GET',
+                        success: socketResponse => {
+                            uni.onSocketOpen(res => {
+                                resolve(socketResponse);
+                            });
+                        },
+                        fail: err => {
+                            reject(err);
+                        }
+                    });
+                }
+            },
+            fail: err => {
                 reject(err);
-            })
+            }
+        });
     });
 }
 

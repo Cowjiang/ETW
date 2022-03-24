@@ -201,14 +201,7 @@
             async operate(id) {
                 switch (id) {
                     case 0:
-                        await logOut();
-                        await uni.removeStorage({
-                            key: 'cookie'
-                        });
-                        await uni.removeStorage({
-                            key: 'userInfo'
-                        });
-                        this.$store.commit('userInfo', null);
+                        await this.utils.logout();
                         this.$refs.toast.show({
                             text: `已清除登陆状态`,
                             direction: 'top',
@@ -225,7 +218,7 @@
                         });
                         break;
                     case 2:
-                        const senderInfo = `senderId=${0}&senderName=新用户_k8teXaLqjJ73HSsG13ms5&senderAvatar=https://com-etw.oss-cn-guangzhou.aliyuncs.com/user-avatar/1/3876f256ca244d588605da3903a1628d.png`;
+                        const senderInfo = `senderId=${35}&senderName=Cowjiang&Avatar=https://com-etw.oss-cn-guangzhou.aliyuncs.com/user-avatar/1/3876f256ca244d588605da3903a1628d.png`;
                         uni.navigateTo({
                             url: `/pages/chat/subpages/chatDetail/chatDetail?${senderInfo}`
                         });

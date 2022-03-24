@@ -119,6 +119,7 @@
       .favorite-container {
         width: 80rpx;
         height: fit-content;
+        opacity: 0;
 
         .favorite-btn {
           font-size: 38rpx;
@@ -257,7 +258,7 @@
       flex-direction: row;
 
       .u-tabs-container {
-        width: 55vw;
+        width: 35vw;
         flex-shrink: 0;
 
         .u-tabs {

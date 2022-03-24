@@ -242,6 +242,12 @@ export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic
     requestConfig
 });
 
+//获取我的未读动态数量
+export const getMyTrendUnreadCount = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/remind/count`, {
+    method: "GET",
+    requestConfig
+});
+
 //获取某用户的动态列表
 export const getUserTrendList = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/user/${requestConfig.urlParam.userId}`, {
     method: "GET",

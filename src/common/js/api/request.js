@@ -72,7 +72,10 @@ export const apiRequest = (url, paramObject) => {
                     switch (errorCode) {
                         case 200:
                             if (res.header["Set-Cookie"] !== undefined) {
-                                uni.setStorageSync('cookie', res.header["Set-Cookie"])
+                                uni.setStorageSync('cookie', res.header["Set-Cookie"]);
+                            }
+                            if (!store.state.socketStatus) {
+                                utils.connectSocket().then(res => {});
                             }
                             resolve(res.data);
                             break;
