@@ -129,7 +129,7 @@ export class Utils {
                     const data = JSON.parse(res.data);
                     if (data.errorCode === 120) {
                         store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
-                        const newMessage = data.data;
+                        const newMessage = data.data.messageInfo;
                         const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
                         if (findIndex !== -1) {
                             //消息列表中存在的消息
@@ -151,16 +151,16 @@ export class Utils {
                         else {
                             //消息列表中不存在的消息
                             chatMessages.unshift({
-                                senderName: '', //用户名称
-                                senderId: data.data.friendId, //用户ID
-                                senderAvatar: '', //用户头像地址
-                                messageId: data.data.id, //消息ID
-                                content: data.data.content, //消息内容
-                                isPhoto: !data.data.isText, //是否为图片消息
-                                time: data.data.createdTime, //消息发送时间
-                                isRead: data.data.isRead, //消息是否已读
+                                senderName: data.data.userInfo.username, //用户名称
+                                senderId: data.data.messageInfo.friendId, //用户ID
+                                senderAvatar: data.data.userInfo.avgPath, //用户头像地址
+                                messageId: data.data.messageInfo.id, //消息ID
+                                content: data.data.messageInfo.content, //消息内容
+                                isPhoto: !data.data.messageInfo.isText, //是否为图片消息
+                                time: data.data.messageInfo.createdTime, //消息发送时间
+                                isRead: data.data.messageInfo.isRead, //消息是否已读
                                 unreadCount: 1, //当前对话消息未读数量
-                                isBlocked: data.data.isBlocked, //聊天对象是否在黑名单中
+                                isBlocked: false, //聊天对象是否在黑名单中
                             });
                         }
                         store.commit('chatMessages', chatMessages);

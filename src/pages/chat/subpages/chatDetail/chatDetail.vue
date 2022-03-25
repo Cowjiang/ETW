@@ -334,7 +334,7 @@
             receiveNewMessage(data) {
                 console.log(data);
                 if (data.errorCode === 120) {
-                    let newMessage = data.data;
+                    let newMessage = data.data.messageInfo;
                     if (newMessage.senderId.toString() === this.friendInfo.userId) {
                         this.scrollToViewId = `messageTopView`;
                         setTimeout(() => {

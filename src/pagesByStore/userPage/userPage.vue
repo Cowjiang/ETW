@@ -5,7 +5,17 @@
     <loading ref="loading" fullscreen/>
 
     <view class="user-page-container">
+      <view class="user-info-container">
+        <view class="cover-image-container">
+          <image
+            class="cover-image"
+            :src="userInfo.coverUrl"
+            mode="aspectFill"/>
+        </view>
+      </view>
+      <view class="content-container">
 
+      </view>
     </view>
   </view>
 </template>
@@ -24,6 +34,7 @@
         data() {
             return {
                 userId: '', //用户Id
+                userInfo: {}, //用户的信息
             }
         },
         methods: {
@@ -38,6 +49,7 @@
                     }).then(res => {
                         if (res.success) {
                             console.log(res);
+                            this.userInfo = res.data;
                         }
                         else throw new Error(res);
                     }).catch(error => {
