@@ -1,5 +1,5 @@
+import store from '@/common/js/store';
 import {closeSocket, connectSocket} from "@/common/js/api/socket";
-import store from '@/common/js/store'
 import {logOut} from "@/common/js/api/models";
 
 export class Utils {

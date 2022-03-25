@@ -1,4 +1,5 @@
-import {getUserToken, httpBaseUrl, wsBaseUrl} from "@/common/js/api/models.js";
+import store from '@/common/js/store';
+import {httpBaseUrl, wsBaseUrl} from "@/common/js/api/models.js";
 
 /**
  * 连接WebSocket
@@ -16,6 +17,7 @@ export const connectSocket = uid => {
             header: headerData,
             success: res => {
                 if (res.data.errorCode === 3002) {
+                    store.commit('userInfo', null);
                     reject('未登录');
                 }
                 else {

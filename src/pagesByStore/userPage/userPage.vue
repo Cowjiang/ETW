@@ -28,35 +28,39 @@
         },
         methods: {
             // 获取用户信息
-            getUserInfo() {
-                getUserSimpleInfo({
-                    urlParam: {
-                        userId: this.userId,
-                        extend: true
-                    }
-                }).then(res => {
-                    if (res.success) {
-                        console.log(res);
-                    }
-                    else throw new Error(res);
-                }).catch(error => {
-                    console.error(error);
-                });
+            async getUserInfo() {
+                if (!!this.userId) {
+                    await getUserSimpleInfo({
+                        urlParam: {
+                            userId: this.userId,
+                            extend: true
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            console.log(res);
+                        }
+                        else throw new Error(res);
+                    }).catch(error => {
+                        console.error(error);
+                    });
+                }
             },
             // 获取用户的动态列表
-            getUserTrendList() {
-                getUserTrendList({
-                    urlParam: {
-                        userId: this.userId,
-                    }
-                }).then(res => {
-                    if (res.success) {
-                        console.log(res);
-                    }
-                    else throw new Error(res);
-                }).catch(error => {
-                    console.error(error);
-                });
+            async getUserTrendList() {
+                if (!!this.userId) {
+                    await getUserTrendList({
+                        urlParam: {
+                            userId: this.userId,
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            console.log(res);
+                        }
+                        else throw new Error(res);
+                    }).catch(error => {
+                        console.error(error);
+                    });
+                }
             }
         },
         async onLoad() {
