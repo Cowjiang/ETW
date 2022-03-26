@@ -1,30 +1,335 @@
+.navigation-menu-button {
+  height: 100%;
+  border-radius: 50rpx;
+  border: 1rpx solid rgba(100, 100, 100, 0.1);
+  background-color: rgba(255, 255, 255, 0.6);
+
+  .navigation-menu-button-content {
+    display: flex;
+
+    .navigation-back {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+
+      .fas {
+        font-size: 40rpx;
+        color: #000;
+      }
+    }
+
+    .navigation-menu {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border-left: 1rpx solid rgba(100, 100, 100, 0.1);
+
+      .fas {
+        font-size: 32rpx;
+        color: #000;
+      }
+    }
+  }
+}
+
 .user-page-container {
   width: 100vw;
   height: 100%;
 
-  .user-info-container {
-    width: 100%;
-    height: 35vh;
-    background-color: #f1f1f1;
-    overflow: hidden;
+  .cover-image-container {
+    width: 100vw;
 
-    .cover-image-container {
-      width: inherit;
-      height: 0;
+    .cover-image {
+      width: 100vw;
+      height: 30vh;
+    }
 
-      .cover-image {
-        width: 100vw;
-        height: 35vh;
-      }
+    .cover-mask {
+      width: 100vw;
+      height: 30vh;
+      position: absolute;
+      top: 0;
+      background-color: rgba(0, 0, 0, 0.3);
     }
   }
-
   .content-container {
     width: 100%;
     height: fit-content;
-    min-height: calc(65vh + 30rpx);
+    min-height: calc(70vh - 50rpx);
+    padding: 0 40rpx;
     border-radius: 40rpx 40rpx 0 0;
     background-color: #fff;
-    transform: translateY(-30rpx);
+    transform: translateY(-50rpx);
+
+    .user-info-container {
+      width: 100%;
+
+      .user-info__row {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+
+        .avatar-container {
+          width: 194rpx;
+          height: 194rpx;
+          flex-shrink: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-right: 30rpx;
+          border-radius: 50%;
+          overflow: hidden;
+          background-color: #fff;
+          transform: translateY(-50rpx);
+
+          .avatar-image {
+            width: 180rpx;
+            height: 180rpx;
+            border-radius: 50%;
+          }
+        }
+
+        .focus, .fans {
+          min-width: 90rpx;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 10rpx 0 0 0;
+          line-height: 1.2;
+
+          .title {
+            font-size: 24rpx;
+            color: #999;
+          }
+
+          .content {
+            font-size: 30rpx;
+            color: #111;
+            font-weight: bold;
+          }
+        }
+
+        .btn-group {
+          width: fit-content;
+          margin-left: auto;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          flex-shrink: 0;
+          margin-top: 10rpx;
+
+          .focus-btn__default {
+            width: 160rpx;
+            height: 60rpx;
+            border-radius: 50rpx;
+            font-size: 28rpx;
+            line-height: 60rpx;
+            text-align: center;
+            color: #fff;
+            background: #f4756b;
+          }
+
+          .focus-btn__focused {
+            color: #666;
+            background: #f6f6f6;
+          }
+
+          .chat-btn {
+            width: 60rpx;
+            height: 60rpx;
+            margin-left: 10rpx;
+            font-size: 28rpx;
+            border-radius: 50rpx;
+            line-height: 60rpx;
+            text-align: center;
+            color: #f4756b;
+            background-color: #f1f1f1;
+          }
+        }
+
+        .username {
+          max-width: 80vw;
+          font-size: 40rpx;
+          font-weight: bold;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
+        .gender {
+          margin-left: 20rpx;
+          border-radius: 50%;
+          font-size: 30rpx;
+
+          .gender-gentleman, .gender-lady {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .gender-gentleman {
+            color: #228be6;
+          }
+
+          .gender-lady {
+            color: #f4756b;
+          }
+        }
+
+        .area-name {
+          margin-top: 14rpx;
+          border-radius: 30rpx;
+          font-size: 24rpx;
+          color: #888;
+
+          .fas {
+            margin-right: 10rpx;
+          }
+        }
+
+        &:first-child {
+          height: 130rpx;
+        }
+      }
+    }
+
+    .main-content-container {
+      .u-tabs-container {
+
+      }
+
+      .trends-container {
+        .trend {
+          width: 100%;
+          padding: 20rpx 0 40rpx 0;
+
+          .time-row {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 20rpx 0;
+
+            .title {
+              font-size: 30rpx;
+              color: #f4756b;
+              font-weight: bold;
+
+              .far {
+                margin-right: 10rpx;
+              }
+            }
+
+            .time {
+              margin-left: auto;
+              font-size: 26rpx;
+              color: #888;
+            }
+          }
+
+          .content-row {
+            padding: 0 0 0 50rpx;
+
+            .trend-content-container {
+              padding: 20rpx;
+              font-size: 28rpx;
+              line-height: 1.5;
+              background-color: #f6f6f6;
+              color: #666;
+              border-radius: 20rpx;
+
+              .content-text {
+                display: -webkit-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: normal !important;
+                -webkit-line-clamp: 5;
+                -webkit-box-orient: vertical;
+              }
+
+              .content-images {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                padding: 20rpx 0 0 0;
+
+                .trend-image {
+                  width: 12vw;
+                  height: 12vw;
+                  margin-right: 8rpx;
+                  display: flex;
+                  flex-direction: row;
+                  flex-wrap: nowrap;
+                  border-radius: 12rpx;
+                  overflow: hidden;
+
+                  image {
+                    width: inherit;
+                    height: inherit;
+                    flex-shrink: 0;
+                    background-color: #eee;
+                  }
+
+                  .more-images {
+                    width: inherit;
+                    height: inherit;
+                    flex-shrink: 0;
+                    position: relative;
+                    left: -12vw;
+                    background-color: rgba(255, 255, 255, 0.8);
+                    font-size: 36rpx;
+                    line-height: 12vw;
+                    text-align: center;
+                  }
+                }
+              }
+
+              .content-info {
+                width: 100%;
+                padding: 30rpx 0 0 0;
+                font-size: 24rpx;
+                color: #999;
+
+                text {
+                  margin-right: 20rpx;
+                }
+              }
+            }
+          }
+        }
+
+        .no-more {
+          height: fit-content;
+          width: 100%;
+          margin-top: 30rpx;
+          padding-bottom: 70rpx;
+          color: $uni-text-color-placeholder;
+          font-size: 26rpx;
+          text-align: center;
+
+          text {
+            margin-left: 10rpx;
+          }
+        }
+
+        .no-result {
+          width: 100%;
+          height: 100%;
+          padding: 20vh 0;
+          color: $uni-text-color-placeholder;
+          font-size: 26rpx;
+          text-align: center;
+        }
+      }
+    }
   }
 }

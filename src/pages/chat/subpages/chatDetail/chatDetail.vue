@@ -14,7 +14,7 @@
             <view class="navigation-back" @click="redirectToChatList">
               <i class="fas fa-angle-left"/>
             </view>
-            <view class="navigation-home" @click="handleMenuBtnClick">
+            <view class="navigation-menu" @click="handleMenuBtnClick">
               <i class="fas fa-bars"/>
             </view>
           </view>
@@ -195,7 +195,7 @@
         deleteChatHistory,
         getChatHistory,
         getUploadSignature,
-        getUserRelationships, removeFriend, removeFromBlockList,
+        getUserRelationships, getUserSimpleInfo, removeFriend, removeFromBlockList,
         sendMessage
     } from "@/common/js/api/models.js";
     import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
@@ -244,27 +244,34 @@
         },
         methods: {
             // 设置私聊会话基本信息
-            setChatBaseInfo() {
-                this.friendInfo.username = this.utils.getCurrentPage().curParam.senderName || null;
+            async setChatBaseInfo() {
                 this.friendInfo.userId = this.utils.getCurrentPage().curParam.senderId || null;
-                this.friendInfo.avgPath = this.utils.getCurrentPage().curParam.senderAvatar || null;
-                if (this.friendInfo.username === null || this.friendInfo.userId === null) {
+                if (!this.friendInfo.userId) {
                     this.redirectToChatList();
                     return;
                 }
-                uni.getStorage({
-                    key: 'userInfo',
-                    success: res => {
-                        this.myInfo.userId = res.data.userId;
-                        this.myInfo.username = res.data.username;
-                        this.myInfo.avgPath = res.data.avgPath;
+                await getUserSimpleInfo({
+                    urlParam: {
+                        userId: this.friendInfo.userId
                     }
+                }).then(res => {
+                    if (res.success) {
+                        this.friendInfo.username = res.data.username;
+                        this.friendInfo.avgPath = res.data.avgPath;
+                        this.$refs.navigationBar.setNavigation({
+                            titleText: this.friendInfo.username,
+                            backgroundColor: '#ffffff',
+                            customBackFunc: this.redirectToChatList
+                        });
+                    }
+                    else throw new Error(res);
+                }).catch(error => {
+                    console.error(error);
+                    this.redirectToChatList();
                 });
-                this.$refs.navigationBar.setNavigation({
-                    titleText: this.friendInfo.username,
-                    backgroundColor: '#ffffff',
-                    customBackFunc: this.redirectToChatList
-                });
+                this.myInfo.userId = this.$store.state.userInfo.userId;
+                this.myInfo.username = this.$store.state.userInfo.username;
+                this.myInfo.avgPath = this.$store.state.userInfo.avgPath;
             },
             /**
              * 获取聊天消息记录
@@ -537,7 +544,7 @@
             },
             // 监听消息长按事件
             handleLongPress(e) {
-                wx.vibrateShort();
+                uni.vibrateShort();
                 this.utils.throttle(() => {
                     if (e.target.dataset.name !== undefined) {
                         let targetId = parseInt(e.target.dataset.name.replace('message', ''));
@@ -605,7 +612,7 @@
                         });
                     }
                     else {
-                        wx.hideLoading();
+                        uni.hideLoading();
                         this.$refs.toast.show({
                             text: '删除失败',
                             type: 'error',
@@ -650,10 +657,13 @@
             // 导航栏菜单按钮点击事件
             handleMenuBtnClick() {
                 uni.showActionSheet({
-                    itemList: ['查看个人主页', `${this.isFocused ? '取消关注' : '关注'}`, `${this.isBlocked ? '移除黑名单' : '加入黑名单'}`],
+                    itemList: ['查看个人主页', `${this.isFocused ? '取消关注' : '关注'}`, `${this.isBlocked ? '移出黑名单' : '加入黑名单'}`],
                     success: res => {
                         if (res.tapIndex === 0) {
                             //查看个人主页
+                            uni.navigateTo({
+                                url: `/pagesByStore/userPage/userPage?userId=${this.friendInfo.userId}`
+                            });
                         }
                         else if (res.tapIndex === 1) {
                             //关注操作
@@ -685,7 +695,7 @@
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
-                            text: '移除黑名单失败',
+                            text: '移出黑名单失败',
                             type: 'error',
                             direction: 'top'
                         });
@@ -842,13 +852,13 @@
             this.navigationButtonWidth = this.$refs.navigationBar.navigationButtonWidth;
             this.navigationButtonHeight = this.$refs.navigationBar.navigationBarHeight;
         },
-        onShow() {
-            this.setChatBaseInfo(); //设置会话信息
-            this.getUserRelationships();
+        async onShow() {
             this.$refs.loading.startLoading({
                 width: this.windowWidth,
                 height: this.windowHeight - this.navigationHeight
             }); //开启loading动画
+            await this.setChatBaseInfo(); //设置会话信息
+            await this.getUserRelationships();
             this.startCheckingUpdate();
             uni.onSocketMessage(res => {
                 this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息

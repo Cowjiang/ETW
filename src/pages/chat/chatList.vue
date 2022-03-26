@@ -273,19 +273,18 @@
             toChatDetail(e) {
                 const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 let chatMessagesTemp = this.chatMessages;
-                const senderInfo = `senderId=${this.chatMessages[targetId].senderId}&senderName=${this.chatMessages[targetId].senderName}&senderAvatar=${this.chatMessages[targetId].senderAvatar}`;
                 chatMessagesTemp[targetId].isRead = true;
                 this.$store.commit('chatMessages', chatMessagesTemp);
                 uni.removeTabBarBadge({
                     index: 2
                 });
                 uni.navigateTo({
-                    url: `/pages/chat/subpages/chatDetail/chatDetail?${senderInfo}`,
+                    url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${this.chatMessages[targetId].senderId}`
                 });
             },
             // 监听长按事件
             handleLongPress(e) {
-                wx.vibrateShort();
+                uni.vibrateShort();
                 const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
                     itemList: ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单'],

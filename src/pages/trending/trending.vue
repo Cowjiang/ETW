@@ -34,11 +34,11 @@
         :key="trend.id"
         @click="gotoTrendDetail(trend.id)">
         <view class="user-info-container" @click.stop>
-          <view class="avatar-container">
+          <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
             <image :src="trend.userInfo.avgPath" mode="aspectFill"/>
           </view>
           <view class="user-container">
-            <view class="username">{{ trend.userInfo.username }}</view>
+            <view class="username" @click="gotoUserPage(trend.userInfo.id)">{{ trend.userInfo.username }}</view>
             <view class="post-time">{{ trend.createdTime | formatTime }}</view>
           </view>
         </view>
@@ -256,6 +256,15 @@
                         url: `/pages/trending/subpages/trendDetail/trendDetail?id=${trendId}`,
                     });
                 }
+            },
+            /**
+             * 跳转用户个人主页
+             * @param {Number|String} userId 用户ID
+             */
+            gotoUserPage(userId) {
+                uni.navigateTo({
+                    url: `/pagesByStore/userPage/userPage?userId=${userId}`
+                });
             },
             /**
              * 动态点赞事件

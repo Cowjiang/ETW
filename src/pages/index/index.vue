@@ -112,7 +112,7 @@
                     },
                     {
                         name: '用户主页',
-                        url: '/pagesByStore/userPage/userPage'
+                        url: '/pagesByStore/userPage/userPage?userId=37'
                     }
                 ]
             },
@@ -218,9 +218,8 @@
                         });
                         break;
                     case 2:
-                        const senderInfo = `senderId=${35}&senderName=Cowjiang&Avatar=https://com-etw.oss-cn-guangzhou.aliyuncs.com/user-avatar/1/3876f256ca244d588605da3903a1628d.png`;
                         uni.navigateTo({
-                            url: `/pages/chat/subpages/chatDetail/chatDetail?${senderInfo}`
+                            url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${35}`
                         });
                         break;
                     default:

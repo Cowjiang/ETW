@@ -1,20 +1,192 @@
 <template>
   <view>
-    <navigationBar ref="navigationBar"/>
+    <navigationBar ref="navigationBar">
+      <template v-slot:button>
+        <view
+          class="navigation-menu-button"
+          :style="{width: `${navigationButtonWidth}px`}">
+          <view
+            class="navigation-menu-button-content"
+            :style="{
+              height: `${0.54 * navigationButtonHeight}px`,
+              margin: `${0.23 * navigationButtonHeight}px 0`,
+            }">
+            <view class="navigation-back" @click="navigateBack">
+              <i class="fas fa-angle-left"/>
+            </view>
+            <view class="navigation-menu" @click="handleMenuBtnClick">
+              <i class="fas fa-bars"/>
+            </view>
+          </view>
+        </view>
+      </template>
+    </navigationBar>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen/>
+    <selectArea ref="selectArea"/>
 
     <view class="user-page-container">
-      <view class="user-info-container">
-        <view class="cover-image-container">
-          <image
-            class="cover-image"
-            :src="userInfo.coverUrl"
-            mode="aspectFill"/>
-        </view>
+      <view class="cover-image-container">
+        <image
+          class="cover-image"
+          :src="userInfo.coverUrl"
+          mode="aspectFill"/>
+        <view
+          class="cover-mask"
+          v-if="userInfo.coverUrl"
+          @click="previewImage(userInfo.coverUrl)"></view>
       </view>
       <view class="content-container">
-
+        <view class="user-info-container">
+          <view class="user-info__row">
+            <view class="avatar-container">
+              <image
+                class="avatar-image"
+                :src="userInfo.avgPath"
+                mode="aspectFill"
+                @click="previewImage(userInfo.avgPath)"/>
+            </view>
+            <view class="focus">
+              <view class="content">
+                {{ userInfo.attentions || 0 }}
+              </view>
+              <view class="title">
+                关注
+              </view>
+            </view>
+            <view class="fans">
+              <view class="content">
+                {{ userInfo.fans || 0 }}
+              </view>
+              <view class="title">
+                粉丝
+              </view>
+            </view>
+            <view class="btn-group">
+              <view
+                class="focus-btn__default"
+                :class="isFocused ? 'focus-btn__focused' : ''"
+                @click="handleFocus">
+                {{ isFocused ? '已关注' : '关注' }}
+              </view>
+              <view class="chat-btn" @click="gotoChatDetail">
+                <i class="fas fa-comments"/>
+              </view>
+            </view>
+          </view>
+          <view class="user-info__row">
+            <view class="username">
+              {{ userInfo.username || '' }}
+            </view>
+            <view class="gender">
+              <view
+                class="gender-gentleman"
+                v-if="gender === 1">
+                <i class="fa-solid fa-mars"/>
+              </view>
+              <view
+                class="gender-lady"
+                v-if="gender === 2">
+                <i class="fa-solid fa-venus"/>
+              </view>
+            </view>
+          </view>
+          <view class="user-info__row">
+            <view
+              v-if="areaName"
+              class="area-name">
+              <i class="fas fa-location-dot"/>
+              {{ areaName }}
+            </view>
+          </view>
+        </view>
+        <u-divider
+          :margin-top="40"
+          :margin-bottom="20"
+          half-width="100%"
+          :use-slot="false"/>
+        <view
+          class="main-content-container">
+          <view class="u-tabs-container">
+            <u-tabs
+              class="u-tabs"
+              :list="[{name: '动态'}, {name: '作品'}]"
+              :is-scroll="false"
+              :current="currentTab"
+              active-color="#f4756b"
+              :bar-height="8"
+              @change="handleTabsChange"/>
+          </view>
+          <view
+            v-show="currentTab === 0"
+            class="trends-container">
+            <view
+              class="trend"
+              v-for="trend in trendList"
+              :key="trend.id"
+              @click="gotoTrendDetail(trend.id)">
+              <view class="time-row">
+                <view class="title">
+                  <i class="far fa-comment"/>
+                  发布动态
+                </view>
+                <view class="time">
+                  {{ trend.createdTime | formatTime }}
+                </view>
+              </view>
+              <view class="content-row">
+                <view class="trend-content-container">
+                  <view class="content-text">
+                    {{ trend.content || '' }}
+                  </view>
+                  <view
+                    v-if="trend.dynamicImages.length"
+                    class="content-images">
+                    <view
+                      class="trend-image"
+                      v-for="trendImage in trend.dynamicImages.slice(0, 5)"
+                      :key="trendImage.id">
+                      <image
+                        :src="trendImage.imgUrl"
+                        mode="aspectFill"/>
+                    </view>
+                    <view
+                      v-if="trend.dynamicImages.length > 5"
+                      class="trend-image">
+                      <image
+                        :src="trend.dynamicImages[6].imgUrl"
+                        mode="aspectFill"/>
+                      <view class="more-images">
+                        +{{ trend.dynamicImages.length - 5 }}
+                      </view>
+                    </view>
+                  </view>
+                  <view class="content-info">
+                    <text>
+                      {{ trend.likeNumber }}人点赞
+                    </text>
+                    <text>
+                      {{ trend.commentNumber }}条评论
+                    </text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view class="no-more" v-if="trendList.length">
+              <text>没有更多了哦 ~</text>
+            </view>
+            <view class="no-result" v-else-if="!trendList.length">
+              <text>一条动态也没有哦 ~</text>
+            </view>
+          </view>
+          <view
+            v-show="currentTab === 1"
+            class="trends-container">
+            <view class="no-result">
+              <text>一个作品也没有哦 ~</text>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -24,36 +196,75 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {getUserSimpleInfo, getUserTrendList} from "@/common/js/api/models";
+    import selectArea from "@/components/selectPopup/selectArea/selectArea";
+    import {
+        addFriend, addToBlockList,
+        getUserRelationships,
+        getUserSimpleInfo,
+        getUserTrendList,
+        removeFriend, removeFromBlockList
+    } from "@/common/js/api/models";
 
     export default {
         name: "userPage",
         components: {
-            toast, navigationBar, loading
+            toast, navigationBar, loading, selectArea
         },
         data() {
             return {
+                windowWidth: 0, //窗口宽度
+                windowHeight: 0, //窗口高度
+                navigationHeight: 0, //导航栏高度
+                navigationButtonWidth: 0, //导航栏胶囊按钮宽度
+                navigationButtonHeight: 0, //导航栏胶囊按钮高度
                 userId: '', //用户Id
                 userInfo: {}, //用户的信息
+                isBlocked: false, //是否已拉黑
+                isFocused: false, //是否已关注
+                currentTab: 0, //当前显示的标签栏序号
+                trendList: [], //用户的动态列表
+                coverVisible: true, //封面图片是否可见
             }
         },
         methods: {
             // 获取用户信息
             async getUserInfo() {
                 if (!!this.userId) {
-                    await getUserSimpleInfo({
-                        urlParam: {
-                            userId: this.userId,
-                            extend: true
-                        }
-                    }).then(res => {
-                        if (res.success) {
-                            console.log(res);
-                            this.userInfo = res.data;
-                        }
-                        else throw new Error(res);
+                    const getUserSimpleInfoPromise = new Promise((resolve, reject) => {
+                        getUserSimpleInfo({
+                            urlParam: {
+                                userId: this.userId,
+                                extend: true
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.userInfo = res.data;
+                                resolve();
+                            }
+                            else throw new Error(res);
+                        }).catch(error => {
+                            reject(error);
+                        });
+                    });
+                    const getUserRelationshipsPromise = new Promise((resolve, reject) => {
+                        getUserRelationships({
+                            urlParam: {
+                                userId: this.userId
+                            }
+                        }).then(res => {
+                            this.isBlocked = res.data.isBlocked;
+                            this.isFocused = res.data.isFriend;
+                            resolve();
+                        }).catch(err => {
+                            reject(err);
+                        });
+                    });
+                    await Promise.all([getUserSimpleInfoPromise, getUserRelationshipsPromise]).then(res => {
+                        setTimeout(() => {
+                            this.$refs.loading.stopLoading();
+                        }, 300);
                     }).catch(error => {
-                        console.error(error);
+                        console.error()
                     });
                 }
             },
@@ -66,18 +277,218 @@
                         }
                     }).then(res => {
                         if (res.success) {
-                            console.log(res);
+                            this.trendList = res.data.records;
                         }
                         else throw new Error(res);
                     }).catch(error => {
                         console.error(error);
                     });
                 }
+            },
+            // 切换菜单标签
+            handleTabsChange(index) {
+                this.currentTab = index;
+            },
+            // 返回上一级页面
+            navigateBack() {
+                uni.navigateBack({
+                    fail: () => {
+                        uni.switchTab({
+                            url: `/pages/index/index`,
+                            fail: () => {
+                                uni.redirectTo({
+                                    url: `/pages/index/index`,
+                                    fail: err => {
+                                        console.error(err);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }); //返回上一页
+            },
+            /**
+             * 全屏预览图片
+             * @param {String} url 图片Url
+             */
+            previewImage(url) {
+                uni.previewImage({
+                    urls: [url]
+                });
+            },
+            // 用户关注操作
+            async handleFocus() {
+                this.utils.throttle(async () => {
+                    if (this.isFocused) {
+                        //已关注
+                        await removeFriend({
+                            urlParam: {
+                                userId: this.userInfo.userId
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.isFocused = false;
+                            }
+                            else throw new Error(res);
+                        }).catch(err => {
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: '取消关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        });
+                    }
+                    else {
+                        //未关注
+                        await addFriend({
+                            urlParam: {
+                                userId: this.userInfo.userId
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.isFocused = true;
+                            }
+                            else throw new Error(res);
+                        }).catch(err => {
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: '关注失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
+                        });
+                    }
+                }, 1000);
+            },
+            // 用户拉黑操作
+            async handleBlock() {
+                if (this.isBlocked) {
+                    //已拉黑
+                    await removeFromBlockList({
+                        urlParam: {
+                            userId: this.userInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isBlocked = false;
+                        }
+                        else throw new Error(res);
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '移出黑名单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+                else {
+                    //未拉黑
+                    await addToBlockList({
+                        urlParam: {
+                            userId: this.userInfo.userId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.isBlocked = true;
+                        }
+                        else throw new Error(res);
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '加入黑名单失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    });
+                }
+            },
+            // 导航栏菜单按钮点击事件
+            handleMenuBtnClick() {
+                uni.showActionSheet({
+                    itemList: [`${this.isBlocked ? '移出黑名单' : '加入黑名单'}`, '举报'],
+                    success: res => {
+                        if (res.tapIndex === 0) {
+                            //黑名单操作
+                            this.handleBlock();
+                        }
+                        else if (res.tapIndex === 1) {
+                            //举报操作
+                            this.$refs.toast.show({
+                                text: '举报成功',
+                                type: 'success',
+                                direction: 'top'
+                            });
+                        }
+                    }
+                });
+            },
+            /**
+             * 跳转动态详情页
+             * @param {Number|String} trendId 动态ID
+             */
+            gotoTrendDetail(trendId) {
+                this.utils.throttle(() => {
+                    uni.navigateTo({
+                        url: `/pages/trending/subpages/trendDetail/trendDetail?id=${trendId}`,
+                        fail: err => {
+                            console.error(err);
+                        }
+                    });
+                }, 1000);
+            },
+            // 跳转私信详情页
+            gotoChatDetail() {
+                this.utils.throttle(() => {
+                    uni.navigateTo({
+                        url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${this.userInfo.userId}`
+                    });
+                }, 1000);
+            }
+        },
+        computed: {
+            // 用户性别
+            gender() {
+                return this.userInfo.gender || 0;
+            },
+            // 地区名称（根据地区编号查询）
+            areaName: {
+                get() {
+                    if (!!this.userInfo.areaCode) {
+                        const queryResult = this.$refs.selectArea.queryAreaName(this.userInfo.areaCode);
+                        return queryResult ? `${queryResult[0].replace('省', '')}${queryResult[1].replace('市', '')}` : null;
+                    }
+                    else return null;
+                }
+            }
+        },
+        onPageScroll(e) {
+            if (e.scrollTop > this.windowHeight * 0.2 && this.coverVisible) {
+                this.coverVisible = false;
+                this.$refs.navigationBar.setNavigation({
+                    titleText: `${this.userInfo.username}的个人主页`,
+                    backgroundColor: '#fff'
+                });
+            }
+            else if (e.scrollTop < this.windowHeight * 0.2 && !this.coverVisible) {
+                this.coverVisible = true;
+                this.$refs.navigationBar.setNavigation({
+                    titleText: '',
+                });
             }
         },
         async onLoad() {
             this.$refs.loading.startLoading();
             this.userId = this.utils.getCurrentPage().curParam.userId || null;
+            if (this.userId === 'undefined') {
+                this.$refs.toast.show({
+                    text: '获取个人信息失败',
+                    type: 'error',
+                    direction: 'top'
+                });
+                return;
+            }
             if (!this.userId) {
                 if (!(this.userId = uni.getStorageSync('userInfo').userId || null)) {
                     uni.getStorage({
@@ -97,11 +508,13 @@
             }
             await this.getUserInfo();
             await this.getUserTrendList();
-            setTimeout(() => {
-                this.$refs.loading.stopLoading();
-            }, 300);
         },
         mounted() {
+            this.windowWidth = this.$store.state.windowWidth;
+            this.windowHeight = this.$store.state.windowHeight;
+            this.navigationHeight = this.$store.state.navigationHeight;
+            this.navigationButtonWidth = this.$refs.navigationBar.navigationButtonWidth;
+            this.navigationButtonHeight = this.$refs.navigationBar.navigationBarHeight;
             this.$refs.navigationBar.setNavigation({
                 titleText: '',
             });
