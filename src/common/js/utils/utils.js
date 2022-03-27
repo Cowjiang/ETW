@@ -1,6 +1,6 @@
 import store from '@/common/js/store';
 import {closeSocket, connectSocket} from "@/common/js/api/socket";
-import {logOut} from "@/common/js/api/models";
+import {getMyUnreadChatCount, logOut} from "@/common/js/api/models";
 
 export class Utils {
     constructor() {
@@ -119,59 +119,70 @@ export class Utils {
 
     // 连接socket
     async connectSocket() {
-        if (store.state.userInfo) {
-            await connectSocket(store.state.userInfo.userId).then(res => {
-                console.log('已连接socket');
-                store.commit('socketStatus', true);
-                uni.onSocketMessage(res => {
-                    console.log(res)
-                    let chatMessages = store.state.chatMessages;
-                    const data = JSON.parse(res.data);
-                    if (data.errorCode === 120) {
-                        store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
-                        const newMessage = data.data.messageInfo;
-                        const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
-                        if (findIndex !== -1) {
-                            //消息列表中存在的消息
-                            const messageTemp = chatMessages[findIndex];
-                            chatMessages.splice(findIndex, 1);
-                            chatMessages.unshift({
-                                senderName: messageTemp.senderName, //用户名称
-                                senderId: messageTemp.senderId, //用户ID
-                                senderAvatar: messageTemp.senderAvatar, //用户头像地址
-                                messageId: newMessage.id, //消息ID
-                                content: newMessage.content, //消息内容
-                                isPhoto: !newMessage.isText, //是否为图片消息
-                                time: newMessage.createdTime, //消息发送时间
-                                isRead: newMessage.isRead, //消息是否已读
-                                unreadCount: messageTemp.unreadCount + 1 || 1, //当前对话消息未读数量
-                                isBlocked: messageTemp.isBlocked, //聊天对象是否在黑名单中
-                            });
+        return new Promise((resolve, reject) => {
+            if (store.state.userInfo) {
+                connectSocket(store.state.userInfo.userId).then(() => {
+                    console.log('已连接socket');
+                    store.commit('socketStatus', true);
+                    getMyUnreadChatCount().then(res => {
+                        if (res.success) {
+                            store.commit('unreadMessageCount', res.data);
                         }
-                        else {
-                            //消息列表中不存在的消息
-                            chatMessages.unshift({
-                                senderName: data.data.userInfo.username, //用户名称
-                                senderId: data.data.messageInfo.friendId, //用户ID
-                                senderAvatar: data.data.userInfo.avgPath, //用户头像地址
-                                messageId: data.data.messageInfo.id, //消息ID
-                                content: data.data.messageInfo.content, //消息内容
-                                isPhoto: !data.data.messageInfo.isText, //是否为图片消息
-                                time: data.data.messageInfo.createdTime, //消息发送时间
-                                isRead: data.data.messageInfo.isRead, //消息是否已读
-                                unreadCount: 1, //当前对话消息未读数量
-                                isBlocked: false, //聊天对象是否在黑名单中
-                            });
+                    }).catch(err => {});
+                    uni.onSocketMessage(res => {
+                        console.log(res)
+                        let chatMessages = store.state.chatMessages;
+                        const data = JSON.parse(res.data);
+                        if (data.errorCode === 120) {
+                            store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
+                            const newMessage = data.data.messageInfo;
+                            const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
+                            if (findIndex !== -1) {
+                                //消息列表中存在的消息
+                                const messageTemp = chatMessages[findIndex];
+                                chatMessages.splice(findIndex, 1);
+                                chatMessages.unshift({
+                                    senderName: messageTemp.senderName, //用户名称
+                                    senderId: messageTemp.senderId, //用户ID
+                                    senderAvatar: messageTemp.senderAvatar, //用户头像地址
+                                    messageId: newMessage.id, //消息ID
+                                    content: newMessage.content, //消息内容
+                                    isPhoto: !newMessage.isText, //是否为图片消息
+                                    time: newMessage.createdTime, //消息发送时间
+                                    isRead: newMessage.isRead, //消息是否已读
+                                    unreadCount: messageTemp.unreadCount + 1 || 1, //当前对话消息未读数量
+                                    isBlocked: messageTemp.isBlocked, //聊天对象是否在黑名单中
+                                });
+                            }
+                            else {
+                                //消息列表中不存在的消息
+                                chatMessages.unshift({
+                                    senderName: data.data.userInfo.username, //用户名称
+                                    senderId: data.data.messageInfo.friendId, //用户ID
+                                    senderAvatar: data.data.userInfo.avgPath, //用户头像地址
+                                    messageId: data.data.messageInfo.id, //消息ID
+                                    content: data.data.messageInfo.content, //消息内容
+                                    isPhoto: !data.data.messageInfo.isText, //是否为图片消息
+                                    time: data.data.messageInfo.createdTime, //消息发送时间
+                                    isRead: data.data.messageInfo.isRead, //消息是否已读
+                                    unreadCount: 1, //当前对话消息未读数量
+                                    isBlocked: false, //聊天对象是否在黑名单中
+                                });
+                            }
+                            store.commit('chatMessages', chatMessages);
                         }
-                        store.commit('chatMessages', chatMessages);
+                    });
+                    resolve();
+                }).catch(err => {
+                    if (err !== '未登录') {
+                        console.error(err);
                     }
                 });
-            }).catch(err => {
-                if (err !== '未登录') {
-                    console.error(err);
-                }
-            });
-        }
+            }
+            else {
+                reject('未登录');
+            }
+        });
     }
 
     // 关闭socket
@@ -189,6 +200,9 @@ export class Utils {
                 fail: err => {
                     console.error(err);
                 }
+            });
+            uni.removeTabBarBadge({
+                index: 2
             });
         }).catch(err => {
             if (err.errMsg === 'closeSocket:fail WebSocket is not connected') {

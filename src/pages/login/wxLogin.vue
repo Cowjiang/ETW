@@ -78,37 +78,39 @@
                                     //登陆成功
                                     if (isNewUser) {
                                         //新用户第一次登录
-                                        await this.utils.connectSocket();
-                                        uni.setStorage({
+                                        await uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
-                                            success: () => {
+                                            success: async () => {
                                                 this.$store.commit('userInfo', res.data);
-                                                this.$refs.loading.stopLoading();
-                                                this.getUserProfile();
+                                                await this.utils.connectSocket().then(() => {
+                                                    this.$refs.loading.stopLoading();
+                                                    this.getUserProfile();
+                                                });
                                             },
                                         });
                                     }
                                     else {
                                         //老用户
-                                        await this.utils.connectSocket();
-                                        uni.setStorage({
+                                        await uni.setStorage({
                                             key: "userInfo",
                                             data: res.data,
-                                            success: () => {
+                                            success: async () => {
                                                 this.$store.commit('userInfo', res.data);
-                                                this.$refs.loading.stopLoading();
-                                                const redirectPage = this.$store.state.currentPageUrl ?? null;
-                                                uni.switchTab({
-                                                    url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
-                                                    fail: () => {
-                                                        uni.redirectTo({
-                                                            url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
-                                                            fail: err => {
-                                                                console.error(err);
-                                                            }
-                                                        });
-                                                    }
+                                                await this.utils.connectSocket().then(res => {
+                                                    this.$refs.loading.stopLoading();
+                                                    const redirectPage = this.$store.state.currentPageUrl ?? null;
+                                                    uni.switchTab({
+                                                        url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                        fail: () => {
+                                                            uni.redirectTo({
+                                                                url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                                fail: err => {
+                                                                    console.error(err);
+                                                                }
+                                                            });
+                                                        }
+                                                    });
                                                 });
                                             },
                                         });

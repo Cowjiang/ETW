@@ -298,7 +298,7 @@ export const getMyChatList = (requestConfig) => apiRequest(`${httpBaseUrl}/chat/
 });
 
 //获取我的未读私信数量
-export const getMyUnreadChatCount = (requestConfig) => apiRequest(`${httpBaseUrl}`, {
+export const getMyUnreadChatCount = (requestConfig) => apiRequest(`${httpBaseUrl}/chat/list/count/unread`, {
     method: "GET",
     requestConfig
 });

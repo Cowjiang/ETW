@@ -112,7 +112,7 @@
                     },
                     {
                         name: '用户主页',
-                        url: '/pagesByStore/userPage/userPage?userId=37'
+                        url: '/pagesByStore/userPage/userPage?userId=35'
                     }
                 ]
             },

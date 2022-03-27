@@ -6,22 +6,23 @@ import {httpBaseUrl, wsBaseUrl} from "@/common/js/api/models.js";
  * @param {String|Number} uid 用户id
  */
 export const connectSocket = uid => {
-    return new Promise((resolve, reject) => {
-        let headerData = { "Content-type": "application/json" };
+    return new Promise(async (resolve, reject) => {
+        console.log('开始连接socket');
+        let headerData = {"Content-type": "application/json"};
         if (uni.getStorageSync("cookie") !== undefined) {
             headerData["cookie"] = uni.getStorageSync("cookie");
         }
-        uni.request({
+        await uni.request({
             url: `${httpBaseUrl}/socket/connection`,
             method: 'GET',
             header: headerData,
-            success: res => {
+            success: async res => {
                 if (res.data.errorCode === 3002) {
                     store.commit('userInfo', null);
                     reject('未登录');
                 }
                 else {
-                    uni.connectSocket({
+                    await uni.connectSocket({
                         url: `${wsBaseUrl}/${res.data.data}/${uid}`,
                         header: {
                             'content-type': 'application/json'
