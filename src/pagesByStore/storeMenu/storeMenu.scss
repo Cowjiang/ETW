@@ -119,6 +119,7 @@
       .favorite-container {
         width: 80rpx;
         height: fit-content;
+        opacity: 0;
 
         .favorite-btn {
           font-size: 38rpx;
@@ -257,7 +258,7 @@
       flex-direction: row;
 
       .u-tabs-container {
-        width: 55vw;
+        width: 35vw;
         flex-shrink: 0;
 
         .u-tabs {
@@ -1079,7 +1080,8 @@
       bottom: 0;
       left: 0;
       z-index: 4;
-      background-color: rgba(250, 250, 250, 0.95);
+      background-color: rgba(250, 250, 250, 0.8);
+      backdrop-filter: blur(6px);
 
       .cart-btn-container {
         width: 100rpx;

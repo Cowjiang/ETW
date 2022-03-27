@@ -88,7 +88,7 @@
                     },
                     {
                         name: '消息页',
-                        url: '/pages/chatList/chatList',
+                        url: '/pages/chat/chatList',
                     },
                     {
                         name: '地址簿',
@@ -96,7 +96,7 @@
                     },
                     {
                         name: '店铺搜索页',
-                        url: '/pagesByStore/storeSearch/storeSearch',
+                        url: '/pages/storeSearch/storeSearch',
                     },
                     {
                         name: '我的订单',
@@ -107,12 +107,12 @@
                         url: '/pagesByStore/userSearch/userSearch'
                     },
                     {
-                        name: '用户主页',
-                        url: ''
-                    },
-                    {
                         name: '我的个人资料',
                         url: '/pagesByStore/myUserProfile/myUserProfile'
+                    },
+                    {
+                        name: '用户主页',
+                        url: '/pagesByStore/userPage/userPage?userId=35'
                     }
                 ]
             },
@@ -176,14 +176,19 @@
                     });
                 }
                 else {
-                    uni.navigateTo({
+                    uni.switchTab({
                         url: pageUrl,
-                        fail: err => {
-                            console.error(err);
-                            this.$refs.toast.show({
-                                text: `「${pageName}」路径错误`,
-                                direction: 'top',
-                                type: 'error'
+                        fail: () => {
+                            uni.navigateTo({
+                                url: pageUrl,
+                                fail: err => {
+                                    console.error(err);
+                                    this.$refs.toast.show({
+                                        text: `「${pageName}」路径错误`,
+                                        direction: 'top',
+                                        type: 'error'
+                                    });
+                                }
                             });
                         }
                     });
@@ -196,14 +201,7 @@
             async operate(id) {
                 switch (id) {
                     case 0:
-                        await logOut();
-                        await uni.removeStorage({
-                            key: 'cookie'
-                        });
-                        await uni.removeStorage({
-                            key: 'userInfo'
-                        });
-                        this.$store.commit('userInfo', null);
+                        await this.utils.logout();
                         this.$refs.toast.show({
                             text: `已清除登陆状态`,
                             direction: 'top',
@@ -220,9 +218,8 @@
                         });
                         break;
                     case 2:
-                        const senderInfo = `senderId=${0}&senderName=新用户_k8teXaLqjJ73HSsG13ms5&senderAvatar=https://com-etw.oss-cn-guangzhou.aliyuncs.com/user-avatar/1/3876f256ca244d588605da3903a1628d.png`;
                         uni.navigateTo({
-                            url: `/pages/chatDetail/chatDetail?${senderInfo}`
+                            url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${35}`
                         });
                         break;
                     default:

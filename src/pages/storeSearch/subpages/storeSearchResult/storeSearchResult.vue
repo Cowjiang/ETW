@@ -2,6 +2,10 @@
   <view
     class="store-search-result-container animate__animated animate__fadeIn"
     :style="{ height: `${windowHeight - navigationHeight - 60}px` }">
+    <storeInfoPopup
+      v-model="showStoreInfoPopup"
+      :info="currentStoreInfo"
+      @close="showStoreInfoPopup = false"/>
     <view class="search-filter-container">
       <!-- 搜索过滤器区域 -->
     </view>
@@ -28,7 +32,9 @@
             <view class="info">
               <view class="name">
                 <text>{{ store.name }}</text>
-                <i class="fas fa-ellipsis-v"/>
+                <i
+                  class="fas fa-ellipsis-v"
+                  @click.stop="toStoreInfo(store)"/>
               </view>
               <view class="score-container">
                 <u-rate
@@ -90,12 +96,13 @@
 
 <script>
     import loading from "@/components/loading/loading";
+    import storeInfoPopup from "@/components/store/storeInfoPopup/storeInfoPopup";
     import {searchStore} from "@/common/js/api/models";
 
     export default {
         name: "storeSearchResult",
         components: {
-            loading
+            loading, storeInfoPopup
         },
         data() {
             return {
@@ -111,6 +118,8 @@
                 storeSearchResult: [], //店铺搜索结果
                 longitude: 0, //经度
                 latitude: 0, //纬度
+                showStoreInfoPopup: false, //是否显示店铺信息弹出窗
+                currentStoreInfo: {}, //当前店铺信息弹出窗显示的店铺信息
             };
         },
         methods: {
@@ -186,6 +195,10 @@
                         });
                     },
                 });
+            },
+            toStoreInfo(storeInfo) {
+                this.currentStoreInfo = storeInfo;
+                this.showStoreInfoPopup = true;
             },
             /**
              * 格式化店铺评分显示

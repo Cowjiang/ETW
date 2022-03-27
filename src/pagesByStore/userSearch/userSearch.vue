@@ -202,14 +202,16 @@
             },
             /**
              * 用户点击事件
-             * @param {String} uid 操作目标用户的id
+             * @param {Number|String} uid 操作目标用户的id
              */
             handleUserClick(uid) {
-                console.log(this.userSearchResult.find(user => user.id === uid), '查看操作');
+                uni.navigateTo({
+                    url: `/pagesByStore/userPage/userPage?userId=${uid}`
+                });
             },
             /**
              * 添加好友/移除好友事件
-             * @param {String} uid 操作目标用户的id
+             * @param {Number|String} uid 操作目标用户的id
              */
             handleAddFriend(uid) {
                 this.utils.throttle(() => {

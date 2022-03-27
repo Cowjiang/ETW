@@ -52,14 +52,14 @@ export const apiRequest = (url, paramObject) => {
             data: queryData,
             method: method,
             header: headerData,
-            success: (res) => {
+            success: res => {
                 // console.log(res.data.errorCode)
                 // console.log(queryData,method,headerData);
                 // console.log(`【${url.split('/').slice(-2)}】 ${method}请求 状态码${res.statusCode}：`, res.data ? res.data : res)
                 //HTTP状态码
-                const { statusCode } = res
+                const {statusCode} = res
                 // 和后端约定的状态码
-                const { errorCode } = res.data;
+                const {errorCode} = res.data;
                 if (statusCode === 400) {
                     reject(res);
                 }
@@ -72,7 +72,10 @@ export const apiRequest = (url, paramObject) => {
                     switch (errorCode) {
                         case 200:
                             if (res.header["Set-Cookie"] !== undefined) {
-                                uni.setStorageSync('cookie', res.header["Set-Cookie"])
+                                uni.setStorageSync('cookie', res.header["Set-Cookie"]);
+                            }
+                            if (!store.state.socketStatus && store.state.userInfo) {
+                                utils.connectSocket().then(() => {});
                             }
                             resolve(res.data);
                             break;
@@ -86,6 +89,7 @@ export const apiRequest = (url, paramObject) => {
                         case 3002:
                             // 未登录
                             console.log('该功能需要登录才能使用');
+                            store.commit('userInfo', null);
                             const currentPage = utils.getCurrentPage();
                             if (currentPage.curUrl === 'pages/login/wxLogin') {
                                 // reject(res);

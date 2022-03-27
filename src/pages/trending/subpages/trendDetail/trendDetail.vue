@@ -7,11 +7,15 @@
     <view class="trend-detail-container" v-if="readyToShow">
       <view class="trend-content">
         <view class="user-info-container">
-          <view class="avatar-container">
+          <view class="avatar-container" @click="gotoUserPage(trendDetail.userId)">
             <image :src="trendDetail.userInfo.avgPath" mode="aspectFill"/>
           </view>
           <view class="user-container">
-            <view class="username">{{ trendDetail.userInfo.username }}</view>
+            <view
+              class="username"
+              @click="gotoUserPage(trendDetail.userId)">
+              {{ trendDetail.userInfo.username }}
+            </view>
             <view class="post-time">{{ trendDetail.createdTime | formatTime }}</view>
           </view>
           <view class="focus-btn-container">
@@ -62,11 +66,11 @@
           :key="comment.id"
           @click="handleCommentClick(comment)">
           <view class="user-info">
-            <view class="avatar-container">
+            <view class="avatar-container" @click.stop="gotoUserPage(comment.userId)">
               <image :src="comment.userInfo.avgPath" mode="aspectFill"/>
             </view>
             <view class="user-container">
-              <view class="username">{{ comment.userInfo.username }}</view>
+              <view class="username" @click.stop="gotoUserPage(comment.userId)">{{ comment.userInfo.username }}</view>
               <view class="post-time">{{ comment.createdTime | formatTime }}</view>
             </view>
           </view>
@@ -100,7 +104,7 @@
               class="comment-child"
               v-for="commentChild in comment.commentChildList"
               :key="commentChild.id">
-              <view class="user-info-container">
+              <view class="user-info-container" @click.stop="gotoUserPage(commentChild.scUserInfo.id)">
                 <view class="avatar">
                   <image :src="commentChild.scUserInfo.avgPath" mode="aspectFill"/>
                 </view>
@@ -339,7 +343,6 @@
                 }).then(res => {
                     this.loadingMoreCommentChild = false;
                     if (res.success) {
-                        console.log(res);
                         let commentChildList = res.data.records;
                         commentChildList.forEach(commentChild => {
                             if (!commentParent.commentChildList.find(commentItem => commentItem.id === commentChild.id)) {
@@ -566,9 +569,6 @@
                             this.$forceUpdate();
                         }).catch(() => {});
                     }
-                    console.log(
-                        this.commentList
-                    )
                 }, 500);
             },
             /**
@@ -746,10 +746,14 @@
                                             title: '确定删除此评论吗？',
                                             success: res => {
                                                 if (res.confirm) {
-
-                                                }
-                                                else if (res.cancel) {
-
+                                                    switch(type) {
+                                                        case 1:
+                                                            //删除一级评论
+                                                            break;
+                                                        case 2:
+                                                            //删除二级评论
+                                                            break;
+                                                    }
                                                 }
                                             }
                                         });
@@ -757,7 +761,8 @@
                                     else {
                                         this.$refs.toast.show({
                                             text: '举报成功',
-                                            type: 'success'
+                                            type: 'success',
+                                            direction: 'top'
                                         });
                                     }
                                 }
@@ -765,7 +770,16 @@
                         });
                     }
                 }, 500);
-            }
+            },
+            /**
+             * 跳转用户个人主页
+             * @param {Number|String} userId 用户ID
+             */
+            gotoUserPage(userId) {
+                uni.navigateTo({
+                    url: `/pagesByStore/userPage/userPage?userId=${userId}`
+                });
+            },
         },
         computed: {
             // 是否显示评论输入提示

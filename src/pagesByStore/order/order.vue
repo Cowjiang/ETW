@@ -462,46 +462,49 @@
             },
             // 去支付并提交订单
             toPay() {
-                // 构建订单数据
-                let params = {};
-                params.items = this.orderItems;
-                params.isTakeOut = this.isTakeOut;
-                if (this.isTakeOut) {
-                    params.addressId = this.takeOutInfo.id;
-                }
-                else {
-                    params.contacts = this.contactName;
-                    params.phone = this.contactPhone;
-                }
-                if (this.currentCouponId !== 0) {
-                    params.userCouponId = this.currentCouponId;
-                }
-                params.orderRemarks = this.orderRemarks;
-                // 微信登录
-                toWxLogin().then(code => {
-                    params.code = code;
-                    const that = this;
-                    addOrder({
-                        urlParam: {
-                            storeId: that.storeInfo.storeId,
-                        },
-                        queryData: params,
-                        headerData: {"Content-type": "application/json"},
-                    }).then(res => {
-                        const orderId = res.data.orderId;
-                        toPayment(res.data).then(res => {
-                            this.gotoOrderDetail(orderId);
+                this.utils.throttle(() => {
+                    // 构建订单数据
+                    let params = {};
+                    params.items = this.orderItems;
+                    params.isTakeOut = this.isTakeOut;
+                    if (this.isTakeOut) {
+                        params.addressId = this.takeOutInfo.id;
+                    }
+                    else {
+                        params.contacts = this.contactName;
+                        params.phone = this.contactPhone;
+                    }
+                    if (this.currentCouponId !== 0) {
+                        params.userCouponId = this.currentCouponId;
+                    }
+                    params.orderRemarks = this.orderRemarks;
+                    // 微信登录
+                    toWxLogin().then(code => {
+                        params.code = code;
+                        const that = this;
+                        addOrder({
+                            urlParam: {
+                                storeId: that.storeInfo.storeId,
+                            },
+                            queryData: params,
+                            headerData: {"Content-type": "application/json"},
+                        }).then(res => {
+                            const orderId = res.data.orderId;
+                            toPayment(res.data).then(res => {
+                                this.gotoOrderDetail(orderId);
+                            }).catch(err => {
+                                this.gotoOrderDetail(orderId);
+                            });
                         }).catch(err => {
-                            this.gotoOrderDetail(orderId);
-                        });
-                    }).catch(err => {
-                        this.$refs.toast.show({
-                            text: '下单失败',
-                            type: 'error',
-                            direction: 'top'
+                            console.error(err);
+                            this.$refs.toast.show({
+                                text: '下单失败',
+                                type: 'error',
+                                direction: 'top'
+                            });
                         });
                     });
-                });
+                }, 2000);
             },
             // 选中优惠券
             choseCoupon(id, index) {

@@ -1,32 +1,48 @@
-import {getUserToken, wsBaseUrl} from "@/common/js/api/models.js";
+import store from '@/common/js/store';
+import {httpBaseUrl, wsBaseUrl} from "@/common/js/api/models.js";
 
 /**
  * 连接WebSocket
- * @param {number} uid 用户id
+ * @param {String|Number} uid 用户id
  */
 export const connectSocket = uid => {
-    return new Promise((resolve, reject) => {
-        getUserToken({})
-            .then(res => {
-                uni.connectSocket({
-                    url: `${wsBaseUrl}/${res.data}/${uid}`,
-                    header: {
-                        'content-type': 'application/json'
-                    },
-                    method: 'GET',
-                    success: socketResponse => {
-                        uni.onSocketOpen(res => {
-                            resolve(socketResponse);
-                        });
-                    },
-                    fail: err => {
-                        reject(err);
-                    }
-                });
-            })
-            .catch(err => {
+    return new Promise(async (resolve, reject) => {
+        console.log('开始连接socket');
+        let headerData = {"Content-type": "application/json"};
+        if (uni.getStorageSync("cookie") !== undefined) {
+            headerData["cookie"] = uni.getStorageSync("cookie");
+        }
+        await uni.request({
+            url: `${httpBaseUrl}/socket/connection`,
+            method: 'GET',
+            header: headerData,
+            success: async res => {
+                if (res.data.errorCode === 3002) {
+                    store.commit('userInfo', null);
+                    reject('未登录');
+                }
+                else {
+                    await uni.connectSocket({
+                        url: `${wsBaseUrl}/${res.data.data}/${uid}`,
+                        header: {
+                            'content-type': 'application/json'
+                        },
+                        method: 'GET',
+                        success: socketResponse => {
+                            uni.onSocketOpen(res => {
+                                resolve(socketResponse);
+                            });
+                        },
+                        fail: err => {
+                            reject(err);
+                        }
+                    });
+                }
+            },
+            fail: err => {
                 reject(err);
-            })
+            }
+        });
     });
 }
 

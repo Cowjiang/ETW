@@ -26,7 +26,7 @@ export const tabbars = [
     iconPath: "chat",
     selectedIconPath: "chat-fill",
     text: "私信",
-    pagePath: "/pages/chatList/chatList",
+    pagePath: "/pages/chat/chat",
     customIcon: false,
   },
 

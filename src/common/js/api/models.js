@@ -79,9 +79,27 @@ export const getUser = (requestConfig) => apiRequest(`${httpBaseUrl}/getUser`, {
 });
 
 //获取简要用户信息
-export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam.userId}`, {
+export const getUserSimpleInfo = (requestConfig) => apiRequest(`${httpBaseUrl}/user/simple/info/${requestConfig.urlParam.userId}?extend=${requestConfig.urlParam.extend || false}`, {
     method: "GET",
     requestConfig,
+});
+
+//获取我的个人资料
+export const getMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/current/info`, {
+    method: "GET",
+    requestConfig
+});
+
+//编辑我的个人资料
+export const editMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/profile`, {
+    method: "PUT",
+    requestConfig
+});
+
+//获取学校列表
+export const getSchoolList = (requestConfig) => apiRequest(`${httpBaseUrl}/school?province=${requestConfig.urlParam.province}&city=${requestConfig.urlParam.city}&area=${requestConfig.urlParam.area}&keywords=${requestConfig.urlParam.keywords}`, {
+    method: "GET",
+    requestConfig
 });
 
 //获取黑名单
@@ -212,8 +230,8 @@ export const getTrendDetail = (requestConfig) => apiRequest(`${httpBaseUrl}/dyna
     requestConfig
 });
 
-//获取我发布的动态
-export const getMyTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
+//获取我关注的动态
+export const getMyFocusedTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
     method: "GET",
     requestConfig
 });
@@ -224,7 +242,19 @@ export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic
     requestConfig
 });
 
-// 删除动态
+//获取我的未读动态数量
+export const getMyTrendUnreadCount = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/remind/count`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取某用户的动态列表
+export const getUserTrendList = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/user/${requestConfig.urlParam.userId}`, {
+    method: "GET",
+    requestConfig
+});
+
+//删除动态
 export const deleteTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}`, {
     method: "DELETE",
     requestConfig,
@@ -263,6 +293,12 @@ export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUr
 //私信相关
 //获取我的私信列表
 export const getMyChatList = (requestConfig) => apiRequest(`${httpBaseUrl}/chat/list`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取我的未读私信数量
+export const getMyUnreadChatCount = (requestConfig) => apiRequest(`${httpBaseUrl}/chat/list/count/unread`, {
     method: "GET",
     requestConfig
 });
