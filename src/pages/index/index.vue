@@ -113,7 +113,7 @@
                     {
                         name: '用户主页',
                         url: '/pagesByStore/userPage/userPage?userId=35'
-                    }
+                    },
                 ]
             },
             operations: {

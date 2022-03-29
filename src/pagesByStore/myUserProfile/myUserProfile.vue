@@ -5,7 +5,7 @@
     <loading ref="loading" fullscreen/>
     <view
       class="my-user-profile-container"
-      :style="{height: `${windowHeight - navigationHeight}px`}">
+      :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}">
       <view class="profile-container">
         <view class="profile-row">
           <view class="row-title">
@@ -286,7 +286,7 @@
             },
             handleSchoolChange() {
                 uni.navigateTo({
-                    url: '/pagesByStore/myUserProfile/subpages/selectSchool/selectSchool',
+                    url: '/pagesByStore/myUserProfile/subpages/schoolSearch/schoolSearch',
                     events: {
                         onSchoolSelected: data => {
                             if (data) {

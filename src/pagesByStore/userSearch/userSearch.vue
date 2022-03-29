@@ -122,11 +122,11 @@
             searchResult(isLoadMore = false) {
                 this.utils.throttle(() => {
                     if (!isLoadMore && this.searchValue.replace(/\s*/g, "") !== this.currentSearchValue) {
-                        // 搜索框内容没有改变，且不是加载更多结果
+                        // 搜索框内容发生了改变，且不是加载更多结果
                         this.currentSearchValue = this.searchValue.replace(/\s*/g, "");
                     }
                     else if (!isLoadMore && this.searchValue.replace(/\s*/g, "") === this.currentSearchValue) {
-                        // 搜索框内容发生了改变，但不是加载更多结果
+                        // 搜索框内容没有改变，且不是加载更多结果
                         return;
                     }
                     this.$refs.loading.startLoading();

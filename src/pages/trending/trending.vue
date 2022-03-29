@@ -2,10 +2,10 @@
   <view>
     <navigationBar ref="navigationBar">
       <template v-slot:button>
-        <view style="width: 320rpx">
+        <view style="width: 220rpx">
           <u-tabs
             class="u-tabs"
-            :list="[{name: '最新动态'}, {name: '关注'}]"
+            :list="[{name: '关注'}, {name: '推荐'}]"
             :is-scroll="false"
             height="80"
             font-size="34"
@@ -96,6 +96,7 @@
     </view>
     <view
       class="edit-trend-btn"
+      v-show="isLoading"
       @click="gotoTrendEdit">
       <i class="fas fa-pen"/>
     </view>
@@ -115,7 +116,7 @@
         data() {
             return {
                 windowWidth: 0, //窗口宽度
-                currentTrendType: 0, //当前动态列表类型，0:最新动态，1:关注用户的动态
+                currentTrendType: 1, //当前动态列表类型，0:关注用户的动态，1:推荐的动态
                 trendList: [], //动态列表
                 currentPage: 1, //当前页
                 pageSize: 3, //每页多少条
@@ -137,7 +138,7 @@
                 if (isRefresh) {
                     //刷新
                     this.currentPage = 1;
-                    if (this.currentTrendType === 1) {
+                    if (this.currentTrendType === 0) {
                         //当前动态列表类型为我关注的用户的动态
                         getMyFocusedTrend({
                             queryData: {
@@ -158,7 +159,7 @@
                             uni.stopPullDownRefresh();
                         });
                     }
-                    else if (this.currentTrendType === 0) {
+                    else if (this.currentTrendType === 1) {
                         //当前动态列表类型为最新动态
                         getNewTrend({
                             queryData: {

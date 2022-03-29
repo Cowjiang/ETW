@@ -176,11 +176,12 @@
                     "style": {
                         "navigationBarTitleText": "",
                         "enablePullDownRefresh": false,
-                        "navigationStyle": "custom"
+                        "navigationStyle": "custom",
+                        "backgroundColor": "#f6f6f6"
                     }
                 },
                 {
-                    "path": "myUserProfile/subpages/selectSchool/selectSchool",
+                    "path": "myUserProfile/subpages/schoolSearch/schoolSearch",
                     "style": {
                         "navigationBarTitleText": "",
                         "enablePullDownRefresh": false,

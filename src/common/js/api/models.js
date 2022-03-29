@@ -97,7 +97,7 @@ export const editMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/
 });
 
 //获取学校列表
-export const getSchoolList = (requestConfig) => apiRequest(`${httpBaseUrl}/school?province=${requestConfig.urlParam.province}&city=${requestConfig.urlParam.city}&area=${requestConfig.urlParam.area}&keywords=${requestConfig.urlParam.keywords}`, {
+export const getSchoolList = (requestConfig) => apiRequest(`${httpBaseUrl}/school?keywords=${requestConfig.urlParam.keywords}`, {
     method: "GET",
     requestConfig
 });
