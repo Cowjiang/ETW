@@ -284,6 +284,7 @@
                     });
                 }
             },
+            // 学校更改事件
             handleSchoolChange() {
                 uni.navigateTo({
                     url: '/pagesByStore/myUserProfile/subpages/schoolSearch/schoolSearch',

@@ -46,7 +46,7 @@
                 mode="aspectFill"
                 @click="previewImage(userInfo.avgPath)"/>
             </view>
-            <view class="focus">
+            <view class="focus" @click="gotoFriendList(1)">
               <view class="content">
                 {{ userInfo.attentions || 0 }}
               </view>
@@ -54,7 +54,7 @@
                 关注
               </view>
             </view>
-            <view class="fans">
+            <view class="fans" @click="gotoFriendList(2)">
               <view class="content">
                 {{ userInfo.fans || 0 }}
               </view>
@@ -443,6 +443,17 @@
                 this.utils.throttle(() => {
                     uni.navigateTo({
                         url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${this.userInfo.userId}`
+                    });
+                }, 1000);
+            },
+            /**
+             * 跳转用户的关注/粉丝页
+             * @param {Number} type 默认显示的类型，1:关注，2:粉丝
+             */
+            gotoFriendList(type) {
+                this.utils.throttle(() => {
+                    uni.navigateTo({
+                        url: `/pagesByStore/userPage/subpages/friendList/friendList?type=${type}&userId=${this.userInfo.userId}`
                     });
                 }, 1000);
             }

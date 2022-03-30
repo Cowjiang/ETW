@@ -37,7 +37,8 @@
       <scroll-view
         class="result-scroll-view"
         :scroll-y="true"
-        :scroll-top="scrollTop">
+        :scroll-top="scrollTop"
+        @scroll="onScroll">
         <view
           class="school"
           v-for="school in schoolList"
@@ -97,7 +98,9 @@
                     }
                     this.$refs.loading.startLoading();
                     this.noResult = false;
-                    this.scrollTop = 0;
+                    this.$nextTick(() => {
+                        this.scrollTop = 0;
+                    });
                     getSchoolList({
                         urlParam: {
                             keywords: this.currentSearchValue
@@ -159,6 +162,10 @@
                 } catch (e) {
                     console.error(e);
                 }
+            },
+            // scroll-view的滚动回调事件
+            onScroll(e) {
+                this.scrollTop = e.detail.scrollTop;
             }
         },
         mounted() {

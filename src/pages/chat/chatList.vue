@@ -217,8 +217,6 @@
                         });
                         this.$store.commit('chatMessages', recordsTemp);
                         this.existMore = recordsTemp.length > 14;
-                        this.refresherTriggered = false;
-                        this._freshing = false;
                     }
                     else {
                         if (res.data.records.length !== 0) {
@@ -247,14 +245,8 @@
                         }
                         this.loadingMore = false;
                     }
-                    if (this.$refs.loading.isLoading) {
-                        this.$refs.loading.stopLoading();
-                    }
-                    this.$forceUpdate();
                 }).catch(err => {
                     console.error(err)
-                    this.refresherTriggered = false;
-                    this._freshing = false;
                     this.utils.throttle(() => {
                         this.$refs.toast.show({
                             text: '网络异常',
@@ -262,10 +254,11 @@
                             direction: 'top'
                         });
                     }, 2500);
-                    if (this.$refs.loading.isLoading) {
-                        this.$refs.loading.stopLoading();
-                    }
                     this.loadingMore = false;
+                }).finally(() => {
+                    this.$refs.loading.stopLoading();
+                    this.refresherTriggered = false;
+                    this._freshing = false;
                     this.$forceUpdate();
                 });
             },
@@ -390,13 +383,17 @@
             handleRefreshStart() {
                 if (this._freshing) return;
                 this._freshing = true;
+                if (!this.refresherTriggered) {
+                    this.refresherTriggered = true;
+                }
                 setTimeout(() => {
                     this.getChatList();
                 }, 300);
             },
             // 监听下拉刷新事件结束
             handleRefreshEnd() {
-                this.refresherTriggered = 'restore';
+                this._freshing = false;
+                this.refresherTriggered = false;
             },
             // 监听scroll-view滚动到底部
             handleScrollToBottom() {
@@ -455,10 +452,7 @@
                 if (this.chatMessages.length === 0) {
                     this.$refs.loading.startLoading();
                 }
-                this._freshing = false; //还原下拉刷新状态
-                setTimeout(() => {
-                    this.refresherTriggered = true; //开启下拉刷新
-                }, 0);
+                this.getChatList();
             },
             // 消息列表为空的按钮点击事件
             handleEmptyBtnClick() {

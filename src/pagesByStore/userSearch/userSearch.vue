@@ -33,7 +33,7 @@
     </view>
     <view
       class="result-container"
-      :style="{ height: `${windowHeight - navigationHeight - 60}px` }">
+      :style="{ height: `calc(100vh - ${navigationHeight + 60}px)` }">
       <scroll-view
         class="result-scroll-view"
         :scroll-y="true"
@@ -52,21 +52,29 @@
                 mode="aspectFill"/>
             </view>
           </view>
-          <view class="user-name">
-            {{ user.username }}
+          <view class="user-info">
+            <view class="username">
+              {{ user.username }}
+            </view>
+            <view class="description">
+              {{ user.signature || ''}}
+            </view>
           </view>
           <view class="focus-btn">
             <view
               class="btn__default"
               :class="user.isFriend ? 'btn__friend' : ''"
               @click.stop="handleAddFriend(user.id)">
-              {{ user.isFriend ? '已关注' : '关注' }}
+              <i
+                class="fas"
+                :class="user.isFriend ? user.isConcerned ? 'fa-arrow-right-arrow-left' : 'fa-check' : 'fa-plus'"/>
+              <text>{{ user.isFriend ? user.isConcerned ? '互相关注' : '已关注' : '关注' }}</text>
             </view>
           </view>
         </view>
         <view
           class="load-more"
-          v-show="existMore && !loadingMore && userSearchResult.length !== 0">
+          v-if="existMore && !loadingMore && userSearchResult.length !== 0">
           <text>下拉加载更多</text>
         </view>
         <view
@@ -74,10 +82,10 @@
           v-show="loadingMore && userSearchResult.length !== 0">
           <loading ref="loadingMore"/>
         </view>
-        <view class="load-more" v-show="!existMore && userSearchResult.length !== 0">
+        <view class="load-more" v-if="!existMore && userSearchResult.length !== 0">
           <text>没有更多了哦 ~</text>
         </view>
-        <view class="no-result" v-show="!existMore && userSearchResult.length === 0">
+        <view class="no-result" v-if="!existMore && userSearchResult.length === 0">
           <text>没有搜索到相关用户</text>
         </view>
         <view class="safe-area"></view>
@@ -124,6 +132,8 @@
                     if (!isLoadMore && this.searchValue.replace(/\s*/g, "") !== this.currentSearchValue) {
                         // 搜索框内容发生了改变，且不是加载更多结果
                         this.currentSearchValue = this.searchValue.replace(/\s*/g, "");
+                        this.existMore = true;
+                        this.currentPage = 0;
                     }
                     else if (!isLoadMore && this.searchValue.replace(/\s*/g, "") === this.currentSearchValue) {
                         // 搜索框内容没有改变，且不是加载更多结果
@@ -302,7 +312,7 @@
                 titleText: '搜索用户',
                 backgroundColor: '#fff'
             });
-            this.searchInputFocus = false;
+            this.searchInputFocus = true;
             if (this.searchValue.replace(/\s*/g, "") !== '') {
                 this.currentSearchValue = '';
                 this.searchResult();

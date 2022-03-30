@@ -144,6 +144,24 @@ export const getUserRelationships = (requestConfig) => apiRequest(`${httpBaseUrl
     requestConfig
 });
 
+//获取用户的关注列表
+export const getUserFocusList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/${requestConfig.urlParam.userId}/friend`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取用户的粉丝列表
+export const getUserFansList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/${requestConfig.urlParam.userId}/friend/fans`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取推荐用户列表
+export const getRecommendUserList = (requestConfig) => apiRequest(`${httpBaseUrl}/school/${requestConfig.urlParam.schoolId}/user/recommend`, {
+    method: "GET",
+    requestConfig
+});
+
 //获取我的地址簿
 export const getAddressBook = (requestConfig) => apiRequest(`${httpBaseUrl}/user/address`, {
     method: "GET",

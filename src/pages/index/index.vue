@@ -112,8 +112,12 @@
                     },
                     {
                         name: '用户主页',
-                        url: '/pagesByStore/userPage/userPage?userId=35'
+                        url: '/pagesByStore/userPage/userPage'
                     },
+                    {
+                        name: '关注/粉丝',
+                        url: '/pagesByStore/userPage/subpages/friendList/friendList'
+                    }
                 ]
             },
             operations: {

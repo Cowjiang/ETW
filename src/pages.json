@@ -197,6 +197,14 @@
                     }
                 },
                 {
+                    "path": "userPage/subpages/friendList/friendList",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "home/home",
                     "style": {
                         "navigationBarTitleText": "",
