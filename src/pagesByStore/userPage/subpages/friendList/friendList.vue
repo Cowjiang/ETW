@@ -271,7 +271,7 @@
                 navigationHeight: 0, //导航栏高度
                 currentShowType: 1, //当前显示的用户列表类型，0:推荐用户，1:关注，2:粉丝
                 currentSwiperIndex: 1, //当前swiper滑动器显示的序号
-                userId: '', //用户Id
+                userId: null, //用户Id
                 myUserId: null, //我的用户ID
                 mySchoolId: null, //我的学校ID
                 recommendList: [], //推荐用户列表
@@ -646,20 +646,26 @@
                         console.error(err);
                     });
                 }
-                else if (nval === 1) {
+                else if (nval === 1 && this.userId) {
                     if (!this.focusList.length && this.focusListExistMore) {
                         this.getFocusList();
                     }
                 }
-                else if (nval === 2) {
+                else if (nval === 2 && this.userId) {
                     if (!this.fansList.length && this.fansListExistMore) {
                         this.getFansList();
                     }
                 }
             },
-            userId() {
-                this.getFocusList();
-                this.getFansList();
+            userId(nval) {
+                if (nval) {
+                    if (this.currentShowType === 1) {
+                        this.getFocusList();
+                    }
+                    else if (this.currentShowType === 2) {
+                        this.getFansList();
+                    }
+                }
             },
             focusListLoadingMore(nval, oval) {
                 if (nval && !oval && this.focusList.length !== 0) {
@@ -675,8 +681,8 @@
         },
         onLoad() {
             this.$refs.loading.startLoading();
-            this.currentShowType = this.utils.getCurrentPage().curParam.type ?? 1;
-            this.userId = this.utils.getCurrentPage().curParam.userId || null;
+            this.currentShowType = Number(this.utils.getCurrentPage().curParam.type) ?? 1;
+            this.userId = this.utils.getCurrentPage().curParam.userId ?? null;
             if (this.userId === 'undefined') {
                 this.$refs.toast.show({
                     text: '获取个人信息失败',

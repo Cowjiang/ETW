@@ -30,7 +30,7 @@
     <view class="trending-container">
       <view
         class="trend-content"
-        v-for="trend in trendList"
+        v-for="trend in mainTrendList"
         :key="trend.id"
         @click="gotoTrendDetail(trend.id)">
         <view class="user-info-container" @click.stop>
@@ -117,7 +117,8 @@
             return {
                 windowWidth: 0, //窗口宽度
                 currentTrendType: 1, //当前动态列表类型，0:关注用户的动态，1:推荐的动态
-                trendList: [], //动态列表
+                mainTrendList: [], //主要的动态列表（推荐）
+                focusTrendList: [], //关注的动态列表（关注用户）
                 currentPage: 1, //当前页
                 pageSize: 10, //每页多少条
                 totalPages: 0, //总页数
@@ -150,7 +151,7 @@
                                 const data = res.data;
                                 this.existMore = data.records.length >= this.pageSize;
                                 this.totalPages = data.total; //获取总页数
-                                this.trendList = res.data.records;
+                                this.mainTrendList = res.data.records;
                             }
                         }).catch((err) => {
                             console.error(err);
@@ -171,7 +172,7 @@
                                 const data = res.data;
                                 this.existMore = data.records.length >= this.pageSize;
                                 this.totalPages = data.total; //获取总页数
-                                this.trendList = res.data.records;
+                                this.mainTrendList = res.data.records;
                             }
                         }).catch((err) => {
                             console.error(err);
@@ -196,7 +197,7 @@
                             if (data.records.length < this.pageSize) {
                                 this.existMore = false;
                             }
-                            this.trendList = this.trendList.concat(data.records); //衔接上一页的内容
+                            this.mainTrendList = this.mainTrendList.concat(data.records); //衔接上一页的内容
                         }).catch(err => {
                             console.error(err);
                         }).finally(() => {
@@ -215,7 +216,7 @@
                             if (data.records.length < this.pageSize) {
                                 this.existMore = false;
                             }
-                            this.trendList = this.trendList.concat(data.records); //衔接上一页的内容
+                            this.mainTrendList = this.mainTrendList.concat(data.records); //衔接上一页的内容
                         }).catch(err => {
                             console.error(err);
                         }).finally(() => {
