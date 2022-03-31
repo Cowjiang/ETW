@@ -17,7 +17,7 @@
     width: inherit;
     height: inherit;
     background-color: #fff;
-    border-bottom: 2rpx solid #f6f6f6;
+    border-top: 2rpx solid #f6f6f6;
 
     .user-info-container {
       width: 100%;
@@ -151,32 +151,35 @@
       }
     }
 
-    &:last-child {
-      border-bottom: 0;
+    &:first-child {
+      border-top: 0;
     }
   }
-}
 
-.load-more {
-  font-size: 28rpx;
-  height: fit-content;
-  text-align: center;
-  width: 100%;
-  color: $uni-text-color-placeholder;
-  margin-top: 40rpx;
-  padding-bottom: 100rpx;
-  padding-bottom: calc(100rpx + constant(safe-area-inset-bottom));
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
+  .load-more {
+    font-size: 28rpx;
+    height: fit-content;
+    min-height: 150rpx;
+    text-align: center;
+    width: 100%;
+    color: $uni-text-color-placeholder;
+    margin-top: 40rpx;
+    padding-bottom: 100rpx;
+    padding-bottom: calc(100rpx + constant(safe-area-inset-bottom));
+    padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
 
-  text {
-    margin-left: 10rpx;
+    text {
+      margin-left: 10rpx;
+    }
   }
-}
 
-.loading-more {
-  height: 150rpx;
-  padding-bottom: 20rpx;
-  margin-top: 0;
+  .loading-more {
+    height: 150rpx;
+    margin-top: 0;
+    padding-bottom: 30rpx;
+    padding-bottom: calc(30rpx + constant(safe-area-inset-bottom));
+    padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+  }
 }
 
 .edit-trend-btn {

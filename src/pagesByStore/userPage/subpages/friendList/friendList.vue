@@ -277,7 +277,7 @@
                 recommendList: [], //推荐用户列表
                 focusList: [], //关注用户列表
                 fansList: [], //粉丝用户列表
-                pageSize: 11, //分页大小
+                pageSize: 15, //分页大小
                 focusListPageNumber: 0, //关注用户列表的页码
                 fansListPageNumber: 0, //粉丝用户列表的页码
                 focusListLoadingMore: false, //正在加载更多数据（关注列表）
@@ -330,12 +330,10 @@
                 }).then(res => {
                     console.log(res);
                     if (res.success) {
-                        this.focusListLoadingMore = false;
                         if (!isLoadMore) {
                             //不是加载更多（重新获取数据）
                             this.focusList = [];
-                            this.focusListPageNumber = 1;
-                            this.focusListExistMore = true;
+                            this.focusListPageNumber = 0;
                         }
                         if (res.data.records.length !== 0) {
                             //当前查询的结果数量不为0
@@ -343,9 +341,7 @@
                                 this.focusList.push(user);
                             });
                             this.focusListPageNumber += 1;
-                            if (res.data.records.length < this.pageSize) {
-                                this.focusListExistMore = false;
-                            }
+                            this.focusListExistMore = res.data.records.length >= this.pageSize;
                         }
                         else {
                             //当前查询的结果数量为0
@@ -362,6 +358,7 @@
                     });
                 }).finally(() => {
                     this.$refs.loading.stopLoading();
+                    this.focusListLoadingMore = false;
                     this.focusListFreshing = false;
                     this.focusListRefreshTrigger = false;
                 });
@@ -382,12 +379,10 @@
                 }).then(res => {
                     console.log(res);
                     if (res.success) {
-                        this.fansListLoadingMore = false;
                         if (!isLoadMore) {
                             //不是加载更多（重新获取数据）
                             this.fansList = [];
-                            this.fansListPageNumber = 1;
-                            this.fansListExistMore = true;
+                            this.fansListPageNumber = 0;
                         }
                         if (res.data.records.length !== 0) {
                             //当前查询的结果数量不为0
@@ -395,9 +390,7 @@
                                 this.fansList.push(user);
                             });
                             this.fansListPageNumber += 1;
-                            if (res.data.records.length < this.pageSize) {
-                                this.fansListExistMore = false;
-                            }
+                            this.fansListExistMore = res.data.records.length >= this.pageSize;
                         }
                         else {
                             //当前查询的结果数量为0
@@ -414,6 +407,7 @@
                     });
                 }).finally(() => {
                     this.$refs.loading.stopLoading();
+                    this.fansListLoadingMore = false;
                     this.fansListFreshing = false;
                     this.fansListRefreshTrigger = false;
                 });
