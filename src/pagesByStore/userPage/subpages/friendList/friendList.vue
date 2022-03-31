@@ -269,8 +269,7 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                currentShowType: 1, //当前显示的用户列表类型，0:推荐用户，1:关注，2:粉丝
-                currentSwiperIndex: 1, //当前swiper滑动器显示的序号
+                currentShowType: null, //当前显示的用户列表类型，0:推荐用户，1:关注，2:粉丝
                 userId: null, //用户Id
                 myUserId: null, //我的用户ID
                 mySchoolId: null, //我的学校ID
@@ -597,15 +596,16 @@
                                                 events: {
                                                     onSchoolSelected: data => {
                                                         if (data) {
-                                                            this.mySchoolId = data.schoolInfo.schoolId;
+                                                            const schoolId = data.schoolInfo.schoolId;
                                                             this.$refs.loading.startLoading();
                                                             editMyProfile({
                                                                 queryData: {
                                                                     userId: this.myUserId,
-                                                                    schoolId: this.mySchoolId
+                                                                    schoolId: schoolId
                                                                 }
                                                             }).then(res => {
                                                                 if (res.success) {
+                                                                    this.mySchoolId = schoolId;
                                                                     this.getRecommendUserList();
                                                                 }
                                                                 else throw new Error(res);

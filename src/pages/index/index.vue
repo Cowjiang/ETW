@@ -50,10 +50,6 @@
 </template>
 
 <script>
-    import toast from "@/components/toast/toast";
-    import navigationBar from "@/components/navigationBar/navigationBar";
-    import {logOut} from "@/common/js/api/models";
-
     /**
      * @description 调试面板
      * @property {String} title 页面标题
@@ -61,6 +57,10 @@
      * @property {Array} operations 快捷调试操作列表（id, name）
      * @property {Array} notes 调试说明列表
      */
+
+    import toast from "@/components/toast/toast";
+    import navigationBar from "@/components/navigationBar/navigationBar";
+
     export default {
         name: "index",
         components: {
@@ -116,7 +116,7 @@
                     },
                     {
                         name: '关注/粉丝',
-                        url: '/pagesByStore/userPage/subpages/friendList/friendList'
+                        url: '/pagesByStore/userPage/subpages/friendList/friendList?type=1'
                     }
                 ]
             },
@@ -131,10 +131,6 @@
                         id: 1,
                         name: '清除缓存'
                     },
-                    {
-                        id: 2,
-                        name: '私信测试'
-                    }
                 ]
             },
             notes: {
@@ -219,11 +215,6 @@
                             text: `已清除缓存`,
                             direction: 'top',
                             type: 'success'
-                        });
-                        break;
-                    case 2:
-                        uni.navigateTo({
-                            url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${35}`
                         });
                         break;
                     default:

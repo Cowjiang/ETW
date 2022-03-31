@@ -31,72 +31,118 @@
     <view
       class="trending-container focus-trend-list"
       v-show="currentTrendType === 0">
-      <view
-        class="trend-content"
-        v-for="trend in focusTrendList"
-        :key="trend.id"
-        @click="gotoTrendDetail(trend.id)">
-        <view class="user-info-container" @click.stop>
-          <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
-            <image :src="trend.userInfo.avgPath" mode="aspectFill"/>
+      <view class="recommend-user-container">
+        <view class="title-row">
+          <view class="title">
+            推荐博主
           </view>
-          <view class="user-container">
-            <view class="username" @click="gotoUserPage(trend.userInfo.id)">{{ trend.userInfo.username }}</view>
-            <view class="post-time">{{ trend.createdTime | formatTime }}</view>
+          <view class="school" @click="editSchool">
+            <i class="fas fa-gear"/>
+            <text>{{ schoolName }}</text>
           </view>
         </view>
-        <view class="content-container">
-          {{ trend.content }}
-        </view>
-        <view class="image-container" @click.stop>
-          <trendsImageGroup
-            v-if="trend.dynamicImages.length !== 0"
-            :imageDataList="trend.dynamicImages"/>
-        </view>
-        <view class="tags-container">
-          <view class="browse-count">
-            浏览 {{ trend.browseNumber }}
-          </view>
-          <view
-            class="position-tag"
-            v-if="trend.areaInfo"
-            @click.stop="showOnMap(trend.areaInfo)">
-            <i class="fas fa-location-dot"/>
-            {{ trend.areaInfo.areaName }}
-          </view>
-        </view>
-        <view class="comment-btn-container">
-          <view
-            class="comment-btn"
-            @click.stop="handleTrendLike(trend)">
-            <i
-              class="fa-thumbs-up"
-              :class="trend.isLike ? 'fas liked' : 'far'"/>
-            <text>{{ trend.likeNumber }}</text>
-          </view>
-          <view class="comment-btn">
-            <i class="far fa-comment"/>
-            <text>{{ trend.commentNumber }}</text>
-          </view>
-          <view class="comment-btn" @click.stop="moreAction(trend)">
-            <i class="fas fa-ellipsis"/>
-          </view>
+        <view class="content-row">
+          <scroll-view
+            class="user-scroll-view"
+            :scroll-x="true">
+            <view class="user-container">
+              <view
+                class="user"
+                v-for="user in recommendUserList"
+                :key="user"
+                @click="gotoUserPage(user.id)">
+                <view class="avatar">
+                  <image
+                    :src="user.avgPath"
+                    class="avatar-image"
+                    mode="aspectFill"/>
+                </view>
+                <view class="username">
+                  {{ user.username }}
+                </view>
+              </view>
+              <view
+                class="user"
+                @click="gotoFriendListPage">
+                <view class="avatar">
+                  <i class="fas fa-plus"/>
+                </view>
+                <view class="username">
+                  推荐用户
+                </view>
+              </view>
+            </view>
+          </scroll-view>
         </view>
       </view>
-      <view
-        v-if="!focusTrendListLoadingMore && focusTrendListExistMore"
-        class="load-more">
-        <text>下拉加载更多</text>
-      </view>
-      <view
-        v-show="focusTrendListLoadingMore"
-        class="load-more loading-more">
-        <loading ref="focusTrendListLoadingMore"/>
-      </view>
-      <view
-        v-if="!focusTrendListExistMore"
-        class="load-more">
-        <text>没有更多了哦 ~</text>
+      <view :style="{padding: '0 30rpx'}">
+        <view
+          class="trend-content"
+          v-for="trend in focusTrendList"
+          :key="trend.id"
+          @click="gotoTrendDetail(trend.id)">
+          <view class="user-info-container" @click.stop>
+            <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
+              <image :src="trend.userInfo.avgPath" mode="aspectFill"/>
+            </view>
+            <view class="user-container">
+              <view class="username" @click="gotoUserPage(trend.userInfo.id)">{{ trend.userInfo.username }}</view>
+              <view class="post-time">{{ trend.createdTime | formatTime }}</view>
+            </view>
+          </view>
+          <view class="content-container">
+            {{ trend.content }}
+          </view>
+          <view class="image-container" @click.stop>
+            <trendsImageGroup
+              v-if="trend.dynamicImages.length !== 0"
+              :imageDataList="trend.dynamicImages"/>
+          </view>
+          <view class="tags-container">
+            <view class="browse-count">
+              浏览 {{ trend.browseNumber }}
+            </view>
+            <view
+              class="position-tag"
+              v-if="trend.areaInfo"
+              @click.stop="showOnMap(trend.areaInfo)">
+              <i class="fas fa-location-dot"/>
+              {{ trend.areaInfo.areaName }}
+            </view>
+          </view>
+          <view class="comment-btn-container">
+            <view
+              class="comment-btn"
+              @click.stop="handleTrendLike(trend)">
+              <i
+                class="fa-thumbs-up"
+                :class="trend.isLike ? 'fas liked' : 'far'"/>
+              <text>{{ trend.likeNumber }}</text>
+            </view>
+            <view class="comment-btn">
+              <i class="far fa-comment"/>
+              <text>{{ trend.commentNumber }}</text>
+            </view>
+            <view class="comment-btn" @click.stop="moreAction(trend)">
+              <i class="fas fa-ellipsis"/>
+            </view>
+          </view>
+        </view>
+        <view
+          v-if="!focusTrendListLoadingMore && focusTrendListExistMore"
+          class="load-more">
+          <text>下拉加载更多</text>
+        </view>
+        <view
+          v-show="focusTrendListLoadingMore"
+          class="load-more loading-more">
+          <loading ref="focusTrendListLoadingMore"/>
+        </view>
+        <view
+          v-if="!focusTrendListExistMore"
+          class="load-more">
+          <text>没有更多了哦 ~</text>
+        </view>
       </view>
     </view>
 
@@ -186,7 +232,14 @@
     import toast from "@/components/toast/toast";
     import loading from "@/components/loading/loading";
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
-    import {getMyFocusedTrend, getNewTrend, like} from "@/common/js/api/models.js";
+    import {
+        editMyProfile,
+        getMyFocusedTrend,
+        getMyProfile,
+        getNewTrend,
+        getRecommendUserList,
+        like
+    } from "@/common/js/api/models.js";
 
     export default {
         components: {
@@ -205,6 +258,10 @@
                 focusTrendListLoadingMore: false, //是否正在请求（关注的动态列表）
                 mainTrendListExistMore: true, //存在更多数据（主要的动态列表）
                 focusTrendListExistMore: true, //存在更多数据（关注的动态列表）
+                myUserId: null, //我的用户ID
+                schoolId: null, //学校ID
+                schoolName: null, //学校名称
+                recommendUserList: [], //推荐用户列表
             };
         },
         methods: {
@@ -246,7 +303,7 @@
                                 this.focusTrendListExistMore = false;
                             }
                         }
-                    }).catch((err) => {
+                    }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
                             text: '获取数据失败',
@@ -290,7 +347,7 @@
                                 this.mainTrendListExistMore = false;
                             }
                         }
-                    }).catch((err) => {
+                    }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
                             text: '获取数据失败',
@@ -302,6 +359,113 @@
                         uni.stopPullDownRefresh();
                     });
                 }
+            },
+            // 获取学校信息
+            getSchoolInfo() {
+                this.$refs.loading.startLoading();
+                getMyProfile().then(res => {
+                    if (res.success) {
+                        this.myUserId = res.data.userId;
+                        if (!!res.data.schoolId) {
+                            //已绑定学校
+                            this.schoolId = res.data.schoolId;
+                            this.schoolName = res.data.schoolName;
+                            this.getRecommendUserList();
+                        }
+                        else {
+                            //未绑定学校
+                            uni.showModal({
+                                title: '未绑定学校',
+                                content: '请先绑定学校',
+                                confirmText: '立即绑定',
+                                confirmColor: '#f4756b',
+                                success: res => {
+                                    if (res.confirm) {
+                                        this.editSchool();
+                                    }
+                                    else if (res.cancel) {
+                                        this.currentTrendType = 1;
+                                        this.$refs.loading.stopLoading();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    else throw new Error(res);
+                }).catch(err => {
+                    console.error(err);
+                    this.$refs.toast.show({
+                        text: '获取数据失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
+                    this.currentTrendType = 1;
+                    this.$refs.loading.stopLoading();
+                });
+            },
+            // 获取推荐用户列表
+            getRecommendUserList() {
+                if (this.schoolId) {
+                    getRecommendUserList({
+                        urlParam: {
+                            schoolId: this.schoolId
+                        }
+                    }).then(res => {
+                        if (res.success) {
+                            this.recommendUserList = res.data;
+                        }
+                        else throw new Error(res);
+                    }).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '获取数据失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    }).finally(() => {
+                        this.$refs.loading.stopLoading();
+                    });
+                }
+            },
+            // 编辑学校信息
+            editSchool() {
+                uni.navigateTo({
+                    url: '/pagesByStore/myUserProfile/subpages/schoolSearch/schoolSearch',
+                    events: {
+                        onSchoolSelected: data => {
+                            if (data) {
+                                this.$refs.loading.startLoading();
+                                const schoolId = data.schoolInfo.schoolId;
+                                const schoolName = data.schoolInfo.schoolName;
+                                editMyProfile({
+                                    queryData: {
+                                        userId: this.myUserId,
+                                        schoolId: schoolId
+                                    }
+                                }).then(res => {
+                                    if (res.success) {
+                                        this.schoolId = schoolId;
+                                        this.schoolName = schoolName;
+                                        this.getRecommendUserList();
+                                    }
+                                    else throw new Error(res);
+                                }).catch(err => {
+                                    console.error(err);
+                                    this.$refs.loading.stopLoading();
+                                    this.$refs.toast.show({
+                                        text: '学校绑定失败',
+                                        type: 'error',
+                                        direction: 'top'
+                                    });
+                                    this.currentTrendType = 1;
+                                });
+                            }
+                        }
+                    },
+                    success: () => {
+                        this.$refs.loading.stopLoading();
+                    }
+                });
             },
             // 切换菜单标签
             handleTabsChange(index) {
@@ -343,6 +507,12 @@
             gotoUserPage(userId) {
                 uni.navigateTo({
                     url: `/pagesByStore/userPage/userPage?userId=${userId}`
+                });
+            },
+            // 跳转推荐用户页
+            gotoFriendListPage() {
+                uni.navigateTo({
+                    url: '/pagesByStore/userPage/subpages/friendList/friendList?type=0'
                 });
             },
             /**
@@ -471,6 +641,7 @@
             currentTrendType(nval) {
                 if (nval === 0 && !this.focusTrendList.length && this.focusTrendListExistMore) {
                     this.getTrendData(0);
+                    this.getSchoolInfo();
                 }
                 else if (nval === 1 && !this.mainTrendList.length && this.mainTrendListExistMore) {
                     this.getTrendData(1);

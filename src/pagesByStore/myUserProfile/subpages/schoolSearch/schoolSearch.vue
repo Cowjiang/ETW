@@ -58,6 +58,11 @@
 </template>
 
 <script>
+    /**
+     * @description 学校搜索页
+     * @event onSchoolSelected(schoolInfo) 选择的学校信息，包含schoolId、schoolName
+     */
+
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
