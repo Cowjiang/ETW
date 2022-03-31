@@ -119,7 +119,7 @@
                 currentTrendType: 1, //当前动态列表类型，0:关注用户的动态，1:推荐的动态
                 trendList: [], //动态列表
                 currentPage: 1, //当前页
-                pageSize: 3, //每页多少条
+                pageSize: 10, //每页多少条
                 totalPages: 0, //总页数
                 isLoading: false, //是否正在请求
                 existMore: true, //是否还有更多结果
@@ -184,7 +184,7 @@
                 else {
                     // 请求下一页内容
                     this.currentPage += 1;
-                    if (this.currentTrendType === 1) {
+                    if (this.currentTrendType === 0) {
                         //当前动态列表类型为我关注的用户的动态
                         getMyFocusedTrend({
                             queryData: {
@@ -203,7 +203,7 @@
                             this.isLoading = false;
                         });
                     }
-                    else if (this.currentTrendType === 0) {
+                    else if (this.currentTrendType === 1) {
                         //当前动态列表类型为最新动态
                         getNewTrend({
                             queryData: {
