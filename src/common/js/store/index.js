@@ -12,6 +12,7 @@ const state = {
     socketStatus: false, //当前Socket是否已经连接成功
     unreadMessageCount: 0, //用户的未读消息数量
     chatMessages: [], //聊天信息列表
+    shopkeeper: false, //当前登录账户为商家
 };
 
 export default new vuex.Store({

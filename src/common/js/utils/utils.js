@@ -221,8 +221,12 @@ export class Utils {
         await uni.removeStorage({
             key: 'userInfo'
         });
+        await uni.removeStorage({
+            key: 'shopkeeper'
+        });
         await this.closeSocket();
         store.commit('userInfo', null);
+        store.commit('shopkeeper', false);
     }
 }
 
