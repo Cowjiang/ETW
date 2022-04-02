@@ -196,6 +196,10 @@
                     },
                 });
             },
+            /**
+             * 显示店铺信息弹窗
+             * @param {Object} storeInfo 店铺信息
+             */
             toStoreInfo(storeInfo) {
                 this.currentStoreInfo = storeInfo;
                 this.showStoreInfoPopup = true;

@@ -117,6 +117,10 @@
                     {
                         name: '关注/粉丝',
                         url: '/pagesByStore/userPage/subpages/friendList/friendList?type=1'
+                    },
+                    {
+                        name: '我的页',
+                        url: '/pages/myPage/myPage'
                     }
                 ]
             },

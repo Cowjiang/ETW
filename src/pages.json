@@ -92,6 +92,15 @@
                 "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
             }
+        },
+        {
+            "path": "pages/myPage/myPage",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": true,
+                "navigationStyle": "custom",
+                "backgroundColor": "#f6f6f6"
+            }
         }
     ],
     "subPackages": [
@@ -264,6 +273,12 @@
                 "pagePath": "pages/index/index",
                 "iconPath": "static/icons/tabbar/home_unselected.png",
                 "selectedIconPath": "static/icons/tabbar/home_selected.png",
+                "text": "调试"
+            },
+            {
+                "pagePath": "pages/trending/trending",
+                "iconPath": "static/icons/tabbar/home_unselected.png",
+                "selectedIconPath": "static/icons/tabbar/home_selected.png",
                 "text": "首页"
             },
             {
@@ -279,7 +294,7 @@
                 "text": "消息"
             },
             {
-                "pagePath": "pages/trending/trending",
+                "pagePath": "pages/myPage/myPage",
                 "iconPath": "static/icons/tabbar/my_unselected.png",
                 "selectedIconPath": "static/icons/tabbar/my_selected.png",
                 "text": "我的"

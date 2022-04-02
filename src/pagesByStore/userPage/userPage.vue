@@ -34,7 +34,7 @@
         <view
           class="cover-mask"
           v-if="userInfo.coverUrl"
-          @click="previewImage(userInfo.coverUrl)"></view>
+          @click="handleCoverImageClick(userInfo.coverUrl)"></view>
       </view>
       <view class="content-container">
         <view class="user-info-container">
@@ -189,6 +189,18 @@
         </view>
       </view>
     </view>
+    <!-- 图片上传组件 -->
+    <upload
+      class="upload"
+      ref="upload"
+      :action="action"
+      :file-list="fileList"
+      :before-upload="beforeUpload"
+      :max-size="5242880"
+      :max-count="1"
+      @on-success="onUploadSuccess"
+    ></upload>
+
   </view>
 </template>
 
@@ -198,7 +210,7 @@
     import loading from "@/components/loading/loading";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
     import {
-        addFriend, addToBlockList,
+        addFriend, addToBlockList, editMyProfile, getUploadSignature,
         getUserRelationships,
         getUserSimpleInfo,
         getUserTrendList,
@@ -224,6 +236,8 @@
                 currentTab: 0, //当前显示的标签栏序号
                 trendList: [], //用户的动态列表
                 coverVisible: true, //封面图片是否可见
+                action: '', //图片上传Url
+                fileList: [], //发送图片的队列
             }
         },
         methods: {
@@ -425,6 +439,31 @@
                 });
             },
             /**
+             * 封面图片点击事件
+             * @param {String} url 封面图片URL
+             */
+            handleCoverImageClick(url) {
+                if (this.userId === this.$store.state.userInfo.userId) {
+                    //当前登录用户
+                    uni.showActionSheet({
+                        itemList: ['查看大图', '修改封面图片'],
+                        success: res => {
+                            if (res.tapIndex === 0) {
+                                this.previewImage(url);
+                            }
+                            else {
+                                this.$refs.upload.changeSourceType(['album']);
+                                this.$refs.upload.selectFile();
+                            }
+                        }
+                    })
+                }
+                else {
+                    //不是当前登录用户
+                    this.previewImage(url);
+                }
+            },
+            /**
              * 跳转动态详情页
              * @param {Number|String} trendId 动态ID
              */
@@ -456,7 +495,59 @@
                         url: `/pagesByStore/userPage/subpages/friendList/friendList?type=${type}&userId=${this.userInfo.userId}`
                     });
                 }, 1000);
-            }
+            },
+            // 上传图片前的钩子函数
+            beforeUpload() {
+                let imageTempPath = this.$refs.upload.lists[0].url;
+                return new Promise((resolve, reject) => {
+                    const dir = "cover";
+                    let fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
+                    getUploadSignature({urlParam: dir}).then((res) => {
+                        let signData = res.data;
+                        this.action = signData.host;
+                        let key = signData.dir + signData.uuid + fileSuffix; //文件路径
+                        if (res.success) {
+                            this.$refs.upload.formData = {
+                                key: key,
+                                policy: signData.policy,
+                                OSSAccessKeyId: signData.accessId,
+                                success_action_status: "200",
+                                signature: signData.signature,
+                            };
+                            this.coverUploadUrl = signData.host + "/" + key;
+                            resolve();
+                        }
+                        else {
+                            this.$refs.upload.clear();
+                            reject();
+                        }
+                    }).catch((err) => {
+                        this.$refs.upload.clear();
+                        console.error(err);
+                    });
+                });
+            },
+            // 头像上传成功回调事件
+            onUploadSuccess() {
+                editMyProfile({
+                    queryData: {
+                        userId: this.userId,
+                        coverUrl: this.coverUploadUrl
+                    }
+                }).then(res => {
+                    if (res.success) {
+                        this.$set(this.userInfo, 'coverUrl', this.coverUploadUrl);
+                    }
+                    else throw new Error(res);
+                }).catch(err => {
+                    console.error(err);
+                    this.$refs.toast.show({
+                        text: '修改失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
+                });
+            },
         },
         computed: {
             // 用户性别
