@@ -21,7 +21,7 @@
           <text class="tips_title">Hi~ 欢迎来到周边大侦探</text>
           <text class="tips_desc">登录后体验更多功能</text>
         </view>
-        <view class="login-btn">
+        <view class="login-btn" @click="getMyInfo">
           登录 / 注册
         </view>
       </view>
@@ -31,7 +31,86 @@
       </view>
       <!-- 竖排按钮容器 -->
       <view class="vertical-btn-container">
-
+        <view class="btn_row">
+          <view class="btn_title">
+            <i class="far fa-chart-bar"/>
+            <text>我的动态</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view class="btn_row">
+          <view class="btn_title">
+            <i class="far fa-star"/>
+            <text>我的收藏</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view
+          class="btn_row"
+          @click="goto('/pagesByStore/userPage/subpages/friendList/friendList?type=1')">
+          <view class="btn_title">
+            <i class="far fa-address-book"/>
+            <text>我的好友</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view
+          class="btn_row"
+          @click="goto('/pagesByStore/myUserProfile/myUserProfile')">
+          <view class="btn_title">
+            <i class="far fa-address-card"/>
+            <text>我的资料</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view
+          class="btn_row"
+          @click="goto('/pagesByStore/addressBook/addressBook')">
+          <view class="btn_title">
+            <i class="far fa-map"/>
+            <text>我的地址</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view
+          v-if="shopkeeper && userId"
+          class="btn_row">
+          <view class="btn_title">
+            <i class="fas fa-store"/>
+            <text>我的店铺</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view class="btn_row">
+          <view class="btn_title">
+            <i class="far fa-envelope"/>
+            <text>联系客服</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view class="btn_row">
+          <view class="btn_title">
+            <i class="far fa-face-smile"></i>
+            <text>关于我们</text>
+          </view>
+          <view class="btn_angle-icon">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -76,11 +155,28 @@
                     uni.stopPullDownRefresh();
                 });
             },
+            /**
+             * 跳转页面
+             * @param {String} url 页面Url
+             */
+            goto(url) {
+                uni.navigateTo({
+                    url: url,
+                    fail: error => {
+                        console.error(error);
+                    }
+                });
+            },
         },
         computed: {
             userInfo: {
                 get() {
                     return this.$store.state.userInfo;
+                }
+            },
+            shopkeeper: {
+                get() {
+                    return this.$store.state.shopkeeper;
                 }
             }
         },
@@ -90,10 +186,11 @@
             }, 1000);
         },
         onShow() {
-            this.userId = this.$store.state.userInfo.userId ?? null;
-            if (this.userId) {
-                this.$refs.loading.startLoading();
-                this.getMyInfo();
+            if (this.$store.state.userInfo) {
+                if ((this.userId = this.$store.state.userInfo.userId ?? null)) {
+                    this.$refs.loading.startLoading();
+                    this.getMyInfo();
+                }
             }
         },
         onLoad() {

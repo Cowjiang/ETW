@@ -336,8 +336,8 @@
             // 退出登录
             async logout() {
                 await this.utils.logout();
-                uni.navigateTo({
-                    url: '/pages/index/index'
+                uni.switchTab({
+                    url: '/pages/myPage/myPage'
                 });
             },
             // 上传图片前的钩子函数
@@ -421,20 +421,22 @@
             });
         },
         beforeDestroy() {
-            getMyProfile().then(res => {
-                if (res.success) {
-                    uni.setStorage({
-                        key: "userInfo",
-                        data: res.data,
-                        success: () => {
-                            this.$store.commit('userInfo', res.data);
-                        },
-                    });
-                }
-                else throw new Error(res);
-            }).catch(err => {
-                console.error(err);
-            });
+            if (this.$store.state.userInfo) {
+                getMyProfile().then(res => {
+                    if (res.success) {
+                        uni.setStorage({
+                            key: "userInfo",
+                            data: res.data,
+                            success: () => {
+                                this.$store.commit('userInfo', res.data);
+                            },
+                        });
+                    }
+                    else throw new Error(res);
+                }).catch(err => {
+                    console.error(err);
+                });
+            }
         }
     }
 </script>
