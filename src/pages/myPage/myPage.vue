@@ -4,8 +4,35 @@
     <toast ref="toast"/>
     <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
 
-    <view class="my-page-container">
+    <view
+      class="my-page-container"
+      :style="{paddingTop: `${navigationHeight}px`}">
+      <!-- 用户信息容器 -->
+      <view
+        v-if="userId"
+        class="user-info-container">
 
+      </view>
+      <!-- 未登录时显示的登录按钮区域 -->
+      <view
+        v-else
+        class="user-login-container">
+        <view class="login-tips">
+          <text class="tips_title">Hi~ 欢迎来到周边大侦探</text>
+          <text class="tips_desc">登录后体验更多功能</text>
+        </view>
+        <view class="login-btn">
+          登录 / 注册
+        </view>
+      </view>
+      <!-- 横排按钮容器 -->
+      <view class="horizontal-btn-container">
+
+      </view>
+      <!-- 竖排按钮容器 -->
+      <view class="vertical-btn-container">
+
+      </view>
     </view>
   </view>
 </template>
@@ -57,6 +84,18 @@
                 }
             }
         },
+        onPullDownRefresh() {
+            this.utils.throttle(() => {
+                this.getMyInfo();
+            }, 1000);
+        },
+        onShow() {
+            this.userId = this.$store.state.userInfo.userId ?? null;
+            if (this.userId) {
+                this.$refs.loading.startLoading();
+                this.getMyInfo();
+            }
+        },
         onLoad() {
             this.$refs.navigationBar.setNavigation({
                 titleText: '',
@@ -65,16 +104,6 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
-            this.$refs.loading.startLoading();
-            this.userId = this.$store.state.userInfo.userId ?? null;
-            if (this.userId) {
-                this.getMyInfo();
-            }
-        },
-        onPullDownRefresh() {
-            this.utils.throttle(() => {
-                this.getMyInfo();
-            }, 1000);
         },
         mounted() {
 
