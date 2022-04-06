@@ -23,6 +23,7 @@
     </navigationBar>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen/>
+    <loading ref="uploading" fullscreen maskColor="rgba(255, 255, 255, 0.8)"/>
     <selectArea ref="selectArea"/>
 
     <view class="user-page-container">
@@ -196,11 +197,12 @@
       :action="action"
       :file-list="fileList"
       :before-upload="beforeUpload"
-      :max-size="5242880"
+      :max-size="10485760"
       :max-count="1"
+      :show-tips="false"
       @on-success="onUploadSuccess"
-    ></upload>
-
+      @on-error="onUploadError"
+      @on-oversize="onUploadOversize"/>
   </view>
 </template>
 
@@ -209,6 +211,7 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
+    import upload from "@/components/upload/upload";
     import {
         addFriend, addToBlockList, editMyProfile, getUploadSignature,
         getUserRelationships,
@@ -220,7 +223,7 @@
     export default {
         name: "userPage",
         components: {
-            toast, navigationBar, loading, selectArea
+            toast, navigationBar, loading, selectArea, upload
         },
         data() {
             return {
@@ -452,7 +455,6 @@
                                 this.previewImage(url);
                             }
                             else {
-                                this.$refs.upload.changeSourceType(['album']);
                                 this.$refs.upload.selectFile();
                             }
                         }
@@ -497,33 +499,39 @@
                 }, 1000);
             },
             // 上传图片前的钩子函数
-            beforeUpload() {
-                let imageTempPath = this.$refs.upload.lists[0].url;
+            beforeUpload(index, list) {
                 return new Promise((resolve, reject) => {
-                    const dir = "cover";
-                    let fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                    getUploadSignature({urlParam: dir}).then((res) => {
-                        let signData = res.data;
-                        this.action = signData.host;
-                        let key = signData.dir + signData.uuid + fileSuffix; //文件路径
-                        if (res.success) {
-                            this.$refs.upload.formData = {
-                                key: key,
-                                policy: signData.policy,
-                                OSSAccessKeyId: signData.accessId,
-                                success_action_status: "200",
-                                signature: signData.signature,
-                            };
-                            this.coverUploadUrl = signData.host + "/" + key;
-                            resolve();
+                    uni.compressImage({
+                        src: list[0].url,
+                        quality: 80,
+                        success: res => {
+                            const imageTempPath = res.tempFilePath;
+                            const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
+                            getUploadSignature({urlParam: 'cover'}).then(res => {
+                                const signData = res.data;
+                                this.action = signData.host;
+                                const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
+                                if (res.success) {
+                                    this.$refs.upload.formData = {
+                                        key: key,
+                                        policy: signData.policy,
+                                        OSSAccessKeyId: signData.accessId,
+                                        success_action_status: "200",
+                                        signature: signData.signature,
+                                    };
+                                    this.coverUploadUrl = `${signData.host}/${key}`;
+                                    this.$refs.uploading.startLoading();
+                                    resolve();
+                                }
+                                else {
+                                    this.upload.clear();
+                                    reject();
+                                }
+                            }).catch(err => {
+                                this.$refs.upload.clear();
+                                reject(err);
+                            });
                         }
-                        else {
-                            this.$refs.upload.clear();
-                            reject();
-                        }
-                    }).catch((err) => {
-                        this.$refs.upload.clear();
-                        console.error(err);
                     });
                 });
             },
@@ -537,6 +545,11 @@
                 }).then(res => {
                     if (res.success) {
                         this.$set(this.userInfo, 'coverUrl', this.coverUploadUrl);
+                        this.$refs.toast.show({
+                            text: '修改成功',
+                            type: 'success',
+                            direction: 'top'
+                        });
                     }
                     else throw new Error(res);
                 }).catch(err => {
@@ -546,8 +559,30 @@
                         type: 'error',
                         direction: 'top'
                     });
+                }).finally(() => {
+                    this.$refs.uploading.stopLoading();
+                    this.$refs.upload.clear();
                 });
             },
+            //头像上传失败回调事件
+            onUploadError(e) {
+                console.error(e);
+                this.$refs.uploading.stopLoading();
+                this.$refs.toast.show({
+                    text: '上传失败',
+                    type: 'error',
+                    direction: 'top'
+                });
+            },
+            //头像上传超出大小限制回调事件
+            onUploadOversize() {
+                this.$refs.uploading.stopLoading();
+                this.$refs.toast.show({
+                    text: '图片超出10MB限制',
+                    type: 'warning',
+                    direction: 'top'
+                });
+            }
         },
         computed: {
             // 用户性别

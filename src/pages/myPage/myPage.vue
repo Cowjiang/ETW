@@ -3,15 +3,58 @@
     <navigationBar ref="navigationBar"/>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
+    <view
+      class="cover-container"
+      :style="{height: `calc(${navigationHeight}px + 270rpx)`}">
+      <image
+        :src="userDetailInfo.coverUrl"
+        mode="aspectFill"/>
+    </view>
 
     <view
       class="my-page-container"
       :style="{paddingTop: `${navigationHeight}px`}">
       <!-- 用户信息容器 -->
       <view
-        v-if="userId"
+        v-if="userInfo"
         class="user-info-container">
-
+        <view class="user-info_row">
+          <view class="avatar" @click="goto('/pagesByStore/userPage/userPage')">
+            <image
+              :src="userInfo.avgPath"
+              mode="aspectFill"/>
+          </view>
+          <view class="username" @click="goto('/pagesByStore/userPage/userPage')">
+            <text>
+              {{ userInfo.username || '' }}
+            </text>
+            <view class="user-page-btn">
+              <text>个人主页</text>
+              <i class="fas fa-angle-right"/>
+            </view>
+          </view>
+        </view>
+        <view class="user-info_row">
+          <view class="user-info_column" @click="goto('/pagesByStore/userPage/subpages/friendList/friendList?type=1')">
+            <view class="content">{{ userDetailInfo.attentions || 0 }}</view>
+            <view class="title">关注</view>
+          </view>
+          <view class="divider"></view>
+          <view class="user-info_column" @click="goto('/pagesByStore/userPage/subpages/friendList/friendList?type=2')">
+            <view class="content">{{ userDetailInfo.fans || 0 }}</view>
+            <view class="title">粉丝</view>
+          </view>
+          <view class="divider"></view>
+          <view class="user-info_column">
+            <view class="content">{{ trendCount || 0 }}</view>
+            <view class="title">动态</view>
+          </view>
+          <view class="divider"></view>
+          <view class="user-info_column">
+            <view class="content">0</view>
+            <view class="title">订单</view>
+          </view>
+        </view>
       </view>
       <!-- 未登录时显示的登录按钮区域 -->
       <view
@@ -93,7 +136,7 @@
             <i class="fas fa-angle-right"/>
           </view>
         </view>
-        <view class="btn_row">
+        <button class="btn_row" open-type="contact">
           <view class="btn_title">
             <i class="far fa-envelope"/>
             <text>联系客服</text>
@@ -101,7 +144,7 @@
           <view class="btn_angle-icon">
             <i class="fas fa-angle-right"/>
           </view>
-        </view>
+        </button>
         <view class="btn_row">
           <view class="btn_title">
             <i class="far fa-face-smile"></i>
@@ -120,7 +163,7 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {getMyProfile} from "@/common/js/api/models";
+    import {getUserSimpleInfo, getUserTrendList} from "@/common/js/api/models";
 
     export default {
         name: "myPage",
@@ -134,26 +177,62 @@
                 navigationHeight: 0, //导航栏高度
                 userId: null, //我的用户ID
                 userDetailInfo: {}, //我的用户详细信息
+                trendCount: 0, //我的动态数量
             }
         },
         methods: {
             getMyInfo() {
-                getMyProfile().then(res => {
-                    if (res.success) {
-                        this.userDetailInfo = res.data;
-                    }
-                    else throw new Error(res);
-                }).catch(err => {
-                    console.error(err);
-                    this.$refs.toast.show({
-                        text: '获取数据失败',
-                        type: 'error',
-                        direction: 'top'
+                if (this.userInfo) {
+                    const getUserInfoPromise = new Promise((resolve, reject) => {
+                        getUserSimpleInfo({
+                            urlParam: {
+                                userId: this.userId,
+                                extend: true
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.userDetailInfo = res.data;
+                                resolve();
+                            }
+                            else throw new Error(res);
+                        }).catch(err => {
+                            reject(err);
+                        });
                     });
-                }).finally(() => {
-                    this.$refs.loading.stopLoading();
-                    uni.stopPullDownRefresh();
-                });
+                    const getTrendInfoPromise = new Promise((resolve, reject) => {
+                        getUserTrendList({
+                            urlParam: {
+                                userId: this.userId,
+                            }
+                        }).then(res => {
+                            if (res.success) {
+                                this.trendCount = res.data.total ?? 0;
+                                resolve();
+                            }
+                            else throw new Error(res);
+                        }).catch(err => {
+                            reject(err);
+                        });
+                    });
+                    Promise.all([getUserInfoPromise, getTrendInfoPromise]).catch(err => {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '获取数据失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    }).finally(() => {
+                        this.$refs.loading.stopLoading();
+                        uni.stopPullDownRefresh();
+                    });
+                }
+                else {
+                    const currentPage = this.utils.getCurrentPage();
+                    this.$store.commit('currentPageUrl', currentPage.curFullUrl);
+                    uni.redirectTo({
+                        url: `/pages/login/wxLogin`
+                    });
+                }
             },
             /**
              * 跳转页面

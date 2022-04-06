@@ -22,6 +22,8 @@
       </template>
     </navigationBar>
     <toast ref="toast" class="toast"/>
+    <loading ref="uploading" fullscreen maskColor="rgba(255, 255, 255, 0.8)"/>
+
     <!-- 私信聊天页面容器 -->
     <view
       class="chat-container"
@@ -178,10 +180,12 @@
       :action="action"
       :file-list="fileList"
       :before-upload="beforeUpload"
-      :max-size="5242880"
+      :max-size="10485760"
       :max-count="1"
+      :show-tips="false"
       @on-success="onUploadSuccess"
-    ></upload>
+      @on-error="onUploadError"
+      @on-oversize="onUploadOversize"/>
   </view>
 </template>
 
@@ -464,44 +468,44 @@
                 }
             },
             // 上传图片前的钩子函数
-            beforeUpload() {
-                let imageTempPath = this.$refs.upload.lists[0].url;
-                this.recordsLength += 1;
+            beforeUpload(index, list) {
                 return new Promise((resolve, reject) => {
-                    let dir = "chat-images";
-                    let fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                    getUploadSignature({urlParam: dir}).then((res) => {
-                        let signData = res.data;
-                        this.action = signData.host;
-                        let key = signData.dir + signData.uuid + fileSuffix; //文件路径
-                        if (res.success) {
-                            this.$refs.upload.formData = {
-                                key: key,
-                                policy: signData.policy,
-                                OSSAccessKeyId: signData.accessId,
-                                success_action_status: "200",
-                                signature: signData.signature,
-                            };
-                            this.tempFinalSrc = signData.host + "/" + key;
-                            resolve();
+                    uni.compressImage({
+                        src: list[0].url,
+                        quality: 80,
+                        success: res => {
+                            const imageTempPath = res.tempFilePath;
+                            const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
+                            getUploadSignature({urlParam: 'chat-images'}).then(res => {
+                                const signData = res.data;
+                                this.action = signData.host;
+                                const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
+                                if (res.success) {
+                                    this.$refs.upload.formData = {
+                                        key: key,
+                                        policy: signData.policy,
+                                        OSSAccessKeyId: signData.accessId,
+                                        success_action_status: "200",
+                                        signature: signData.signature,
+                                    };
+                                    this.tempFinalSrc = `${signData.host}/${key}`;
+                                    this.$refs.uploading.startLoading();
+                                    resolve();
+                                }
+                                else {
+                                    this.upload.clear();
+                                    reject();
+                                }
+                            }).catch(err => {
+                                this.$refs.upload.clear();
+                                reject(err);
+                            });
                         }
-                        else {
-                            this.recordsLength -= 1;
-                            this.$refs.upload.clear();
-                            reject();
-                        }
-                    }).catch((err) => {
-                        this.recordsLength -= 1;
-                        this.$refs.upload.clear();
-                        console.error(err);
                     });
                 });
             },
             // 上传图片成功的钩子函数
             onUploadSuccess() {
-                uni.showLoading({
-                    title: '正在发送'
-                });
                 sendMessage({
                     urlParam: this.friendInfo.userId,
                     queryData: {
@@ -510,7 +514,7 @@
                     }
                 }).then(res => {
                     if (res.success) {
-                        uni.hideLoading();
+                        this.recordsLength += 1;
                         this.scrollToViewId = `messageTopView`;
                         setTimeout(() => {
                             this.messageRecords.push({
@@ -521,21 +525,39 @@
                                 time: new Date()
                             });
                         }, 0);
-                        this.$refs.upload.clear();
                     }
-                    else {
-                        uni.hideLoading();
-                        this.$refs.toast.show({
-                            text: '发送失败',
-                            type: 'error',
-                            direction: 'top'
-                        });
-                        this.recordsLength -= 1;
-                        this.$refs.upload.clear();
-                    }
+                    else throw new Error(res);
                 }).catch(error => {
-                    console.error(error)
-                    this.recordsLength -= 1;
+                    console.error(error);
+                    this.$refs.toast.show({
+                        text: '发送失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
+                }).finally(() => {
+                    this.$refs.uploading.stopLoading();
+                    this.$refs.upload.clear();
+                });
+            },
+            //头像上传失败回调事件
+            onUploadError(e) {
+                console.error(e);
+                this.$refs.uploading.stopLoading();
+                this.$refs.upload.clear();
+                this.$refs.toast.show({
+                    text: '发送失败',
+                    type: 'error',
+                    direction: 'top'
+                });
+            },
+            //头像上传超出大小限制回调事件
+            onUploadOversize() {
+                this.$refs.uploading.stopLoading();
+                this.$refs.upload.clear();
+                this.$refs.toast.show({
+                    text: '图片超出10MB限制',
+                    type: 'warning',
+                    direction: 'top'
                 });
             },
             // scroll-view监听滚动事件

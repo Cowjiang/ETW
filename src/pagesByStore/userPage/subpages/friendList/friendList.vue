@@ -296,7 +296,6 @@
                             schoolId: this.mySchoolId
                         }
                     }).then(res => {
-                        console.log(res);
                         if (res.success) {
                             this.recommendList = res.data;
                         }
@@ -327,7 +326,6 @@
                         pageNumber: isLoadMore ? this.focusListPageNumber + 1 : 1
                     }
                 }).then(res => {
-                    console.log(res);
                     if (res.success) {
                         if (!isLoadMore) {
                             //不是加载更多（重新获取数据）
@@ -376,7 +374,6 @@
                         pageNumber: isLoadMore ? this.fansListPageNumber + 1 : 1
                     }
                 }).then(res => {
-                    console.log(res);
                     if (res.success) {
                         if (!isLoadMore) {
                             //不是加载更多（重新获取数据）

@@ -135,9 +135,8 @@
                 postTrend({
                     queryData: trendContent,
                 }).then(res => {
-                    console.log(res);
                     if (res.success) {
-                        uni.redirectTo({
+                        uni.switchTab({
                             url: "/pages/trending/trending",
                         });
                     }

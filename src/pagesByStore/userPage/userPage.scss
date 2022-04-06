@@ -38,6 +38,16 @@
   }
 }
 
+::v-deep .upload {
+  position: fixed;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -999;
+  pointer-events: none;
+}
+
 .user-page-container {
   width: 100vw;
   height: 100%;

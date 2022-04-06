@@ -3,6 +3,8 @@
     <navigationBar ref="navigationBar" class="navigation-bar"/>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen/>
+    <loading ref="uploading" fullscreen maskColor="rgba(255, 255, 255, 0.8)"/>
+
     <view
       class="my-user-profile-container"
       :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}">
@@ -160,10 +162,12 @@
       :action="action"
       :file-list="fileList"
       :before-upload="beforeUpload"
-      :max-size="5242880"
+      :max-size="10485760"
       :max-count="1"
+      :show-tips="false"
       @on-success="onUploadSuccess"
-    ></upload>
+      @on-error="onUploadError"
+      @on-oversize="onUploadOversize"/>
   </view>
 </template>
 
@@ -173,7 +177,7 @@
     import loading from "@/components/loading/loading";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
     import upload from "@/components/upload/upload";
-    import {editMyProfile, getMyProfile, getSchoolList, getUploadSignature, logOut} from "@/common/js/api/models";
+    import {editMyProfile, getMyProfile, getUploadSignature} from "@/common/js/api/models";
 
     export default {
         name: "myUserProfile",
@@ -341,33 +345,40 @@
                 });
             },
             // 上传图片前的钩子函数
-            beforeUpload() {
-                let imageTempPath = this.$refs.upload.lists[0].url;
+            beforeUpload(index, list) {
                 return new Promise((resolve, reject) => {
-                    const dir = "avatar";
-                    let fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                    getUploadSignature({urlParam: dir}).then((res) => {
-                        let signData = res.data;
-                        this.action = signData.host;
-                        let key = signData.dir + signData.uuid + fileSuffix; //文件路径
-                        if (res.success) {
-                            this.$refs.upload.formData = {
-                                key: key,
-                                policy: signData.policy,
-                                OSSAccessKeyId: signData.accessId,
-                                success_action_status: "200",
-                                signature: signData.signature,
-                            };
-                            this.avatarUploadUrl = signData.host + "/" + key;
-                            resolve();
+                    uni.compressImage({
+                        src: list[0].url,
+                        quality: 80,
+                        success: res => {
+                            const imageTempPath = res.tempFilePath;
+                            const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
+                            getUploadSignature({urlParam: 'avatar'}).then(res => {
+                                const signData = res.data;
+                                this.action = signData.host;
+                                console.log(this.action);
+                                const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
+                                if (res.success) {
+                                    this.$refs.upload.formData = {
+                                        key: key,
+                                        policy: signData.policy,
+                                        OSSAccessKeyId: signData.accessId,
+                                        success_action_status: "200",
+                                        signature: signData.signature,
+                                    };
+                                    this.avatarUploadUrl = `${signData.host}/${key}`;
+                                    this.$refs.uploading.startLoading();
+                                    resolve();
+                                }
+                                else {
+                                    this.upload.clear();
+                                    reject();
+                                }
+                            }).catch(err => {
+                                this.$refs.upload.clear();
+                                reject(err);
+                            });
                         }
-                        else {
-                            this.$refs.upload.clear();
-                            reject();
-                        }
-                    }).catch((err) => {
-                        this.$refs.upload.clear();
-                        console.error(err);
                     });
                 });
             },
@@ -378,6 +389,27 @@
                     avgPath: this.avatarUploadUrl
                 }).then(() => {
                     this.$set(this.userProfile, 'avgPath', this.avatarUploadUrl);
+                }).finally(() => {
+                    this.$refs.uploading.stopLoading();
+                });
+            },
+            //头像上传失败回调事件
+            onUploadError(e) {
+                console.error(e);
+                this.$refs.uploading.stopLoading();
+                this.$refs.toast.show({
+                    text: '上传失败',
+                    type: 'error',
+                    direction: 'top'
+                });
+            },
+            //头像上传超出大小限制回调事件
+            onUploadOversize() {
+                this.$refs.uploading.stopLoading();
+                this.$refs.toast.show({
+                    text: '图片超出10MB限制',
+                    type: 'warning',
+                    direction: 'top'
                 });
             }
         },
