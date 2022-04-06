@@ -5,7 +5,7 @@
         <view style="width: 220rpx">
           <u-tabs
             class="u-tabs"
-            :list="[{name: '关注'}, {name: '推荐'}]"
+            :list="[{name: '关注'}, {name: '附近'}]"
             :is-scroll="false"
             height="80"
             font-size="34"
@@ -248,7 +248,7 @@
         data() {
             return {
                 windowWidth: 0, //窗口宽度
-                currentTrendType: 1, //当前动态列表类型，0:关注用户的动态，1:推荐的动态
+                currentTrendType: 1, //当前动态列表类型，0:关注用户的动态，1:附近的动态
                 mainTrendList: [], //主要的动态列表（推荐）
                 focusTrendList: [], //关注的动态列表（关注用户）
                 mainTrendListPageNumber: 0, //主要的动态列表的页码
@@ -267,7 +267,7 @@
         methods: {
             /**
              * 获取动态列表数据
-             * @param {Number} type 动态列表的类型，0:关注用户的动态，1:推荐的动态
+             * @param {Number} type 动态列表的类型，0:关注用户的动态，1:附近的动态
              * @param {Boolean} isRefresh 是否为刷新数据（重新获取），默认为true
              */
             getTrendData(type, isRefresh = true) {
@@ -316,7 +316,7 @@
                     });
                 }
                 else if (type === 1) {
-                    //当前获取动态数据类型为推荐的动态
+                    //当前获取动态数据类型为附近的动态
                     if (this.mainTrendListLoadingMore) {
                         return;
                     }

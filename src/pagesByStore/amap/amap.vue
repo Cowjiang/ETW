@@ -1,5 +1,8 @@
 <template>
   <view class="select-position">
+    <toast ref="toast" class="toast"/>
+    <loading ref="loading" fullscreen/>
+
     <!-- 顶部半透明蒙版 -->
     <view class="top-mask">
       <view class="cancel-btn" @click="handleCancel"> 取消</view>
@@ -59,13 +62,13 @@
             class="address"
             :style="{ color: `${add.selected ? '#f4756b' : '#ccc'}` }">
             {{
-              distance(
-                currentLatitude,
-                currentLongitude,
-                add.location,
-                add.latitude,
-                add.longitude
-              )
+            distance(
+            currentLatitude,
+            currentLongitude,
+            add.location,
+            add.latitude,
+            add.longitude
+            )
             }}
             | {{ add.district || "" }}{{ add.address || "" }}
           </view>
@@ -121,8 +124,6 @@
       <view class="confirm-mask"></view>
       <view class="confirm-btn" @click="handleConfirm"> 确定</view>
     </view>
-    <toast ref="toast" class="toast"/>
-    <loading ref="loading" fullscreen></loading>
   </view>
 </template>
 
@@ -176,6 +177,9 @@
             tapSelect(e) {
                 let location = `${e.detail.longitude},${e.detail.latitude}`;
                 this.markers[0] = {
+                    id: 0,
+                    width: 40,
+                    height: 60,
                     latitude: e.detail.latitude,
                     longitude: e.detail.longitude,
                 };
@@ -192,6 +196,9 @@
                     //停止位置变化监听
                     wx.stopLocationUpdate();
                     this.markers[0] = {
+                        id: 0,
+                        width: 40,
+                        height: 60,
                         latitude: this.currentLatitude,
                         longitude: this.currentLongitude,
                         alpha: 0,
@@ -201,6 +208,9 @@
                         success: res => {
                             wx.onLocationChange((res) => {
                                 this.markers[0] = {
+                                    id: 0,
+                                    width: 40,
+                                    height: 60,
                                     latitude: res.latitude,
                                     longitude: res.longitude,
                                     alpha: 1,
@@ -232,6 +242,9 @@
                     this.onLoadReady = true;
                     this.addressTips = this.currentAddressTips;
                     this.markers[0] = {
+                        id: 0,
+                        width: 40,
+                        height: 60,
                         latitude: this.currentLatitude,
                         longitude: this.currentLongitude,
                         alpha: 1,
@@ -344,6 +357,9 @@
                     selLongitude = this.addressTips[index].longitude;
                 }
                 this.markers[0] = {
+                    id: 0,
+                    width: 40,
+                    height: 60,
                     latitude: selLatitude,
                     longitude: selLongitude,
                 };
@@ -538,13 +554,16 @@
         },
         watch: {
             // 原始搜索输入框输入值变化
-            searchRawInput(nval, oval) {
+            searchRawInput(nval) {
                 this.searchShowInput = nval.replace(/\s*/g, "");
                 if (nval.replace(/\s*/g, "") === "") {
                     this.searchShowInput = "搜索地点";
                     this.addressTips = this.currentAddressTips;
                     this.clearSelected();
                     this.markers[0] = {
+                        id: 0,
+                        width: 40,
+                        height: 60,
                         latitude: this.currentLatitude,
                         longitude: this.currentLongitude,
                         alpha: 0,
