@@ -490,19 +490,6 @@
                 }
             },
         },
-        onPageScroll(res) {
-            if (res.scrollTop !== 0) {
-                if (this.isScrollChange === false) {
-                    this.isScrollChange = true;
-                }
-                if (this.isShowConfirmBtn === true) {
-                    this.isShowConfirmBtn = false;
-                }
-            }
-            else {
-                this.isScrollChange = false;
-            }
-        },
         computed: {
             /**
              * 计算两点距离
@@ -524,14 +511,7 @@
                         let La2 = (la2 * Math.PI) / 180.0;
                         let La3 = La1 - La2;
                         let Lb3 = (lo1 * Math.PI) / 180.0 - (lo2 * Math.PI) / 180.0;
-                        let s =
-                            2 *
-                            Math.asin(
-                                Math.sqrt(
-                                    Math.pow(Math.sin(La3 / 2), 2) +
-                                    Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)
-                                )
-                            );
+                        let s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(La3 / 2), 2) + Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)));
                         s = s * 6378.137; //地球半径
                         s = Math.round(s * 10000) / 10000;
                         let returnValue = ""; //返回运算后的结果字符串
@@ -596,11 +576,28 @@
             // 加载完毕状态变化
             onLoadReady(nval) {
                 nval ? this.$refs.loading.stopLoading() : this.$refs.loading.startLoading();
-            },
+            }
+        },
+        onPageScroll(res) {
+            if (res.scrollTop !== 0) {
+                if (this.isScrollChange === false) {
+                    this.isScrollChange = true;
+                }
+                if (this.isShowConfirmBtn === true) {
+                    this.isShowConfirmBtn = false;
+                }
+            }
+            else {
+                this.isScrollChange = false;
+            }
         },
         created() {
-            this.windowWidth = this.$store.state.windowWidth;
-            this.windowHeight = this.$store.state.windowHeight;
+            wx.getSystemInfo({
+                success: res => {
+                    this.windowWidth = res.screenWidth;
+                    this.windowHeight = res.screenHeight;
+                },
+            });
         },
         onLoad() {
             this.utils.resetThrottle();

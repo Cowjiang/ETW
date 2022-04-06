@@ -71,6 +71,14 @@
             this.$store.commit('windowHeight', systemInfo.windowHeight);
             this.$store.commit('userInfo', uni.getStorageSync('userInfo'));
             this.$store.commit('shopkeeper', uni.getStorageSync('shopkeeper') ?? false);
+            console.log(systemInfo)
+            wx.getSystemInfo({
+                success: res => {
+                    // this.windowWidth = res.screenWidth;
+                    // this.windowHeight = res.screenHeight;
+                    console.log(res.screenHeight)
+                },
+            });
         },
         async onShow() {
             await this.utils.connectSocket();

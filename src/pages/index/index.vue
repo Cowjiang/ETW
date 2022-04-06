@@ -121,6 +121,10 @@
                     {
                         name: '我的页',
                         url: '/pages/myPage/myPage'
+                    },
+                    {
+                        name: '地图',
+                        url: '/pagesByStore/amap/amap'
                     }
                 ]
             },
