@@ -564,7 +564,6 @@
                         //二级评论点赞
                         this.changeLikeStatus(!commentChild.isLike ? 1 : 2, commentChild.id, 4).then(() => {
                             this.$set(commentChild, 'isLike', !commentChild.isLike);
-                            commentChild.secondComment.islike = !commentChild.isLike;
                             this.$set(commentChild, 'likeNumber', commentChild.isLike ? commentChild.likeNumber + 1 : commentChild.likeNumber - 1);
                             this.$forceUpdate();
                         }).catch(() => {});

@@ -70,7 +70,27 @@
       </view>
       <!-- 横排按钮容器 -->
       <view class="horizontal-btn-container">
-
+        <view class="title">
+          我的订单
+        </view>
+        <view class="btn-group">
+          <view class="btn">
+            <i class="far fa-credit-card"/>
+            <text>待付款</text>
+          </view>
+          <view class="btn">
+            <i class="far fa-hourglass"/>
+            <text>准备中</text>
+          </view>
+          <view class="btn">
+            <i class="far fa-circle-question"/>
+            <text>退款/售后</text>
+          </view>
+          <view class="btn">
+            <i class="far fa-file-lines"/>
+            <text>全部订单</text>
+          </view>
+        </view>
       </view>
       <!-- 竖排按钮容器 -->
       <view class="vertical-btn-container">
