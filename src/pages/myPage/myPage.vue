@@ -210,11 +210,8 @@
                                 extend: true
                             }
                         }).then(res => {
-                            if (res.success) {
-                                this.userDetailInfo = res.data;
-                                resolve();
-                            }
-                            else throw new Error(res);
+                            this.userDetailInfo = res.data;
+                            resolve();
                         }).catch(err => {
                             reject(err);
                         });
@@ -225,11 +222,8 @@
                                 userId: this.userId,
                             }
                         }).then(res => {
-                            if (res.success) {
-                                this.trendCount = res.data.total ?? 0;
-                                resolve();
-                            }
-                            else throw new Error(res);
+                            this.trendCount = res.data.total ?? 0;
+                            resolve();
                         }).catch(err => {
                             reject(err);
                         });

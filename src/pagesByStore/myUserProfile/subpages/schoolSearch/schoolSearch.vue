@@ -111,14 +111,11 @@
                             keywords: this.currentSearchValue
                         }
                     }).then(res => {
-                        if (res.success) {
-                            if (!res.data.length) {
-                                this.noResult = true;
-                            }
-                            this.schoolList = res.data;
-                            this.$refs.loading.stopLoading();
+                        if (!res.data.length) {
+                            this.noResult = true;
                         }
-                        else throw new Error(res);
+                        this.schoolList = res.data;
+                        this.$refs.loading.stopLoading();
                     }).catch(err => {
                         console.error(err);
                         this.$refs.loading.stopLoading();

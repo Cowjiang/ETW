@@ -319,14 +319,11 @@
              * @return {Promise}
              */
             submitChange(data) {
-                return new Promise((resolve, reject) => {
+                return new Promise(resolve => {
                     editMyProfile({
                         queryData: data
-                    }).then(res => {
-                        if (res.success) {
-                            resolve();
-                        }
-                        else throw new Error(res);
+                    }).then(() => {
+                        resolve();
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -358,22 +355,16 @@
                                 this.action = signData.host;
                                 console.log(this.action);
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
-                                if (res.success) {
-                                    this.$refs.upload.formData = {
-                                        key: key,
-                                        policy: signData.policy,
-                                        OSSAccessKeyId: signData.accessId,
-                                        success_action_status: "200",
-                                        signature: signData.signature,
-                                    };
-                                    this.avatarUploadUrl = `${signData.host}/${key}`;
-                                    this.$refs.uploading.startLoading();
-                                    resolve();
-                                }
-                                else {
-                                    this.upload.clear();
-                                    reject();
-                                }
+                                this.$refs.upload.formData = {
+                                    key: key,
+                                    policy: signData.policy,
+                                    OSSAccessKeyId: signData.accessId,
+                                    success_action_status: "200",
+                                    signature: signData.signature,
+                                };
+                                this.avatarUploadUrl = `${signData.host}/${key}`;
+                                this.$refs.uploading.startLoading();
+                                resolve();
                             }).catch(err => {
                                 this.$refs.upload.clear();
                                 reject(err);
@@ -442,10 +433,7 @@
             this.navigationHeight = this.$store.state.navigationHeight;
             this.$refs.loading.startLoading();
             await getMyProfile().then(res => {
-                if (res.success) {
-                    this.userProfile = res.data;
-                }
-                else throw new Error(res);
+                this.userProfile = res.data;
             }).catch(err => {
                 console.error(err);
             }).finally(() => {
@@ -455,16 +443,13 @@
         beforeDestroy() {
             if (this.$store.state.userInfo) {
                 getMyProfile().then(res => {
-                    if (res.success) {
-                        uni.setStorage({
-                            key: "userInfo",
-                            data: res.data,
-                            success: () => {
-                                this.$store.commit('userInfo', res.data);
-                            },
-                        });
-                    }
-                    else throw new Error(res);
+                    uni.setStorage({
+                        key: "userInfo",
+                        data: res.data,
+                        success: () => {
+                            this.$store.commit('userInfo', res.data);
+                        },
+                    });
                 }).catch(err => {
                     console.error(err);
                 });

@@ -164,10 +164,7 @@
                                 code: code
                             }
                         }).then(res => {
-                            console.log(res);
-                            if (res.success) {
-                                this.wxLogin(true);
-                            }
+                            this.wxLogin(true);
                         }).catch(err => {
                             if (!err.data.success) {
                                 //账户已存在
@@ -202,14 +199,9 @@
                                     iv: iv,
                                     signature: signature
                                 }
-                            }).then(res => {
-                                if (res.success) {
-                                    //绑定微信用户信息成功
-                                    this.getUserPhone();
-                                }
-                                else {
-                                    console.error(res);
-                                }
+                            }).then(() => {
+                                //绑定微信用户信息成功
+                                this.getUserPhone();
                             }).catch(err => {
                                 console.error(err);
                             });

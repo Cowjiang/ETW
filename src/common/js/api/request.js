@@ -56,6 +56,9 @@ export const apiRequest = (url, paramObject) => {
                 // console.log(res.data.errorCode)
                 // console.log(queryData,method,headerData);
                 // console.log(`【${url.split('/').slice(-2)}】 ${method}请求 状态码${res.statusCode}：`, res.data ? res.data : res)
+                if (res.data.success === false) {
+                    reject(res);
+                }
                 //HTTP状态码
                 const {statusCode} = res
                 // 和后端约定的状态码

@@ -349,7 +349,7 @@
                     if (e.currentTarget.dataset.name === "tagRight" && this.takeOutInfo.id === undefined) {
                         //获取用户当前默认地址
                         await getDefaultAddress().then(res => {
-                            if (res.success && res.data.id != null) {
+                            if (res.data.id != null) {
                                 this.takeOutInfo = {
                                     id: res.data.id,
                                     contactName: res.data.contacts,
@@ -637,25 +637,23 @@
                             stat: 0, //未使用
                         },
                     }).then(res => {
-                        if (res.success) {
-                            const coupons = res.data.records;
-                            let couponsEnable = [];
-                            let couponsDisable = [];
-                            for (const coupon of coupons) {
-                                if (
-                                    coupon.withAmount <= this.totalPrice &&
-                                    coupon.validEndTime > new Date().getTime() &&
-                                    coupon.stat === 0
-                                ) {
-                                    couponsEnable.push(coupon);
-                                }
-                                else {
-                                    couponsDisable.push(coupon);
-                                }
+                        const coupons = res.data.records;
+                        let couponsEnable = [];
+                        let couponsDisable = [];
+                        for (const coupon of coupons) {
+                            if (
+                                coupon.withAmount <= this.totalPrice &&
+                                coupon.validEndTime > new Date().getTime() &&
+                                coupon.stat === 0
+                            ) {
+                                couponsEnable.push(coupon);
                             }
-                            this.couponsDisable = couponsDisable;
-                            this.couponsEnable = couponsEnable;
+                            else {
+                                couponsDisable.push(coupon);
+                            }
                         }
+                        this.couponsDisable = couponsDisable;
+                        this.couponsEnable = couponsEnable;
                     });
                     this.orderContent = orderContent;
                     this.packagingFee = packagingFee;

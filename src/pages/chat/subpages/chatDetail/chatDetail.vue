@@ -195,14 +195,17 @@
     import loading from "@/components/loading/loading";
     import upload from "@/components/upload/upload";
     import {
-        addFriend, addToBlockList,
+        addFriend,
+        addToBlockList,
         deleteChatHistory,
         getChatHistory,
         getUploadSignature,
-        getUserRelationships, getUserSimpleInfo, removeFriend, removeFromBlockList,
+        getUserRelationships,
+        getUserSimpleInfo,
+        removeFriend,
+        removeFromBlockList,
         sendMessage
     } from "@/common/js/api/models.js";
-    import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
     import store from "@/common/js/store";
 
     export default {
@@ -259,16 +262,13 @@
                         userId: this.friendInfo.userId
                     }
                 }).then(res => {
-                    if (res.success) {
-                        this.friendInfo.username = res.data.username;
-                        this.friendInfo.avgPath = res.data.avgPath;
-                        this.$refs.navigationBar.setNavigation({
-                            titleText: this.friendInfo.username,
-                            backgroundColor: '#ffffff',
-                            customBackFunc: this.redirectToChatList
-                        });
-                    }
-                    else throw new Error(res);
+                    this.friendInfo.username = res.data.username;
+                    this.friendInfo.avgPath = res.data.avgPath;
+                    this.$refs.navigationBar.setNavigation({
+                        titleText: this.friendInfo.username,
+                        backgroundColor: '#ffffff',
+                        customBackFunc: this.redirectToChatList
+                    });
                 }).catch(error => {
                     console.error(error);
                     this.redirectToChatList();
@@ -416,26 +416,16 @@
                                 isText: true
                             }
                         }).then(res => {
-                            if (res.success) {
-                                uni.hideLoading();
-                                this.messageRecords.push({
-                                    id: res.data.id,
-                                    isMe: true,
-                                    isPhoto: false,
-                                    content: this.rawInputValue,
-                                    time: new Date()
-                                });
-                                this.recordsLength += 1;
-                                this.rawInputValue = '';
-                            }
-                            else {
-                                uni.hideLoading();
-                                this.$refs.toast.show({
-                                    text: '发送失败',
-                                    type: 'error',
-                                    direction: 'top'
-                                });
-                            }
+                            uni.hideLoading();
+                            this.messageRecords.push({
+                                id: res.data.id,
+                                isMe: true,
+                                isPhoto: false,
+                                content: this.rawInputValue,
+                                time: new Date()
+                            });
+                            this.recordsLength += 1;
+                            this.rawInputValue = '';
                         }).catch(err => {
                             console.error(err);
                             uni.hideLoading();
@@ -480,22 +470,16 @@
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
-                                if (res.success) {
-                                    this.$refs.upload.formData = {
-                                        key: key,
-                                        policy: signData.policy,
-                                        OSSAccessKeyId: signData.accessId,
-                                        success_action_status: "200",
-                                        signature: signData.signature,
-                                    };
-                                    this.tempFinalSrc = `${signData.host}/${key}`;
-                                    this.$refs.uploading.startLoading();
-                                    resolve();
-                                }
-                                else {
-                                    this.upload.clear();
-                                    reject();
-                                }
+                                this.$refs.upload.formData = {
+                                    key: key,
+                                    policy: signData.policy,
+                                    OSSAccessKeyId: signData.accessId,
+                                    success_action_status: "200",
+                                    signature: signData.signature,
+                                };
+                                this.tempFinalSrc = `${signData.host}/${key}`;
+                                this.$refs.uploading.startLoading();
+                                resolve();
                             }).catch(err => {
                                 this.$refs.upload.clear();
                                 reject(err);
@@ -513,20 +497,17 @@
                         isText: false
                     }
                 }).then(res => {
-                    if (res.success) {
-                        this.recordsLength += 1;
-                        this.scrollToViewId = `messageTopView`;
-                        setTimeout(() => {
-                            this.messageRecords.push({
-                                id: res.data.id,
-                                isMe: true,
-                                isPhoto: true,
-                                content: this.tempFinalSrc,
-                                time: new Date()
-                            });
-                        }, 0);
-                    }
-                    else throw new Error(res);
+                    this.recordsLength += 1;
+                    this.scrollToViewId = `messageTopView`;
+                    setTimeout(() => {
+                        this.messageRecords.push({
+                            id: res.data.id,
+                            isMe: true,
+                            isPhoto: true,
+                            content: this.tempFinalSrc,
+                            time: new Date()
+                        });
+                    }, 0);
                 }).catch(error => {
                     console.error(error);
                     this.$refs.toast.show({
@@ -624,24 +605,13 @@
                     urlParam: "?ids=" + targetId
                 }).then(res => {
                     uni.hideLoading();
-                    if (res.success) {
-                        this.recordsLength -= 1;
-                        this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
-                        this.$refs.toast.show({
-                            text: '已删除',
-                            type: 'success',
-                            direction: 'top'
-                        });
-                    }
-                    else {
-                        uni.hideLoading();
-                        this.$refs.toast.show({
-                            text: '删除失败',
-                            type: 'error',
-                            direction: 'top'
-                        });
-                        console.log(res)
-                    }
+                    this.recordsLength -= 1;
+                    this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
+                    this.$refs.toast.show({
+                        text: '已删除',
+                        type: 'success',
+                        direction: 'top'
+                    });
                 }).catch(err => {
                     uni.hideLoading();
                     this.$refs.toast.show({
@@ -710,10 +680,8 @@
                         urlParam: {
                             userId: this.friendInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isBlocked = false;
-                        }
+                    }).then(() => {
+                        this.isBlocked = false;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -729,10 +697,8 @@
                         urlParam: {
                             userId: this.friendInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isBlocked = true;
-                        }
+                    }).then(() => {
+                        this.isBlocked = true;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -761,18 +727,8 @@
                         urlParam: {
                             userId: this.friendInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isFocused = false;
-                        }
-                        else {
-                            console.error(res);
-                            this.$refs.toast.show({
-                                text: '取消关注失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
-                        }
+                    }).then(() => {
+                        this.isFocused = false;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -788,18 +744,8 @@
                         urlParam: {
                             userId: this.friendInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isFocused = true;
-                        }
-                        else {
-                            console.error(res);
-                            this.$refs.toast.show({
-                                text: '关注失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
-                        }
+                    }).then(() => {
+                        this.isFocused = true;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({

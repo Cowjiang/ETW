@@ -213,11 +213,15 @@
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
     import upload from "@/components/upload/upload";
     import {
-        addFriend, addToBlockList, editMyProfile, getUploadSignature,
+        addFriend,
+        addToBlockList,
+        editMyProfile,
+        getUploadSignature,
         getUserRelationships,
         getUserSimpleInfo,
         getUserTrendList,
-        removeFriend, removeFromBlockList
+        removeFriend,
+        removeFromBlockList
     } from "@/common/js/api/models";
 
     export default {
@@ -254,11 +258,8 @@
                                 extend: true
                             }
                         }).then(res => {
-                            if (res.success) {
-                                this.userInfo = res.data;
-                                resolve();
-                            }
-                            else throw new Error(res);
+                            this.userInfo = res.data;
+                            resolve();
                         }).catch(error => {
                             reject(error);
                         });
@@ -293,10 +294,7 @@
                             userId: this.userId,
                         }
                     }).then(res => {
-                        if (res.success) {
-                            this.trendList = res.data.records;
-                        }
-                        else throw new Error(res);
+                        this.trendList = res.data.records;
                     }).catch(error => {
                         console.error(error);
                     });
@@ -342,11 +340,8 @@
                             urlParam: {
                                 userId: this.userInfo.userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.isFocused = false;
-                            }
-                            else throw new Error(res);
+                        }).then(() => {
+                            this.isFocused = false;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -362,11 +357,8 @@
                             urlParam: {
                                 userId: this.userInfo.userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.isFocused = true;
-                            }
-                            else throw new Error(res);
+                        }).then(() => {
+                            this.isFocused = true;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -386,11 +378,8 @@
                         urlParam: {
                             userId: this.userInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isBlocked = false;
-                        }
-                        else throw new Error(res);
+                    }).then(() => {
+                        this.isBlocked = false;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -406,11 +395,8 @@
                         urlParam: {
                             userId: this.userInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isBlocked = true;
-                        }
-                        else throw new Error(res);
+                    }).then(() => {
+                        this.isBlocked = true;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -511,22 +497,16 @@
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
-                                if (res.success) {
-                                    this.$refs.upload.formData = {
-                                        key: key,
-                                        policy: signData.policy,
-                                        OSSAccessKeyId: signData.accessId,
-                                        success_action_status: "200",
-                                        signature: signData.signature,
-                                    };
-                                    this.coverUploadUrl = `${signData.host}/${key}`;
-                                    this.$refs.uploading.startLoading();
-                                    resolve();
-                                }
-                                else {
-                                    this.upload.clear();
-                                    reject();
-                                }
+                                this.$refs.upload.formData = {
+                                    key: key,
+                                    policy: signData.policy,
+                                    OSSAccessKeyId: signData.accessId,
+                                    success_action_status: "200",
+                                    signature: signData.signature,
+                                };
+                                this.coverUploadUrl = `${signData.host}/${key}`;
+                                this.$refs.uploading.startLoading();
+                                resolve();
                             }).catch(err => {
                                 this.$refs.upload.clear();
                                 reject(err);
@@ -542,16 +522,13 @@
                         userId: this.userId,
                         coverUrl: this.coverUploadUrl
                     }
-                }).then(res => {
-                    if (res.success) {
-                        this.$set(this.userInfo, 'coverUrl', this.coverUploadUrl);
-                        this.$refs.toast.show({
-                            text: '修改成功',
-                            type: 'success',
-                            direction: 'top'
-                        });
-                    }
-                    else throw new Error(res);
+                }).then(() => {
+                    this.$set(this.userInfo, 'coverUrl', this.coverUploadUrl);
+                    this.$refs.toast.show({
+                        text: '修改成功',
+                        type: 'success',
+                        direction: 'top'
+                    });
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({

@@ -199,7 +199,6 @@
     import loading from "@/components/loading/loading";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import toast from "@/components/toast/toast";
-    import {dateFilter} from "@/common/js/utils/filters";
     import {toPayment} from "@/common/js/utils/common";
     import {applyToRefunds, getOrderDetail, getOrderWxPayInfo} from "@/common/js/api/models";
 
@@ -224,20 +223,10 @@
                         orderId: this.orderId
                     }
                 }).then(res => {
-                    if (res.success) {
-                        this.orderDetail = res.data;
-                        this.$nextTick(() => {
-                            this.$refs.loading.stopLoading();
-                        });
-                    }
-                    else {
-                        console.error(res);
-                        this.$refs.toast.show({
-                            text: '获取订单信息失败',
-                            type: 'error',
-                            direction: 'top'
-                        });
-                    }
+                    this.orderDetail = res.data;
+                    this.$nextTick(() => {
+                        this.$refs.loading.stopLoading();
+                    });
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -313,13 +302,11 @@
                         orderId: this.orderId,
                     },
                 }).then(res => {
-                    if (res.success) {
-                        toPayment(res.data).then(payRes => {
-                            this.getOrderDetail();
-                        }).catch(err => {
-                            console.log(err);
-                        });
-                    }
+                    toPayment(res.data).then(payRes => {
+                        this.getOrderDetail();
+                    }).catch(err => {
+                        console.log(err);
+                    });
                 }).catch(err => {
                     console.error(err);
                 });
@@ -333,10 +320,8 @@
                     queryData: {
                         reason: "我想退款",
                     },
-                }).then(res => {
-                    if (res.success) {
-                        this.getOrderDetail();
-                    }
+                }).then(() => {
+                    this.getOrderDetail();
                 });
             },
             /**

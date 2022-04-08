@@ -115,7 +115,6 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {dateFilter} from "@/common/js/utils/filters";
     import {toPayment} from "@/common/js/utils/common";
     import {getMyOrder, getOrderWxPayInfo} from "@/common/js/api/models";
 
@@ -145,31 +144,21 @@
                         pageNumber: page,
                     },
                 }).then(res => {
-                    if (res.success) {
-                        console.log(res.data.records)
-                        if (res.data.records.length) {
-                            //查询到订单记录
-                            if (page === 1) {
-                                this.orderList = res.data.records;
-                            }
-                            else {
-                                this.orderList = [...this.orderList, ...res.data.records];
-                            }
-                            this.currentPage += 1;
+                    console.log(res.data.records)
+                    if (res.data.records.length) {
+                        //查询到订单记录
+                        if (page === 1) {
+                            this.orderList = res.data.records;
                         }
                         else {
-                            this.existMore = false;
+                            this.orderList = [...this.orderList, ...res.data.records];
                         }
-                        this.$refs.loading.stopLoading();
+                        this.currentPage += 1;
                     }
                     else {
-                        console.error(res);
-                        this.$refs.toast.show({
-                            text: '获取订单信息失败',
-                            type: 'error',
-                            direction: 'top'
-                        });
+                        this.existMore = false;
                     }
+                    this.$refs.loading.stopLoading();
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -231,13 +220,11 @@
                         orderId: orderId,
                     },
                 }).then(res => {
-                    if (res.success) {
-                        toPayment(res.data).then(payRes => {
-                            this.getOrderList();
-                        }).catch(err => {
-                            console.log(err);
-                        });
-                    }
+                    toPayment(res.data).then(payRes => {
+                        this.getOrderList();
+                    }).catch(err => {
+                        console.log(err);
+                    });
                 }).catch(err => {
                     console.error(err);
                 });

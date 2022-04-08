@@ -164,8 +164,6 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
     import {addToBlockList, deleteChatWithFriend, getMyChatList, removeFromBlockList} from "@/common/js/api/models.js";
-    import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
-    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -291,25 +289,14 @@
                                     if (res.confirm) {
                                         deleteChatWithFriend({
                                             urlParam: this.chatMessages[targetId].senderId
-                                        }).then(res => {
-                                            if (res.success) {
-                                                let chatMessagesTemp = this.chatMessages;
-                                                chatMessagesTemp.forEach((v, k) => {
-                                                    if (v.senderId === chatMessagesTemp[targetId].senderId) {
-                                                        chatMessagesTemp.splice(k, 1);
-                                                    }
-                                                });
-                                                this.$store.commit('chatMessages', chatMessagesTemp);
-                                            }
-                                            else {
-                                                console.error(res);
-                                                this.$refs.toast.show({
-                                                    text: '删除失败',
-                                                    type: 'error',
-                                                    direction: 'top'
-                                                });
-                                                this.getChatList();
-                                            }
+                                        }).then(() => {
+                                            let chatMessagesTemp = this.chatMessages;
+                                            chatMessagesTemp.forEach((v, k) => {
+                                                if (v.senderId === chatMessagesTemp[targetId].senderId) {
+                                                    chatMessagesTemp.splice(k, 1);
+                                                }
+                                            });
+                                            this.$store.commit('chatMessages', chatMessagesTemp);
                                         }).catch(err => {
                                             console.error(err);
                                             this.$refs.toast.show({
@@ -330,12 +317,10 @@
                                     urlParam: {
                                         userId: this.chatMessages[targetId].senderId
                                     }
-                                }).then(res => {
-                                    if (res.success) {
-                                        let chatMessagesTemp = this.chatMessages;
-                                        chatMessagesTemp[targetId].isBlocked = false;
-                                        this.$store.commit('chatMessages', chatMessagesTemp);
-                                    }
+                                }).then(() => {
+                                    let chatMessagesTemp = this.chatMessages;
+                                    chatMessagesTemp[targetId].isBlocked = false;
+                                    this.$store.commit('chatMessages', chatMessagesTemp);
                                 }).catch(err => {
                                     console.error(err);
                                     this.$refs.toast.show({
@@ -350,12 +335,10 @@
                                     urlParam: {
                                         userId: this.chatMessages[targetId].senderId
                                     }
-                                }).then(res => {
-                                    if (res.success) {
-                                        let chatMessagesTemp = this.chatMessages;
-                                        chatMessagesTemp[targetId].isBlocked = true;
-                                        this.$store.commit('chatMessages', chatMessagesTemp);
-                                    }
+                                }).then(() => {
+                                    let chatMessagesTemp = this.chatMessages;
+                                    chatMessagesTemp[targetId].isBlocked = true;
+                                    this.$store.commit('chatMessages', chatMessagesTemp);
                                 }).catch(err => {
                                     console.error(err);
                                     this.$refs.toast.show({

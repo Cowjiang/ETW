@@ -179,7 +179,7 @@
               class="user-container"
               v-for="user in fansList"
               :key="user.id"
-              @click="gotoUserPage(user.friendId)">
+              @click="gotoUserPage(user.userId)">
               <view class="img-container">
                 <view class="image">
                   <image
@@ -200,7 +200,7 @@
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
-                  @click.stop="handleFocus(user.friendId, user)">
+                  @click.stop="handleFocus(user.userId, user)">
                   <i
                     class="fas"
                     :class="user.isFriend ? user.isConcerned ? 'fa-arrow-right-arrow-left' : 'fa-check' : 'fa-plus'"/>
@@ -296,10 +296,7 @@
                             schoolId: this.mySchoolId
                         }
                     }).then(res => {
-                        if (res.success) {
-                            this.recommendList = res.data;
-                        }
-                        else throw new Error(res);
+                        this.recommendList = res.data;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -326,26 +323,23 @@
                         pageNumber: isLoadMore ? this.focusListPageNumber + 1 : 1
                     }
                 }).then(res => {
-                    if (res.success) {
-                        if (!isLoadMore) {
-                            //不是加载更多（重新获取数据）
-                            this.focusList = [];
-                            this.focusListPageNumber = 0;
-                        }
-                        if (res.data.records.length !== 0) {
-                            //当前查询的结果数量不为0
-                            res.data.records.forEach(user => {
-                                this.focusList.push(user);
-                            });
-                            this.focusListPageNumber += 1;
-                            this.focusListExistMore = res.data.records.length >= this.pageSize;
-                        }
-                        else {
-                            //当前查询的结果数量为0
-                            this.focusListExistMore = false;
-                        }
+                    if (!isLoadMore) {
+                        //不是加载更多（重新获取数据）
+                        this.focusList = [];
+                        this.focusListPageNumber = 0;
                     }
-                    else throw new Error(res);
+                    if (res.data.records.length !== 0) {
+                        //当前查询的结果数量不为0
+                        res.data.records.forEach(user => {
+                            this.focusList.push(user);
+                        });
+                        this.focusListPageNumber += 1;
+                        this.focusListExistMore = res.data.records.length >= this.pageSize;
+                    }
+                    else {
+                        //当前查询的结果数量为0
+                        this.focusListExistMore = false;
+                    }
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -374,26 +368,23 @@
                         pageNumber: isLoadMore ? this.fansListPageNumber + 1 : 1
                     }
                 }).then(res => {
-                    if (res.success) {
-                        if (!isLoadMore) {
-                            //不是加载更多（重新获取数据）
-                            this.fansList = [];
-                            this.fansListPageNumber = 0;
-                        }
-                        if (res.data.records.length !== 0) {
-                            //当前查询的结果数量不为0
-                            res.data.records.forEach(user => {
-                                this.fansList.push(user);
-                            });
-                            this.fansListPageNumber += 1;
-                            this.fansListExistMore = res.data.records.length >= this.pageSize;
-                        }
-                        else {
-                            //当前查询的结果数量为0
-                            this.fansListExistMore = false;
-                        }
+                    if (!isLoadMore) {
+                        //不是加载更多（重新获取数据）
+                        this.fansList = [];
+                        this.fansListPageNumber = 0;
                     }
-                    else throw new Error(res);
+                    if (res.data.records.length !== 0) {
+                        //当前查询的结果数量不为0
+                        res.data.records.forEach(user => {
+                            this.fansList.push(user);
+                        });
+                        this.fansListPageNumber += 1;
+                        this.fansListExistMore = res.data.records.length >= this.pageSize;
+                    }
+                    else {
+                        //当前查询的结果数量为0
+                        this.fansListExistMore = false;
+                    }
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -426,11 +417,8 @@
                                         urlParam: {
                                             userId: userId
                                         }
-                                    }).then(res => {
-                                        if (res.success) {
-                                            user.isFriend = false;
-                                        }
-                                        else throw new Error(res);
+                                    }).then(() => {
+                                        user.isFriend = false;
                                     }).catch(err => {
                                         console.error(err);
                                         this.$refs.toast.show({
@@ -438,6 +426,10 @@
                                             type: 'error',
                                             direction: 'top'
                                         });
+                                    }).finally(() => {
+                                        this.getFocusList();
+                                        this.getFansList();
+                                        this.getRecommendUserList();
                                     });
                                 }
                             }
@@ -449,11 +441,8 @@
                             urlParam: {
                                 userId: userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                user.isFriend = true;
-                            }
-                            else throw new Error(res);
+                        }).then(() => {
+                            user.isFriend = true;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -461,7 +450,12 @@
                                 type: 'error',
                                 direction: 'top'
                             });
+                        }).finally(() => {
+                            this.getFocusList();
+                            this.getFansList();
+                            this.getRecommendUserList();
                         });
+                        ;
                     }
                 }, 1000);
             },
@@ -572,69 +566,68 @@
                     //当前显示的是推荐用户列表，且我的学校ID为空
                     this.$refs.loading.startLoading();
                     getMyProfile().then(res => {
-                        if (res.success) {
-                            this.myUserId = res.data.userId;
-                            if (!!res.data.schoolId) {
-                                //已绑定学校
-                                this.mySchoolId = res.data.schoolId;
-                                this.getRecommendUserList();
-                            }
-                            else {
-                                //未绑定学校
-                                uni.showModal({
-                                    title: '未绑定学校',
-                                    content: '请绑定学校以获取用户推荐',
-                                    confirmText: '立即绑定',
-                                    confirmColor: '#f4756b',
-                                    success: res => {
-                                        if (res.confirm) {
-                                            uni.navigateTo({
-                                                url: '/pagesByStore/myUserProfile/subpages/schoolSearch/schoolSearch',
-                                                events: {
-                                                    onSchoolSelected: data => {
-                                                        if (data) {
-                                                            const schoolId = data.schoolInfo.schoolId;
-                                                            this.$refs.loading.startLoading();
-                                                            editMyProfile({
-                                                                queryData: {
-                                                                    userId: this.myUserId,
-                                                                    schoolId: schoolId
-                                                                }
-                                                            }).then(res => {
-                                                                if (res.success) {
-                                                                    this.mySchoolId = schoolId;
-                                                                    this.getRecommendUserList();
-                                                                }
-                                                                else throw new Error(res);
-                                                            }).catch(err => {
-                                                                console.error(err);
-                                                                this.$refs.loading.stopLoading();
-                                                                this.$refs.toast.show({
-                                                                    text: '学校绑定失败',
-                                                                    type: 'error',
-                                                                    direction: 'top'
-                                                                });
-                                                                this.currentShowType = 1;
-                                                            });
-                                                        }
-                                                    }
-                                                },
-                                                success: () => {
-                                                    this.$refs.loading.stopLoading();
-                                                }
-                                            });
-                                        }
-                                        else if (res.cancel) {
-                                            this.currentShowType = 1;
-                                            this.$refs.loading.stopLoading();
-                                        }
-                                    }
-                                });
-                            }
+                        this.myUserId = res.data.userId;
+                        if (!!res.data.schoolId) {
+                            //已绑定学校
+                            this.mySchoolId = res.data.schoolId;
+                            this.getRecommendUserList();
                         }
-                        else throw new Error(res);
+                        else {
+                            //未绑定学校
+                            uni.showModal({
+                                title: '未绑定学校',
+                                content: '请绑定学校以获取用户推荐',
+                                confirmText: '立即绑定',
+                                confirmColor: '#f4756b',
+                                success: res => {
+                                    if (res.confirm) {
+                                        uni.navigateTo({
+                                            url: '/pagesByStore/myUserProfile/subpages/schoolSearch/schoolSearch',
+                                            events: {
+                                                onSchoolSelected: data => {
+                                                    if (data) {
+                                                        const schoolId = data.schoolInfo.schoolId;
+                                                        this.$refs.loading.startLoading();
+                                                        editMyProfile({
+                                                            queryData: {
+                                                                userId: this.myUserId,
+                                                                schoolId: schoolId
+                                                            }
+                                                        }).then(() => {
+                                                            this.mySchoolId = schoolId;
+                                                            this.getRecommendUserList();
+                                                        }).catch(err => {
+                                                            console.error(err);
+                                                            this.$refs.loading.stopLoading();
+                                                            this.$refs.toast.show({
+                                                                text: '学校绑定失败',
+                                                                type: 'error',
+                                                                direction: 'top'
+                                                            });
+                                                            this.currentShowType = 1;
+                                                        });
+                                                    }
+                                                }
+                                            },
+                                            success: () => {
+                                                this.$refs.loading.stopLoading();
+                                            }
+                                        });
+                                    }
+                                    else if (res.cancel) {
+                                        this.currentShowType = 1;
+                                        this.$refs.loading.stopLoading();
+                                    }
+                                }
+                            });
+                        }
                     }).catch(err => {
                         console.error(err);
+                        this.$refs.toast.show({
+                            text: '获取个人信息失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
                     });
                 }
                 else if (nval === 1 && this.userId) {

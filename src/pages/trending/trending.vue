@@ -283,25 +283,23 @@
                             pageSize: this.pageSize,
                         },
                     }).then(res => {
-                        if (res.success) {
-                            if (isRefresh) {
-                                //刷新
-                                this.focusTrendListPageNumber = 0;
-                                this.focusTrendList = [];
-                            }
-                            const data = res.data;
-                            if (data.records.length !== 0) {
-                                //当前查询的结果数量不为0
-                                this.focusTrendListExistMore = data.records.length >= this.pageSize;
-                                data.records.forEach(trend => {
-                                    this.focusTrendList.push(trend);
-                                });
-                                this.focusTrendListPageNumber += 1;
-                            }
-                            else {
-                                //当前查询的结果数量为0
-                                this.focusTrendListExistMore = false;
-                            }
+                        if (isRefresh) {
+                            //刷新
+                            this.focusTrendListPageNumber = 0;
+                            this.focusTrendList = [];
+                        }
+                        const data = res.data;
+                        if (data.records.length !== 0) {
+                            //当前查询的结果数量不为0
+                            this.focusTrendListExistMore = data.records.length >= this.pageSize;
+                            data.records.forEach(trend => {
+                                this.focusTrendList.push(trend);
+                            });
+                            this.focusTrendListPageNumber += 1;
+                        }
+                        else {
+                            //当前查询的结果数量为0
+                            this.focusTrendListExistMore = false;
                         }
                     }).catch(err => {
                         console.error(err);
@@ -327,25 +325,23 @@
                             pageSize: this.pageSize,
                         },
                     }).then(res => {
-                        if (res.success) {
-                            if (isRefresh) {
-                                //刷新
-                                this.mainTrendListPageNumber = 0;
-                                this.mainTrendList = [];
-                            }
-                            const data = res.data;
-                            if (data.records.length !== 0) {
-                                //当前查询的结果数量不为0
-                                this.mainTrendListExistMore = data.records.length >= this.pageSize;
-                                data.records.forEach(trend => {
-                                    this.mainTrendList.push(trend);
-                                });
-                                this.mainTrendListPageNumber += 1;
-                            }
-                            else {
-                                //当前查询的结果数量为0
-                                this.mainTrendListExistMore = false;
-                            }
+                        if (isRefresh) {
+                            //刷新
+                            this.mainTrendListPageNumber = 0;
+                            this.mainTrendList = [];
+                        }
+                        const data = res.data;
+                        if (data.records.length !== 0) {
+                            //当前查询的结果数量不为0
+                            this.mainTrendListExistMore = data.records.length >= this.pageSize;
+                            data.records.forEach(trend => {
+                                this.mainTrendList.push(trend);
+                            });
+                            this.mainTrendListPageNumber += 1;
+                        }
+                        else {
+                            //当前查询的结果数量为0
+                            this.mainTrendListExistMore = false;
                         }
                     }).catch(err => {
                         console.error(err);
@@ -364,34 +360,31 @@
             getSchoolInfo() {
                 this.$refs.loading.startLoading();
                 getMyProfile().then(res => {
-                    if (res.success) {
-                        this.myUserId = res.data.userId;
-                        if (!!res.data.schoolId) {
-                            //已绑定学校
-                            this.schoolId = res.data.schoolId;
-                            this.schoolName = res.data.schoolName;
-                            this.getRecommendUserList();
-                        }
-                        else {
-                            //未绑定学校
-                            uni.showModal({
-                                title: '未绑定学校',
-                                content: '请先绑定学校',
-                                confirmText: '立即绑定',
-                                confirmColor: '#f4756b',
-                                success: res => {
-                                    if (res.confirm) {
-                                        this.editSchool();
-                                    }
-                                    else if (res.cancel) {
-                                        this.currentTrendType = 1;
-                                        this.$refs.loading.stopLoading();
-                                    }
-                                }
-                            });
-                        }
+                    this.myUserId = res.data.userId;
+                    if (!!res.data.schoolId) {
+                        //已绑定学校
+                        this.schoolId = res.data.schoolId;
+                        this.schoolName = res.data.schoolName;
+                        this.getRecommendUserList();
                     }
-                    else throw new Error(res);
+                    else {
+                        //未绑定学校
+                        uni.showModal({
+                            title: '未绑定学校',
+                            content: '请先绑定学校',
+                            confirmText: '立即绑定',
+                            confirmColor: '#f4756b',
+                            success: res => {
+                                if (res.confirm) {
+                                    this.editSchool();
+                                }
+                                else if (res.cancel) {
+                                    this.currentTrendType = 1;
+                                    this.$refs.loading.stopLoading();
+                                }
+                            }
+                        });
+                    }
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -411,10 +404,7 @@
                             schoolId: this.schoolId
                         }
                     }).then(res => {
-                        if (res.success) {
-                            this.recommendUserList = res.data;
-                        }
-                        else throw new Error(res);
+                        this.recommendUserList = res.data;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -443,12 +433,9 @@
                                         schoolId: schoolId
                                     }
                                 }).then(res => {
-                                    if (res.success) {
-                                        this.schoolId = schoolId;
-                                        this.schoolName = schoolName;
-                                        this.getRecommendUserList();
-                                    }
-                                    else throw new Error(res);
+                                    this.schoolId = schoolId;
+                                    this.schoolName = schoolName;
+                                    this.getRecommendUserList();
                                 }).catch(err => {
                                     console.error(err);
                                     this.$refs.loading.stopLoading();
@@ -541,13 +528,8 @@
                             actionType: actionType,
                             targetType: targetType
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            resolve();
-                        }
-                        else {
-                            throw new Error(res);
-                        }
+                    }).then(() => {
+                        resolve();
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({

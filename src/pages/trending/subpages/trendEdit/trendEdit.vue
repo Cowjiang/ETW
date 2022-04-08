@@ -134,20 +134,16 @@
                 }
                 postTrend({
                     queryData: trendContent,
-                }).then(res => {
-                    if (res.success) {
-                        uni.switchTab({
-                            url: "/pages/trending/trending",
-                        });
-                    }
-                    else {
-                        this.$refs.toast.show({
-                            text: '发布失败',
-                            type: 'error'
-                        });
-                    }
+                }).then(() => {
+                    uni.switchTab({
+                        url: "/pages/trending/trending",
+                    });
                 }).catch(err => {
                     console.error(err);
+                    this.$refs.toast.show({
+                        text: '发布失败',
+                        type: 'error'
+                    });
                 });
             },
         },

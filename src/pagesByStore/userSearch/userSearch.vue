@@ -57,7 +57,7 @@
               {{ user.username }}
             </view>
             <view class="description">
-              {{ user.signature || ''}}
+              {{ user.signature || '' }}
             </view>
           </view>
           <view class="focus-btn">
@@ -147,26 +147,24 @@
                             pageNumber: isLoadMore ? this.currentPage + 1 : 1
                         }
                     }).then(res => {
-                        if (res.success) {
-                            this.loadingMore = false;
-                            if (!isLoadMore) {
-                                //不是加载更多（重新搜索）
-                                this.userSearchResult = [];
-                            }
-                            if (res.data.records.length !== 0) {
-                                //当前查询的结果数量不为0
-                                res.data.records.forEach(user => {
-                                    this.userSearchResult.push(user);
-                                });
-                                this.currentPage += 1;
-                                if (res.data.records.length < this.pageSize) {
-                                    this.existMore = false;
-                                }
-                            }
-                            else {
-                                //当前查询的结果数量为0
+                        this.loadingMore = false;
+                        if (!isLoadMore) {
+                            //不是加载更多（重新搜索）
+                            this.userSearchResult = [];
+                        }
+                        if (res.data.records.length !== 0) {
+                            //当前查询的结果数量不为0
+                            res.data.records.forEach(user => {
+                                this.userSearchResult.push(user);
+                            });
+                            this.currentPage += 1;
+                            if (res.data.records.length < this.pageSize) {
                                 this.existMore = false;
                             }
+                        }
+                        else {
+                            //当前查询的结果数量为0
+                            this.existMore = false;
                         }
                         this.$refs.loading.stopLoading();
                     }).catch(err => {
@@ -233,19 +231,9 @@
                                     urlParam: {
                                         userId: user.id
                                     }
-                                }).then(res => {
+                                }).then(() => {
                                     this.$refs.loading.stopLoading();
-                                    if (res.success) {
-                                        user.isFriend = false;
-                                    }
-                                    else {
-                                        console.error(res);
-                                        this.$refs.toast.show({
-                                            text: '取消关注失败',
-                                            type: 'error',
-                                            direction: 'top'
-                                        });
-                                    }
+                                    user.isFriend = false;
                                 }).catch(err => {
                                     this.$refs.loading.stopLoading();
                                     console.error(err);
@@ -261,19 +249,9 @@
                                     urlParam: {
                                         userId: user.id
                                     }
-                                }).then(res => {
+                                }).then(() => {
                                     this.$refs.loading.stopLoading();
-                                    if (res.success) {
-                                        user.isFriend = true;
-                                    }
-                                    else {
-                                        console.error(res);
-                                        this.$refs.toast.show({
-                                            text: '关注失败',
-                                            type: 'error',
-                                            direction: 'top'
-                                        });
-                                    }
+                                    user.isFriend = true;
                                 }).catch(err => {
                                     this.$refs.loading.stopLoading();
                                     console.error(err);

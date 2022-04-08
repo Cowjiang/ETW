@@ -150,26 +150,24 @@
                         },
                         headerData: {"Content-type": "application/json"},
                     }).then(res => {
-                        if (res.success) {
-                            this.loadingMore = false;
-                            if (res.data.records.length !== 0) {
-                                //当前查询的结果数量不为0
-                                res.data.records.forEach(store => {
-                                    this.storeSearchResult.push(store);
-                                });
-                                this.currentPage += 1;
-                                if (res.data.records.length < this.pageSize) {
-                                    this.existMore = false;
-                                }
-                            }
-                            else {
-                                //当前查询的结果数量为0
+                        this.loadingMore = false;
+                        if (res.data.records.length !== 0) {
+                            //当前查询的结果数量不为0
+                            res.data.records.forEach(store => {
+                                this.storeSearchResult.push(store);
+                            });
+                            this.currentPage += 1;
+                            if (res.data.records.length < this.pageSize) {
                                 this.existMore = false;
                             }
-                            setTimeout(() => {
-                                resolve(res.data);
-                            }, 0);
                         }
+                        else {
+                            //当前查询的结果数量为0
+                            this.existMore = false;
+                        }
+                        setTimeout(() => {
+                            resolve(res.data);
+                        }, 0);
                     }).catch((err) => {
                         reject(err);
                     });
