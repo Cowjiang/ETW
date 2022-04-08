@@ -486,7 +486,7 @@ export const addOrder = (requestConfig) => apiRequest(`${httpBaseUrl}/store/${re
 
 //获取我的订单
 export const getMyOrder = (requestConfig = {}) => apiRequest(`${httpBaseUrl}/store/order/user`, {
-    method: "GET",
+    method: "POST",
     requestConfig,
 });
 

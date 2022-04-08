@@ -6,7 +6,7 @@
 
     <view
       class="trend-edit-container"
-      :style="{height: `${windowHeight - navigationHeight}px`}">
+      :style="{height: `calc(100vh - ${navigationHeight}px)`}">
       <view class="textarea-container">
         <u-field
           v-model="textareaValue"
@@ -26,18 +26,42 @@
       </view>
       <view class="menu-container">
         <view
-          class="menu-item"
-          v-for="item in menuItemList"
-          :key="item.id"
-          @click="handleMenuItemClick(item.id)">
-          <view class="title-icon">
-            <i class="fas" :class="item.titleIcon" aria-hidden="true"></i>
+          class="menu-item">
+          <view
+            class="select-position-container"
+            @click="gotoMap">
+            <i class="fas fa-location-dot"/>
+            <view class="title-text">
+              选择地点
+            </view>
+            <view class="address-name" v-if="positionInfo.addressName">
+              {{ positionInfo.addressName }}
+            </view>
+            <i
+              class="fas fa-angle-right"
+              :style="{marginLeft: `${positionInfo.addressName ? 'unset' : 'auto'}`}"/>
           </view>
-          <view class="title-text">
-            {{ item.titleText }}
-          </view>
-          <view class="tag" v-show="item.tag">
-            {{ item.tag }}
+          <view class="address-tips-container">
+            <scroll-view
+              :scroll-x="true">
+              <view class="address-tips">
+                <view
+                  class="tag"
+                  v-if="positionInfo.addressName"
+                  @click="clearPosition">
+                  不选择地点
+                </view>
+                <view
+                  class="tag"
+                  v-for="address in addressTips"
+                  v-if="address.name !== positionInfo.addressName"
+                  :key="address.id"
+                  @click="handleAddressTipsClick(address)">
+                  {{ address.name }}
+                </view>
+                <view class="end"></view>
+              </view>
+            </scroll-view>
           </view>
         </view>
       </view>
@@ -72,44 +96,49 @@
                 navigationHeight: 0, //导航栏高度
                 titleValue: '', //帖子标题的值
                 textareaValue: '', //文本域的值
-                menuItemList: [{
-                    id: 1,
-                    titleText: '选择地点',
-                    titleIcon: 'fa-location-dot'
-                }], //菜单项列表
                 isPostReady: false, //是否准备发送
                 positionInfo: {}, //位置信息
+                addressTips: [], //附近地点建议
             }
         },
         methods: {
-            /**
-             * 菜单项点击事件
-             * @param {Number} itemId 菜单项id
-             */
-            handleMenuItemClick(itemId) {
-                switch (itemId) {
-                    case 1:
-                        uni.navigateTo({
-                            url: "/pagesByStore/amap/amap",
-                            events: {
-                                acceptDataFromOpenedPage: data => {
-                                    if (data) {
-                                        this.positionInfo = {
-                                            latitude: data.resultDetails.location.latitude,
-                                            longitude: data.resultDetails.location.longitude,
-                                            areaCode: data.resultDetails.adcode,
-                                            addressName: data.resultDetails.name
-                                        }
-                                        this.menuItemList[0].tag = data.resultDetails.name;
-                                    }
-                                },
-                            },
-                        });
-                        break;
-                    case 2:
-                        this.showTitleEdit = true;
-                        break;
-                }
+            // 获取定位信息
+            getLocation() {
+                this.amap.getPoiAround({
+                    querytypes: '050000|060100|120000|150500|150200|150104|141200', //餐饮服务|商场|商务住宅|地铁站|火车站|机场|学校
+                    success: data => {
+                        if (data) {
+                            this.addressTips = data.poisData.slice(0, 10);
+                            this.positionInfo = {
+                                latitude: parseFloat(data.poisData[0].location.substring(data.poisData[0].location.indexOf(",") + 1)),
+                                longitude: parseFloat(data.poisData[0].location.substring(0, data.poisData[0].location.indexOf(","))),
+                                areaCode: data.poisData[0].adcode,
+                                addressName: data.poisData[0].name
+                            }
+                        }
+                    },
+                    fail: err => {
+                        console.error(err);
+                    },
+                });
+            },
+            // 地图选址
+            gotoMap() {
+                uni.navigateTo({
+                    url: "/pagesByStore/amap/amap",
+                    events: {
+                        acceptDataFromOpenedPage: data => {
+                            if (data) {
+                                this.positionInfo = {
+                                    latitude: data.resultDetails.location.latitude,
+                                    longitude: data.resultDetails.location.longitude,
+                                    areaCode: data.resultDetails.adcode,
+                                    addressName: data.resultDetails.name
+                                }
+                            }
+                        },
+                    },
+                });
             },
             // 发布按钮点击事件
             handlePostBtnClick() {
@@ -146,10 +175,26 @@
                     });
                 });
             },
+            /**
+             * 附近地址建议点击事件
+             * @param {Object} address 地址信息
+             */
+            handleAddressTipsClick(address) {
+                this.positionInfo = {
+                    latitude: parseFloat(address.location.substring(address.location.indexOf(",") + 1)),
+                    longitude: parseFloat(address.location.substring(0, address.location.indexOf(","))),
+                    areaCode: address.adcode,
+                    addressName: address.name
+                }
+            },
+            // 清除位置信息
+            clearPosition() {
+                this.positionInfo = {};
+            }
         },
         watch: {
             textareaValue(nval) {
-                this.isPostReady = nval.replace(/[ ]/g, "").length > 5;
+                this.isPostReady = nval.replace(/[ ]/g, "").length > 1;
             }
         },
         mounted() {
@@ -162,6 +207,7 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
+            this.getLocation();
         }
     }
 </script>

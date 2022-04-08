@@ -45,7 +45,7 @@
             <view class="title">粉丝</view>
           </view>
           <view class="divider"></view>
-          <view class="user-info_column">
+          <view class="user-info_column" @click="goto('/pagesByStore/userPage/userPage')">
             <view class="content">{{ trendCount || 0 }}</view>
             <view class="title">动态</view>
           </view>
@@ -94,7 +94,9 @@
       </view>
       <!-- 竖排按钮容器 -->
       <view class="vertical-btn-container">
-        <view class="btn_row">
+        <view
+          class="btn_row"
+          @click="goto('/pagesByStore/userPage/userPage')">
           <view class="btn_title">
             <i class="far fa-chart-bar"/>
             <text>我的动态</text>
