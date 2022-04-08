@@ -51,7 +51,7 @@
           </view>
           <view class="divider"></view>
           <view class="user-info_column">
-            <view class="content">0</view>
+            <view class="content">{{ orderCount || 0 }}</view>
             <view class="title">订单</view>
           </view>
         </view>
@@ -185,7 +185,7 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {getUserSimpleInfo, getUserTrendList} from "@/common/js/api/models";
+    import {getMyOrder, getUserSimpleInfo, getUserTrendList} from "@/common/js/api/models";
 
     export default {
         name: "myPage",
@@ -200,6 +200,7 @@
                 userId: null, //我的用户ID
                 userDetailInfo: {}, //我的用户详细信息
                 trendCount: 0, //我的动态数量
+                orderCount: 0, //我的订单总数
             }
         },
         methods: {
@@ -229,6 +230,21 @@
                         }).catch(err => {
                             reject(err);
                         });
+                    });
+                    const getOrderInfoPromise = new Promise((resolve, reject) => {
+                        getMyOrder({
+                            queryData: {
+                                pageNumber: 1,
+                            },
+                            headerData: {
+                                "Content-type": "application/json"
+                            }
+                        }).then(res => {
+                            this.orderCount = res.data.total;
+                            resolve();
+                        }).catch(err => {
+                            reject(err);
+                        })
                     });
                     Promise.all([getUserInfoPromise, getTrendInfoPromise]).catch(err => {
                         console.error(err);

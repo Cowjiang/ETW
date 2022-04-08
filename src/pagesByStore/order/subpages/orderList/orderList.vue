@@ -143,6 +143,9 @@
                     queryData: {
                         pageNumber: page,
                     },
+                    headerData: {
+                        "Content-type": "application/json"
+                    }
                 }).then(res => {
                     console.log(res.data.records)
                     if (res.data.records.length) {
