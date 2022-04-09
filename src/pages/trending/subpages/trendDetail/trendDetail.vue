@@ -497,6 +497,7 @@
                                         comment.commentChildList = [];
                                     }
                                     comment.commentChildList.unshift(commentChild);
+                                    comment.commentNumber += 1;
                                     this.$forceUpdate();
                                 }
                             });
