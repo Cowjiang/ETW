@@ -85,20 +85,21 @@
             width: 90rpx;
             height: 90rpx;
             border-radius: 150rpx;
-            //background-color: orange;
+            background-color: #f6f6f6;
             overflow: hidden;
 
             image {
               width: 100%;
+              height: 100%;
             }
           }
         }
 
         .content-container {
+          margin: auto 0;
           flex: 1;
           overflow: hidden;
           white-space: nowrap;
-          margin: auto 0;
           pointer-events: none;
 
           .sender-name {
@@ -106,19 +107,19 @@
             flex-direction: row;
 
             .name {
+              max-width: calc(100% - 110rpx);
               font-size: 32rpx;
               line-height: 50rpx;
               color: #333;
               text-overflow: ellipsis;
               overflow: hidden;
-              max-width: calc(100% - 110rpx);
             }
 
             .blacklist-user {
-              position: relative;
-              top: 12rpx;
               width: fit-content;
               height: 28rpx;
+              position: relative;
+              top: 12rpx;
               margin-left: 15rpx;
               padding: 0 10rpx;
               font-size: 20rpx;
@@ -183,8 +184,8 @@
       }
 
       .load-more {
-        height: fit-content;
         width: 100%;
+        height: fit-content;
         margin-top: 30rpx;
         padding-bottom: 70rpx;
         background-color: #fff;
@@ -214,10 +215,10 @@
 
         .row {
           width: 100%;
+          padding: 8rpx 0;
           display: flex;
           flex-direction: row;
           justify-content: center;
-          padding: 8rpx 0;
           font-size: 26rpx;
           color: #888;
         }

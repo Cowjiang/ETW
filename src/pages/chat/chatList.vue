@@ -104,7 +104,7 @@
             @touchcancel="handleTouchEnd">
             <view class="avatar-container">
               <view class="avatar">
-                <image :src="message.senderAvatar" mode="widthFix"></image>
+                <image :src="message.senderAvatar" mode="aspectFill"></image>
               </view>
             </view>
             <view class="content-container">
