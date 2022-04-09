@@ -228,18 +228,9 @@
                             //确定删除地址
                             deleteAddressBook({
                                 urlParam: this.addressId
-                            }).then(res => {
-                                if (res.success) {
-                                    this.$refs.loading.stopLoading();
-                                    this.navigateToAddressBook();
-                                }
-                                else {
-                                    this.$refs.loading.stopLoading();
-                                    this.$refs.toast.show({
-                                        text: '删除失败',
-                                        type: 'error'
-                                    });
-                                }
+                            }).then(() => {
+                                this.$refs.loading.stopLoading();
+                                this.navigateToAddressBook();
                             }).catch(err => {
                                 this.$refs.loading.stopLoading();
                                 this.$refs.toast.show({
@@ -353,35 +344,26 @@
                                 isDefault: newAddress.isDefault
                             }
                         }).then(res => {
-                            if (res.success) {
-                                if (this.isSelectMode) {
-                                    //当前为选择地址模式
-                                    try {
-                                        newAddress.id = res.data;
-                                        const eventChannel = this.getOpenerEventChannel();
-                                        eventChannel.emit("acceptDataFromOpenedPage", {
-                                            address: newAddress
-                                        });
-                                        uni.navigateBack();
-                                    } catch (e) {
-                                        this.$refs.toast.show({
-                                            text: '网络异常',
-                                            type: 'error',
-                                            direction: 'top'
-                                        });
-                                    }
-                                }
-                                else {
-                                    //当前不为选择地址模式
-                                    this.navigateToAddressBook();
+                            if (this.isSelectMode) {
+                                //当前为选择地址模式
+                                try {
+                                    newAddress.id = res.data;
+                                    const eventChannel = this.getOpenerEventChannel();
+                                    eventChannel.emit("acceptDataFromOpenedPage", {
+                                        address: newAddress
+                                    });
+                                    uni.navigateBack();
+                                } catch (e) {
+                                    this.$refs.toast.show({
+                                        text: '网络异常',
+                                        type: 'error',
+                                        direction: 'top'
+                                    });
                                 }
                             }
                             else {
-                                this.$refs.toast.show({
-                                    text: '保存失败',
-                                    type: 'error',
-                                });
-                                console.log(res);
+                                //当前不为选择地址模式
+                                this.navigateToAddressBook();
                             }
                         }).catch(err => {
                             this.$refs.toast.show({
@@ -402,17 +384,8 @@
                                 addressDetail: newAddress.addressDetail,
                                 isDefault: newAddress.isDefault
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.navigateToAddressBook();
-                            }
-                            else {
-                                this.$refs.toast.show({
-                                    text: '保存失败',
-                                    type: 'error',
-                                });
-                                console.log(res);
-                            }
+                        }).then(() => {
+                            this.navigateToAddressBook();
                         }).catch(err => {
                             this.$refs.toast.show({
                                 text: '保存失败',

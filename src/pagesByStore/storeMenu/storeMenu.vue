@@ -444,8 +444,8 @@
                   menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].isCustom
                     ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].customOptionPrice
                     : parseInt(menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice === null
-                      ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].price
-                      : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice) | formatPrice
+                    ? menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].price
+                    : menuList[currentSelectedCommodity.typeIndex].dishes[currentSelectedCommodity.commodityIndex].discountPrice) | formatPrice
                 }}
               </view>
               <view class="amount-btn">
@@ -630,20 +630,11 @@
                             couponId,
                         },
                     }).then(res => {
-                        if (res.success) {
-                            this.$refs.toast.show({
-                                text: '领取成功',
-                                type: 'success',
-                                direction: 'top'
-                            });
-                        }
-                        else {
-                            this.$refs.toast.show({
-                                text: '领取失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
-                        }
+                        this.$refs.toast.show({
+                            text: '领取成功',
+                            type: 'success',
+                            direction: 'top'
+                        });
                     }).catch(error => {
                         console.error(error);
                         this.$refs.toast.show({
@@ -1205,13 +1196,8 @@
                                     storeId: storeInfo.id
                                 }
                             }).then(res => {
-                                if (res.success) {
-                                    this.storeInfo = res.data;
-                                    resolve();
-                                }
-                                else {
-                                    reject(res);
-                                }
+                                this.storeInfo = res.data;
+                                resolve();
                             }).catch(err => {
                                 reject(err);
                             });
@@ -1224,22 +1210,17 @@
                                 },
                             }).then(res => {
                                 let coupons = this.discountTags;
-                                if (res.success) {
-                                    res.data.forEach(coupon => {
-                                        coupons.push({
-                                            id: coupon.id,
-                                            content: coupon.withAmount / 100.0 + "减" + coupon.usedAmount / 100.0,
-                                            backgroundColor: "#fff",
-                                            color: "#f4756b",
-                                            borderColor: "#f4756b",
-                                        });
+                                res.data.forEach(coupon => {
+                                    coupons.push({
+                                        id: coupon.id,
+                                        content: coupon.withAmount / 100.0 + "减" + coupon.usedAmount / 100.0,
+                                        backgroundColor: "#fff",
+                                        color: "#f4756b",
+                                        borderColor: "#f4756b",
                                     });
-                                    this.discountTags = coupons;
-                                    resolve();
-                                }
-                                else {
-                                    reject(res);
-                                }
+                                });
+                                this.discountTags = coupons;
+                                resolve();
                             }).catch(err => {
                                 reject(err);
                             });
@@ -1249,13 +1230,8 @@
                             getStoreMenu({
                                 urlParam: storeInfo.id,
                             }).then(res => {
-                                if (res.success) {
-                                    this.menuList = res.data;
-                                    resolve();
-                                }
-                                else {
-                                    reject(res);
-                                }
+                                this.menuList = res.data;
+                                resolve();
                             }).catch(err => {
                                 reject(err);
                             });

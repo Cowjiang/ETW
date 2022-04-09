@@ -207,33 +207,31 @@
                                     username: this.username,
                                     password: this.password,
                                 },
-                            })
-                                .then(res => {
-                                    if (res.success && res.data.id !== null) {
-                                        wx.setStorage({
-                                            key: "userInfo",
-                                            data: res.data,
-                                            success: () => {
-                                                this.$store.commit('userInfo', res.data);
-                                                this.$emit('loginSuccess');
-                                            },
-                                        });
-                                    }
-                                    else {
-                                        console.log(res)
-                                        this.$refs.toast.show({
-                                            text: '登陆失败',
-                                            type: "error",
-                                        });
-                                    }
-                                })
-                                .catch((err) => {
-                                    console.log(err);
+                            }).then(res => {
+                                if (res.data.id !== null) {
+                                    wx.setStorage({
+                                        key: "userInfo",
+                                        data: res.data,
+                                        success: () => {
+                                            this.$store.commit('userInfo', res.data);
+                                            this.$emit('loginSuccess');
+                                        },
+                                    });
+                                }
+                                else {
+                                    console.log(res)
                                     this.$refs.toast.show({
                                         text: '登陆失败',
                                         type: "error",
                                     });
+                                }
+                            }).catch((err) => {
+                                console.log(err);
+                                this.$refs.toast.show({
+                                    text: '登陆失败',
+                                    type: "error",
                                 });
+                            });
                         }
                         else if (usernameValidatedInfo.regExp.length >= 2) {
                             this.$refs.toast.show({
@@ -317,71 +315,71 @@
     width: 100vw;
     position: absolute;
     margin-top: 11vh;
-    padding: 54rpx;
+    padding: 54 rpx;
     animation-duration: 600ms;
 
     .title {
-      font-size: 64rpx;
+      font-size: 64 rpx;
       font-weight: bold;
       color: $uni-text-color;
     }
 
     .input-area {
       width: 100%;
-      margin-top: 74rpx;
+      margin-top: 74 rpx;
 
       .username-container {
-        height: 110rpx;
-        margin-bottom: 46rpx;
-        border-bottom: 4rpx solid #ededed;
+        height: 110 rpx;
+        margin-bottom: 46 rpx;
+        border-bottom: 4 rpx solid #ededed;
         transition-property: border-bottom-color;
         transition-duration: 0.2s;
 
         .input-placeholder {
-          font-size: 34rpx;
+          font-size: 34 rpx;
           color: $uni-text-color-placeholder;
           transition-duration: 0.2s;
           transition-property: transform, font-size;
-          transform: translateY(40rpx);
+          transform: translateY(40 rpx);
         }
 
         .username-input {
-          height: 80rpx;
-          font-size: 32rpx;
+          height: 80 rpx;
+          font-size: 32 rpx;
           color: $uni-text-color;
           transform: translateY(-10rpx);
         }
 
         .placeholder-focus {
           transform: translateY(0);
-          font-size: 32rpx;
+          font-size: 32 rpx;
         }
       }
 
       .password-container {
-        height: 110rpx;
-        border-bottom: 4rpx solid #ededed;
+        height: 110 rpx;
+        border-bottom: 4 rpx solid #ededed;
         transition-property: border-bottom-color;
         transition-duration: 0.2s;
 
         .input-placeholder {
-          font-size: 34rpx;
+          font-size: 34 rpx;
           color: $uni-text-color-placeholder;
           transition-duration: 0.2s;
           transition-property: transform, font-size;
-          transform: translateY(40rpx);
+          transform: translateY(40 rpx);
         }
 
         .password-input {
-          height: 80rpx;
-          font-size: 32rpx;
+          height: 80 rpx;
+          font-size: 32 rpx;
           color: $uni-text-color;
           transform: translateY(-10rpx);
         }
 
         .placeholder-focus {
           transform: translateY(0);
-          font-size: 32rpx;
+          font-size: 32 rpx;
         }
       }
 
@@ -391,34 +389,34 @@
     }
 
     .forget-password {
-      padding: 30rpx 0;
-      font-size: 30rpx;
+      padding: 30 rpx 0;
+      font-size: 30 rpx;
       color: $uni-text-color-placeholder;
       text-align: right;
     }
 
     .button-area {
       width: 100%;
-      padding: 30rpx 0;
+      padding: 30 rpx 0;
 
       .login-button {
         width: 100%;
-        height: 94rpx;
+        height: 94 rpx;
         text-align: center;
-        font-size: 35rpx;
+        font-size: 35 rpx;
         font-weight: bold;
-        line-height: 94rpx;
+        line-height: 94 rpx;
         color: $uni-text-color-inverse;
         background-color: $uni-color-primary;
-        border-radius: 14rpx;
+        border-radius: 14 rpx;
       }
 
       .no-account {
         width: 100%;
-        height: 180rpx;
+        height: 180 rpx;
         text-align: center;
-        font-size: 32rpx;
-        line-height: 180rpx;
+        font-size: 32 rpx;
+        line-height: 180 rpx;
         color: #444444;
 
         .register-now {
@@ -428,15 +426,15 @@
 
       .wechat-login-button {
         width: 100%;
-        height: 94rpx;
-        margin-top: 40rpx;
+        height: 94 rpx;
+        margin-top: 40 rpx;
         text-align: center;
-        font-size: 34rpx;
+        font-size: 34 rpx;
         font-weight: bold;
-        line-height: 94rpx;
+        line-height: 94 rpx;
         color: $uni-text-color-inverse;
         background-color: #5f76ea;
-        border-radius: 14rpx;
+        border-radius: 14 rpx;
       }
     }
   }

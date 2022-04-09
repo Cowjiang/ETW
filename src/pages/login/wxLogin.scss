@@ -15,26 +15,56 @@
     flex-direction: column;
     justify-content: center;
 
-      .image {
-        width: 100%;
-        text-align: center;
+    .user-type {
+      width: 100%;
+      position: absolute;
+      top: 180rpx;
+      right: 40rpx;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-size: 28rpx;
+      color: #576991;
 
-        image {
-          width: 130rpx;
-          height: 130rpx;
-          border-radius: 50%;
-          overflow: hidden;
-        }
+      .fas {
+        margin-left: auto;
+        margin-right: 10rpx;
+        font-size: 26rpx;
       }
+    }
 
-      .name {
-        width: 100%;
+    .image {
+      width: 100%;
+      text-align: center;
+
+      image {
+        width: 130rpx;
+        height: 130rpx;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+    }
+
+    .name {
+      width: 100%;
+      margin-top: 10rpx;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+
+      .shopkeeper-tag {
         margin-top: 10rpx;
-        text-align: center;
-        font-size: 18px;
-        font-weight: bold;
-        color: #333;
+        padding: 2rpx 18rpx;
+        font-size: 24rpx;
+        color: #f4756b;
+        border: 2rpx solid #f4756b;
+        border-radius: 30rpx;
       }
+    }
   }
 
   .login-btn-container {

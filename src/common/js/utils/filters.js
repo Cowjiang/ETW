@@ -6,6 +6,9 @@ import Vue from 'vue';
  * @return {String} 格式化后的时间
  */
 Vue.filter('formatDateTime', (time, type) => {
+    if (!time) {
+        return '';
+    }
     //判断传入的是时间戳还是时间对象
     const date = time instanceof Date ? time : new Date(time);
     const y = date.getFullYear();
@@ -111,5 +114,5 @@ Vue.filter('formatAmount', amount => {
  * @return {String} 格式化后的价格
  */
 Vue.filter('formatPrice', price => {
-    return typeof price !== "number" ? `￥NaN` : `￥${price / 100.0}`;
+    return typeof price !== "number" ? `` : `￥${price / 100.0}`;
 });

@@ -23,6 +23,7 @@
     </navigationBar>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen/>
+    <loading ref="uploading" fullscreen maskColor="rgba(255, 255, 255, 0.8)"/>
     <selectArea ref="selectArea"/>
 
     <view class="user-page-container">
@@ -34,7 +35,7 @@
         <view
           class="cover-mask"
           v-if="userInfo.coverUrl"
-          @click="previewImage(userInfo.coverUrl)"></view>
+          @click="handleCoverImageClick(userInfo.coverUrl)"></view>
       </view>
       <view class="content-container">
         <view class="user-info-container">
@@ -46,7 +47,7 @@
                 mode="aspectFill"
                 @click="previewImage(userInfo.avgPath)"/>
             </view>
-            <view class="focus">
+            <view class="focus" @click="gotoFriendList(1)">
               <view class="content">
                 {{ userInfo.attentions || 0 }}
               </view>
@@ -54,7 +55,7 @@
                 关注
               </view>
             </view>
-            <view class="fans">
+            <view class="fans" @click="gotoFriendList(2)">
               <view class="content">
                 {{ userInfo.fans || 0 }}
               </view>
@@ -189,6 +190,19 @@
         </view>
       </view>
     </view>
+    <!-- 图片上传组件 -->
+    <upload
+      class="upload"
+      ref="upload"
+      :action="action"
+      :file-list="fileList"
+      :before-upload="beforeUpload"
+      :max-size="10485760"
+      :max-count="1"
+      :show-tips="false"
+      @on-success="onUploadSuccess"
+      @on-error="onUploadError"
+      @on-oversize="onUploadOversize"/>
   </view>
 </template>
 
@@ -197,18 +211,23 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
     import selectArea from "@/components/selectPopup/selectArea/selectArea";
+    import upload from "@/components/upload/upload";
     import {
-        addFriend, addToBlockList,
+        addFriend,
+        addToBlockList,
+        editMyProfile,
+        getUploadSignature,
         getUserRelationships,
         getUserSimpleInfo,
         getUserTrendList,
-        removeFriend, removeFromBlockList
+        removeFriend,
+        removeFromBlockList
     } from "@/common/js/api/models";
 
     export default {
         name: "userPage",
         components: {
-            toast, navigationBar, loading, selectArea
+            toast, navigationBar, loading, selectArea, upload
         },
         data() {
             return {
@@ -224,6 +243,8 @@
                 currentTab: 0, //当前显示的标签栏序号
                 trendList: [], //用户的动态列表
                 coverVisible: true, //封面图片是否可见
+                action: '', //图片上传Url
+                fileList: [], //发送图片的队列
             }
         },
         methods: {
@@ -237,11 +258,8 @@
                                 extend: true
                             }
                         }).then(res => {
-                            if (res.success) {
-                                this.userInfo = res.data;
-                                resolve();
-                            }
-                            else throw new Error(res);
+                            this.userInfo = res.data;
+                            resolve();
                         }).catch(error => {
                             reject(error);
                         });
@@ -276,10 +294,7 @@
                             userId: this.userId,
                         }
                     }).then(res => {
-                        if (res.success) {
-                            this.trendList = res.data.records;
-                        }
-                        else throw new Error(res);
+                        this.trendList = res.data.records;
                     }).catch(error => {
                         console.error(error);
                     });
@@ -325,11 +340,8 @@
                             urlParam: {
                                 userId: this.userInfo.userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.isFocused = false;
-                            }
-                            else throw new Error(res);
+                        }).then(() => {
+                            this.isFocused = false;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -345,11 +357,8 @@
                             urlParam: {
                                 userId: this.userInfo.userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.isFocused = true;
-                            }
-                            else throw new Error(res);
+                        }).then(() => {
+                            this.isFocused = true;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -369,11 +378,8 @@
                         urlParam: {
                             userId: this.userInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isBlocked = false;
-                        }
-                        else throw new Error(res);
+                    }).then(() => {
+                        this.isBlocked = false;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -389,11 +395,8 @@
                         urlParam: {
                             userId: this.userInfo.userId
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            this.isBlocked = true;
-                        }
-                        else throw new Error(res);
+                    }).then(() => {
+                        this.isBlocked = true;
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -425,6 +428,30 @@
                 });
             },
             /**
+             * 封面图片点击事件
+             * @param {String} url 封面图片URL
+             */
+            handleCoverImageClick(url) {
+                if (this.userId === this.$store.state.userInfo.userId) {
+                    //当前登录用户
+                    uni.showActionSheet({
+                        itemList: ['查看大图', '修改封面图片'],
+                        success: res => {
+                            if (res.tapIndex === 0) {
+                                this.previewImage(url);
+                            }
+                            else {
+                                this.$refs.upload.selectFile();
+                            }
+                        }
+                    })
+                }
+                else {
+                    //不是当前登录用户
+                    this.previewImage(url);
+                }
+            },
+            /**
              * 跳转动态详情页
              * @param {Number|String} trendId 动态ID
              */
@@ -445,6 +472,93 @@
                         url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${this.userInfo.userId}`
                     });
                 }, 1000);
+            },
+            /**
+             * 跳转用户的关注/粉丝页
+             * @param {Number} type 默认显示的类型，1:关注，2:粉丝
+             */
+            gotoFriendList(type) {
+                this.utils.throttle(() => {
+                    uni.navigateTo({
+                        url: `/pagesByStore/userPage/subpages/friendList/friendList?type=${type}&userId=${this.userInfo.userId}`
+                    });
+                }, 1000);
+            },
+            // 上传图片前的钩子函数
+            beforeUpload(index, list) {
+                return new Promise((resolve, reject) => {
+                    uni.compressImage({
+                        src: list[0].url,
+                        quality: 80,
+                        success: res => {
+                            const imageTempPath = res.tempFilePath;
+                            const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
+                            getUploadSignature({urlParam: 'cover'}).then(res => {
+                                const signData = res.data;
+                                this.action = signData.host;
+                                const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
+                                this.$refs.upload.formData = {
+                                    key: key,
+                                    policy: signData.policy,
+                                    OSSAccessKeyId: signData.accessId,
+                                    success_action_status: "200",
+                                    signature: signData.signature,
+                                };
+                                this.coverUploadUrl = `${signData.host}/${key}`;
+                                this.$refs.uploading.startLoading();
+                                resolve();
+                            }).catch(err => {
+                                this.$refs.upload.clear();
+                                reject(err);
+                            });
+                        }
+                    });
+                });
+            },
+            // 头像上传成功回调事件
+            onUploadSuccess() {
+                editMyProfile({
+                    queryData: {
+                        userId: this.userId,
+                        coverUrl: this.coverUploadUrl
+                    }
+                }).then(() => {
+                    this.$set(this.userInfo, 'coverUrl', this.coverUploadUrl);
+                    this.$refs.toast.show({
+                        text: '修改成功',
+                        type: 'success',
+                        direction: 'top'
+                    });
+                }).catch(err => {
+                    console.error(err);
+                    this.$refs.toast.show({
+                        text: '修改失败',
+                        type: 'error',
+                        direction: 'top'
+                    });
+                }).finally(() => {
+                    this.$refs.uploading.stopLoading();
+                    this.$refs.upload.clear();
+                });
+            },
+            //头像上传失败回调事件
+            onUploadError(e) {
+                console.error(e);
+                this.$refs.uploading.stopLoading();
+                this.$refs.toast.show({
+                    text: '上传失败',
+                    type: 'error',
+                    direction: 'top'
+                });
+            },
+            //头像上传超出大小限制回调事件
+            onUploadOversize() {
+                this.$refs.uploading.stopLoading();
+                this.$refs.toast.show({
+                    text: '图片超出10MB限制',
+                    type: 'warning',
+                    direction: 'top'
+                });
             }
         },
         computed: {

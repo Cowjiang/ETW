@@ -3,10 +3,25 @@
   height: 100%;
   background-color: #f6f6f6;
 
+  .tabs {
+    width: 100%;
+    padding: 10rpx 30rpx;
+
+    ::v-deep .u-tabs {
+      transform: translate(0, -8rpx);
+
+      .u-tab-item {
+        font-weight: bold;
+        transform: translateY(-6rpx);
+        transition-property: background-color, color, font-size;
+      }
+    }
+  }
+
   .card {
     width: calc(100vw - 60rpx);
     height: fit-content;
-    margin: 20rpx 30rpx;
+    margin: 0 30rpx 20rpx 30rpx;
     padding: 30rpx;
     background-color: #fff;
     border-radius: 30rpx;

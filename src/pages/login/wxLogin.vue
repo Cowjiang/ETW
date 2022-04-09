@@ -6,13 +6,23 @@
 
     <view class="wx-login-container">
       <view class="logo-container">
+        <view
+          class="user-type"
+          :style="{top: `${navigationHeight + 5}px`}"
+          @click="changeUserType">
+          <i class="fas fa-rotate"/>
+          <text>{{ shopkeeper ? '返回普通版' : '我是商家' }}</text>
+        </view>
         <view class="image">
           <image
             src="https://com-etw.oss-cn-guangzhou.aliyuncs.com/sotre/store-info/3/446e7f4376604ebd989acf9b6f012bd6.jpg"
             mode="aspectFill"/>
         </view>
         <view class="name">
-          周边大侦探
+          <text>周边大侦探</text>
+          <view class="shopkeeper-tag" v-if="shopkeeper">
+            商家版
+          </view>
         </view>
       </view>
       <view class="login-btn-container">
@@ -54,6 +64,7 @@
         },
         data() {
             return {
+                navigationHeight: 0, //导航栏高度
                 agreeCheckbox: false, //用户已阅读并同意使用协议
             }
         },
@@ -153,10 +164,7 @@
                                 code: code
                             }
                         }).then(res => {
-                            console.log(res);
-                            if (res.success) {
-                                this.wxLogin(true);
-                            }
+                            this.wxLogin(true);
                         }).catch(err => {
                             if (!err.data.success) {
                                 //账户已存在
@@ -191,14 +199,9 @@
                                     iv: iv,
                                     signature: signature
                                 }
-                            }).then(res => {
-                                if (res.success) {
-                                    //绑定微信用户信息成功
-                                    this.getUserPhone();
-                                }
-                                else {
-                                    console.error(res);
-                                }
+                            }).then(() => {
+                                //绑定微信用户信息成功
+                                this.getUserPhone();
                             }).catch(err => {
                                 console.error(err);
                             });
@@ -280,11 +283,28 @@
                         });
                     }
                 }, 2000);
+            },
+            // 切换登陆的用户类型（商家/顾客）
+            changeUserType() {
+                this.$refs.loading.startLoading();
+                setTimeout(() => {
+                    this.$store.commit('shopkeeper', !this.shopkeeper);
+                    this.$refs.loading.stopLoading();
+                }, 500);
+            }
+        },
+        computed: {
+            // 是否为商家
+            shopkeeper: {
+                get() {
+                    return this.$store.state.shopkeeper;
+                }
             }
         },
         mounted() {
+            this.navigationHeight = this.$store.state.navigationHeight;
             this.$refs.navigationBar.setNavigation({
-                titleText: '登录'
+                titleText: '登录 / 注册'
             });
         }
     }

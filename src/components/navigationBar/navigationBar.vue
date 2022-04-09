@@ -67,7 +67,9 @@
     /**
      * @description 自定义导航栏组件
      * @example <navigationBar ref="nav"></navigationBar>
-     * @method setNavigation(Object) 设置导航栏信息
+     * @slot:button 胶囊按钮插槽
+     * @slot:title 标题插槽
+     * @method setNavigation(Object) 设置导航栏信息（关于支持传入设置对象的值请参考方法说明）
      */
     export default {
         data() {
@@ -91,8 +93,8 @@
         methods: {
             /**
              * 设置导航栏行为
-             * @param {Object} options 导航栏设置
-             * @example setNavigation({isShowButton: true, titleText: '标题', titleColor: '#999999', backgroundColor: '#ffffff', customBackFunc: function() {...}})
+             * @param {Object} options 导航栏设置，包含：isShowButton、titleText、titleColor、backgroundColor、backgroundBlur、customBackFunc
+             * @example setNavigation({isShowButton: false, titleText: '标题', backgroundColor: '#fff'})
              */
             setNavigation(options) {
                 let config = {

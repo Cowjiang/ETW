@@ -58,23 +58,12 @@
                             encryptedData: encryptedData,
                             iv: iv
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            const eventChannel = this.getOpenerEventChannel();
-                            eventChannel.emit("acceptDataFromOpenedPage", {
-                                success: true
-                            });
-                            uni.navigateBack();
-                        }
-                        else {
-                            console.error(res);
-                            const eventChannel = this.getOpenerEventChannel();
-                            eventChannel.emit("acceptDataFromOpenedPage", {
-                                success: false,
-                                res: res.data.errorMsg
-                            });
-                            uni.navigateBack();
-                        }
+                    }).then(() => {
+                        const eventChannel = this.getOpenerEventChannel();
+                        eventChannel.emit("acceptDataFromOpenedPage", {
+                            success: true
+                        });
+                        uni.navigateBack();
                     }).catch(err => {
                         console.error(err);
                         const eventChannel = this.getOpenerEventChannel();

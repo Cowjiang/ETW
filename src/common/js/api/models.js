@@ -97,7 +97,7 @@ export const editMyProfile = (requestConfig) => apiRequest(`${httpBaseUrl}/user/
 });
 
 //获取学校列表
-export const getSchoolList = (requestConfig) => apiRequest(`${httpBaseUrl}/school?province=${requestConfig.urlParam.province}&city=${requestConfig.urlParam.city}&area=${requestConfig.urlParam.area}&keywords=${requestConfig.urlParam.keywords}`, {
+export const getSchoolList = (requestConfig) => apiRequest(`${httpBaseUrl}/school?keywords=${requestConfig.urlParam.keywords}`, {
     method: "GET",
     requestConfig
 });
@@ -140,6 +140,24 @@ export const removeFriend = (requestConfig) => apiRequest(`${httpBaseUrl}/user/f
 
 //查询用户关系（是否在黑名单、是否关注）
 export const getUserRelationships = (requestConfig) => apiRequest(`${httpBaseUrl}/user/friend/${requestConfig.urlParam.userId}/stat`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取用户的关注列表
+export const getUserFocusList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/${requestConfig.urlParam.userId}/friend`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取用户的粉丝列表
+export const getUserFansList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/${requestConfig.urlParam.userId}/friend/fans`, {
+    method: "GET",
+    requestConfig
+});
+
+//获取推荐用户列表
+export const getRecommendUserList = (requestConfig) => apiRequest(`${httpBaseUrl}/school/${requestConfig.urlParam.schoolId}/user/recommend`, {
     method: "GET",
     requestConfig
 });
@@ -468,7 +486,7 @@ export const addOrder = (requestConfig) => apiRequest(`${httpBaseUrl}/store/${re
 
 //获取我的订单
 export const getMyOrder = (requestConfig = {}) => apiRequest(`${httpBaseUrl}/store/order/user`, {
-    method: "GET",
+    method: "POST",
     requestConfig,
 });
 

@@ -77,43 +77,61 @@
       flex-direction: row;
 
       .img-container {
-        width: 15vw;
+        width: 12vw;
         height: fit-content;
         flex-shrink: 0;
 
         .image {
           width: inherit;
-          height: 15vw;
+          height: 12vw;
           overflow: hidden;
           background-color: #f6f6f6;
           border-radius: 50%;
         }
       }
 
-      .user-name {
+      .user-info {
         width: 100%;
-        height: 15vw;
-        padding: 0 20rpx;
-        font-size: 30rpx;
-        color: #000;
-        line-height: 15vw;
-        text-overflow: ellipsis;
+        height: 12vw;
+        padding: 0 24rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         white-space: nowrap;
         overflow: hidden;
+
+        .username {
+          font-size: 30rpx;
+          color: #000;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+
+        .description {
+          padding-top: 6rpx;
+          font-size: 24rpx;
+          color: #888;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
       }
 
       .focus-btn {
         width: fit-content;
-        height: 15vw;
+        height: 12vw;
         margin-left: auto;
         flex-shrink: 0;
         display: flex;
         align-items: center;
 
         .btn__default {
-          width: 120rpx;
-          padding: 4rpx 0;
-          font-size: 30rpx;
+          width: fit-content;
+          min-width: 120rpx;
+          padding: 8rpx 20rpx;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          font-size: 26rpx;
           color: #fff;
           text-align: center;
           border-radius: 50rpx;
@@ -121,12 +139,17 @@
           background-color: #f4756b;
           transition-duration: 150ms;
           transition-property: color, background-color, border;
+
+          .fas {
+            margin-right: 10rpx;
+            font-size: 24rpx;
+          }
         }
 
         .btn__friend {
-          color: #666;
-          background-color: #fff;
-          border: 2rpx solid #ddd;
+          color: #777;
+          background-color: #f6f6f6;
+          border: 2rpx solid #f6f6f6;
         }
       }
     }

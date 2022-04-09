@@ -31,6 +31,12 @@
                     }
                     else return 0;
                 }
+            },
+            // 是否为商家
+            shopkeeper: {
+                get() {
+                    return this.$store.state.shopkeeper;
+                }
             }
         },
         watch: {
@@ -49,6 +55,12 @@
             },
             chatMessagesTotalUnread(nval) {
                 store.commit('unreadMessageCount', nval);
+            },
+            shopkeeper(nval) {
+                uni.setStorage({
+                    key: "shopkeeper",
+                    data: nval
+                });
             }
         },
         async mounted() {
@@ -58,6 +70,7 @@
             this.$store.commit('windowWidth', systemInfo.windowWidth);
             this.$store.commit('windowHeight', systemInfo.windowHeight);
             this.$store.commit('userInfo', uni.getStorageSync('userInfo'));
+            this.$store.commit('shopkeeper', uni.getStorageSync('shopkeeper') ?? false);
         },
         async onShow() {
             await this.utils.connectSocket();

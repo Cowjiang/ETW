@@ -14,7 +14,7 @@
             <view
               class="username"
               @click="gotoUserPage(trendDetail.userId)">
-              {{ trendDetail.userInfo.username }}
+              {{ trendDetail.userInfo.username || ''}}
             </view>
             <view class="post-time">{{ trendDetail.createdTime | formatTime }}</view>
           </view>
@@ -35,7 +35,7 @@
             color="#808080"
             close-text="展开"
             :toggle="true">
-            {{ trendDetail.content }}
+            {{ trendDetail.content || '' }}
           </u-read-more>
         </view>
         <view class="image-container">
@@ -44,8 +44,8 @@
             :imageDataList="trendDetail.dynamicImages"/>
         </view>
         <view class="tags-container">
-          <view class="browse-count">
-            浏览 {{ trendDetail.browseNumber }}
+          <view class="like-number">
+            点赞 {{ trendDetail.likeNumber }}
           </view>
           <view
             class="position-tag"
@@ -75,7 +75,7 @@
             </view>
           </view>
           <view class="content-container">
-            {{ comment.content }}
+            {{ comment.content || '' }}
           </view>
           <view class="comment-btn-container">
             <view
@@ -119,7 +119,7 @@
                 <span class="comment-parent-username">
                   @{{ comment.userInfo.username }}
                 </span>
-                {{ commentChild.content }}
+                {{ commentChild.content || '' }}
               </view>
               <view
                 class="comment-btn-container"
@@ -234,12 +234,16 @@
     import loading from "@/components/loading/loading";
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
-        addFriend, deleteTrend,
+        addFriend,
+        deleteTrend,
         getTrendComment,
-        getTrendDetail, getTrendSecondComment, getUserRelationships,
+        getTrendDetail,
+        getTrendSecondComment,
+        getUserRelationships,
         like,
         postTrendComment,
-        postTrendSecondComment, removeFriend
+        postTrendSecondComment,
+        removeFriend
     } from "@/common/js/api/models";
 
     export default {
@@ -277,10 +281,8 @@
                         trendId: this.trendId
                     }
                 }).then(res => {
-                    if (res.success) {
-                        this.trendDetail = res.data.dynamicWithImages;
-                        this.getUserRelationships();
-                    }
+                    this.trendDetail = res.data.dynamicWithImages;
+                    this.getUserRelationships();
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -300,29 +302,27 @@
                     }
                 }).then(res => {
                     this.loadingMoreComment = false;
-                    if (res.success) {
-                        if (res.data.records.length) {
-                            let commentList = res.data.records;
-                            commentList.forEach(comment => {
-                                if (!this.commentList.find(commentItem => commentItem.id === comment.id)) {
-                                    //评论列表没有重复的评论
-                                    if (comment.secondComment) {
-                                        comment.commentChildList = [];
-                                        comment.commentChildList.push(comment.secondComment);
-                                        comment.currentCommentChildPage = 0; //当前二级评论的页码
-                                        comment.existMoreCommentChild = true; //是否存在更多二级评论
-                                    }
-                                    this.commentList.push(comment);
+                    if (res.data.records.length) {
+                        let commentList = res.data.records;
+                        commentList.forEach(comment => {
+                            if (!this.commentList.find(commentItem => commentItem.id === comment.id)) {
+                                //评论列表没有重复的评论
+                                if (comment.secondComment) {
+                                    comment.commentChildList = [];
+                                    comment.commentChildList.push(comment.secondComment);
+                                    comment.currentCommentChildPage = 0; //当前二级评论的页码
+                                    comment.existMoreCommentChild = true; //是否存在更多二级评论
                                 }
-                            });
-                            this.commentTotalCount = res.data.total;
-                            if (commentList.length < this.commentPageSize) {
-                                this.existMoreComment = false;
+                                this.commentList.push(comment);
                             }
-                        }
-                        else {
+                        });
+                        this.commentTotalCount = res.data.total;
+                        if (commentList.length < this.commentPageSize) {
                             this.existMoreComment = false;
                         }
+                    }
+                    else {
+                        this.existMoreComment = false;
                     }
                 }).catch(err => {
                     this.loadingMoreComment = false;
@@ -342,19 +342,14 @@
                     }
                 }).then(res => {
                     this.loadingMoreCommentChild = false;
-                    if (res.success) {
-                        let commentChildList = res.data.records;
-                        commentChildList.forEach(commentChild => {
-                            if (!commentParent.commentChildList.find(commentItem => commentItem.id === commentChild.id)) {
-                                commentParent.commentChildList.push(commentChild);
-                            }
-                        });
-                        if (commentChildList.length < this.commentChildPageSize) {
-                            commentParent.existMoreCommentChild = false;
+                    let commentChildList = res.data.records;
+                    commentChildList.forEach(commentChild => {
+                        if (!commentParent.commentChildList.find(commentItem => commentItem.id === commentChild.id)) {
+                            commentParent.commentChildList.push(commentChild);
                         }
-                    }
-                    else {
-                        throw new Error(res);
+                    });
+                    if (commentChildList.length < this.commentChildPageSize) {
+                        commentParent.existMoreCommentChild = false;
                     }
                 }).catch(err => {
                     this.loadingMoreCommentChild = false;
@@ -431,34 +426,29 @@
                                 content: this.rawInputValue
                             }
                         }).then(res => {
-                            if (res.success) {
-                                this.$refs.toast.show({
-                                    text: '评论成功',
-                                    type: 'success',
-                                    direction: 'top'
-                                });
-                                this.rawInputValue = '';
-                                uni.getStorage({
-                                    key: 'userInfo',
-                                    success: userInfo => {
-                                        this.commentList.unshift({
-                                            id: res.data.id,
-                                            content: res.data.content,
-                                            createdTime: res.data.createdTime,
-                                            likeNumber: 0,
-                                            commentNumber: 0,
-                                            userInfo: {
-                                                id: userInfo.data.userId,
-                                                username: userInfo.data.username,
-                                                avgPath: userInfo.data.avgPath
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                            else {
-                                throw new Error(res);
-                            }
+                            this.$refs.toast.show({
+                                text: '评论成功',
+                                type: 'success',
+                                direction: 'top'
+                            });
+                            this.rawInputValue = '';
+                            uni.getStorage({
+                                key: 'userInfo',
+                                success: userInfo => {
+                                    this.commentList.unshift({
+                                        id: res.data.id,
+                                        content: res.data.content,
+                                        createdTime: res.data.createdTime,
+                                        likeNumber: 0,
+                                        commentNumber: 0,
+                                        userInfo: {
+                                            id: userInfo.data.userId,
+                                            username: userInfo.data.username,
+                                            avgPath: userInfo.data.avgPath
+                                        }
+                                    });
+                                }
+                            });
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -479,42 +469,38 @@
                                 content: this.rawInputValue,
                             },
                         }).then(res => {
-                            if (res.success) {
-                                this.$refs.toast.show({
-                                    text: '评论成功',
-                                    type: 'success',
-                                    direction: 'top'
-                                });
-                                let comment = this.commentList.find(comment => comment.id === this.currentCommentInfo.id);
-                                this.rawInputValue = '';
-                                this.currentCommentType = 0;
-                                this.currentCommentInfo = {};
-                                uni.getStorage({
-                                    key: 'userInfo',
-                                    success: userInfo => {
-                                        const commentChild = {
-                                            id: res.data.id,
-                                            content: res.data.content,
-                                            createdTime: res.data.createdTime,
-                                            likeNumber: 0,
-                                            scUserInfo: {
-                                                id: userInfo.data.userId,
-                                                username: userInfo.data.username,
-                                                avgPath: userInfo.data.avgPath
-                                            }
-                                        };
-                                        if (comment.commentChildList === undefined) {
-                                            comment.secondComment = commentChild;
-                                            comment.commentChildList = [];
+                            this.$refs.toast.show({
+                                text: '评论成功',
+                                type: 'success',
+                                direction: 'top'
+                            });
+                            let comment = this.commentList.find(comment => comment.id === this.currentCommentInfo.id);
+                            this.rawInputValue = '';
+                            this.currentCommentType = 0;
+                            this.currentCommentInfo = {};
+                            uni.getStorage({
+                                key: 'userInfo',
+                                success: userInfo => {
+                                    const commentChild = {
+                                        id: res.data.id,
+                                        content: res.data.content,
+                                        createdTime: res.data.createdTime,
+                                        likeNumber: 0,
+                                        scUserInfo: {
+                                            id: userInfo.data.userId,
+                                            username: userInfo.data.username,
+                                            avgPath: userInfo.data.avgPath
                                         }
-                                        comment.commentChildList.unshift(commentChild);
-                                        this.$forceUpdate();
+                                    };
+                                    if (comment.commentChildList === undefined) {
+                                        comment.secondComment = commentChild;
+                                        comment.commentChildList = [];
                                     }
-                                });
-                            }
-                            else {
-                                throw new Error(res);
-                            }
+                                    comment.commentChildList.unshift(commentChild);
+                                    comment.commentNumber += 1;
+                                    this.$forceUpdate();
+                                }
+                            });
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -551,23 +537,26 @@
                         //动态点赞
                         this.changeLikeStatus(!this.trendDetail.isLike ? 1 : 2, this.trendId, 2).then(() => {
                             this.$set(this.trendDetail, 'isLike', !this.trendDetail.isLike);
-                        }).catch(() => {});
+                            this.$set(this.trendDetail, 'likeNumber', this.trendDetail.isLike ? this.trendDetail.likeNumber + 1 : this.trendDetail.likeNumber - 1);
+                        }).catch(() => {
+                        });
                     }
                     else if (commentParent) {
                         //一级评论点赞
                         this.changeLikeStatus(!commentParent.isLike ? 1 : 2, commentParent.id, 3).then(() => {
                             this.$set(commentParent, 'isLike', !commentParent.isLike);
                             this.$set(commentParent, 'likeNumber', commentParent.isLike ? commentParent.likeNumber + 1 : commentParent.likeNumber - 1);
-                        }).catch(() => {});
+                        }).catch(() => {
+                        });
                     }
                     else {
                         //二级评论点赞
                         this.changeLikeStatus(!commentChild.isLike ? 1 : 2, commentChild.id, 4).then(() => {
                             this.$set(commentChild, 'isLike', !commentChild.isLike);
-                            commentChild.secondComment.islike = !commentChild.isLike;
                             this.$set(commentChild, 'likeNumber', commentChild.isLike ? commentChild.likeNumber + 1 : commentChild.likeNumber - 1);
                             this.$forceUpdate();
-                        }).catch(() => {});
+                        }).catch(() => {
+                        });
                     }
                 }, 500);
             },
@@ -586,13 +575,8 @@
                             actionType: actionType,
                             targetType: targetType
                         }
-                    }).then(res => {
-                        if (res.success) {
-                            resolve();
-                        }
-                        else {
-                            throw new Error(res);
-                        }
+                    }).then(() => {
+                        resolve();
                     }).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
@@ -625,13 +609,8 @@
                             urlParam: {
                                 userId: this.trendDetail.userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.isFriend = false;
-                            }
-                            else {
-                                throw new Error(res);
-                            }
+                        }).then(() => {
+                            this.isFriend = false;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -646,13 +625,8 @@
                             urlParam: {
                                 userId: this.trendDetail.userId
                             }
-                        }).then(res => {
-                            if (res.success) {
-                                this.isFriend = true;
-                            }
-                            else {
-                                throw new Error(res);
-                            }
+                        }).then(() => {
+                            this.isFriend = true;
                         }).catch(err => {
                             console.error(err);
                             this.$refs.toast.show({
@@ -677,7 +651,7 @@
                         //动态
                         uni.vibrateShort();
                         uni.showActionSheet({
-                            itemList: isMe ?  ['复制内容', '删除'] :  ['复制内容', '举报'],
+                            itemList: isMe ? ['复制内容', '删除'] : ['复制内容', '举报'],
                             success: res => {
                                 if (res.tapIndex === 0) {
                                     uni.setClipboardData({
@@ -694,20 +668,17 @@
                                                         urlParam: {
                                                             trendId: target.id
                                                         }
-                                                    }).then(res => {
-                                                        if (res.success) {
-                                                            this.$refs.toast.show({
-                                                                text: '删除成功',
-                                                                type: 'success',
-                                                                direction: 'top'
+                                                    }).then(() => {
+                                                        this.$refs.toast.show({
+                                                            text: '删除成功',
+                                                            type: 'success',
+                                                            direction: 'top'
+                                                        });
+                                                        setTimeout(() => {
+                                                            uni.redirectTo({
+                                                                url: '/pages/trending/trending'
                                                             });
-                                                            setTimeout(() => {
-                                                                uni.redirectTo({
-                                                                    url: '/pages/trending/trending'
-                                                                });
-                                                            }, 1500);
-                                                        }
-                                                        else throw new Error(res);
+                                                        }, 1500);
                                                     }).catch(err => {
                                                         console.error(err);
                                                         this.$refs.toast.show({
@@ -733,7 +704,7 @@
                     }
                     else {
                         uni.showActionSheet({
-                            itemList: isMe ?  ['复制内容', '删除'] :  ['复制内容', '举报'],
+                            itemList: isMe ? ['复制内容', '删除'] : ['复制内容', '举报'],
                             success: res => {
                                 if (res.tapIndex === 0) {
                                     uni.setClipboardData({
@@ -746,7 +717,7 @@
                                             title: '确定删除此评论吗？',
                                             success: res => {
                                                 if (res.confirm) {
-                                                    switch(type) {
+                                                    switch (type) {
                                                         case 1:
                                                             //删除一级评论
                                                             break;

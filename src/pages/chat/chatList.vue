@@ -164,8 +164,6 @@
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
     import {addToBlockList, deleteChatWithFriend, getMyChatList, removeFromBlockList} from "@/common/js/api/models.js";
-    import {closeSocket, connectSocket} from "@/common/js/api/socket.js";
-    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -217,8 +215,6 @@
                         });
                         this.$store.commit('chatMessages', recordsTemp);
                         this.existMore = recordsTemp.length > 14;
-                        this.refresherTriggered = false;
-                        this._freshing = false;
                     }
                     else {
                         if (res.data.records.length !== 0) {
@@ -247,14 +243,8 @@
                         }
                         this.loadingMore = false;
                     }
-                    if (this.$refs.loading.isLoading) {
-                        this.$refs.loading.stopLoading();
-                    }
-                    this.$forceUpdate();
                 }).catch(err => {
                     console.error(err)
-                    this.refresherTriggered = false;
-                    this._freshing = false;
                     this.utils.throttle(() => {
                         this.$refs.toast.show({
                             text: '网络异常',
@@ -262,10 +252,11 @@
                             direction: 'top'
                         });
                     }, 2500);
-                    if (this.$refs.loading.isLoading) {
-                        this.$refs.loading.stopLoading();
-                    }
                     this.loadingMore = false;
+                }).finally(() => {
+                    this.$refs.loading.stopLoading();
+                    this.refresherTriggered = false;
+                    this._freshing = false;
                     this.$forceUpdate();
                 });
             },
@@ -298,25 +289,14 @@
                                     if (res.confirm) {
                                         deleteChatWithFriend({
                                             urlParam: this.chatMessages[targetId].senderId
-                                        }).then(res => {
-                                            if (res.success) {
-                                                let chatMessagesTemp = this.chatMessages;
-                                                chatMessagesTemp.forEach((v, k) => {
-                                                    if (v.senderId === chatMessagesTemp[targetId].senderId) {
-                                                        chatMessagesTemp.splice(k, 1);
-                                                    }
-                                                });
-                                                this.$store.commit('chatMessages', chatMessagesTemp);
-                                            }
-                                            else {
-                                                console.error(res);
-                                                this.$refs.toast.show({
-                                                    text: '删除失败',
-                                                    type: 'error',
-                                                    direction: 'top'
-                                                });
-                                                this.getChatList();
-                                            }
+                                        }).then(() => {
+                                            let chatMessagesTemp = this.chatMessages;
+                                            chatMessagesTemp.forEach((v, k) => {
+                                                if (v.senderId === chatMessagesTemp[targetId].senderId) {
+                                                    chatMessagesTemp.splice(k, 1);
+                                                }
+                                            });
+                                            this.$store.commit('chatMessages', chatMessagesTemp);
                                         }).catch(err => {
                                             console.error(err);
                                             this.$refs.toast.show({
@@ -337,12 +317,10 @@
                                     urlParam: {
                                         userId: this.chatMessages[targetId].senderId
                                     }
-                                }).then(res => {
-                                    if (res.success) {
-                                        let chatMessagesTemp = this.chatMessages;
-                                        chatMessagesTemp[targetId].isBlocked = false;
-                                        this.$store.commit('chatMessages', chatMessagesTemp);
-                                    }
+                                }).then(() => {
+                                    let chatMessagesTemp = this.chatMessages;
+                                    chatMessagesTemp[targetId].isBlocked = false;
+                                    this.$store.commit('chatMessages', chatMessagesTemp);
                                 }).catch(err => {
                                     console.error(err);
                                     this.$refs.toast.show({
@@ -357,12 +335,10 @@
                                     urlParam: {
                                         userId: this.chatMessages[targetId].senderId
                                     }
-                                }).then(res => {
-                                    if (res.success) {
-                                        let chatMessagesTemp = this.chatMessages;
-                                        chatMessagesTemp[targetId].isBlocked = true;
-                                        this.$store.commit('chatMessages', chatMessagesTemp);
-                                    }
+                                }).then(() => {
+                                    let chatMessagesTemp = this.chatMessages;
+                                    chatMessagesTemp[targetId].isBlocked = true;
+                                    this.$store.commit('chatMessages', chatMessagesTemp);
                                 }).catch(err => {
                                     console.error(err);
                                     this.$refs.toast.show({
@@ -390,13 +366,17 @@
             handleRefreshStart() {
                 if (this._freshing) return;
                 this._freshing = true;
+                if (!this.refresherTriggered) {
+                    this.refresherTriggered = true;
+                }
                 setTimeout(() => {
                     this.getChatList();
                 }, 300);
             },
             // 监听下拉刷新事件结束
             handleRefreshEnd() {
-                this.refresherTriggered = 'restore';
+                this._freshing = false;
+                this.refresherTriggered = false;
             },
             // 监听scroll-view滚动到底部
             handleScrollToBottom() {
@@ -455,10 +435,7 @@
                 if (this.chatMessages.length === 0) {
                     this.$refs.loading.startLoading();
                 }
-                this._freshing = false; //还原下拉刷新状态
-                setTimeout(() => {
-                    this.refresherTriggered = true; //开启下拉刷新
-                }, 0);
+                this.getChatList();
             },
             // 消息列表为空的按钮点击事件
             handleEmptyBtnClick() {

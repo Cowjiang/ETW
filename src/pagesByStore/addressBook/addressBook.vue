@@ -243,43 +243,28 @@
                                 this.$refs.loading.startLoading();
                                 setDefaultAddress({
                                     urlParam: address.id
-                                })
-                                    .then(res => {
-                                        this.getMyAddress();
-                                        if (res.success) {
-                                            //设置成默认地址成功
-                                            setTimeout(() => {
-                                                this.$refs.toast.show({
-                                                    text: '设置成功',
-                                                    type: 'success',
-                                                    direction: 'top'
-                                                });
-                                            }, 500);
-                                        }
-                                        else {
-                                            //设置成默认地址失败
-                                            setTimeout(() => {
-                                                this.$refs.toast.show({
-                                                    text: '设置失败',
-                                                    type: 'error',
-                                                    direction: 'top'
-                                                });
-                                            }, 500);
-                                            console.log(res);
-                                        }
-                                    })
-                                    .catch(err => {
-                                        //设置成默认地址失败
-                                        this.$refs.loading.stopLoading();
-                                        setTimeout(() => {
-                                            this.$refs.toast.show({
-                                                text: '设置失败',
-                                                type: 'error',
-                                                direction: 'top'
-                                            });
-                                        }, 500);
-                                        console.error(err);
-                                    });
+                                }).then(() => {
+                                    this.getMyAddress();
+                                    //设置成默认地址成功
+                                    setTimeout(() => {
+                                        this.$refs.toast.show({
+                                            text: '设置成功',
+                                            type: 'success',
+                                            direction: 'top'
+                                        });
+                                    }, 500);
+                                }).catch(err => {
+                                    //设置成默认地址失败
+                                    this.$refs.loading.stopLoading();
+                                    setTimeout(() => {
+                                        this.$refs.toast.show({
+                                            text: '设置失败',
+                                            type: 'error',
+                                            direction: 'top'
+                                        });
+                                    }, 500);
+                                    console.error(err);
+                                });
                             }
                             else if (res.tapIndex === 2) {
                                 //删除地址
@@ -291,43 +276,28 @@
                                             //确定删除地址
                                             deleteAddressBook({
                                                 urlParam: address.id
-                                            })
-                                                .then(res => {
-                                                    this.getMyAddress();
-                                                    if (res.success) {
-                                                        //删除地址成功
-                                                        setTimeout(() => {
-                                                            this.$refs.toast.show({
-                                                                text: '删除成功',
-                                                                type: 'success',
-                                                                direction: 'top'
-                                                            });
-                                                        }, 500);
-                                                    }
-                                                    else {
-                                                        //删除地址失败
-                                                        setTimeout(() => {
-                                                            this.$refs.toast.show({
-                                                                text: '删除失败',
-                                                                type: 'error',
-                                                                direction: 'top'
-                                                            });
-                                                        }, 500);
-                                                        console.log(res);
-                                                    }
-                                                })
-                                                .catch(err => {
-                                                    //删除地址失败
-                                                    this.$refs.loading.stopLoading();
-                                                    setTimeout(() => {
-                                                        this.$refs.toast.show({
-                                                            text: '删除失败',
-                                                            type: 'error',
-                                                            direction: 'top'
-                                                        });
-                                                    }, 500);
-                                                    console.error(err);
-                                                });
+                                            }).then(() => {
+                                                this.getMyAddress();
+                                                //删除地址成功
+                                                setTimeout(() => {
+                                                    this.$refs.toast.show({
+                                                        text: '删除成功',
+                                                        type: 'success',
+                                                        direction: 'top'
+                                                    });
+                                                }, 500);
+                                            }).catch(err => {
+                                                //删除地址失败
+                                                this.$refs.loading.stopLoading();
+                                                setTimeout(() => {
+                                                    this.$refs.toast.show({
+                                                        text: '删除失败',
+                                                        type: 'error',
+                                                        direction: 'top'
+                                                    });
+                                                }, 500);
+                                                console.error(err);
+                                            });
                                         }
                                     }
                                 });
