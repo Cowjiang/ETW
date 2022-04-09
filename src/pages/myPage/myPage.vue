@@ -50,7 +50,7 @@
             <view class="title">动态</view>
           </view>
           <view class="divider"></view>
-          <view class="user-info_column">
+          <view class="user-info_column" @click="goto('/pagesByStore/order/subpages/orderList/orderList')">
             <view class="content">{{ orderCount || 0 }}</view>
             <view class="title">订单</view>
           </view>
@@ -74,19 +74,19 @@
           我的订单
         </view>
         <view class="btn-group">
-          <view class="btn">
+          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList?type=1')">
             <i class="far fa-credit-card"/>
             <text>待付款</text>
           </view>
-          <view class="btn">
+          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList?type=2')">
             <i class="far fa-hourglass"/>
             <text>准备中</text>
           </view>
-          <view class="btn">
+          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList?type=3')">
             <i class="far fa-circle-question"/>
             <text>退款/售后</text>
           </view>
-          <view class="btn">
+          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList')">
             <i class="far fa-file-lines"/>
             <text>全部订单</text>
           </view>

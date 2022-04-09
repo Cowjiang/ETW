@@ -7,6 +7,27 @@
     <view
       class="order-list-container"
       :style="{minHeight: `calc(100vh - ${navigationHeight}px)`}">
+      <view class="tabs">
+        <u-tabs
+          ref="uTabs"
+          class="u-tabs"
+          :list="[{name: '全部订单'}, {name: '待付款'}, {name: '准备中'}, {name: '退款/售后'}]"
+          :is-scroll="false"
+          :height="80"
+          font-size="30"
+          bold
+          bg-color="transparent"
+          :current="currentShowType"
+          active-color="#f4756b"
+          inactive-color="#9e9e9e"
+          :bar-height="8"
+          :active-item-style="{
+              fontWeight: 'bold',
+              fontSize: '32rpx',
+              color: '#111'
+            }"
+          @change="handleTabsChange"/>
+      </view>
       <view
         class="card"
         v-for="order in orderList"
@@ -95,7 +116,7 @@
       </view>
       <view
         class="empty"
-        :style="{minHeight: `calc(100vh - ${navigationHeight + 40}px)`}"
+        :style="{minHeight: `calc(100vh - ${navigationHeight + 40}px - 100rpx)`}"
         v-if="!orderList.length">
         <view class="row">
           一个订单都没有噢
@@ -128,8 +149,9 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
+                currentShowType: null, //当前显示的订单类型
                 orderList: [], //订单列表数据
-                currentPage: 1, //当前分页页码
+                currentPage: 0, //当前分页页码
                 existMore: true, //是否还有更多记录
             }
         },
@@ -137,31 +159,27 @@
             /**
              * 获取订单列表
              * @param {Number} page 页码
+             * @param {Number} stat 订单状态：[0:全部，1:待支付，2:准备中，3:退款/售后]
              */
-            getOrderList(page = 1) {
+            getOrderList(page = 1, stat = 0) {
                 getMyOrder({
                     queryData: {
                         pageNumber: page,
+                        pageSize: 3,
+                        stat: stat === 0 ? null : stat === 3 ? 4 : stat
                     },
                     headerData: {
                         "Content-type": "application/json"
                     }
                 }).then(res => {
-                    console.log(res.data.records)
                     if (res.data.records.length) {
                         //查询到订单记录
-                        if (page === 1) {
-                            this.orderList = res.data.records;
-                        }
-                        else {
-                            this.orderList = [...this.orderList, ...res.data.records];
-                        }
+                        this.orderList = page === 1 ? res.data.records : [...this.orderList, ...res.data.records];
                         this.currentPage += 1;
                     }
                     else {
                         this.existMore = false;
                     }
-                    this.$refs.loading.stopLoading();
                 }).catch(err => {
                     console.error(err);
                     this.$refs.toast.show({
@@ -169,13 +187,33 @@
                         type: 'error',
                         direction: 'top'
                     });
+                }).finally(() => {
+                    this.$refs.loading.stopLoading();
                 });
             },
             // 滚动列表至底部
             handleScrollToBottom() {
                 if (this.existMore) {
-                    this.getOrderList(this.currentPage + 1);
+                    this.getOrderList(this.currentPage + 1, this.currentShowType);
                 }
+            },
+            /**
+             * 切换菜单标签
+             * @param {Number} index 切换的序号
+             */
+            handleTabsChange(index) {
+                this.utils.throttle(() => {
+                    this.currentShowType = index;
+                    this.$refs.loading.startLoading();
+                    this.orderList = [];
+                    this.currentPage = 0;
+                    this.existMore = true;
+                    this.getOrderList(1, index);
+                    uni.pageScrollTo({
+                        scrollTop: 0,
+                        duration: 500
+                    });
+                }, 500);
             },
             /**
              * 跳转订单详情页
@@ -209,8 +247,13 @@
             },
             // 跳转店铺搜索页
             gotoStoreSearch() {
-                uni.navigateTo({
-                    url: "/pagesByStore/storeSearch/storeSearch"
+                uni.switchTab({
+                    url: '/pages/storeSearch/storeSearch',
+                    fail: () => {
+                        uni.navigateTo({
+                            url: '/pages/storeSearch/storeSearch'
+                        });
+                    }
                 });
             },
             /**
@@ -223,7 +266,7 @@
                         orderId: orderId,
                     },
                 }).then(res => {
-                    toPayment(res.data).then(payRes => {
+                    toPayment(res.data).then(() => {
                         this.getOrderList();
                     }).catch(err => {
                         console.log(err);
@@ -243,7 +286,7 @@
                 let description = '';
                 if (customItems) {
                     if (customItems.length && customItems.length > 0) {
-                        customItems.forEach(item => {
+                        customItems.map(item => {
                             description = `${description}${description === '' ? '' : '; '}${item.customItemTitle}`;
                         });
                     }
@@ -288,13 +331,12 @@
             });
         },
         onLoad() {
-            this.$refs.loading.startLoading();
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
-        },
-        async onShow() {
-            await this.getOrderList();
+            this.$refs.loading.startLoading();
+            this.currentShowType = Number(this.utils.getCurrentPage().curParam.type ?? 0);
+            this.getOrderList(1, this.currentShowType);
         }
     }
 </script>
