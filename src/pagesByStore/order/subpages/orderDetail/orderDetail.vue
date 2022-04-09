@@ -35,7 +35,7 @@
                 mode="aspectFill"/>
             </view>
             <view class="store-name" @click="gotoStore()">
-              {{ orderDetail.storeSimpleInfo.name }}
+              {{ orderDetail.storeSimpleInfo.name || '' }}
             </view>
             <view class="take-out">
               <view>
@@ -57,10 +57,10 @@
               </view>
               <view class="commodity-info-container">
                 <view class="commodity-name">
-                  {{ commodity.name }}
+                  {{ commodity.name || '' }}
                 </view>
                 <view class="commodity-description">
-                  {{ commodity.customItems | showDescription }}
+                  {{ commodity.customItems || '' | showDescription }}
                 </view>
                 <view class="commodity-tags"></view>
               </view>
@@ -106,7 +106,7 @@
               <view class="total-price-container">
                 <view class="total-price-description">
                   <view>
-                    共 {{ orderDetail.totalCount }} 件商品，合计
+                    共 {{ orderDetail.totalCount || 0 }} 件商品，合计
                   </view>
                   <view class="price">
                     {{ orderDetail.totalPayment | formatPrice }}
@@ -132,7 +132,7 @@
               订单备注
             </view>
             <view class="content">
-              {{ orderDetail.userNotes }}
+              {{ orderDetail.userNotes || '' }}
             </view>
           </view>
           <view class="row">

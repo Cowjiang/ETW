@@ -44,8 +44,8 @@
             :imageDataList="trendDetail.dynamicImages"/>
         </view>
         <view class="tags-container">
-          <view class="browse-count">
-            浏览 {{ trendDetail.browseNumber }}
+          <view class="like-number">
+            点赞 {{ trendDetail.likeNumber }}
           </view>
           <view
             class="position-tag"
@@ -537,6 +537,7 @@
                         //动态点赞
                         this.changeLikeStatus(!this.trendDetail.isLike ? 1 : 2, this.trendId, 2).then(() => {
                             this.$set(this.trendDetail, 'isLike', !this.trendDetail.isLike);
+                            this.$set(this.trendDetail, 'likeNumber', this.trendDetail.isLike ? this.trendDetail.likeNumber + 1 : this.trendDetail.likeNumber - 1);
                         }).catch(() => {
                         });
                     }
