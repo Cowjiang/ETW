@@ -680,7 +680,7 @@
                     uni.getStorage({
                         key: 'userInfo',
                         success: res => {
-                            this.userId = res.data.userId;
+                            this.userId = res.data.userId.toString();
                         },
                         fail: () => {
                             const currentPage = this.utils.getCurrentPage();

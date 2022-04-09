@@ -174,7 +174,7 @@
         </view>
         <view class="tags-container">
           <view class="browse-count">
-            浏览 {{ trend.browseNumber }}
+<!--            浏览 {{ trend.browseNumber }}-->
           </view>
           <view
             class="position-tag"
