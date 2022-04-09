@@ -282,7 +282,7 @@
                             this.$refs.loading.stopLoading();
                         }, 300);
                     }).catch(error => {
-                        console.error()
+                        console.error(error);
                     });
                 }
             },
@@ -432,7 +432,7 @@
              * @param {String} url 封面图片URL
              */
             handleCoverImageClick(url) {
-                if (this.userId === this.$store.state.userInfo.userId) {
+                if (Number(this.userId) === this.$store.state.userInfo.userId) {
                     //当前登录用户
                     uni.showActionSheet({
                         itemList: ['查看大图', '修改封面图片'],

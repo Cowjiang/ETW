@@ -74,11 +74,13 @@
               <image
                 v-if="message.isMe"
                 :src="myInfo.avgPath"
-                mode="widthFix"/>
+                mode="aspectFill"
+                @click="gotoUserPage(myInfo.userId)"/>
               <image
                 v-if="!message.isMe"
                 :src="friendInfo.avgPath"
-                mode="widthFix"/>
+                mode="aspectFill"
+                @click="gotoUserPage(friendInfo.userId)"/>
             </view>
             <!-- 消息内容 -->
             <view
@@ -785,6 +787,15 @@
                     });
                 }
             },
+            /**
+             * 跳转个人主页
+             * @param {Number|String} userId 用户ID
+             */
+            gotoUserPage(userId) {
+                uni.navigateTo({
+                    url: `/pagesByStore/userPage/userPage?userId=${userId}`
+                });
+            }
         },
         computed: {
             // 计算时间差
