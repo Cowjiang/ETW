@@ -1,6 +1,26 @@
 <template>
   <view>
-    <navigationBar ref="navigationBar"/>
+    <navigationBar ref="navigationBar">
+      <template v-slot:button>
+        <view
+          class="navigation-menu-button"
+          :style="{width: `${navigationButtonWidth}px`}">
+          <view
+            class="navigation-menu-button-content"
+            :style="{
+              height: `${0.54 * navigationButtonHeight}px`,
+              margin: `${0.23 * navigationButtonHeight}px 0`,
+            }">
+            <view class="navigation-back" @click="navigateBack">
+              <i class="fas fa-angle-left"/>
+            </view>
+            <view class="navigation-menu" @click="moreAction(0, trendDetail)">
+              <i class="fas fa-bars"/>
+            </view>
+          </view>
+        </view>
+      </template>
+    </navigationBar>
     <toast ref="toast"/>
     <loading ref="loading" fullscreen/>
 
@@ -253,6 +273,9 @@
         },
         data() {
             return {
+                navigationHeight: 0, //导航栏高度
+                navigationButtonWidth: 0, //导航栏胶囊按钮宽度
+                navigationButtonHeight: 0, //导航栏胶囊按钮高度
                 readyToShow: false, //是否加载数据完成允许显示
                 isFriend: false, //与动态作者是否为好友
                 trendId: '', //动态ID
@@ -751,6 +774,24 @@
                     url: `/pagesByStore/userPage/userPage?userId=${userId}`
                 });
             },
+            // 返回上一级页面
+            navigateBack() {
+                uni.navigateBack({
+                    fail: () => {
+                        uni.switchTab({
+                            url: `/pages/index/index`,
+                            fail: () => {
+                                uni.redirectTo({
+                                    url: `/pages/index/index`,
+                                    fail: err => {
+                                        console.error(err);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }); //返回上一页
+            },
         },
         computed: {
             // 是否显示评论输入提示
@@ -788,6 +829,9 @@
             }
         },
         mounted() {
+            this.navigationHeight = this.$store.state.navigationHeight;
+            this.navigationButtonWidth = this.$refs.navigationBar.navigationButtonWidth;
+            this.navigationButtonHeight = this.$refs.navigationBar.navigationBarHeight;
             this.$refs.navigationBar.setNavigation({
                 titleText: '动态详情',
                 backgroundColor: '#fff',

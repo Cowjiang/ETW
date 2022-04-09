@@ -1,3 +1,43 @@
+.navigation-menu-button {
+  height: 100%;
+  border-radius: 50rpx;
+  border: 1rpx solid rgba(100, 100, 100, 0.1);
+  background-color: rgba(255, 255, 255, 0.6);
+
+  .navigation-menu-button-content {
+    display: flex;
+
+    .navigation-back {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+
+      .fas {
+        font-size: 40rpx;
+        color: #000;
+      }
+    }
+
+    .navigation-menu {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border-left: 1rpx solid rgba(100, 100, 100, 0.1);
+
+      .fas {
+        font-size: 32rpx;
+        color: #000;
+      }
+    }
+  }
+}
+
 .trend-detail-container {
   width: 100%;
   height: fit-content;
