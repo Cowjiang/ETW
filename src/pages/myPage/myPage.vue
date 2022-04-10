@@ -246,7 +246,7 @@
                             reject(err);
                         })
                     });
-                    Promise.all([getUserInfoPromise, getTrendInfoPromise]).catch(err => {
+                    Promise.all([getUserInfoPromise, getTrendInfoPromise, getOrderInfoPromise]).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
                             text: '获取数据失败',
@@ -298,7 +298,7 @@
         },
         onShow() {
             if (this.$store.state.userInfo) {
-                if ((this.userId = this.$store.state.userInfo.userId ?? null)) {
+                if ((this.userId = this.$store.state.userInfo.userId.toString() ?? null)) {
                     this.$refs.loading.startLoading();
                     this.getMyInfo();
                 }
@@ -312,9 +312,6 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
-        },
-        mounted() {
-
         }
     }
 </script>

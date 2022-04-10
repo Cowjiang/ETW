@@ -250,6 +250,7 @@
         methods: {
             // 获取用户信息
             async getUserInfo() {
+                this.userId = this.userId.toString();
                 if (!!this.userId) {
                     const getUserSimpleInfoPromise = new Promise((resolve, reject) => {
                         getUserSimpleInfo({
@@ -288,6 +289,7 @@
             },
             // 获取用户的动态列表
             async getUserTrendList() {
+                this.userId = this.userId.toString();
                 if (!!this.userId) {
                     await getUserTrendList({
                         urlParam: {
