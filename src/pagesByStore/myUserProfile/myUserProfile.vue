@@ -353,7 +353,6 @@
                             getUploadSignature({urlParam: 'avatar'}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
-                                console.log(this.action);
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
                                 this.$refs.upload.formData = {
                                     key: key,

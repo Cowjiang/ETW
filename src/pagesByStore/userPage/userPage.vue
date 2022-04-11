@@ -31,11 +31,12 @@
         <image
           class="cover-image"
           :src="userInfo.coverUrl"
+          @click.stop="handleCoverImageClick(userInfo.coverUrl)"
           mode="aspectFill"/>
         <view
           class="cover-mask"
           v-if="userInfo.coverUrl"
-          @click="handleCoverImageClick(userInfo.coverUrl)"></view>
+          @click.stop="handleCoverImageClick(userInfo.coverUrl)"></view>
       </view>
       <view class="content-container">
         <view class="user-info-container">
@@ -409,46 +410,79 @@
             },
             // 导航栏菜单按钮点击事件
             handleMenuBtnClick() {
-                uni.showActionSheet({
-                    itemList: [`${this.isBlocked ? '移出黑名单' : '加入黑名单'}`, '举报'],
-                    success: res => {
-                        if (res.tapIndex === 0) {
-                            //黑名单操作
-                            this.handleBlock();
+                if (Number(this.userId) === this.$store.state.userInfo.userId) {
+                    //当前登录用户
+                    uni.showActionSheet({
+                        itemList: ['更换封面图片', '修改我的资料', '退出登录'],
+                        success: async res => {
+                            if (res.tapIndex === 0) {
+                                //更换封面图片
+                                this.$refs.upload.selectFile();
+                            }
+                            else if (res.tapIndex === 1) {
+                                //修改我的资料
+                                uni.navigateTo({
+                                    url: '/pagesByStore/myUserProfile/myUserProfile'
+                                });
+                            }
+                            else if (res.tapIndex === 2) {
+                                //退出登录
+                                await this.utils.logout();
+                                uni.switchTab({
+                                    url: '/pages/myPage/myPage'
+                                });
+                            }
                         }
-                        else if (res.tapIndex === 1) {
-                            //举报操作
-                            this.$refs.toast.show({
-                                text: '举报成功',
-                                type: 'success',
-                                direction: 'top'
-                            });
+                    });
+                }
+                else {
+                    uni.showActionSheet({
+                        itemList: [`${this.isBlocked ? '移出黑名单' : '加入黑名单'}`, '举报'],
+                        success: res => {
+                            if (res.tapIndex === 0) {
+                                //黑名单操作
+                                this.handleBlock();
+                            }
+                            else if (res.tapIndex === 1) {
+                                //举报操作
+                                this.$refs.toast.show({
+                                    text: '举报成功',
+                                    type: 'success',
+                                    direction: 'top'
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                }
             },
             /**
              * 封面图片点击事件
              * @param {String} url 封面图片URL
              */
             handleCoverImageClick(url) {
-                if (Number(this.userId) === this.$store.state.userInfo.userId) {
-                    //当前登录用户
-                    uni.showActionSheet({
-                        itemList: ['查看大图', '修改封面图片'],
-                        success: res => {
-                            if (res.tapIndex === 0) {
-                                this.previewImage(url);
+                if (url) {
+                    if (Number(this.userId) === this.$store.state.userInfo.userId) {
+                        //当前登录用户
+                        uni.showActionSheet({
+                            itemList: ['查看大图', '修改封面图片'],
+                            success: res => {
+                                if (res.tapIndex === 0) {
+                                    this.previewImage(url);
+                                }
+                                else {
+                                    this.$refs.upload.selectFile();
+                                }
                             }
-                            else {
-                                this.$refs.upload.selectFile();
-                            }
-                        }
-                    })
+                        });
+                    }
+                    else {
+                        //不是当前登录用户
+                        this.previewImage(url);
+                    }
                 }
-                else {
-                    //不是当前登录用户
-                    this.previewImage(url);
+                else if (Number(this.userId) === this.$store.state.userInfo.userId) {
+                    //当前登录用户
+                    this.$refs.upload.selectFile();
                 }
             },
             /**

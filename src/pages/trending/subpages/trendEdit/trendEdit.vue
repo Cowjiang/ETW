@@ -164,8 +164,22 @@
                 postTrend({
                     queryData: trendContent,
                 }).then(() => {
-                    uni.switchTab({
-                        url: "/pages/trending/trending",
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.emit("onSent", {});
+                    uni.navigateBack({
+                        fail: () => {
+                            uni.switchTab({
+                                url: `/pages/trending/trending`,
+                                fail: () => {
+                                    uni.redirectTo({
+                                        url: `/pages/trending/trending`,
+                                        fail: err => {
+                                            console.error(err);
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     });
                 }).catch(err => {
                     console.error(err);

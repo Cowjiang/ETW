@@ -698,10 +698,10 @@
                                                             type: 'success',
                                                             direction: 'top'
                                                         });
+                                                        const eventChannel = this.getOpenerEventChannel();
+                                                        eventChannel.emit("onUpdated", {});
                                                         setTimeout(() => {
-                                                            uni.redirectTo({
-                                                                url: '/pages/trending/trending'
-                                                            });
+                                                            this.navigateBack();
                                                         }, 1500);
                                                     }).catch(err => {
                                                         console.error(err);
@@ -791,7 +791,7 @@
                             }
                         });
                     }
-                }); //返回上一页
+                });
             },
         },
         computed: {

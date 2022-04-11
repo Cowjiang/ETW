@@ -469,6 +469,11 @@
             gotoTrendEdit() {
                 uni.navigateTo({
                     url: "/pages/trending/subpages/trendEdit/trendEdit",
+                    events: {
+                        onSent: () => {
+                            this.getTrendData(this.currentTrendType);
+                        }
+                    }
                 });
             },
             /**
@@ -479,6 +484,11 @@
                 if (trendId) {
                     uni.navigateTo({
                         url: `/pages/trending/subpages/trendDetail/trendDetail?id=${trendId}`,
+                        events: {
+                            onUpdated: () => {
+                                this.getTrendData(this.currentTrendType);
+                            }
+                        }
                     });
                 }
             },
@@ -632,8 +642,6 @@
                 backgroundColor: "rgba(255, 255, 255, 0.85)",
                 backgroundBlur: true
             });
-        },
-        onShow() {
             this.getTrendData(this.currentTrendType);
         }
     };

@@ -47,7 +47,6 @@
             "path": "pages/chat/subpages/chatDetail/chatDetail",
             "style": {
                 "navigationBarTitleText": "",
-                "enablePullDownRefresh": false,
                 "navigationStyle": "custom"
             }
         },

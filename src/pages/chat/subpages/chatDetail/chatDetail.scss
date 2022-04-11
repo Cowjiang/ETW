@@ -67,6 +67,7 @@
     .message-scroll-view {
       position: relative;
       width: 100%;
+      height: 100%;
 
       .message-container {
         width: 100%;
@@ -144,6 +145,12 @@
 
       .message-container:nth-child(1) {
         margin-top: 30rpx;
+      }
+
+      .scroll-bottom {
+        width: 100%;
+        //transition-property: height;
+        //transition-duration: 300ms;
       }
     }
   }

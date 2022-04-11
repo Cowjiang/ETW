@@ -32,27 +32,12 @@
       <view
         class="message-area"
         :style="{
-          height: `${windowHeight - navigationHeight}px`,
-          transform: `translateY(-${keyboardHeight}px)`
+          height: `${windowHeight - navigationHeight - keyboardHeight}px`,
         }">
         <loading
           ref="loading"
           :parentClass="'message-area'"/>
-        <scroll-view
-          class="message-scroll-view"
-          :style="{
-            height: `calc(100%)`,
-          }"
-          ref="scrollView"
-          :scroll-y="true"
-          @scroll="handleScroll"
-          :scroll-into-view="scrollToViewId"
-          scroll-with-animation="true"
-          refresher-enabled="true"
-          refresher-threshold="300"
-          :refresher-triggered="refresherTriggered"
-          @refresherrefresh="handleRefreshStart"
-          @refresherrestore="handleRefreshEnd">
+        <view class="message-scroll-view">
           <!-- 滚动区域顶部 -->
           <view id="scrollTopView"></view>
           <!-- 每条消息的容器 -->
@@ -105,8 +90,14 @@
             </view>
           </view>
           <!-- 滚动区域底部 -->
-          <view id="scrollBottomView"></view>
-        </scroll-view>
+          <view
+            class="scroll-bottom"
+            :style="{
+              height: `calc(${keyboardHeight + 60}px)`,
+              height: `calc(constant(safe-area-inset-bottom) + ${keyboardHeight + 60}px)`,
+              height: `calc(env(safe-area-inset-bottom) + ${keyboardHeight + 60}px)`
+            }"></view>
+        </view>
       </view>
       <!-- 底部输入区域 -->
       <view
@@ -238,17 +229,16 @@
                 messageRecords: [], //消息记录数组
                 messageRecordsTemp: [], //消息记录缓冲数组
                 recordsLength: NaN, //当前获取聊天消息记录的请求回报的消息总数
-                scrollToViewId: '', //scroll-view的定位锚id
                 messageTouchingId: '', //当前触摸消息记录的数据名
                 action: '', //图片上传Url
                 fileList: [], //发送图片的队列
-                refresherTriggered: false, //scroll-view下拉刷新触发状态
                 currentPage: -1, //当前消息记录的页码
                 pageSize: 15, //每次请求获取聊天记录的单页数据总数
                 existMore: true, //是否存在更多历史消息
                 isReadyToShow: false, //是否加载消息记录完毕
                 isBlocked: false, //是否屏蔽该用户（黑名单）
                 isFocused: false, //是否已关注该用户
+                scrollTop: 0, //页面滚动高度
             }
         },
         methods: {
@@ -284,7 +274,7 @@
              * @param {null|String} time 查询时间戳，为空时则查询第一页
              */
             getChatHistory(time = null) {
-                let queryTime = time === null ? Date.now() : time;
+                const queryTime = time === null ? Date.now() : time;
                 getChatHistory({
                     urlParam: `${this.friendInfo.userId}?pageSize=${this.pageSize}&time=${queryTime}`,
                 }).then(res => {
@@ -301,7 +291,11 @@
                         });
                         this.messageRecords = [];
                         this.messageRecords = recordsTemp;
-                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
+                        setTimeout(() => {
+                            uni.pageScrollTo({
+                                scrollTop: 999999999
+                            });
+                        }, 0);
                         this.recordsLength = res.data.total;
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
@@ -312,27 +306,34 @@
                         }, 500);
                     }
                     else {
+                        const firstMsgId = this.messageRecords[0].id; //获取更多记录前的第一条消息的id
                         if (res.data.records.length !== 0) {
                             res.data.records.forEach(records => {
-                                this.messageRecords.unshift({
-                                    id: records.id,
-                                    content: records.content,
-                                    isPhoto: !records.isText,
-                                    isMe: records.senderId.toString() !== this.friendInfo.userId,
-                                    time: records.createdTime
-                                });
+                                if (records.id !== firstMsgId) {
+                                    //防止连接处出现重复
+                                    this.messageRecords.unshift({
+                                        id: records.id,
+                                        content: records.content,
+                                        isPhoto: !records.isText,
+                                        isMe: records.senderId.toString() !== this.friendInfo.userId,
+                                        time: records.createdTime
+                                    });
+                                }
                             });
                         }
                         this.recordsLength = res.data.total;
+                        setTimeout(() => {
+                            uni.pageScrollTo({
+                                selector: `#message${firstMsgId}`,
+                                duration: 0
+                            });
+                        }, 0);
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
                         }
                     }
-                    this.refresherTriggered = false;
-                    this._freshing = false;
                 }).catch(err => {
-                    this.refresherTriggered = false;
-                    this._freshing = false;
+                    console.error(err);
                     this.$refs.toast.show({
                         text: '网络异常',
                         type: 'error',
@@ -345,11 +346,9 @@
              * @param {Object} data Socket接收到的新消息
              */
             receiveNewMessage(data) {
-                console.log(data);
                 if (data.errorCode === 120) {
-                    let newMessage = data.data.messageInfo;
+                    const newMessage = data.data.messageInfo;
                     if (newMessage.senderId.toString() === this.friendInfo.userId) {
-                        this.scrollToViewId = `messageTopView`;
                         setTimeout(() => {
                             this.messageRecords.push({
                                 id: newMessage.id,
@@ -397,16 +396,16 @@
             handleKeyboardHeightChange(e) {
                 if (e.detail.height !== 0) {
                     this.keyboardHeight = e.detail.height;
+                    setTimeout(() => {
+                        uni.pageScrollTo({
+                            scrollTop: 999999999
+                        });
+                    }, 100);
                 }
-                this.$forceUpdate();
             },
             // 发送文字消息
             sendMessage() {
                 this.utils.throttle(() => {
-                    setTimeout(() => {
-                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
-                        this.$forceUpdate();
-                    }, 0);
                     if (this.isSendReady === true) {
                         uni.showLoading({
                             title: '正在发送'
@@ -435,6 +434,10 @@
                                 text: '发送失败',
                                 type: 'error',
                                 direction: 'top'
+                            });
+                        }).finally(() => {
+                            uni.pageScrollTo({
+                                scrollTop: 999999999
                             });
                         });
                     }
@@ -500,7 +503,6 @@
                     }
                 }).then(res => {
                     this.recordsLength += 1;
-                    this.scrollToViewId = `messageTopView`;
                     setTimeout(() => {
                         this.messageRecords.push({
                             id: res.data.id,
@@ -520,6 +522,11 @@
                 }).finally(() => {
                     this.$refs.uploading.stopLoading();
                     this.$refs.upload.clear();
+                    setTimeout(() => {
+                        uni.pageScrollTo({
+                            scrollTop: 999999999
+                        });
+                    }, 150);
                 });
             },
             //头像上传失败回调事件
@@ -604,8 +611,8 @@
                     title: '正在删除'
                 })
                 deleteChatHistory({
-                    urlParam: "?ids=" + targetId
-                }).then(res => {
+                    urlParam: `?ids=${targetId}`
+                }).then(() => {
                     uni.hideLoading();
                     this.recordsLength -= 1;
                     this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
@@ -616,37 +623,13 @@
                     });
                 }).catch(err => {
                     uni.hideLoading();
+                    console.error(err);
                     this.$refs.toast.show({
                         text: '删除失败',
                         type: 'error',
                         direction: 'top'
                     });
-                    console.error(err);
                 })
-            },
-            // scroll-view下拉刷新开始事件
-            handleRefreshStart() {
-                if (this.existMore) {
-                    if (this._freshing) return;
-                    this._freshing = true;
-                    setTimeout(() => {
-                        if (this.messageRecords.length === 0) {
-                            this.getChatHistory();
-                        }
-                        else {
-                            this.getChatHistory(this.messageRecords[0].time);
-                        }
-                    }, 0);
-                }
-                else {
-                    this.refresherTriggered = false;
-                    this._freshing = false;
-                    this.$forceUpdate();
-                }
-            },
-            // scroll-view下拉刷新结束事件
-            handleRefreshEnd() {
-                this.refresherTriggered = 'restore';
             },
             // 导航栏菜单按钮点击事件
             handleMenuBtnClick() {
@@ -771,10 +754,7 @@
             // 获取消息更新
             startCheckingUpdate() {
                 if (this.messageRecords.length === 0) {
-                    this._freshing = false; //还原下拉刷新状态
-                    setTimeout(() => {
-                        this.refresherTriggered = true; //开启下拉刷新
-                    }, 0);
+                    this.getChatHistory();
                 }
                 else {
                     this.$refs.loading.stopLoading();
@@ -810,11 +790,6 @@
             rawInputValue(nval) {
                 this.isSendReady = nval.replace(/\s*/g, "") !== ''; //判断输入框中是否为空白内容
             },
-            // 消息记录数组
-            messageRecords() {
-                this.scrollToViewId = `scrollBottomView`; //将scroll-view移动到底部
-                this.$forceUpdate();
-            },
             isReadyToShow(nval, oval) {
                 if (!nval && oval) {
                     this.$refs.loading.startLoading();
@@ -822,12 +797,26 @@
                 else if (nval && !oval) {
                     this.$refs.loading.stopLoading();
                 }
+            },
+            scrollTop(nval, oval) {
+                if (nval !== oval && nval === 0) {
+                    if (this.existMore) {
+                        if (this.messageRecords.length === 0) {
+                            this.getChatHistory();
+                        }
+                        else {
+                            this.getChatHistory(this.messageRecords[0].time);
+                        }
+                    }
+                }
             }
+        },
+        onPageScroll(e) {
+            this.scrollTop = e.scrollTop;
         },
         onLoad() {
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
-            console.log(this.windowHeight)
             this.navigationHeight = this.$store.state.navigationHeight;
             this.navigationButtonWidth = this.$refs.navigationBar.navigationButtonWidth;
             this.navigationButtonHeight = this.$refs.navigationBar.navigationBarHeight;
