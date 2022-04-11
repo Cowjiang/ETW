@@ -44,11 +44,16 @@
             getUserPhone(e) {
                 if (e.detail.errMsg === "getPhoneNumber:fail user deny") {
                     //用户拒绝权限
-                    this.$refs.toast.show({
-                        text: '请授权获取手机号码',
-                        type: 'warning',
-                        direction: 'top'
+                    // this.$refs.toast.show({
+                    //     text: '请授权获取手机号码',
+                    //     type: 'warning',
+                    //     direction: 'top'
+                    // });
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.emit("acceptDataFromOpenedPage", {
+                        success: false
                     });
+                    uni.navigateBack();
                 }
                 else {
                     const encryptedData = e.detail.encryptedData;

@@ -285,6 +285,7 @@
                             uni.showModal({
                                 title: '',
                                 content: '删除私信记录后将无法恢复，确定删除？',
+                                confirmColor: '#f4756b',
                                 success: res => {
                                     if (res.confirm) {
                                         deleteChatWithFriend({
