@@ -100,7 +100,7 @@
           </view>
           <view class="tags-container">
             <view class="browse-count">
-              浏览 {{ trend.browseNumber }}
+<!--              浏览 {{ trend.browseNumber }}-->
             </view>
             <view
               class="position-tag"
@@ -240,6 +240,7 @@
         getRecommendUserList,
         like
     } from "@/common/js/api/models.js";
+    import {onShow} from "@dcloudio/uni-mp-vue";
 
     export default {
         components: {
@@ -631,8 +632,10 @@
                 backgroundColor: "rgba(255, 255, 255, 0.85)",
                 backgroundBlur: true
             });
-            this.getTrendData(this.currentTrendType);
         },
+        onShow() {
+            this.getTrendData(this.currentTrendType);
+        }
     };
 </script>
 
