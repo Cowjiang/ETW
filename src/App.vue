@@ -63,14 +63,16 @@
                 });
             }
         },
-        async mounted() {
-            const navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
-            const systemInfo = uni.getSystemInfoSync(); //获取系统信息
-            this.$store.commit('navigationHeight', navigationHeight);
-            this.$store.commit('windowWidth', systemInfo.windowWidth);
-            this.$store.commit('windowHeight', systemInfo.windowHeight);
+        mounted() {
             this.$store.commit('userInfo', uni.getStorageSync('userInfo'));
             this.$store.commit('shopkeeper', uni.getStorageSync('shopkeeper') ?? false);
+            this.$nextTick(() => {
+                const navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
+                const systemInfo = uni.getSystemInfoSync(); //获取系统信息
+                this.$store.commit('navigationHeight', navigationHeight);
+                this.$store.commit('windowWidth', systemInfo.windowWidth);
+                this.$store.commit('windowHeight', systemInfo.windowHeight);
+            });
         },
         async onShow() {
             await this.utils.connectSocket();

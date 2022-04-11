@@ -827,6 +827,7 @@
         onLoad() {
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
+            console.log(this.windowHeight)
             this.navigationHeight = this.$store.state.navigationHeight;
             this.navigationButtonWidth = this.$refs.navigationBar.navigationButtonWidth;
             this.navigationButtonHeight = this.$refs.navigationBar.navigationBarHeight;
