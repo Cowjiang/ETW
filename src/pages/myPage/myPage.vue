@@ -300,7 +300,11 @@
         onShow() {
             if (this.$store.state.userInfo) {
                 if ((this.userId = this.$store.state.userInfo.userId.toString() ?? null)) {
-                    this.$refs.loading.startLoading();
+                    //用户已登录
+                    if (!this.userDetailInfo.hasOwnProperty('userId')) {
+                        //未获取到用户详细信息（首次加载时显示加载动画）
+                        this.$refs.loading.startLoading();
+                    }
                     this.getMyInfo();
                 }
             }

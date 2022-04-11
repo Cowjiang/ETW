@@ -604,23 +604,21 @@
                 return;
             }
             if (!this.userId) {
-                if (!(this.userId = uni.getStorageSync('userInfo').userId || null)) {
-                    uni.getStorage({
-                        key: 'userInfo',
-                        success: async res => {
-                            this.userId = res.data.userId.toString();
-                            await this.getUserInfo();
-                            await this.getUserTrendList();
-                        },
-                        fail: () => {
-                            const currentPage = this.utils.getCurrentPage();
-                            this.$store.commit('currentPageUrl', currentPage.curFullUrl);
-                            uni.redirectTo({
-                                url: `/pages/login/wxLogin`
-                            });
-                        }
-                    });
-                }
+                await uni.getStorage({
+                    key: 'userInfo',
+                    success: async res => {
+                        this.userId = res.data.userId.toString();
+                        await this.getUserInfo();
+                        await this.getUserTrendList();
+                    },
+                    fail: () => {
+                        const currentPage = this.utils.getCurrentPage();
+                        this.$store.commit('currentPageUrl', currentPage.curFullUrl);
+                        uni.redirectTo({
+                            url: `/pages/login/wxLogin`
+                        });
+                    }
+                });
             }
             else {
                 await this.getUserInfo();
