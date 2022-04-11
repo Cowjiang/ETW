@@ -190,7 +190,7 @@
              * @param {null|String} time 查询的时间戳，为空则查询第一页
              */
             getChatList(time = null) {
-                let queryTime = time === null ? Date.now() : time;
+                const queryTime = time === null ? Date.now() + 60000 : time;
                 getMyChatList({
                     queryData: {
                         time: queryTime,
