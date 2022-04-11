@@ -118,7 +118,10 @@
             },
             // 历史记录点击事件
             handleHistoryClick(searchValue) {
-                this.searchValue = searchValue;
+                if (this.searchValue !== searchValue) {
+                    this.searchValue = searchValue;
+                    this.searchTrigger = false;
+                }
                 this.searchResult();
             }
         },
