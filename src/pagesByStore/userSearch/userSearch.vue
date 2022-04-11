@@ -187,8 +187,13 @@
                 this.utils.throttle(() => {
                     uni.navigateBack({
                         fail: () => {
-                            uni.redirectTo({
-                                url: '/pages/index/index'
+                            uni.switchTab({
+                                url: '/pages/trending/trending',
+                                fail: () => {
+                                    uni.redirectTo({
+                                        url: '/pages/trending/trending'
+                                    });
+                                }
                             });
                         }
                     });

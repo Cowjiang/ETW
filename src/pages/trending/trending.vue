@@ -470,12 +470,6 @@
                     url: "/pages/trending/subpages/trendEdit/trendEdit",
                 });
             },
-            // 返回主页
-            gotoHomePage() {
-                uni.redirectTo({
-                    url: `/pages/index/index`
-                });
-            },
             /**
              * 前往动态详情页
              * @param {Number} trendId 动态ID

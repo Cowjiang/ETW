@@ -10,6 +10,14 @@
     },
     "pages": [
         {
+            "path": "pages/trending/trending",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": true,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/index/index",
             "style": {
                 "navigationBarTitleText": "",
@@ -40,14 +48,6 @@
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
-                "navigationStyle": "custom"
-            }
-        },
-        {
-            "path": "pages/trending/trending",
-            "style": {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": true,
                 "navigationStyle": "custom"
             }
         },
@@ -286,12 +286,6 @@
         "backgroundColor": "#ffffff",
         "spacing": "1px",
         "list": [
-            {
-                "pagePath": "pages/index/index",
-                "iconPath": "static/icons/tabbar/home_unselected.png",
-                "selectedIconPath": "static/icons/tabbar/home_selected.png",
-                "text": "调试"
-            },
             {
                 "pagePath": "pages/trending/trending",
                 "iconPath": "static/icons/tabbar/home_unselected.png",

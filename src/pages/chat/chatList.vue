@@ -440,10 +440,10 @@
             // 消息列表为空的按钮点击事件
             handleEmptyBtnClick() {
                 uni.switchTab({
-                    url: '/pages/index/index',
+                    url: '/pages/trending/trending',
                     fail: () => {
                         uni.redirectTo({
-                            url: '/pages/index/index',
+                            url: '/pages/trending/trending',
                             fail: err => {
                                 console.error(err);
                             }

@@ -149,10 +149,10 @@
                             uni.navigateBack({
                                 fail: () => {
                                     uni.switchTab({
-                                        url: `/pages/index/index`,
+                                        url: `/pages/trending/trending`,
                                         fail: () => {
                                             uni.redirectTo({
-                                                url: `/pages/index/index`,
+                                                url: `/pages/trending/trending`,
                                                 fail: err => {
                                                     console.error(err);
                                                 }
@@ -166,10 +166,10 @@
                         break;
                     case 2:
                         uni.switchTab({
-                            url: `/pages/index/index`,
+                            url: `/pages/trending/trending`,
                             fail: () => {
                                 uni.redirectTo({
-                                    url: `/pages/index/index`,
+                                    url: `/pages/trending/trending`,
                                     fail: err => {
                                         console.error(err);
                                     }
