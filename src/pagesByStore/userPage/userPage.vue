@@ -250,7 +250,6 @@
         methods: {
             // 获取用户信息
             async getUserInfo() {
-                this.userId = this.userId.toString();
                 if (!!this.userId) {
                     const getUserSimpleInfoPromise = new Promise((resolve, reject) => {
                         getUserSimpleInfo({
@@ -278,7 +277,7 @@
                             reject(err);
                         });
                     });
-                    await Promise.all([getUserSimpleInfoPromise, getUserRelationshipsPromise]).then(res => {
+                    await Promise.all([getUserSimpleInfoPromise, getUserRelationshipsPromise]).then(() => {
                         setTimeout(() => {
                             this.$refs.loading.stopLoading();
                         }, 300);
@@ -289,7 +288,6 @@
             },
             // 获取用户的动态列表
             async getUserTrendList() {
-                this.userId = this.userId.toString();
                 if (!!this.userId) {
                     await getUserTrendList({
                         urlParam: {
@@ -609,8 +607,10 @@
                 if (!(this.userId = uni.getStorageSync('userInfo').userId || null)) {
                     uni.getStorage({
                         key: 'userInfo',
-                        success: res => {
+                        success: async res => {
                             this.userId = res.data.userId.toString();
+                            await this.getUserInfo();
+                            await this.getUserTrendList();
                         },
                         fail: () => {
                             const currentPage = this.utils.getCurrentPage();
@@ -622,8 +622,10 @@
                     });
                 }
             }
-            await this.getUserInfo();
-            await this.getUserTrendList();
+            else {
+                await this.getUserInfo();
+                await this.getUserTrendList();
+            }
         },
         mounted() {
             this.windowWidth = this.$store.state.windowWidth;

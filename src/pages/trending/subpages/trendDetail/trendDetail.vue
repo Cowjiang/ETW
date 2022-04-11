@@ -286,7 +286,8 @@
                 currentCommentPage: 1, //当前评论页码
                 existMoreComment: true, //是否存在更多评论
                 loadingMoreComment: false, //是否正在加载更多评论
-                rawInputValue: '', //消息输入框的数据
+                rawInputValue: '', //评论输入框的数据
+                rawInputOldValue: '', //评论输入框的旧数据（用于比对）
                 inputFocusStatus: false, //输入框聚焦状态
                 isSendReady: false, //输入框文字验证状态
                 keyboardHeight: 0, //弹起键盘的高度
@@ -426,7 +427,7 @@
             },
             // 评论输入框键值改变事件
             handleInputKeyChange(e) {
-                if (e.detail.keyCode === 8) {
+                if (e.detail.keyCode === 8 && e.detail.value === this.rawInputOldValue) {
                     this.handleTrendCommentBtnClick();
                 }
             },
@@ -803,6 +804,7 @@
             // 消息原始输入框的值
             rawInputValue(nval) {
                 this.isSendReady = nval.replace(/\s*/g, "") !== ''; //判断输入框中是否为空白内容
+                this.rawInputOldValue = nval;
             },
         },
         onReachBottom() {
