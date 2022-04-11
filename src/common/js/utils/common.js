@@ -11,7 +11,7 @@ export const tabbars = [
     iconPath: "shopping-cart",
     selectedIconPath: "shopping-cart-fill",
     text: "店铺",
-    pagePath: "/pages/store/storeSearch",
+    pagePath: "/pages/storeAdmin/storeSearch",
     customIcon: false,
   },
   {

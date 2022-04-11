@@ -236,6 +236,31 @@
                     }
                 },
                 {
+                    "path": "storeAdmin/subpages/MyStorePage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "storeAdmin/subpages/storeApplyPage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom",
+                        "disableScroll": true
+                    }
+                },
+                {
+                    "path": "storeAdmin/subpages/storeInfoUpdatePage",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "dish/dishFormPage",
                     "style": {
                         "navigationBarTitleText": "",
@@ -245,14 +270,6 @@
                 },
                 {
                     "path": "dish/dishTypePage",
-                    "style": {
-                        "navigationBarTitleText": "",
-                        "enablePullDownRefresh": false,
-                        "navigationStyle": "custom"
-                    }
-                },
-                {
-                    "path": "store/subpages/MyStorePage",
                     "style": {
                         "navigationBarTitleText": "",
                         "enablePullDownRefresh": false,

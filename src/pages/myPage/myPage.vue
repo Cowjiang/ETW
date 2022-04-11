@@ -149,7 +149,8 @@
         </view>
         <view
           v-if="shopkeeper && userId"
-          class="btn_row">
+          class="btn_row"
+          @click="goto('/pagesByStore/storeAdmin/subpages/MyStorePage')">
           <view class="btn_title">
             <i class="fas fa-store"/>
             <text>我的店铺</text>
