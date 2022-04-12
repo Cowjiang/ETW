@@ -533,13 +533,13 @@
                                         },
                                         toUserInfo: toUserInfo
                                     };
-                                    console.log(commentChild)
                                     if (comment.commentChildList === undefined) {
                                         comment.secondComment = commentChild;
                                         comment.commentChildList = [];
                                     }
                                     comment.commentChildList.unshift(commentChild);
                                     comment.commentNumber += 1;
+                                    comment.secondComment = {};
                                     this.$forceUpdate();
                                 }
                             });
