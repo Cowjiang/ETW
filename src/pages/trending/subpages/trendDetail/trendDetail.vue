@@ -113,7 +113,7 @@
             <view class="comment-btn">
               <i
                 class="fas fa-ellipsis"
-                @click.stop="moreAction(1, comment)"/>
+                @click.stop="moreAction(1, comment, trendDetail)"/>
             </view>
           </view>
           <view
@@ -132,7 +132,7 @@
                 <view class="username">{{ commentChild.scUserInfo.username }}</view>
                 <view
                   class="operation-btn"
-                  @click.stop="moreAction(2, commentChild)">
+                  @click.stop="moreAction(2, commentChild, comment)">
                   <i class="fas fa-ellipsis"/>
                 </view>
               </view>
@@ -258,7 +258,7 @@
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
         addFriend,
-        deleteTrend,
+        deleteTrend, deleteTrendComment, deleteTrendSecondComment,
         getTrendComment,
         getTrendDetail,
         getTrendSecondComment,
@@ -459,6 +459,7 @@
                                 direction: 'top'
                             });
                             this.rawInputValue = '';
+                            this.commentTotalCount += 1;
                             uni.getStorage({
                                 key: 'userInfo',
                                 success: userInfo => {
@@ -506,7 +507,6 @@
                                 type: 'success',
                                 direction: 'top'
                             });
-                            console.log(res)
                             let comment = this.commentList.find(comment => comment.id === this.currentCommentInfo.id);
                             this.rawInputValue = '';
                             this.currentCommentType = 0;
@@ -698,11 +698,13 @@
              * 动态长按/评论更多操作按钮点击事件
              * @param {Number} type 目标类型，0:动态，1:一级评论, 2:二级评论
              * @param {Object|Null} target 操作的目标
+             * @param {Object|Null} parentTarget 目标类型为二级评论时，目标的父评论（一级评论）
              */
-            moreAction(type = 0, target) {
+            moreAction(type = 0, target, parentTarget = null) {
                 this.utils.throttle(() => {
                     const userInfo = this.$store.state.userInfo;
-                    const isMe = userInfo.userId === target.userId;
+                    const isMe = userInfo.userId === (target.scUserInfo ? target.scUserInfo.id : target.userInfo.id);
+                    console.log(arguments)
                     if (type === 0) {
                         //动态
                         uni.vibrateShort();
@@ -776,9 +778,64 @@
                                                     switch (type) {
                                                         case 1:
                                                             //删除一级评论
+                                                            deleteTrendComment({
+                                                                urlParam: {
+                                                                    trendId: parentTarget.id,
+                                                                    commentId: target.id
+                                                                }
+                                                            }).then(() => {
+                                                                this.$refs.toast.show({
+                                                                    text: '删除成功',
+                                                                    type: 'success',
+                                                                    direction: 'top'
+                                                                });
+                                                                this.commentList.splice(this.commentList.findIndex(comment => comment.id === target.id), 1);
+                                                                this.commentTotalCount -= 1;
+                                                            }).catch(err => {
+                                                                console.error(err);
+                                                                this.$refs.toast.show({
+                                                                    text: '删除失败',
+                                                                    type: 'error',
+                                                                    direction: 'top'
+                                                                });
+                                                            }).finally(() => {
+                                                                this.currentCommentType = 0;
+                                                                this.currentCommentInfo = {};
+                                                                this.rawInputValue = '';
+                                                                this.$forceUpdate();
+                                                            });
                                                             break;
                                                         case 2:
                                                             //删除二级评论
+                                                            deleteTrendSecondComment({
+                                                                urlParam: {
+                                                                    commentId: parentTarget.id,
+                                                                    commentChildId: target.id
+                                                                }
+                                                            }).then(() => {
+                                                                this.$refs.toast.show({
+                                                                    text: '删除成功',
+                                                                    type: 'success',
+                                                                    direction: 'top'
+                                                                });
+                                                                parentTarget.commentChildList.splice(parentTarget.commentChildList.findIndex(comment => comment.id === target.id), 1);
+                                                                parentTarget.commentNumber -= 1;
+                                                                if (parentTarget.commentNumber === 0) {
+                                                                    parentTarget.secondComment = null;
+                                                                }
+                                                            }).catch(err => {
+                                                                console.error(err);
+                                                                this.$refs.toast.show({
+                                                                    text: '删除失败',
+                                                                    type: 'error',
+                                                                    direction: 'top'
+                                                                });
+                                                            }).finally(() => {
+                                                                this.currentCommentType = 0;
+                                                                this.currentCommentInfo = {};
+                                                                this.rawInputValue = '';
+                                                                this.$forceUpdate();
+                                                            });
                                                             break;
                                                     }
                                                 }

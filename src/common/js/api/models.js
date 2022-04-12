@@ -284,15 +284,21 @@ export const like = (requestConfig) => apiRequest(`${httpBaseUrl}/like/${request
     requestConfig,
 });
 
-//发布动态评论
-export const postTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, {
-    method: "POST",
-    requestConfig,
-});
-
 //获取动态评论
 export const getTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, {
     method: "GET",
+    requestConfig,
+});
+
+//获取动态评论的二级评论
+export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam}/comment`, {
+    method: "GET",
+    requestConfig
+});
+
+//发布动态一级评论
+export const postTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, {
+    method: "POST",
     requestConfig,
 });
 
@@ -302,9 +308,15 @@ export const postTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseU
     requestConfig
 });
 
-//获取动态评论的二级评论
-export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam}/comment`, {
-    method: "GET",
+// 删除动态一级评论
+export const deleteTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}`, {
+    method: "DELETE",
+    requestConfig
+});
+
+// 删除动态二级评论
+export const deleteTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment/${requestConfig.urlParam.commentChildId}`, {
+    method: "DELETE",
     requestConfig
 });
 

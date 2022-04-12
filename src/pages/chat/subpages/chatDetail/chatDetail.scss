@@ -188,7 +188,9 @@
     .more-btn-container {
       width: fit-content;
       height: 100%;
-      display: inline;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       padding: 20rpx 0 20rpx 40rpx;
       float: left;
       font-size: 36rpx;
