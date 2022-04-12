@@ -123,7 +123,8 @@
             <view
               class="comment-child"
               v-for="commentChild in comment.commentChildList"
-              :key="commentChild.id">
+              :key="commentChild.id"
+              @click="handleCommentClick(comment, commentChild.scUserInfo)">
               <view class="user-info-container" @click.stop="gotoUserPage(commentChild.scUserInfo.id)">
                 <view class="avatar">
                   <image :src="commentChild.scUserInfo.avgPath" mode="aspectFill"/>
@@ -136,14 +137,16 @@
                 </view>
               </view>
               <view class="comment-content-container">
-                <span class="comment-parent-username">
-                  @{{ comment.userInfo.username }}
+                <span
+                  class="comment-parent-username"
+                  v-if="commentChild.toUserInfo">
+                  @{{ commentChild.toUserInfo.username }}
                 </span>
                 {{ commentChild.content || '' }}
               </view>
               <view
                 class="comment-btn-container"
-                @click="handleCommentLikeClick(null, null, commentChild)">
+                @click.stop="handleCommentLikeClick(null, null, commentChild)">
                 <i
                   class="fa-thumbs-up"
                   :class="commentChild.isLike ? 'fas liked' : 'far'"/>
@@ -484,23 +487,36 @@
                     }
                     else {
                         //当前评论类型为二级评论
+                        let queryData = {
+                            content: this.rawInputValue,
+                        };
+                        if (this.currentCommentInfo.toUserId !== null) {
+                            //当前为回复二级评论
+                            queryData.toUserId = this.currentCommentInfo.toUserId;
+                        }
                         postTrendSecondComment({
                             urlParam: {
                                 trendId: this.trendId,
                                 commentId: this.currentCommentInfo.id
                             },
-                            queryData: {
-                                content: this.rawInputValue,
-                            },
+                            queryData: queryData
                         }).then(res => {
                             this.$refs.toast.show({
                                 text: '评论成功',
                                 type: 'success',
                                 direction: 'top'
                             });
+                            console.log(res)
                             let comment = this.commentList.find(comment => comment.id === this.currentCommentInfo.id);
                             this.rawInputValue = '';
                             this.currentCommentType = 0;
+                            let toUserInfo = null;
+                            if (this.currentCommentInfo.toUserId !== null) {
+                                toUserInfo = {
+                                    id: this.currentCommentInfo.toUserId,
+                                    username: this.currentCommentInfo.userName
+                                }
+                            }
                             this.currentCommentInfo = {};
                             uni.getStorage({
                                 key: 'userInfo',
@@ -514,8 +530,10 @@
                                             id: userInfo.data.userId,
                                             username: userInfo.data.username,
                                             avgPath: userInfo.data.avgPath
-                                        }
+                                        },
+                                        toUserInfo: toUserInfo
                                     };
+                                    console.log(commentChild)
                                     if (comment.commentChildList === undefined) {
                                         comment.secondComment = commentChild;
                                         comment.commentChildList = [];
@@ -538,16 +556,30 @@
             },
             /**
              * 评论点击事件
-             * @param {Object} comment 一级评论
+             * @param {Object} comment 评论对象
+             * @param {Object|Null} replyUserInfo 回复二级评论时的目标用户（回复一级评论时为null）
              */
-            handleCommentClick(comment) {
-                this.rawInputValue = '';
-                this.currentCommentType = 1;
-                this.currentCommentInfo = {
-                    id: comment.id,
-                    userName: comment.userInfo.username
-                };
-                this.inputFocusStatus = true;
+            handleCommentClick(comment, replyUserInfo = null) {
+                if (!replyUserInfo) {
+                    this.rawInputValue = '';
+                    this.currentCommentType = 1;
+                    this.currentCommentInfo = {
+                        id: comment.id,
+                        userName: comment.userInfo.username,
+                        toUserId: null
+                    };
+                    this.inputFocusStatus = true;
+                }
+                else {
+                    this.rawInputValue = '';
+                    this.currentCommentType = 1;
+                    this.currentCommentInfo = {
+                        id: comment.id,
+                        userName: replyUserInfo.username,
+                        toUserId: replyUserInfo.id
+                    };
+                    this.inputFocusStatus = true;
+                }
             },
             /**
              * 评论点赞按钮点击事件
