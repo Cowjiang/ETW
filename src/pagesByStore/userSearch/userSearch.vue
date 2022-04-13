@@ -60,7 +60,9 @@
               {{ user.signature || '' }}
             </view>
           </view>
-          <view class="focus-btn">
+          <view
+            class="focus-btn"
+            v-if="userInfo.userId !== user.id">
             <view
               class="btn__default"
               :class="user.isFriend ? 'btn__friend' : ''"
@@ -270,6 +272,11 @@
                         }
                     });
                 }, 1000);
+            }
+        },
+        computed: {
+            userInfo() {
+                return this.$store.state.userInfo;
             }
         },
         watch: {

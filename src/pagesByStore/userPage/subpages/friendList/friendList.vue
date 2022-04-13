@@ -61,7 +61,9 @@
                   {{ user.signature || '' }}
                 </view>
               </view>
-              <view class="focus-btn">
+              <view
+                class="focus-btn"
+                v-if="user.id !== myUserId">
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
@@ -121,7 +123,9 @@
                   {{ user.signature || '' }}
                 </view>
               </view>
-              <view class="focus-btn">
+              <view
+                class="focus-btn"
+                v-if="user.friendId !== myUserId">
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
@@ -196,7 +200,9 @@
                   {{ user.signature || '' }}
                 </view>
               </view>
-              <view class="focus-btn">
+              <view
+                class="focus-btn"
+                v-if="user.userId !== myUserId">
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
@@ -667,6 +673,7 @@
             this.$refs.loading.startLoading();
             this.currentShowType = Number(this.utils.getCurrentPage().curParam.type) ?? 1;
             this.userId = this.utils.getCurrentPage().curParam.userId ?? null;
+            this.myUserId = this.$store.state.userInfo.userId ?? null;
             if (this.userId === 'undefined') {
                 this.$refs.toast.show({
                     text: '获取个人信息失败',

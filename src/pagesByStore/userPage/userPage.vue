@@ -64,7 +64,9 @@
                 粉丝
               </view>
             </view>
-            <view class="btn-group">
+            <view
+              class="btn-group"
+              v-if="!isMe">
               <view
                 class="focus-btn__default"
                 :class="isFocused ? 'focus-btn__focused' : ''"
@@ -608,6 +610,13 @@
                         return queryResult ? `${queryResult[0].replace('省', '')}${queryResult[1].replace('市', '')}` : null;
                     }
                     else return null;
+                }
+            },
+            // 是否为我的主页
+            isMe() {
+                const userInfo = this.$store.state.userInfo;
+                if (this.userInfo.hasOwnProperty('userId') && !!userInfo) {
+                    return userInfo.userId === this.userInfo.userId;
                 }
             }
         },

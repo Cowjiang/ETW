@@ -38,7 +38,9 @@
             </view>
             <view class="post-time">{{ trendDetail.createdTime | formatTime }}</view>
           </view>
-          <view class="focus-btn-container">
+          <view
+            class="focus-btn-container"
+            v-if="!isMyTrend">
             <view
               class="focus-btn__default"
               :class="isFriend ? 'focus-btn__focused' : ''"
@@ -884,6 +886,13 @@
             },
         },
         computed: {
+            // 是否是我发送的动态
+            isMyTrend() {
+                const userInfo = this.$store.state.userInfo;
+                if (this.trendDetail.hasOwnProperty('userInfo')) {
+                    return userInfo.userId === this.trendDetail.userInfo.id;
+                }
+            },
             // 是否显示评论输入提示
             showPlaceholder() {
                 return !this.isSendReady && !this.inputFocusStatus && this.currentCommentType === 0;
