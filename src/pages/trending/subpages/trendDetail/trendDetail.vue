@@ -539,7 +539,7 @@
                                         comment.secondComment = commentChild;
                                         comment.commentChildList = [];
                                     }
-                                    comment.commentChildList.unshift(commentChild);
+                                    comment.commentChildList.push(commentChild);
                                     comment.commentNumber += 1;
                                     comment.secondComment = {};
                                     this.$forceUpdate();
