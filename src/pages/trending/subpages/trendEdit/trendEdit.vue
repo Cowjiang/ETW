@@ -83,6 +83,7 @@
     import loading from '@/components/loading/loading';
     import uploadGroup from '@/components/uploadGroup/uploadGroup';
     import {postTrend} from "@/common/js/api/models";
+    import store from "@/common/js/store";
 
     export default {
         name: "trendEdit",
@@ -222,6 +223,13 @@
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
             this.getLocation();
+            if (!this.$store.state.userInfo) {
+                const currentPage = this.utils.getCurrentPage();
+                this.$store.commit('currentPageUrl', currentPage.curFullUrl);
+                uni.redirectTo({
+                    url: `/pages/login/wxLogin`
+                });
+            }
         }
     }
 </script>

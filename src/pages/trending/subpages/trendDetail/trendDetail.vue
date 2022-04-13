@@ -180,7 +180,7 @@
         <!-- 输入框左侧按钮容器 -->
         <view
           class="more-btn-container"
-          :style="{transform: `translateX(${inputFocusStatus ? '-220': '0'}rpx)`}">
+          :style="{transform: `translateX(${inputFocusStatus ? '-230': '0'}rpx)`}">
           <i
             class="fa-thumbs-up"
             :class="trendDetail.isLike ? 'fas liked' : 'far'"
@@ -240,13 +240,13 @@
               快来评论一下~
             </view>
           </view>
-          <!-- 输入框右侧发送按钮容器 -->
-          <view
-            class="send-btn-container"
-            @click="sendComment"
-            :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
-            <i class="fas fa-paper-plane"/>
-          </view>
+        </view>
+        <!-- 输入框右侧发送按钮容器 -->
+        <view
+          class="send-btn-container"
+          @click="sendComment"
+          :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
+          <i class="fas fa-paper-plane"/>
         </view>
       </view>
     </view>

@@ -131,11 +131,15 @@
             :style="{opacity: `${inputFocusStatus ? '1': '0'}`}"></i>
         </view>
         <!-- 输入框容器 -->
-        <view class="input-container">
+        <view
+          class="input-container"
+          :style="{
+            transform: `translateX(${inputFocusStatus ? '-90': '0'}rpx)`,
+          }">
           <view
             class="input-inner-container"
             @click="showRawInput"
-            :style="{width: `${inputFocusStatus ? 'calc(100vw - 200rpx)' : 'calc(100vw - 220rpx - 80rpx)'}`}">
+            :style="{width: `${inputFocusStatus ? 'calc(100vw - 210rpx)' : 'calc(100vw - 220rpx - 80rpx)'}`}">
             <input
               type="text"
               class="raw-input"
@@ -156,13 +160,15 @@
               {{ rawInputValue }}
             </view>
           </view>
-          <!-- 输入框右侧发送按钮容器 -->
-          <view
-            class="send-btn-container"
-            @click="sendMessage"
-            :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
-            <i class="fas fa-paper-plane"/>
-          </view>
+        </view>
+        <!-- 输入框右侧发送按钮容器 -->
+        <view
+          class="send-btn-container"
+          @click="sendMessage"
+          :style="{
+            opacity: `${isSendReady ? '1': '0.5'}`,
+          }">
+          <i class="fas fa-paper-plane"/>
         </view>
       </view>
     </view>
@@ -291,11 +297,6 @@
                         });
                         this.messageRecords = [];
                         this.messageRecords = recordsTemp;
-                        setTimeout(() => {
-                            uni.pageScrollTo({
-                                scrollTop: 999999999
-                            });
-                        }, 0);
                         this.recordsLength = res.data.total;
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
@@ -303,6 +304,11 @@
                         setTimeout(() => {
                             this.isReadyToShow = true;
                             this.$refs.loading.stopLoading();
+                            setTimeout(() => {
+                                uni.pageScrollTo({
+                                    scrollTop: 999999999
+                                });
+                            }, 0);
                         }, 500);
                     }
                     else {
