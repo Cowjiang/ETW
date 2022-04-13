@@ -64,17 +64,25 @@
                 粉丝
               </view>
             </view>
-            <view
-              class="btn-group"
-              v-if="!isMe">
+            <view class="btn-group">
               <view
                 class="focus-btn__default"
                 :class="isFocused ? 'focus-btn__focused' : ''"
+                v-if="!isMe"
                 @click="handleFocus">
                 {{ isFocused ? '已关注' : '关注' }}
               </view>
-              <view class="chat-btn" @click="gotoChatDetail">
+              <view
+                class="chat-btn"
+                @click="gotoChatDetail"
+                v-if="!isMe">
                 <i class="fas fa-comments"/>
+              </view>
+              <view
+                class="edit-profile-btn"
+                v-if="isMe"
+                @click="handleMenuBtnClick">
+                编辑资料
               </view>
             </view>
           </view>
@@ -128,7 +136,8 @@
               class="trend"
               v-for="trend in trendList"
               :key="trend.id"
-              @click="gotoTrendDetail(trend.id)">
+              @click="gotoTrendDetail(trend.id)"
+              @longpress="handleTrendLongPress(trend.id)">
               <view class="time-row">
                 <view class="title">
                   <i class="far fa-comment"/>
@@ -217,7 +226,7 @@
     import upload from "@/components/upload/upload";
     import {
         addFriend,
-        addToBlockList,
+        addToBlockList, deleteTrend,
         editMyProfile,
         getUploadSignature,
         getUserRelationships,
@@ -463,29 +472,62 @@
              */
             handleCoverImageClick(url) {
                 if (url) {
-                    if (Number(this.userId) === this.$store.state.userInfo.userId) {
-                        //当前登录用户
-                        uni.showActionSheet({
-                            itemList: ['查看大图', '修改封面图片'],
-                            success: res => {
-                                if (res.tapIndex === 0) {
-                                    this.previewImage(url);
-                                }
-                                else {
-                                    this.$refs.upload.selectFile();
-                                }
-                            }
-                        });
-                    }
-                    else {
-                        //不是当前登录用户
-                        this.previewImage(url);
-                    }
+                    this.previewImage(url);
                 }
                 else if (Number(this.userId) === this.$store.state.userInfo.userId) {
                     //当前登录用户
                     this.$refs.upload.selectFile();
                 }
+            },
+            /**
+             * 动态长按事件
+             * @param {Number} trendId 动态ID
+             */
+            handleTrendLongPress(trendId) {
+                if (Number(this.userId) === this.$store.state.userInfo.userId) {
+                    //当前登录用户
+                    uni.showActionSheet({
+                        itemList: ['删除动态'],
+                        itemColor: '#f4756b',
+                        success: res => {
+                            if (res.tapIndex === 0) {
+                                this.deleteTrend(trendId);
+                            }
+                        }
+                    });
+                }
+            },
+            /**
+             * 删除动态
+             * @param {Number} trendId 动态ID
+             */
+            deleteTrend(trendId) {
+                uni.showModal({
+                    title: '确定删除此动态吗？',
+                    success: res => {
+                        if (res.confirm) {
+                            deleteTrend({
+                                urlParam: {
+                                    trendId: trendId
+                                }
+                            }).then(() => {
+                                this.$refs.toast.show({
+                                    text: '删除成功',
+                                    type: 'success',
+                                    direction: 'top'
+                                });
+                                this.getUserTrendList();
+                            }).catch(err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: '删除失败',
+                                    type: 'error',
+                                    direction: 'top'
+                                });
+                            })
+                        }
+                    }
+                });
             },
             /**
              * 跳转动态详情页
