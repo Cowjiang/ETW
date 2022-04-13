@@ -163,7 +163,14 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {addToBlockList, deleteChatWithFriend, getMyChatList, removeFromBlockList} from "@/common/js/api/models.js";
+    import {
+        addToBlockList,
+        deleteChatWithFriend,
+        getChatHistory,
+        getMyChatList, getMyUnreadChatCount,
+        removeFromBlockList
+    } from "@/common/js/api/models.js";
+    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -189,9 +196,9 @@
              * 查询当前用户的聊天记录列表
              * @param {null|String} time 查询的时间戳，为空则查询第一页
              */
-            getChatList(time = null) {
+            async getChatList(time = null) {
                 const queryTime = time === null ? Date.now() + 60000 : time;
-                getMyChatList({
+                await getMyChatList({
                     queryData: {
                         time: queryTime,
                         pageSize: this.pageSize
@@ -259,6 +266,23 @@
                     this._freshing = false;
                     this.$forceUpdate();
                 });
+                getMyUnreadChatCount().then(res => {
+                    if (res.success) {
+                        this.$store.commit('unreadMessageCount', res.data);
+                        if (res.data > 0) {
+                            uni.setTabBarBadge({
+                                index: 2,
+                                text: res.data < 100 ? res.data.toString() : '99+'
+                            }); //设置底部导航栏消息页的未读上标
+                        }
+                        else {
+                            uni.removeTabBarBadge({
+                                index: 2
+                            });
+                        }
+                    }
+                }).catch(err => {
+                });
             },
             // 跳转聊天详情页
             toChatDetail(e) {
@@ -266,6 +290,9 @@
                 let chatMessagesTemp = this.chatMessages;
                 chatMessagesTemp[targetId].isRead = true;
                 this.$store.commit('chatMessages', chatMessagesTemp);
+                if (!chatMessagesTemp[targetId].isRead) {
+                    this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - chatMessagesTemp[targetId].unreadCount);
+                }
                 uni.removeTabBarBadge({
                     index: 2
                 });
@@ -278,7 +305,10 @@
                 uni.vibrateShort();
                 const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
-                    itemList: ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单'],
+                    itemList:
+                        this.chatMessages[targetId].isRead
+                            ? ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单']
+                            : ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单', '标为已读'],
                     success: res => {
                         if (res.tapIndex === 0) {
                             //用户点击删除记录
@@ -311,7 +341,7 @@
                                 }
                             });
                         }
-                        else {
+                        else if (res.tapIndex === 1) {
                             //用户点击加入黑名单
                             if (this.chatMessages[targetId].isBlocked) {
                                 removeFromBlockList({
@@ -349,6 +379,25 @@
                                     });
                                 });
                             }
+                        }
+                        else if (res.tapIndex === 2) {
+                            //标为已读
+                            getChatHistory({
+                                urlParam: `${this.chatMessages[targetId].senderId}?pageSize=${this.pageSize}&time=${Date.now()}`,
+                            }).then(() => {
+                                let chatMessagesTemp = this.chatMessages;
+                                chatMessagesTemp[targetId].isRead = true;
+                                this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - chatMessagesTemp[targetId].unreadCount);
+                                chatMessagesTemp[targetId].unreadCount = 0;
+                                this.$store.commit('chatMessages', chatMessagesTemp);
+                            }).catch(err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: '网络异常',
+                                    type: 'error',
+                                    direction: 'top'
+                                });
+                            })
                         }
                     }
                 });
@@ -496,13 +545,9 @@
                 isShowButton: false,
             });
             uni.onSocketMessage(res => {
+                this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
                 this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
             });
-            let totalCount = 0;
-            this.chatMessages.map(chat => {
-                totalCount += chat.isRead ? 0 : chat.unreadCount;
-            });
-            this.$store.commit('unreadMessageCount', totalCount);
         },
     }
 </script>

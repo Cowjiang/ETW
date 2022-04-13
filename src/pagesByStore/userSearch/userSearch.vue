@@ -62,7 +62,7 @@
           </view>
           <view
             class="focus-btn"
-            v-if="userInfo.userId !== user.id">
+            v-if="userInfo ? userInfo.userId !== user.id : true">
             <view
               class="btn__default"
               :class="user.isFriend ? 'btn__friend' : ''"

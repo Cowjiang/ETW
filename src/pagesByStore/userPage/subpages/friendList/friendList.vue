@@ -673,7 +673,7 @@
             this.$refs.loading.startLoading();
             this.currentShowType = Number(this.utils.getCurrentPage().curParam.type) ?? 1;
             this.userId = this.utils.getCurrentPage().curParam.userId ?? null;
-            this.myUserId = this.$store.state.userInfo.userId ?? null;
+            this.myUserId = this.$store.state.userInfo ? this.$store.state.userInfo.userId : null;
             if (this.userId === 'undefined') {
                 this.$refs.toast.show({
                     text: '获取个人信息失败',

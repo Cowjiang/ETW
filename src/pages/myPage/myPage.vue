@@ -308,6 +308,11 @@
                     this.getMyInfo();
                 }
             }
+            else {
+                uni.removeTabBarBadge({
+                    index: 2
+                });
+            }
         },
         onLoad() {
             this.$refs.navigationBar.setNavigation({

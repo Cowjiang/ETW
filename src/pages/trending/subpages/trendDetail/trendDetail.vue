@@ -445,116 +445,118 @@
             },
             // 发送评论
             sendComment() {
-                if (this.rawInputValue.replace(/\s*/g, "") !== '') {
-                    //评论内容不为空
-                    if (this.currentCommentType === 0) {
-                        //当前评论类型为动态评论
-                        postTrendComment({
-                            urlParam: this.trendId,
-                            queryData: {
-                                content: this.rawInputValue
-                            }
-                        }).then(res => {
-                            this.$refs.toast.show({
-                                text: '评论成功',
-                                type: 'success',
-                                direction: 'top'
-                            });
-                            this.rawInputValue = '';
-                            this.commentTotalCount += 1;
-                            uni.getStorage({
-                                key: 'userInfo',
-                                success: userInfo => {
-                                    this.commentList.unshift({
-                                        id: res.data.id,
-                                        content: res.data.content,
-                                        createdTime: res.data.createdTime,
-                                        likeNumber: 0,
-                                        commentNumber: 0,
-                                        userInfo: {
-                                            id: userInfo.data.userId,
-                                            username: userInfo.data.username,
-                                            avgPath: userInfo.data.avgPath
-                                        }
-                                    });
+                this.utils.throttle(() => {
+                    if (this.rawInputValue.replace(/\s*/g, "") !== '') {
+                        //评论内容不为空
+                        if (this.currentCommentType === 0) {
+                            //当前评论类型为动态评论
+                            postTrendComment({
+                                urlParam: this.trendId,
+                                queryData: {
+                                    content: this.rawInputValue
                                 }
-                            });
-                        }).catch(err => {
-                            console.error(err);
-                            this.$refs.toast.show({
-                                text: '评论发送失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
-                        });
-                    }
-                    else {
-                        //当前评论类型为二级评论
-                        let queryData = {
-                            content: this.rawInputValue,
-                        };
-                        if (this.currentCommentInfo.toUserId !== null) {
-                            //当前为回复二级评论
-                            queryData.toUserId = this.currentCommentInfo.toUserId;
-                        }
-                        postTrendSecondComment({
-                            urlParam: {
-                                trendId: this.trendId,
-                                commentId: this.currentCommentInfo.id
-                            },
-                            queryData: queryData
-                        }).then(res => {
-                            this.$refs.toast.show({
-                                text: '评论成功',
-                                type: 'success',
-                                direction: 'top'
-                            });
-                            let comment = this.commentList.find(comment => comment.id === this.currentCommentInfo.id);
-                            this.rawInputValue = '';
-                            this.currentCommentType = 0;
-                            let toUserInfo = null;
-                            if (this.currentCommentInfo.toUserId !== null) {
-                                toUserInfo = {
-                                    id: this.currentCommentInfo.toUserId,
-                                    username: this.currentCommentInfo.userName
-                                }
-                            }
-                            this.currentCommentInfo = {};
-                            uni.getStorage({
-                                key: 'userInfo',
-                                success: userInfo => {
-                                    const commentChild = {
-                                        id: res.data.id,
-                                        content: res.data.content,
-                                        createdTime: res.data.createdTime,
-                                        likeNumber: 0,
-                                        scUserInfo: {
-                                            id: userInfo.data.userId,
-                                            username: userInfo.data.username,
-                                            avgPath: userInfo.data.avgPath
-                                        },
-                                        toUserInfo: toUserInfo
-                                    };
-                                    if (comment.commentChildList === undefined) {
-                                        comment.secondComment = commentChild;
-                                        comment.commentChildList = [];
+                            }).then(res => {
+                                this.$refs.toast.show({
+                                    text: '评论成功',
+                                    type: 'success',
+                                    direction: 'top'
+                                });
+                                this.rawInputValue = '';
+                                this.commentTotalCount += 1;
+                                uni.getStorage({
+                                    key: 'userInfo',
+                                    success: userInfo => {
+                                        this.commentList.unshift({
+                                            id: res.data.id,
+                                            content: res.data.content,
+                                            createdTime: res.data.createdTime,
+                                            likeNumber: 0,
+                                            commentNumber: 0,
+                                            userInfo: {
+                                                id: userInfo.data.userId,
+                                                username: userInfo.data.username,
+                                                avgPath: userInfo.data.avgPath
+                                            }
+                                        });
                                     }
-                                    comment.commentChildList.push(commentChild);
-                                    comment.commentNumber += 1;
-                                    comment.secondComment = {};
-                                    this.$forceUpdate();
+                                });
+                            }).catch(err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: '评论发送失败',
+                                    type: 'error',
+                                    direction: 'top'
+                                });
+                            });
+                        }
+                        else {
+                            //当前评论类型为二级评论
+                            let queryData = {
+                                content: this.rawInputValue,
+                            };
+                            if (this.currentCommentInfo.toUserId !== null) {
+                                //当前为回复二级评论
+                                queryData.toUserId = this.currentCommentInfo.toUserId;
+                            }
+                            postTrendSecondComment({
+                                urlParam: {
+                                    trendId: this.trendId,
+                                    commentId: this.currentCommentInfo.id
+                                },
+                                queryData: queryData
+                            }).then(res => {
+                                this.$refs.toast.show({
+                                    text: '评论成功',
+                                    type: 'success',
+                                    direction: 'top'
+                                });
+                                let comment = this.commentList.find(comment => comment.id === this.currentCommentInfo.id);
+                                this.rawInputValue = '';
+                                this.currentCommentType = 0;
+                                let toUserInfo = null;
+                                if (this.currentCommentInfo.toUserId !== null) {
+                                    toUserInfo = {
+                                        id: this.currentCommentInfo.toUserId,
+                                        username: this.currentCommentInfo.userName
+                                    }
                                 }
+                                this.currentCommentInfo = {};
+                                uni.getStorage({
+                                    key: 'userInfo',
+                                    success: userInfo => {
+                                        const commentChild = {
+                                            id: res.data.id,
+                                            content: res.data.content,
+                                            createdTime: res.data.createdTime,
+                                            likeNumber: 0,
+                                            scUserInfo: {
+                                                id: userInfo.data.userId,
+                                                username: userInfo.data.username,
+                                                avgPath: userInfo.data.avgPath
+                                            },
+                                            toUserInfo: toUserInfo
+                                        };
+                                        if (comment.commentChildList === undefined) {
+                                            comment.secondComment = commentChild;
+                                            comment.commentChildList = [];
+                                        }
+                                        comment.commentChildList.push(commentChild);
+                                        comment.commentNumber += 1;
+                                        comment.secondComment = {};
+                                        this.$forceUpdate();
+                                    }
+                                });
+                            }).catch(err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: '评论发送失败',
+                                    type: 'error',
+                                    direction: 'top'
+                                });
                             });
-                        }).catch(err => {
-                            console.error(err);
-                            this.$refs.toast.show({
-                                text: '评论发送失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
-                        });
+                        }
                     }
-                }
+                }, 1000);
             },
             /**
              * 评论点击事件
@@ -889,7 +891,7 @@
             // 是否是我发送的动态
             isMyTrend() {
                 const userInfo = this.$store.state.userInfo;
-                if (this.trendDetail.hasOwnProperty('userInfo')) {
+                if (this.trendDetail.hasOwnProperty('userInfo') && !!userInfo) {
                     return userInfo.userId === this.trendDetail.userInfo.id;
                 }
             },

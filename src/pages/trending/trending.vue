@@ -635,10 +635,18 @@
                 }
             }
         },
+        onShow() {
+            if (!this.$store.state.userInfo) {
+                uni.removeTabBarBadge({
+                    index: 2
+                });
+            }
+        },
         onLoad() {
             this.windowWidth = this.$store.state.windowWidth;
             this.$refs.navigationBar.setNavigation({
                 isShowButton: false,
+                hideBadge: true,
                 backgroundColor: "rgba(255, 255, 255, 0.85)",
                 backgroundBlur: true
             });

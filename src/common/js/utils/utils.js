@@ -1,6 +1,6 @@
 import store from '@/common/js/store';
 import {closeSocket, connectSocket} from "@/common/js/api/socket";
-import {getMyUnreadChatCount, logOut} from "@/common/js/api/models";
+import {getMyChatList, getMyUnreadChatCount, logOut} from "@/common/js/api/models";
 
 export class Utils {
     constructor() {
@@ -129,11 +129,17 @@ export class Utils {
                             store.commit('unreadMessageCount', res.data);
                         }
                     }).catch(err => {});
+                    uni.getStorage({
+                        key: "chat",
+                        success: res => {
+                            store.commit('chatMessages', res.data);
+                        }
+                    });
                     uni.onSocketMessage(res => {
-                        console.log(res)
                         let chatMessages = store.state.chatMessages;
                         const data = JSON.parse(res.data);
                         if (data.errorCode === 120) {
+                            // 新私信
                             store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
                             const newMessage = data.data.messageInfo;
                             const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
@@ -170,6 +176,9 @@ export class Utils {
                                 });
                             }
                             store.commit('chatMessages', chatMessages);
+                        }
+                        else if (data.errorCode === 121) {
+                            console.log(data);
                         }
                     });
                     resolve();
@@ -227,6 +236,11 @@ export class Utils {
         await this.closeSocket();
         store.commit('userInfo', null);
         store.commit('shopkeeper', false);
+        store.commit('chatMessages', []);
+        store.commit('unreadMessageCount', 0);
+        uni.removeTabBarBadge({
+            index: 2
+        });
     }
 }
 

@@ -33,17 +33,13 @@
         align-items: center;
         text-align: center;
 
-        .navigation-back-image {
-          height: 100%;
-        }
-
         .fas {
           font-size: 40rpx;
           color: #000;
         }
       }
 
-      .navigation-home {
+      .navigation-menu {
         height: 100%;
         width: 100%;
         display: flex;
@@ -52,13 +48,28 @@
         text-align: center;
         border-left: 1rpx solid rgba(100, 100, 100, 0.1);
 
-        .navigation-home-image {
-          height: 100%;
+        .fas {
+          font-size: 34rpx;
+          color: #000;
         }
 
-        .fas {
-          font-size: 32rpx;
-          color: #000;
+        .badge-container {
+          width: 0;
+          height: 0;
+
+          .badge {
+            width: 30rpx;
+            height: 30rpx;
+            position: relative;
+            top: -28rpx;
+            left: -18rpx;
+            border-radius: 50%;
+            background-color: rgb(250, 81, 81);
+            color: #fff;
+            font-size: 20rpx;
+            text-align: center;
+            line-height: 30rpx;
+          }
         }
       }
     }

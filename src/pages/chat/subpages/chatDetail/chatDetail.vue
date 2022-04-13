@@ -265,7 +265,8 @@
                     this.$refs.navigationBar.setNavigation({
                         titleText: this.friendInfo.username,
                         backgroundColor: '#ffffff',
-                        customBackFunc: this.redirectToChatList
+                        customBackFunc: this.redirectToChatList,
+                        hideBadge: true
                     });
                 }).catch(error => {
                     console.error(error);
@@ -368,7 +369,15 @@
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
                         }
+                        setTimeout(() => {
+                            uni.pageScrollTo({
+                                scrollTop: 999999999
+                            });
+                        }, 0);
                         this.$forceUpdate();
+                    }
+                    else {
+                        this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
                     }
                 }
             },
