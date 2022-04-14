@@ -713,7 +713,7 @@
                         //动态
                         uni.vibrateShort();
                         uni.showActionSheet({
-                            itemList: isMe ? ['复制内容', '删除'] : ['复制内容', '举报'],
+                            itemList: isMe ? ['复制内容', '删除动态'] : ['复制内容', '举报'],
                             success: res => {
                                 if (res.tapIndex === 0) {
                                     uni.setClipboardData({

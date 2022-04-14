@@ -181,7 +181,8 @@
       :before-upload="beforeUpload"
       :max-size="10485760"
       :max-count="1"
-      :show-tips="false"
+      :show-tips="true"
+      :limitType="['png', 'jpg', 'jpeg']"
       @on-success="onUploadSuccess"
       @on-error="onUploadError"
       @on-oversize="onUploadOversize"/>
