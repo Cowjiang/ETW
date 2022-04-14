@@ -234,21 +234,28 @@
                     this.userSearchResult.find(user => {
                         if (user.id === uid) {
                             if (user.isFriend) {
-                                removeFriend({
-                                    urlParam: {
-                                        userId: user.id
+                                uni.showModal({
+                                    title: '确定取消关注吗？',
+                                    success: res => {
+                                        if (res.confirm) {
+                                            removeFriend({
+                                                urlParam: {
+                                                    userId: user.id
+                                                }
+                                            }).then(() => {
+                                                this.$refs.loading.stopLoading();
+                                                user.isFriend = false;
+                                            }).catch(err => {
+                                                this.$refs.loading.stopLoading();
+                                                console.error(err);
+                                                this.$refs.toast.show({
+                                                    text: '取消关注失败',
+                                                    type: 'error',
+                                                    direction: 'top'
+                                                });
+                                            });
+                                        }
                                     }
-                                }).then(() => {
-                                    this.$refs.loading.stopLoading();
-                                    user.isFriend = false;
-                                }).catch(err => {
-                                    this.$refs.loading.stopLoading();
-                                    console.error(err);
-                                    this.$refs.toast.show({
-                                        text: '取消关注失败',
-                                        type: 'error',
-                                        direction: 'top'
-                                    });
                                 });
                             }
                             else {

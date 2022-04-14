@@ -419,23 +419,30 @@
                             success: res => {
                                 if (res.confirm) {
                                     //已关注
-                                    removeFriend({
-                                        urlParam: {
-                                            userId: userId
+                                    uni.showModal({
+                                        title: '确定取消关注吗？',
+                                        success: res => {
+                                            if (res.confirm) {
+                                                removeFriend({
+                                                    urlParam: {
+                                                        userId: userId
+                                                    }
+                                                }).then(() => {
+                                                    user.isFriend = false;
+                                                }).catch(err => {
+                                                    console.error(err);
+                                                    this.$refs.toast.show({
+                                                        text: '取消关注失败',
+                                                        type: 'error',
+                                                        direction: 'top'
+                                                    });
+                                                }).finally(() => {
+                                                    this.getFocusList();
+                                                    this.getFansList();
+                                                    this.getRecommendUserList();
+                                                });
+                                            }
                                         }
-                                    }).then(() => {
-                                        user.isFriend = false;
-                                    }).catch(err => {
-                                        console.error(err);
-                                        this.$refs.toast.show({
-                                            text: '取消关注失败',
-                                            type: 'error',
-                                            direction: 'top'
-                                        });
-                                    }).finally(() => {
-                                        this.getFocusList();
-                                        this.getFansList();
-                                        this.getRecommendUserList();
                                     });
                                 }
                             }

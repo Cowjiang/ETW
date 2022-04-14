@@ -98,9 +98,11 @@
               v-if="trend.dynamicImages.length !== 0"
               :imageDataList="trend.dynamicImages"/>
           </view>
-          <view class="tags-container">
+          <view
+            class="tags-container"
+            @click="gotoTrendDetail(trend.id)">
             <view class="browse-count">
-<!--              浏览 {{ trend.browseNumber }}-->
+              <!-- 浏览 {{ trend.browseNumber }} -->
             </view>
             <view
               class="position-tag"

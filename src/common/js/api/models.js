@@ -321,6 +321,12 @@ export const deleteTrendSecondComment = (requestConfig) => apiRequest(`${httpBas
 });
 
 //私信相关
+//获取我的消息列表
+export const getMessageList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/event`, {
+    method: "GET",
+    requestConfig
+});
+
 //获取我的私信列表
 export const getMyChatList = (requestConfig) => apiRequest(`${httpBaseUrl}/chat/list`, {
     method: "GET",

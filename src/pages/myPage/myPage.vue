@@ -205,6 +205,7 @@
             }
         },
         methods: {
+            // 获取我的信息
             getMyInfo() {
                 if (this.userInfo) {
                     const getUserInfoPromise = new Promise((resolve, reject) => {
@@ -215,6 +216,10 @@
                             }
                         }).then(res => {
                             this.userDetailInfo = res.data;
+                            let userInfo = this.userInfo;
+                            userInfo.username = res.data.username;
+                            userInfo.avgPath = res.data.avgPath;
+                            this.$store.commit('userInfo', userInfo);
                             resolve();
                         }).catch(err => {
                             reject(err);
@@ -281,11 +286,13 @@
             },
         },
         computed: {
+            // 我的个人信息
             userInfo: {
                 get() {
                     return this.$store.state.userInfo;
                 }
             },
+            // 是否为商家
             shopkeeper: {
                 get() {
                     return this.$store.state.shopkeeper;

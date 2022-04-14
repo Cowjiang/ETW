@@ -27,51 +27,67 @@
           <view
             class="btn-container first-btn"
             :data-name="`btn0`"
+            @click="handleMessageBtnClick(0)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
             :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
-              <view class="btn-icon"></view>
+              <view class="btn-icon like">
+                <i class="fas fa-heart"/>
+              </view>
               <view
                 class="btn-unread"
-                v-if="!btnMessageIsRead[0]"
-              ></view>
+                v-if="btnMessageUnreadCount[0] !== 0">
+                {{ btnMessageUnreadCount[0] > 99 ? '99+' : btnMessageUnreadCount[0] }}
+              </view>
             </view>
             <view class="btn-title">赞</view>
           </view>
           <view
             class="btn-container second-btn"
             :data-name="`btn1`"
+            @click="handleMessageBtnClick(1)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
             :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
-              <view class="btn-icon"></view>
+              <view class="btn-icon comment">
+                <i class="fas fa-comment"/>
+              </view>
               <view
                 class="btn-unread"
-                v-if="!btnMessageIsRead[1]"
-              ></view>
+                v-if="btnMessageUnreadCount[1] !== 0">
+                {{ btnMessageUnreadCount[31] > 99 ? '99+' : btnMessageUnreadCount[1] }}
+              </view>
             </view>
             <view class="btn-title">回复我的</view>
           </view>
           <view
             class="btn-container third-btn"
             :data-name="`btn2`"
+            @click="handleMessageBtnClick(2)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
             :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
-              <view class="btn-icon"></view>
-              <view class="btn-unread" v-if="!btnMessageIsRead[2]"></view>
+              <view class="btn-icon fans">
+                <i class="fas fa-user-group"/>
+              </view>
+              <view
+                class="btn-unread"
+                v-if="btnMessageUnreadCount[2] !== 0">
+                {{ btnMessageUnreadCount[2] > 99 ? '99+' : btnMessageUnreadCount[2] }}
+              </view>
             </view>
-            <view class="btn-title">关注</view>
+            <view class="btn-title">新增关注</view>
           </view>
           <view
             class="btn-container fourth-btn"
             :data-name="`btn3`"
+            @click="handleMessageBtnClick(3)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
@@ -81,8 +97,14 @@
               @touchstart="handleTouchStart"
               @touchend="handleTouchEnd"
               @touchcancel="handleTouchEnd">
-              <view class="btn-icon"></view>
-              <view class="btn-unread" v-if="!btnMessageIsRead[3]"></view>
+              <view class="btn-icon notice">
+                <i class="fas fa-bell"/>
+              </view>
+              <view
+                class="btn-unread"
+                v-if="btnMessageUnreadCount[3] !== 0">
+                {{ btnMessageUnreadCount[3] > 99 ? '99+' : btnMessageUnreadCount[3] }}
+              </view>
             </view>
             <view class="btn-title">通知消息</view>
           </view>
@@ -90,7 +112,7 @@
         <!-- 聊天记录列表容器 -->
         <view
           class="main-list-container"
-          :style="{minHeight: `${windowHeight - navigationHeight}px`}">
+          :style="{minHeight: `${windowHeight - navigationHeight - 100}px`}">
           <view
             class="message-container"
             v-for="(message, index) in chatMessages"
@@ -181,14 +203,14 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                btnMessageIsRead: [true, true, false, true],
+                btnMessageUnreadCount: [0, 1, 99, 100],
                 pageSize: 15, //请求聊天记录每页数据的数量
                 // chatMessages: [], //聊天列表信息数组
                 messageTouchingId: '', //当前触摸元素的id
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 loadingMore: false, //正在加载更多消息
                 existMore: true, //是否存在更多消息记录
-                showTopBtnArea: false, //是否显示顶部按钮区域
+                showTopBtnArea: true, //是否显示顶部按钮区域
             }
         },
         methods: {
@@ -283,6 +305,19 @@
                     }
                 }).catch(err => {
                 });
+            },
+            /**
+             * 顶部消息按钮点击事件
+             * @param {Number} index 按钮序号
+             */
+            handleMessageBtnClick(index) {
+                this.utils.throttle(() => {
+                    this.$refs.toast.show({
+                        text: "不给你看",
+                        type: "success",
+                        direction: "top"
+                    });
+                }, 1000);
             },
             // 跳转聊天详情页
             toChatDetail(e) {

@@ -226,7 +226,7 @@
                         res.eventChannel.emit("orderInfo", {
                             orderId: orderId,
                         });
-                    },
+                    }
                 });
             },
             /**
