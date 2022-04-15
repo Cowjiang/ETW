@@ -203,7 +203,7 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                btnMessageUnreadCount: [0, 1, 99, 100],
+                btnMessageUnreadCount: [0, 0, 0, 0],
                 pageSize: 15, //请求聊天记录每页数据的数量
                 // chatMessages: [], //聊天列表信息数组
                 messageTouchingId: '', //当前触摸元素的id
@@ -312,10 +312,9 @@
              */
             handleMessageBtnClick(index) {
                 this.utils.throttle(() => {
-                    this.$refs.toast.show({
-                        text: "不给你看",
-                        type: "success",
-                        direction: "top"
+                    const url = ['likeList/likeList', 'commentList/commentList', 'fansList/fansList', 'noticeList/noticeList'];
+                    uni.navigateTo({
+                        url: `/pagesByStore/messageList/${url[index]}`
                     });
                 }, 1000);
             },

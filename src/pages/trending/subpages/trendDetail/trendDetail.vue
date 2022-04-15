@@ -919,6 +919,12 @@
         async onLoad() {
             this.$refs.loading.startLoading();
             if ((this.trendId = this.utils.getCurrentPage().curParam.id || null) !== null) {
+                try {
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.on("eventInfo", async data => {
+                        console.log(data);
+                    });
+                } catch (e) {}
                 await this.getTrendDetail();
                 await this.getTrendComment();
                 this.readyToShow = true;

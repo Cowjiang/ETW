@@ -213,6 +213,38 @@
                     }
                 },
                 {
+                    "path": "messageList/likeList/likeList",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "messageList/commentList/commentList",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "messageList/fansList/fansList",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "messageList/noticeList/noticeList",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
                     "path": "home/home",
                     "style": {
                         "navigationBarTitleText": "",

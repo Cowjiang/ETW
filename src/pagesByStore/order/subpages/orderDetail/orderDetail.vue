@@ -330,21 +330,17 @@
              * @return {String} 订单按钮文字
              */
             showBtnText(statusCode) {
-                switch (statusCode) {
-                    case 0:
-                    case 2:
-                    case 3:
-                    case 6:
-                        return '再来一单';
-                    case 1:
-                        return '立即支付';
-                    case 4:
-                    case 5:
-                    case 7:
-                        return '联系店家';
-                    default:
-                        return '联系客服';
-                }
+                const btnText = {
+                    0: '再来一单',
+                    1: '立即支付',
+                    2: '再来一单',
+                    3: '再来一单',
+                    4: '联系店家',
+                    5: '联系店家',
+                    6: '再来一单',
+                    7: '联系店家',
+                };
+                return btnText[statusCode] ?? '联系客服';
             },
         },
         filters: {
@@ -354,26 +350,17 @@
              * @return {String} 订单状态
              */
             showOrderStatus(statusCode) {
-                switch (statusCode) {
-                    case 0:
-                        return '订单已创建';
-                    case 1:
-                        return '等待支付';
-                    case 2:
-                        return '订单已付款';
-                    case 3:
-                        return '订单已完成';
-                    case 4:
-                        return '申请取消中';
-                    case 5:
-                        return '申请退款中';
-                    case 9:
-                        return '订单已取消';
-                    case 10:
-                        return '订单已退款';
-                    default:
-                        return '订单异常';
-                }
+                const statusList = {
+                    0: '订单已创建',
+                    1: '等待支付',
+                    2: '订单已付款',
+                    3: '订单已完成',
+                    4: '申请取消中',
+                    5: '申请退款中',
+                    9: '订单已取消',
+                    10: '订单已退款'
+                };
+                return statusList[statusCode] ?? '订单异常';
             },
             /**
              * 显示订单状态说明
@@ -381,26 +368,17 @@
              * @return {String} 订单状态说明
              */
             showStatusDescription(statusCode) {
-                switch (statusCode) {
-                    case 0:
-                        return '商家正在确认中';
-                    case 1:
-                        return '请您尽快完成订单支付';
-                    case 2:
-                        return '商家正在加急为您准备商品';
-                    case 3:
-                        return '感谢您的光临';
-                    case 4:
-                        return '请等待商家进行处理';
-                    case 5:
-                        return '请等待商家确认退款申请';
-                    case 9:
-                        return '订单已取消';
-                    case 10:
-                        return '钱款将原路返回到您的钱包';
-                    default:
-                        return '';
-                }
+                const statusDescription = {
+                    0: '商家正在确认中',
+                    1: '请您尽快完成订单支付',
+                    2: '商家正在加急为您准备商品',
+                    3: '感谢您的光临',
+                    4: '请等待商家进行处理',
+                    5: '请等待商家确认退款申请',
+                    9: '订单已取消',
+                    10: '钱款将原路返回到您的钱包'
+                };
+                return statusDescription[statusCode] ?? '';
             },
             /**
              * 格式化商品描述显示
