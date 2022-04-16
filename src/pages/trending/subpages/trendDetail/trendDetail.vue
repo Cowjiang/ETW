@@ -86,6 +86,7 @@
           class="comment-item-container"
           v-for="comment in commentList"
           :key="comment.id"
+          :id="`comment${comment.id}`"
           @click="handleCommentClick(comment)">
           <view class="user-info">
             <view class="avatar-container" @click.stop="gotoUserPage(comment.userId)">
@@ -94,6 +95,11 @@
             <view class="user-container">
               <view class="username" @click.stop="gotoUserPage(comment.userId)">{{ comment.userInfo.username }}</view>
               <view class="post-time">{{ comment.createdTime | formatTime }}</view>
+            </view>
+            <view
+              class="current-comment-container"
+              v-if="currentTopCommentId === comment.id">
+              当前评论
             </view>
           </view>
           <view class="content-container">
@@ -260,7 +266,7 @@
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
         addFriend,
-        deleteTrend, deleteTrendComment, deleteTrendSecondComment,
+        deleteTrend, deleteTrendComment, deleteTrendSecondComment, getOneTrendComment, getOneTrendSecondComment,
         getTrendComment,
         getTrendDetail,
         getTrendSecondComment,
@@ -285,6 +291,7 @@
                 isFriend: false, //与动态作者是否为好友
                 trendId: '', //动态ID
                 trendDetail: {}, //动态详情信息
+                currentTopCommentId: null, //当前置顶的评论id
                 commentList: [], //评论列表
                 commentTotalCount: 0, //评论总数
                 commentPageSize: 10, //评论的分页大小
@@ -304,8 +311,8 @@
         },
         methods: {
             // 获取动态详情数据
-            getTrendDetail() {
-                getTrendDetail({
+            async getTrendDetail() {
+                await getTrendDetail({
                     urlParam: {
                         trendId: this.trendId
                     }
@@ -322,8 +329,8 @@
                 });
             },
             // 获取动态评论
-            getTrendComment() {
-                getTrendComment({
+            async getTrendComment() {
+                await getTrendComment({
                     urlParam: this.trendId,
                     queryData: {
                         pageNumber: this.currentCommentPage,
@@ -401,6 +408,62 @@
                 }).catch(err => {
                     console.error(err);
                 });
+            },
+            /**
+             * 获取置顶的评论（用于显示点赞/回复的跳转高亮显示）
+             * @param {Object} eventInfo 触发高亮显示的事件信息（从页面跳转传入）
+             */
+            getTopComment(eventInfo) {
+                if (eventInfo.eventType === 1) {
+                    //事件类型为点赞
+                    if (eventInfo.targetType === 3) {
+                        //点赞一级评论
+                        getOneTrendComment({
+                            urlParam: {
+                                trendId: this.trendId,
+                                commentId: eventInfo.targetId
+                            }
+                        }).then(res => {
+                            this.currentTopCommentId = res.data.id;
+                            this.commentList = this.commentList.filter(comment => comment.id !== res.data.id);
+                            res.data.commentChildList = [];
+                            res.data.commentChildList.push(res.data.secondComment);
+                            res.data.currentCommentChildPage = 0;
+                            res.data.existMoreCommentChild = true;
+                            this.commentList.unshift(res.data);
+                            setTimeout(() => {
+                                uni.pageScrollTo({
+                                    selector: `.tags-container`
+                                });
+                            }, 500);
+                        }).catch(err => {
+                            console.error(err);
+                        });
+                    }
+                    else if (eventInfo.targetType === 4) {
+                        //点赞二级评论
+                        getOneTrendSecondComment({
+                            urlParam: {
+                                secondCommentId: eventInfo.targetId
+                            }
+                        }).then(res => {
+                            this.currentTopCommentId = res.data.id;
+                            this.commentList = this.commentList.filter(comment => comment.id !== res.data.id);
+                            res.data.commentChildList = [];
+                            res.data.commentChildList.push(res.data.secondComment);
+                            res.data.currentCommentChildPage = 0;
+                            res.data.existMoreCommentChild = true;
+                            this.commentList.unshift(res.data);
+                            setTimeout(() => {
+                                uni.pageScrollTo({
+                                    selector: `.tags-container`
+                                });
+                            }, 500);
+                        }).catch(err => {
+                            console.error(err);
+                        });
+                    }
+                }
             },
             // 在地图中显示位置
             showOnMap() {
@@ -919,14 +982,14 @@
         async onLoad() {
             this.$refs.loading.startLoading();
             if ((this.trendId = this.utils.getCurrentPage().curParam.id || null) !== null) {
+                await this.getTrendDetail();
+                await this.getTrendComment();
                 try {
                     const eventChannel = this.getOpenerEventChannel();
                     eventChannel.on("eventInfo", async data => {
-                        console.log(data);
+                        this.getTopComment(data);
                     });
                 } catch (e) {}
-                await this.getTrendDetail();
-                await this.getTrendComment();
                 this.readyToShow = true;
                 setTimeout(() => {
                     this.$refs.loading.stopLoading();

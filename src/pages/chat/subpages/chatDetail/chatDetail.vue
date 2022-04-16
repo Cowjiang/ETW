@@ -846,7 +846,14 @@
             await this.getUserRelationships();
             this.startCheckingUpdate();
             uni.onSocketMessage(res => {
-                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                const data = JSON.parse(res.data);
+                if (data.errorCode === 120) {
+                    //私信消息
+                    this.receiveNewMessage(data); //监听到Socket新消息
+                }
+                else if (data.errorCode === 121) {
+                    //通知消息
+                }
             });
         },
         beforeDestroy() {

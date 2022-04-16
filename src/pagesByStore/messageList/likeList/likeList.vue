@@ -94,12 +94,14 @@
                         pageSize: 15
                     }
                 }).then(res => {
-                    console.log(res.data)
                     if (res.data.records.length) {
                         //查询到动态记录
                         console.log(res.data)
                         this.likeList = page === 1 ? res.data.records : [...this.likeList, ...res.data.records];
                         this.currentPage += 1;
+                        if (res.data.records.length < 15) {
+                            this.existMore = false;
+                        }
                     }
                     else {
                         this.existMore = false;
@@ -138,9 +140,16 @@
                     });
                 }
                 else if (likeEvent.targetType === 4) {
-                    //点击二级评论
+                    //点赞二级评论
                     uni.navigateTo({
-                        url: `/pages/trending/subpages/trendDetail/trendDetail?id=${likeEvent.sourceId}`
+                        url: `/pages/trending/subpages/trendDetail/trendDetail?id=${likeEvent.sourceId}`,
+                        success: res => {
+                            res.eventChannel.emit('eventInfo', {
+                                eventType: 1, //点赞
+                                targetType: 4, //点赞二级评论，
+                                targetId: likeEvent.targetId //点赞的二级评论ID
+                            });
+                        }
                     });
                 }
             },

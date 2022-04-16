@@ -290,7 +290,14 @@ export const getTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dyn
     requestConfig,
 });
 
-export const getSingleTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/{targetType}/{targetId}/comment/{commentId}`, {
+//根据动态id和评论id获取一条动态的一级评论
+export const getOneTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}`, {
+    method: "GET",
+    requestConfig
+});
+
+//根据二级评论id获取一条动态的二级评论
+export const  getOneTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/comment/${requestConfig.urlParam.secondCommentId}`, {
     method: "GET",
     requestConfig
 });

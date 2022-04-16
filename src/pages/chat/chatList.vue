@@ -579,8 +579,15 @@
                 isShowButton: false,
             });
             uni.onSocketMessage(res => {
-                this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
-                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                const data = JSON.parse(res.data);
+                if (data.errorCode === 120) {
+                    //私信消息
+                    this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
+                    this.receiveNewMessage(data); //监听到Socket新消息
+                }
+                else if (data.errorCode === 121) {
+                    //通知消息
+                }
             });
         },
     }
