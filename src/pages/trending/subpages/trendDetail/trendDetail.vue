@@ -414,7 +414,7 @@
              * @param {Object} eventInfo 触发高亮显示的事件信息（从页面跳转传入）
              */
             getTopComment(eventInfo) {
-                if (eventInfo.eventType === 1) {
+                if (eventInfo.eventType === 1 || eventInfo.eventType === 2) {
                     //事件类型为点赞
                     if (eventInfo.targetType === 3) {
                         //点赞一级评论
