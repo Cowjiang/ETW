@@ -67,7 +67,7 @@
         </view>
         <view class="tags-container">
           <view class="like-number">
-            点赞 {{ trendDetail.likeNumber }}
+            点赞 {{ trendDetail.likeNumber || 0 }}
           </view>
           <view
             class="position-tag"

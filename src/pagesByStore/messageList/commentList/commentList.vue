@@ -42,7 +42,7 @@
           </view>
           <view
             class="image"
-            v-if="comment.eventImgUrl && comment.targetType === 2">
+            v-if="comment.eventImgUrl && comment.targetType === 3">
             <image
               class="like-image"
               :src="comment.eventImgUrl"
