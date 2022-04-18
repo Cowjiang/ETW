@@ -58,6 +58,7 @@
     .cover-image {
       width: 100vw;
       height: 30vh;
+      background-color: #ddd;
     }
 
     .cover-mask {
@@ -104,6 +105,7 @@
             width: 180rpx;
             height: 180rpx;
             border-radius: 50%;
+            background-color: #f1f1f1;
           }
         }
 
@@ -163,6 +165,17 @@
             color: #f4756b;
             background-color: #f1f1f1;
           }
+
+          .edit-profile-btn {
+            height: 60rpx;
+            padding: 0 30rpx;
+            border-radius: 50rpx;
+            font-size: 28rpx;
+            line-height: 60rpx;
+            text-align: center;
+            color: #555;
+            background: #f1f1f1;
+          }
         }
 
         .username {
@@ -194,8 +207,15 @@
           }
         }
 
+        .description {
+          margin-top: 10rpx;
+          font-size: 28rpx;
+          color: #444;
+          word-break: break-all;
+        }
+
         .area-name {
-          margin-top: 14rpx;
+          margin-top: 20rpx;
           border-radius: 30rpx;
           font-size: 24rpx;
           color: #888;

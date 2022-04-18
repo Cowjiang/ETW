@@ -226,7 +226,7 @@
                         res.eventChannel.emit("orderInfo", {
                             orderId: orderId,
                         });
-                    },
+                    }
                 });
             },
             /**
@@ -299,26 +299,17 @@
              * @return {String} 订单状态
              */
             showOrderStatus(statusCode) {
-                switch (statusCode) {
-                    case 0:
-                        return '订单已创建';
-                    case 1:
-                        return '等待支付';
-                    case 2:
-                        return '订单已付款';
-                    case 3:
-                        return '订单已完成';
-                    case 4:
-                        return '申请取消中';
-                    case 5:
-                        return '申请退款中';
-                    case 9:
-                        return '订单已取消';
-                    case 10:
-                        return '订单已退款';
-                    default:
-                        return '订单异常';
-                }
+                const statusList = {
+                    0: '订单已创建',
+                    1: '等待支付',
+                    2: '订单已付款',
+                    3: '订单已完成',
+                    4: '申请取消中',
+                    5: '申请退款中',
+                    9: '订单已取消',
+                    10: '订单已退款'
+                };
+                return statusList[statusCode] ?? '订单异常';
             },
         },
         onReachBottom() {

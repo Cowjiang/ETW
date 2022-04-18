@@ -98,9 +98,11 @@
               v-if="trend.dynamicImages.length !== 0"
               :imageDataList="trend.dynamicImages"/>
           </view>
-          <view class="tags-container">
+          <view
+            class="tags-container"
+            @click="gotoTrendDetail(trend.id)">
             <view class="browse-count">
-              浏览 {{ trend.browseNumber }}
+              <!-- 浏览 {{ trend.browseNumber }} -->
             </view>
             <view
               class="position-tag"
@@ -174,7 +176,7 @@
         </view>
         <view class="tags-container">
           <view class="browse-count">
-            浏览 {{ trend.browseNumber }}
+<!--            浏览 {{ trend.browseNumber }}-->
           </view>
           <view
             class="position-tag"
@@ -240,6 +242,7 @@
         getRecommendUserList,
         like
     } from "@/common/js/api/models.js";
+    import {onShow} from "@dcloudio/uni-mp-vue";
 
     export default {
         components: {
@@ -293,6 +296,9 @@
                             //当前查询的结果数量不为0
                             this.focusTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
+                                trend.dynamicImages.forEach(image => {
+                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                });
                                 this.focusTrendList.push(trend);
                             });
                             this.focusTrendListPageNumber += 1;
@@ -335,6 +341,9 @@
                             //当前查询的结果数量不为0
                             this.mainTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
+                                trend.dynamicImages.forEach(image => {
+                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                });
                                 this.mainTrendList.push(trend);
                             });
                             this.mainTrendListPageNumber += 1;
@@ -468,12 +477,11 @@
             gotoTrendEdit() {
                 uni.navigateTo({
                     url: "/pages/trending/subpages/trendEdit/trendEdit",
-                });
-            },
-            // 返回主页
-            gotoHomePage() {
-                uni.redirectTo({
-                    url: `/pages/index/index`
+                    events: {
+                        onSent: () => {
+                            this.getTrendData(this.currentTrendType);
+                        }
+                    }
                 });
             },
             /**
@@ -484,6 +492,11 @@
                 if (trendId) {
                     uni.navigateTo({
                         url: `/pages/trending/subpages/trendDetail/trendDetail?id=${trendId}`,
+                        events: {
+                            onUpdated: () => {
+                                this.getTrendData(this.currentTrendType);
+                            }
+                        }
                     });
                 }
             },
@@ -578,7 +591,7 @@
                         }
                     }
                 });
-            }
+            },
         },
         // 页面滑动触底事件
         onReachBottom() {
@@ -630,15 +643,23 @@
                 }
             }
         },
+        onShow() {
+            if (!this.$store.state.userInfo) {
+                uni.removeTabBarBadge({
+                    index: 2
+                });
+            }
+        },
         onLoad() {
             this.windowWidth = this.$store.state.windowWidth;
             this.$refs.navigationBar.setNavigation({
                 isShowButton: false,
+                hideBadge: true,
                 backgroundColor: "rgba(255, 255, 255, 0.85)",
                 backgroundBlur: true
             });
             this.getTrendData(this.currentTrendType);
-        },
+        }
     };
 </script>
 

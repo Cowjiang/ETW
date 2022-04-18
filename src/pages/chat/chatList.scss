@@ -23,29 +23,55 @@
         text-align: center;
 
         .btn-icon-container {
-          width: 80rpx;
-          height: 80rpx;
+          width: 90rpx;
+          height: 90rpx;
           margin: 0 auto 20rpx;
           pointer-events: none;
 
           .btn-icon {
             width: 100%;
             height: 100%;
-            background-color: deepskyblue;
-            border-radius: 150rpx;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            border-radius: 150%;
+            font-size: 42rpx;
+          }
+
+          .like {
+            color: #f4756b;
+            background-color: #fff1f0;
+          }
+
+          .comment {
+            color: #02d0a1;
+            background-color: #edfcf8;
+          }
+
+          .fans {
+            color: #649cfd;
+            background-color: #ebf1ff;
+          }
+
+          .notice {
+            color: #fda304;
+            background-color: #fdf7eb;
           }
 
           .btn-unread {
-            width: 25rpx;
-            height: 25rpx;
+            width: fit-content;
+            min-width: 32rpx;
+            height: 32rpx;
+            padding: 0 8rpx;
             position: relative;
-            top: -80rpx;
-            left: 55rpx;
+            top: -100rpx;
+            left: 60rpx;
             background-color: #f35b56;
             color: #fff;
+            line-height: 32rpx;
             text-align: center;
             font-size: 22rpx;
-            line-height: 40rpx;
             border-radius: 150rpx;
           }
         }
@@ -85,20 +111,21 @@
             width: 90rpx;
             height: 90rpx;
             border-radius: 150rpx;
-            //background-color: orange;
+            background-color: #f6f6f6;
             overflow: hidden;
 
             image {
               width: 100%;
+              height: 100%;
             }
           }
         }
 
         .content-container {
+          margin: auto 0;
           flex: 1;
           overflow: hidden;
           white-space: nowrap;
-          margin: auto 0;
           pointer-events: none;
 
           .sender-name {
@@ -106,19 +133,19 @@
             flex-direction: row;
 
             .name {
+              max-width: calc(100% - 110rpx);
               font-size: 32rpx;
               line-height: 50rpx;
               color: #333;
               text-overflow: ellipsis;
               overflow: hidden;
-              max-width: calc(100% - 110rpx);
             }
 
             .blacklist-user {
-              position: relative;
-              top: 12rpx;
               width: fit-content;
               height: 28rpx;
+              position: relative;
+              top: 12rpx;
               margin-left: 15rpx;
               padding: 0 10rpx;
               font-size: 20rpx;
@@ -183,8 +210,8 @@
       }
 
       .load-more {
-        height: fit-content;
         width: 100%;
+        height: fit-content;
         margin-top: 30rpx;
         padding-bottom: 70rpx;
         background-color: #fff;
@@ -214,10 +241,10 @@
 
         .row {
           width: 100%;
+          padding: 8rpx 0;
           display: flex;
           flex-direction: row;
           justify-content: center;
-          padding: 8rpx 0;
           font-size: 26rpx;
           color: #888;
         }

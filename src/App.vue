@@ -19,19 +19,19 @@
                 return this.$store.state.unreadMessageCount;
             },
             // 私信消息列表中的未读消息总数（计算）
-            chatMessagesTotalUnread: {
-                get() {
-                    const chatMessages = this.$store.state.chatMessages;
-                    if (this.$store.state.chatMessages.length) {
-                        let totalCount = 0;
-                        chatMessages.map(chat => {
-                            totalCount += chat.isRead ? 0 : chat.unreadCount;
-                        });
-                        return totalCount;
-                    }
-                    else return 0;
-                }
-            },
+            // chatMessagesTotalUnread: {
+            //     get() {
+            //         const chatMessages = this.$store.state.chatMessages;
+            //         if (this.$store.state.chatMessages.length) {
+            //             let totalCount = 0;
+            //             chatMessages.map(chat => {
+            //                 totalCount += chat.isRead ? 0 : chat.unreadCount;
+            //             });
+            //             return totalCount;
+            //         }
+            //         else return 0;
+            //     }
+            // },
             // 是否为商家
             shopkeeper: {
                 get() {
@@ -53,9 +53,9 @@
                     });
                 }
             },
-            chatMessagesTotalUnread(nval) {
-                store.commit('unreadMessageCount', nval);
-            },
+            // chatMessagesTotalUnread(nval) {
+                // this.$store.commit('unreadMessageCount', nval);
+            // },
             shopkeeper(nval) {
                 uni.setStorage({
                     key: "shopkeeper",
@@ -63,20 +63,25 @@
                 });
             }
         },
-        async mounted() {
+        mounted() {
             const navigationHeight = this.utils.getNavigationHeight(); //获取导航栏高度
             const systemInfo = uni.getSystemInfoSync(); //获取系统信息
+            this.$store.commit('userInfo', uni.getStorageSync('userInfo'));
+            this.$store.commit('shopkeeper', uni.getStorageSync('shopkeeper') ?? false);
             this.$store.commit('navigationHeight', navigationHeight);
             this.$store.commit('windowWidth', systemInfo.windowWidth);
             this.$store.commit('windowHeight', systemInfo.windowHeight);
-            this.$store.commit('userInfo', uni.getStorageSync('userInfo'));
-            this.$store.commit('shopkeeper', uni.getStorageSync('shopkeeper') ?? false);
+            setTimeout(() => {
+                const systemInfo = uni.getSystemInfoSync(); //获取系统信息
+                this.$store.commit('windowWidth', systemInfo.windowWidth);
+                this.$store.commit('windowHeight', systemInfo.windowHeight);
+            }, 1000);
         },
         async onShow() {
-            await this.utils.connectSocket();
+            // await this.utils.connectSocket();
         },
         async onHide() {
-            await this.utils.closeSocket();
+            // await this.utils.closeSocket();
         }
     };
 </script>

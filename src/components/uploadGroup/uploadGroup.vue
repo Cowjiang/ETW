@@ -9,6 +9,7 @@
       :max-size="5242880"
       :max-count="maxImageCount"
       :size-type="sizeType"
+      :limitType="['png', 'jpg', 'jpeg']"
       @on-choose-complete="onChooseComplete"
       @on-success="onUploadSuccess"
       @on-uploaded="onUploaded"

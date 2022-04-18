@@ -31,11 +31,12 @@
         <image
           class="cover-image"
           :src="userInfo.coverUrl"
+          @click.stop="handleCoverImageClick(userInfo.coverUrl)"
           mode="aspectFill"/>
         <view
           class="cover-mask"
           v-if="userInfo.coverUrl"
-          @click="handleCoverImageClick(userInfo.coverUrl)"></view>
+          @click.stop="handleCoverImageClick(userInfo.coverUrl)"></view>
       </view>
       <view class="content-container">
         <view class="user-info-container">
@@ -67,11 +68,21 @@
               <view
                 class="focus-btn__default"
                 :class="isFocused ? 'focus-btn__focused' : ''"
+                v-if="!isMe"
                 @click="handleFocus">
                 {{ isFocused ? '已关注' : '关注' }}
               </view>
-              <view class="chat-btn" @click="gotoChatDetail">
+              <view
+                class="chat-btn"
+                @click="gotoChatDetail"
+                v-if="!isMe">
                 <i class="fas fa-comments"/>
+              </view>
+              <view
+                class="edit-profile-btn"
+                v-if="isMe"
+                @click="handleMenuBtnClick">
+                编辑资料
               </view>
             </view>
           </view>
@@ -90,6 +101,13 @@
                 v-if="gender === 2">
                 <i class="fa-solid fa-venus"/>
               </view>
+            </view>
+          </view>
+          <view class="user-info__row">
+            <view
+              v-if="userInfo.signature"
+              class="description">
+              {{ userInfo.signature }}
             </view>
           </view>
           <view class="user-info__row">
@@ -125,7 +143,8 @@
               class="trend"
               v-for="trend in trendList"
               :key="trend.id"
-              @click="gotoTrendDetail(trend.id)">
+              @click="gotoTrendDetail(trend.id)"
+              @longpress="handleTrendLongPress(trend.id)">
               <view class="time-row">
                 <view class="title">
                   <i class="far fa-comment"/>
@@ -162,7 +181,7 @@
                       </view>
                     </view>
                   </view>
-                  <view class="content-info">
+                  <view class="content-info" v-if="trend.stat === 1">
                     <text>
                       {{ trend.likeNumber }}人点赞
                     </text>
@@ -170,13 +189,21 @@
                       {{ trend.commentNumber }}条评论
                     </text>
                   </view>
+                  <view class="content-info" v-else>
+                    <text :style="{color: trend.stat === -1 ? '#f4756b' : '#999'}">
+                      {{ trend.stat === 0 ? '正在审核中' : '审核不通过' }}
+                    </text>
+                  </view>
                 </view>
               </view>
             </view>
-            <view class="no-more" v-if="trendList.length">
+            <view class="no-more" v-if="trendList.length && !existMoreTrend">
               <text>没有更多了哦 ~</text>
             </view>
-            <view class="no-result" v-else-if="!trendList.length">
+            <view class="no-more" v-if="trendList.length && existMoreTrend">
+              <text>下拉加载更多</text>
+            </view>
+            <view class="no-result" v-else-if="!trendList.length && !existMoreTrend">
               <text>一条动态也没有哦 ~</text>
             </view>
           </view>
@@ -199,7 +226,8 @@
       :before-upload="beforeUpload"
       :max-size="10485760"
       :max-count="1"
-      :show-tips="false"
+      :show-tips="true"
+      :limitType="['png', 'jpg', 'jpeg']"
       @on-success="onUploadSuccess"
       @on-error="onUploadError"
       @on-oversize="onUploadOversize"/>
@@ -214,7 +242,7 @@
     import upload from "@/components/upload/upload";
     import {
         addFriend,
-        addToBlockList,
+        addToBlockList, deleteTrend,
         editMyProfile,
         getUploadSignature,
         getUserRelationships,
@@ -242,6 +270,8 @@
                 isFocused: false, //是否已关注
                 currentTab: 0, //当前显示的标签栏序号
                 trendList: [], //用户的动态列表
+                currentTrendPage: 0, //当前动态列表的分页页码
+                existMoreTrend: true, //是否存在更多动态
                 coverVisible: true, //封面图片是否可见
                 action: '', //图片上传Url
                 fileList: [], //发送图片的队列
@@ -277,26 +307,42 @@
                             reject(err);
                         });
                     });
-                    await Promise.all([getUserSimpleInfoPromise, getUserRelationshipsPromise]).then(res => {
+                    await Promise.all([getUserSimpleInfoPromise, getUserRelationshipsPromise]).then(() => {
                         setTimeout(() => {
                             this.$refs.loading.stopLoading();
                         }, 300);
                     }).catch(error => {
-                        console.error()
+                        console.error(error);
                     });
                 }
             },
             // 获取用户的动态列表
-            async getUserTrendList() {
+            async getUserTrendList(page = 1) {
                 if (!!this.userId) {
                     await getUserTrendList({
                         urlParam: {
                             userId: this.userId,
+                        },
+                        queryData: {
+                            pageNumber: page,
+                            pageSize: 6
                         }
                     }).then(res => {
-                        this.trendList = res.data.records;
+                        if (res.data.records.length) {
+                            //查询到动态记录
+                            this.trendList = page === 1 ? res.data.records : [...this.trendList, ...res.data.records];
+                            this.currentTrendPage += 1;
+                        }
+                        else {
+                            this.existMoreTrend = false;
+                        }
                     }).catch(error => {
                         console.error(error);
+                        this.$refs.toast.show({
+                            text: '获取动态失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
                     });
                 }
             },
@@ -309,10 +355,10 @@
                 uni.navigateBack({
                     fail: () => {
                         uni.switchTab({
-                            url: `/pages/index/index`,
+                            url: `/pages/trending/trending`,
                             fail: () => {
                                 uni.redirectTo({
-                                    url: `/pages/index/index`,
+                                    url: `/pages/trending/trending`,
                                     fail: err => {
                                         console.error(err);
                                     }
@@ -336,19 +382,26 @@
                 this.utils.throttle(async () => {
                     if (this.isFocused) {
                         //已关注
-                        await removeFriend({
-                            urlParam: {
-                                userId: this.userInfo.userId
+                        uni.showModal({
+                            title: '确定取消关注吗？',
+                            success: res => {
+                                if (res.confirm) {
+                                    removeFriend({
+                                        urlParam: {
+                                            userId: this.userInfo.userId
+                                        }
+                                    }).then(() => {
+                                        this.isFocused = false;
+                                    }).catch(err => {
+                                        console.error(err);
+                                        this.$refs.toast.show({
+                                            text: '取消关注失败',
+                                            type: 'error',
+                                            direction: 'top'
+                                        });
+                                    });
+                                }
                             }
-                        }).then(() => {
-                            this.isFocused = false;
-                        }).catch(err => {
-                            console.error(err);
-                            this.$refs.toast.show({
-                                text: '取消关注失败',
-                                type: 'error',
-                                direction: 'top'
-                            });
                         });
                     }
                     else {
@@ -409,47 +462,117 @@
             },
             // 导航栏菜单按钮点击事件
             handleMenuBtnClick() {
-                uni.showActionSheet({
-                    itemList: [`${this.isBlocked ? '移出黑名单' : '加入黑名单'}`, '举报'],
-                    success: res => {
-                        if (res.tapIndex === 0) {
-                            //黑名单操作
-                            this.handleBlock();
-                        }
-                        else if (res.tapIndex === 1) {
-                            //举报操作
-                            this.$refs.toast.show({
-                                text: '举报成功',
-                                type: 'success',
-                                direction: 'top'
-                            });
-                        }
+                this.utils.throttle(() => {
+                    if (Number(this.userId) === this.$store.state.userInfo.userId) {
+                        //当前登录用户
+                        uni.showActionSheet({
+                            itemList: ['更换封面图片', '修改我的资料', '退出登录'],
+                            success: async res => {
+                                if (res.tapIndex === 0) {
+                                    //更换封面图片
+                                    this.$refs.upload.selectFile();
+                                }
+                                else if (res.tapIndex === 1) {
+                                    //修改我的资料
+                                    uni.navigateTo({
+                                        url: '/pagesByStore/myUserProfile/myUserProfile'
+                                    });
+                                }
+                                else if (res.tapIndex === 2) {
+                                    //退出登录
+                                    await this.utils.logout();
+                                    uni.switchTab({
+                                        url: '/pages/myPage/myPage'
+                                    });
+                                }
+                            }
+                        });
                     }
-                });
+                    else {
+                        uni.showActionSheet({
+                            itemList: [`${this.isBlocked ? '移出黑名单' : '加入黑名单'}`, '举报'],
+                            success: res => {
+                                if (res.tapIndex === 0) {
+                                    //黑名单操作
+                                    this.handleBlock();
+                                }
+                                else if (res.tapIndex === 1) {
+                                    //举报操作
+                                    this.$refs.toast.show({
+                                        text: '举报成功',
+                                        type: 'success',
+                                        direction: 'top'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }, 500);
             },
             /**
              * 封面图片点击事件
              * @param {String} url 封面图片URL
              */
             handleCoverImageClick(url) {
-                if (this.userId === this.$store.state.userInfo.userId) {
+                this.utils.throttle(() => {
+                    if (url) {
+                        this.previewImage(url);
+                    }
+                    else if (Number(this.userId) === this.$store.state.userInfo.userId) {
+                        //当前登录用户
+                        this.$refs.upload.selectFile();
+                    }
+                }, 500);
+            },
+            /**
+             * 动态长按事件
+             * @param {Number} trendId 动态ID
+             */
+            handleTrendLongPress(trendId) {
+                if (Number(this.userId) === this.$store.state.userInfo.userId) {
                     //当前登录用户
                     uni.showActionSheet({
-                        itemList: ['查看大图', '修改封面图片'],
+                        itemList: ['删除动态'],
+                        itemColor: '#f4756b',
                         success: res => {
                             if (res.tapIndex === 0) {
-                                this.previewImage(url);
-                            }
-                            else {
-                                this.$refs.upload.selectFile();
+                                this.deleteTrend(trendId);
                             }
                         }
-                    })
+                    });
                 }
-                else {
-                    //不是当前登录用户
-                    this.previewImage(url);
-                }
+            },
+            /**
+             * 删除动态
+             * @param {Number} trendId 动态ID
+             */
+            deleteTrend(trendId) {
+                uni.showModal({
+                    title: '确定删除此动态吗？',
+                    success: res => {
+                        if (res.confirm) {
+                            deleteTrend({
+                                urlParam: {
+                                    trendId: trendId
+                                }
+                            }).then(() => {
+                                this.$refs.toast.show({
+                                    text: '删除成功',
+                                    type: 'success',
+                                    direction: 'top'
+                                });
+                                this.getUserTrendList();
+                            }).catch(err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: '删除失败',
+                                    type: 'error',
+                                    direction: 'top'
+                                });
+                            })
+                        }
+                    }
+                });
             },
             /**
              * 跳转动态详情页
@@ -575,6 +698,13 @@
                     }
                     else return null;
                 }
+            },
+            // 是否为我的主页
+            isMe() {
+                const userInfo = this.$store.state.userInfo;
+                if (this.userInfo.hasOwnProperty('userId') && !!userInfo) {
+                    return userInfo.userId === this.userInfo.userId;
+                }
             }
         },
         onPageScroll(e) {
@@ -592,6 +722,14 @@
                 });
             }
         },
+        onReachBottom() {
+            if (this.currentTab === 0) {
+                //当前显示的tab是动态列表
+                if (this.existMoreTrend) {
+                    this.getUserTrendList(this.currentTrendPage + 1);
+                }
+            }
+        },
         async onLoad() {
             this.$refs.loading.startLoading();
             this.userId = this.utils.getCurrentPage().curParam.userId || null;
@@ -604,24 +742,26 @@
                 return;
             }
             if (!this.userId) {
-                if (!(this.userId = uni.getStorageSync('userInfo').userId || null)) {
-                    uni.getStorage({
-                        key: 'userInfo',
-                        success: res => {
-                            this.userId = res.data.userId;
-                        },
-                        fail: () => {
-                            const currentPage = this.utils.getCurrentPage();
-                            this.$store.commit('currentPageUrl', currentPage.curFullUrl);
-                            uni.redirectTo({
-                                url: `/pages/login/wxLogin`
-                            });
-                        }
-                    });
-                }
+                await uni.getStorage({
+                    key: 'userInfo',
+                    success: async res => {
+                        this.userId = res.data.userId.toString();
+                        await this.getUserInfo();
+                        await this.getUserTrendList();
+                    },
+                    fail: () => {
+                        const currentPage = this.utils.getCurrentPage();
+                        this.$store.commit('currentPageUrl', currentPage.curFullUrl);
+                        uni.redirectTo({
+                            url: `/pages/login/wxLogin`
+                        });
+                    }
+                });
             }
-            await this.getUserInfo();
-            await this.getUserTrendList();
+            else {
+                await this.getUserInfo();
+                await this.getUserTrendList();
+            }
         },
         mounted() {
             this.windowWidth = this.$store.state.windowWidth;

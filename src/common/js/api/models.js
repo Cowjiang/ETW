@@ -284,21 +284,21 @@ export const like = (requestConfig) => apiRequest(`${httpBaseUrl}/like/${request
     requestConfig,
 });
 
-//发布动态评论
-export const postTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, {
-    method: "POST",
-    requestConfig,
-});
-
 //获取动态评论
 export const getTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, {
     method: "GET",
     requestConfig,
 });
 
-//在动态评论下回复二级评论
-export const postTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, {
-    method: "POST",
+//根据动态id和评论id获取一条动态的一级评论
+export const getOneTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}`, {
+    method: "GET",
+    requestConfig
+});
+
+//根据二级评论id获取一条动态的二级评论
+export const  getOneTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/comment/${requestConfig.urlParam.secondCommentId}`, {
+    method: "GET",
     requestConfig
 });
 
@@ -308,7 +308,37 @@ export const getTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUr
     requestConfig
 });
 
+//发布动态一级评论
+export const postTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam}/comment`, {
+    method: "POST",
+    requestConfig,
+});
+
+//在动态评论下回复二级评论
+export const postTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment`, {
+    method: "POST",
+    requestConfig
+});
+
+// 删除动态一级评论
+export const deleteTrendComment = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/${requestConfig.urlParam.trendId}/comment/${requestConfig.urlParam.commentId}`, {
+    method: "DELETE",
+    requestConfig
+});
+
+// 删除动态二级评论
+export const deleteTrendSecondComment = (requestConfig) => apiRequest(`${httpBaseUrl}/comment/${requestConfig.urlParam.commentId}/comment/${requestConfig.urlParam.commentChildId}`, {
+    method: "DELETE",
+    requestConfig
+});
+
 //私信相关
+//获取我的消息列表
+export const getMessageList = (requestConfig) => apiRequest(`${httpBaseUrl}/user/event`, {
+    method: "GET",
+    requestConfig
+});
+
 //获取我的私信列表
 export const getMyChatList = (requestConfig) => apiRequest(`${httpBaseUrl}/chat/list`, {
     method: "GET",

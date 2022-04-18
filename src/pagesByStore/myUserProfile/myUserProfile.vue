@@ -98,6 +98,23 @@
         </view>
         <view class="profile-row">
           <view class="row-title">
+            个人简介
+          </view>
+          <view class="row-content">
+            <view class="content">
+              <input
+                type="text"
+                v-model="userProfile.signature"
+                maxlength="40"
+                @focus="descriptionTemp = userProfile.signature"
+                @blur="handleDescriptionChange"
+                @confirm="handleDescriptionChange">
+            </view>
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view class="profile-row">
+          <view class="row-title">
             地区
           </view>
           <view
@@ -164,7 +181,8 @@
       :before-upload="beforeUpload"
       :max-size="10485760"
       :max-count="1"
-      :show-tips="false"
+      :show-tips="true"
+      :limitType="['png', 'jpg', 'jpeg']"
       @on-success="onUploadSuccess"
       @on-error="onUploadError"
       @on-oversize="onUploadOversize"/>
@@ -193,6 +211,7 @@
                 avatarUploadUrl: '', //头像上传URL
                 usernameTemp: '', //用户名输入前的缓存
                 realNameTemp: '', //真实姓名输入前的缓存
+                descriptionTemp: '', //个人简介输入前的缓存
                 showGenderSelector: false, //是否显示性别选择器
                 showBirthdaySelector: false, //是否显示生日日期选择器
                 showAreaSelector: false, //是否显示地区选择器
@@ -270,6 +289,20 @@
                         birthday: `${birthday.year}-${birthday.month}-${birthday.day}`
                     }).then(() => {
                         this.$set(this.userProfile, 'birthday', `${birthday.year}-${birthday.month}-${birthday.day}`);
+                    });
+                }
+            },
+            /**
+             * 个人简介输入更改事件
+             * @param {Object} e 输入的个人简介信息
+             */
+            handleDescriptionChange(e) {
+                if (e.detail.value !== this.descriptionTemp) {
+                    this.submitChange({
+                        userId: this.userProfile.userId,
+                        signature: e.detail.value
+                    }).then(() => {
+                        this.$set(this.userProfile, 'signature', e.detail.value);
                     });
                 }
             },
@@ -353,7 +386,6 @@
                             getUploadSignature({urlParam: 'avatar'}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
-                                console.log(this.action);
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
                                 this.$refs.upload.formData = {
                                     key: key,

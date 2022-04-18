@@ -61,7 +61,9 @@
                   {{ user.signature || '' }}
                 </view>
               </view>
-              <view class="focus-btn">
+              <view
+                class="focus-btn"
+                v-if="user.id !== myUserId">
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
@@ -121,7 +123,9 @@
                   {{ user.signature || '' }}
                 </view>
               </view>
-              <view class="focus-btn">
+              <view
+                class="focus-btn"
+                v-if="user.friendId !== myUserId">
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
@@ -196,7 +200,9 @@
                   {{ user.signature || '' }}
                 </view>
               </view>
-              <view class="focus-btn">
+              <view
+                class="focus-btn"
+                v-if="user.userId !== myUserId">
                 <view
                   class="btn__default"
                   :class="user.isFriend ? 'btn__friend' : ''"
@@ -413,23 +419,30 @@
                             success: res => {
                                 if (res.confirm) {
                                     //已关注
-                                    removeFriend({
-                                        urlParam: {
-                                            userId: userId
+                                    uni.showModal({
+                                        title: '确定取消关注吗？',
+                                        success: res => {
+                                            if (res.confirm) {
+                                                removeFriend({
+                                                    urlParam: {
+                                                        userId: userId
+                                                    }
+                                                }).then(() => {
+                                                    user.isFriend = false;
+                                                }).catch(err => {
+                                                    console.error(err);
+                                                    this.$refs.toast.show({
+                                                        text: '取消关注失败',
+                                                        type: 'error',
+                                                        direction: 'top'
+                                                    });
+                                                }).finally(() => {
+                                                    this.getFocusList();
+                                                    this.getFansList();
+                                                    this.getRecommendUserList();
+                                                });
+                                            }
                                         }
-                                    }).then(() => {
-                                        user.isFriend = false;
-                                    }).catch(err => {
-                                        console.error(err);
-                                        this.$refs.toast.show({
-                                            text: '取消关注失败',
-                                            type: 'error',
-                                            direction: 'top'
-                                        });
-                                    }).finally(() => {
-                                        this.getFocusList();
-                                        this.getFansList();
-                                        this.getRecommendUserList();
                                     });
                                 }
                             }
@@ -667,6 +680,7 @@
             this.$refs.loading.startLoading();
             this.currentShowType = Number(this.utils.getCurrentPage().curParam.type) ?? 1;
             this.userId = this.utils.getCurrentPage().curParam.userId ?? null;
+            this.myUserId = this.$store.state.userInfo ? this.$store.state.userInfo.userId : null;
             if (this.userId === 'undefined') {
                 this.$refs.toast.show({
                     text: '获取个人信息失败',
@@ -680,7 +694,7 @@
                     uni.getStorage({
                         key: 'userInfo',
                         success: res => {
-                            this.userId = res.data.userId;
+                            this.userId = res.data.userId.toString();
                         },
                         fail: () => {
                             const currentPage = this.utils.getCurrentPage();

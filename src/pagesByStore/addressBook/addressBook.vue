@@ -271,6 +271,7 @@
                                 uni.showModal({
                                     title: '',
                                     content: '删除地址后将无法恢复，确定删除？',
+                                    confirmColor: '#f4756b',
                                     success: res => {
                                         if (res.confirm) {
                                             //确定删除地址

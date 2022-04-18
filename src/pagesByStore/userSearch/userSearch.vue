@@ -60,7 +60,9 @@
               {{ user.signature || '' }}
             </view>
           </view>
-          <view class="focus-btn">
+          <view
+            class="focus-btn"
+            v-if="userInfo ? userInfo.userId !== user.id : true">
             <view
               class="btn__default"
               :class="user.isFriend ? 'btn__friend' : ''"
@@ -187,8 +189,13 @@
                 this.utils.throttle(() => {
                     uni.navigateBack({
                         fail: () => {
-                            uni.redirectTo({
-                                url: '/pages/index/index'
+                            uni.switchTab({
+                                url: '/pages/trending/trending',
+                                fail: () => {
+                                    uni.redirectTo({
+                                        url: '/pages/trending/trending'
+                                    });
+                                }
                             });
                         }
                     });
@@ -227,21 +234,28 @@
                     this.userSearchResult.find(user => {
                         if (user.id === uid) {
                             if (user.isFriend) {
-                                removeFriend({
-                                    urlParam: {
-                                        userId: user.id
+                                uni.showModal({
+                                    title: '确定取消关注吗？',
+                                    success: res => {
+                                        if (res.confirm) {
+                                            removeFriend({
+                                                urlParam: {
+                                                    userId: user.id
+                                                }
+                                            }).then(() => {
+                                                this.$refs.loading.stopLoading();
+                                                user.isFriend = false;
+                                            }).catch(err => {
+                                                this.$refs.loading.stopLoading();
+                                                console.error(err);
+                                                this.$refs.toast.show({
+                                                    text: '取消关注失败',
+                                                    type: 'error',
+                                                    direction: 'top'
+                                                });
+                                            });
+                                        }
                                     }
-                                }).then(() => {
-                                    this.$refs.loading.stopLoading();
-                                    user.isFriend = false;
-                                }).catch(err => {
-                                    this.$refs.loading.stopLoading();
-                                    console.error(err);
-                                    this.$refs.toast.show({
-                                        text: '取消关注失败',
-                                        type: 'error',
-                                        direction: 'top'
-                                    });
                                 });
                             }
                             else {
@@ -265,6 +279,11 @@
                         }
                     });
                 }, 1000);
+            }
+        },
+        computed: {
+            userInfo() {
+                return this.$store.state.userInfo;
             }
         },
         watch: {

@@ -27,51 +27,67 @@
           <view
             class="btn-container first-btn"
             :data-name="`btn0`"
+            @click="handleMessageBtnClick(0)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
             :style="{filter: `${messageTouchingId === 'btn0' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
-              <view class="btn-icon"></view>
+              <view class="btn-icon like">
+                <i class="fas fa-heart"/>
+              </view>
               <view
                 class="btn-unread"
-                v-if="!btnMessageIsRead[0]"
-              ></view>
+                v-if="btnMessageUnreadCount[0] !== 0">
+                {{ btnMessageUnreadCount[0] > 99 ? '99+' : btnMessageUnreadCount[0] }}
+              </view>
             </view>
             <view class="btn-title">赞</view>
           </view>
           <view
             class="btn-container second-btn"
             :data-name="`btn1`"
+            @click="handleMessageBtnClick(1)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
             :style="{filter: `${messageTouchingId === 'btn1' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
-              <view class="btn-icon"></view>
+              <view class="btn-icon comment">
+                <i class="fas fa-comment"/>
+              </view>
               <view
                 class="btn-unread"
-                v-if="!btnMessageIsRead[1]"
-              ></view>
+                v-if="btnMessageUnreadCount[1] !== 0">
+                {{ btnMessageUnreadCount[31] > 99 ? '99+' : btnMessageUnreadCount[1] }}
+              </view>
             </view>
             <view class="btn-title">回复我的</view>
           </view>
           <view
             class="btn-container third-btn"
             :data-name="`btn2`"
+            @click="handleMessageBtnClick(2)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
             :style="{filter: `${messageTouchingId === 'btn2' ? 'brightness(90%)' : 'brightness(100%)'}`}">
             <view class="btn-icon-container">
-              <view class="btn-icon"></view>
-              <view class="btn-unread" v-if="!btnMessageIsRead[2]"></view>
+              <view class="btn-icon fans">
+                <i class="fas fa-user-group"/>
+              </view>
+              <view
+                class="btn-unread"
+                v-if="btnMessageUnreadCount[2] !== 0">
+                {{ btnMessageUnreadCount[2] > 99 ? '99+' : btnMessageUnreadCount[2] }}
+              </view>
             </view>
-            <view class="btn-title">关注</view>
+            <view class="btn-title">新增关注</view>
           </view>
           <view
             class="btn-container fourth-btn"
             :data-name="`btn3`"
+            @click="handleMessageBtnClick(3)"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
             @touchcancel="handleTouchEnd"
@@ -81,8 +97,14 @@
               @touchstart="handleTouchStart"
               @touchend="handleTouchEnd"
               @touchcancel="handleTouchEnd">
-              <view class="btn-icon"></view>
-              <view class="btn-unread" v-if="!btnMessageIsRead[3]"></view>
+              <view class="btn-icon notice">
+                <i class="fas fa-bell"/>
+              </view>
+              <view
+                class="btn-unread"
+                v-if="btnMessageUnreadCount[3] !== 0">
+                {{ btnMessageUnreadCount[3] > 99 ? '99+' : btnMessageUnreadCount[3] }}
+              </view>
             </view>
             <view class="btn-title">通知消息</view>
           </view>
@@ -90,7 +112,7 @@
         <!-- 聊天记录列表容器 -->
         <view
           class="main-list-container"
-          :style="{minHeight: `${windowHeight - navigationHeight}px`}">
+          :style="{minHeight: `${windowHeight - navigationHeight - 100}px`}">
           <view
             class="message-container"
             v-for="(message, index) in chatMessages"
@@ -104,7 +126,7 @@
             @touchcancel="handleTouchEnd">
             <view class="avatar-container">
               <view class="avatar">
-                <image :src="message.senderAvatar" mode="widthFix"></image>
+                <image :src="message.senderAvatar" mode="aspectFill"></image>
               </view>
             </view>
             <view class="content-container">
@@ -163,7 +185,14 @@
     import toast from "@/components/toast/toast";
     import navigationBar from "@/components/navigationBar/navigationBar";
     import loading from "@/components/loading/loading";
-    import {addToBlockList, deleteChatWithFriend, getMyChatList, removeFromBlockList} from "@/common/js/api/models.js";
+    import {
+        addToBlockList,
+        deleteChatWithFriend,
+        getChatHistory,
+        getMyChatList, getMyUnreadChatCount,
+        removeFromBlockList
+    } from "@/common/js/api/models.js";
+    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -174,14 +203,14 @@
                 windowWidth: 0, //窗口宽度
                 windowHeight: 0, //窗口高度
                 navigationHeight: 0, //导航栏高度
-                btnMessageIsRead: [true, true, false, true],
+                btnMessageUnreadCount: [0, 0, 0, 0],
                 pageSize: 15, //请求聊天记录每页数据的数量
                 // chatMessages: [], //聊天列表信息数组
                 messageTouchingId: '', //当前触摸元素的id
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 loadingMore: false, //正在加载更多消息
                 existMore: true, //是否存在更多消息记录
-                showTopBtnArea: false, //是否显示顶部按钮区域
+                showTopBtnArea: true, //是否显示顶部按钮区域
             }
         },
         methods: {
@@ -189,9 +218,9 @@
              * 查询当前用户的聊天记录列表
              * @param {null|String} time 查询的时间戳，为空则查询第一页
              */
-            getChatList(time = null) {
-                let queryTime = time === null ? Date.now() : time;
-                getMyChatList({
+            async getChatList(time = null) {
+                const queryTime = time === null ? Date.now() + 60000 : time;
+                await getMyChatList({
                     queryData: {
                         time: queryTime,
                         pageSize: this.pageSize
@@ -259,6 +288,35 @@
                     this._freshing = false;
                     this.$forceUpdate();
                 });
+                getMyUnreadChatCount().then(res => {
+                    if (res.success) {
+                        this.$store.commit('unreadMessageCount', res.data);
+                        if (res.data > 0) {
+                            uni.setTabBarBadge({
+                                index: 2,
+                                text: res.data < 100 ? res.data.toString() : '99+'
+                            }); //设置底部导航栏消息页的未读上标
+                        }
+                        else {
+                            uni.removeTabBarBadge({
+                                index: 2
+                            });
+                        }
+                    }
+                }).catch(err => {
+                });
+            },
+            /**
+             * 顶部消息按钮点击事件
+             * @param {Number} index 按钮序号
+             */
+            handleMessageBtnClick(index) {
+                this.utils.throttle(() => {
+                    const url = ['likeList/likeList', 'commentList/commentList', 'fansList/fansList', 'noticeList/noticeList'];
+                    uni.navigateTo({
+                        url: `/pagesByStore/messageList/${url[index]}`
+                    });
+                }, 1000);
             },
             // 跳转聊天详情页
             toChatDetail(e) {
@@ -266,6 +324,9 @@
                 let chatMessagesTemp = this.chatMessages;
                 chatMessagesTemp[targetId].isRead = true;
                 this.$store.commit('chatMessages', chatMessagesTemp);
+                if (!chatMessagesTemp[targetId].isRead) {
+                    this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - chatMessagesTemp[targetId].unreadCount);
+                }
                 uni.removeTabBarBadge({
                     index: 2
                 });
@@ -278,13 +339,17 @@
                 uni.vibrateShort();
                 const targetId = parseInt(e.target.dataset.name.replace('message', ''));
                 uni.showActionSheet({
-                    itemList: ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单'],
+                    itemList:
+                        this.chatMessages[targetId].isRead
+                            ? ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单']
+                            : ['删除', this.chatMessages[targetId].isBlocked ? '移出黑名单' : '加入黑名单', '标为已读'],
                     success: res => {
                         if (res.tapIndex === 0) {
                             //用户点击删除记录
                             uni.showModal({
                                 title: '',
                                 content: '删除私信记录后将无法恢复，确定删除？',
+                                confirmColor: '#f4756b',
                                 success: res => {
                                     if (res.confirm) {
                                         deleteChatWithFriend({
@@ -310,7 +375,7 @@
                                 }
                             });
                         }
-                        else {
+                        else if (res.tapIndex === 1) {
                             //用户点击加入黑名单
                             if (this.chatMessages[targetId].isBlocked) {
                                 removeFromBlockList({
@@ -348,6 +413,25 @@
                                     });
                                 });
                             }
+                        }
+                        else if (res.tapIndex === 2) {
+                            //标为已读
+                            getChatHistory({
+                                urlParam: `${this.chatMessages[targetId].senderId}?pageSize=${this.pageSize}&time=${Date.now()}`,
+                            }).then(() => {
+                                let chatMessagesTemp = this.chatMessages;
+                                chatMessagesTemp[targetId].isRead = true;
+                                this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - chatMessagesTemp[targetId].unreadCount);
+                                chatMessagesTemp[targetId].unreadCount = 0;
+                                this.$store.commit('chatMessages', chatMessagesTemp);
+                            }).catch(err => {
+                                console.error(err);
+                                this.$refs.toast.show({
+                                    text: '网络异常',
+                                    type: 'error',
+                                    direction: 'top'
+                                });
+                            })
                         }
                     }
                 });
@@ -440,10 +524,10 @@
             // 消息列表为空的按钮点击事件
             handleEmptyBtnClick() {
                 uni.switchTab({
-                    url: '/pages/index/index',
+                    url: '/pages/trending/trending',
                     fail: () => {
                         uni.redirectTo({
-                            url: '/pages/index/index',
+                            url: '/pages/trending/trending',
                             fail: err => {
                                 console.error(err);
                             }
@@ -495,13 +579,16 @@
                 isShowButton: false,
             });
             uni.onSocketMessage(res => {
-                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                const data = JSON.parse(res.data);
+                if (data.errorCode === 120) {
+                    //私信消息
+                    this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
+                    this.receiveNewMessage(data); //监听到Socket新消息
+                }
+                else if (data.errorCode === 121) {
+                    //通知消息
+                }
             });
-            let totalCount = 0;
-            this.chatMessages.map(chat => {
-                totalCount += chat.isRead ? 0 : chat.unreadCount;
-            });
-            this.$store.commit('unreadMessageCount', totalCount);
         },
     }
 </script>

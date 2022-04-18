@@ -83,6 +83,7 @@
     import loading from '@/components/loading/loading';
     import uploadGroup from '@/components/uploadGroup/uploadGroup';
     import {postTrend} from "@/common/js/api/models";
+    import store from "@/common/js/store";
 
     export default {
         name: "trendEdit",
@@ -164,8 +165,22 @@
                 postTrend({
                     queryData: trendContent,
                 }).then(() => {
-                    uni.switchTab({
-                        url: "/pages/trending/trending",
+                    const eventChannel = this.getOpenerEventChannel();
+                    eventChannel.emit("onSent", {});
+                    uni.navigateBack({
+                        fail: () => {
+                            uni.switchTab({
+                                url: `/pages/trending/trending`,
+                                fail: () => {
+                                    uni.redirectTo({
+                                        url: `/pages/trending/trending`,
+                                        fail: err => {
+                                            console.error(err);
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     });
                 }).catch(err => {
                     console.error(err);
@@ -208,6 +223,13 @@
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
             this.getLocation();
+            if (!this.$store.state.userInfo) {
+                const currentPage = this.utils.getCurrentPage();
+                this.$store.commit('currentPageUrl', currentPage.curFullUrl);
+                uni.redirectTo({
+                    url: `/pages/login/wxLogin`
+                });
+            }
         }
     }
 </script>

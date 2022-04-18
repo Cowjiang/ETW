@@ -32,27 +32,12 @@
       <view
         class="message-area"
         :style="{
-          height: `${windowHeight - navigationHeight}px`,
-          transform: `translateY(-${keyboardHeight}px)`
+          height: `${windowHeight - navigationHeight - keyboardHeight}px`,
         }">
         <loading
           ref="loading"
           :parentClass="'message-area'"/>
-        <scroll-view
-          class="message-scroll-view"
-          :style="{
-            height: `calc(100%)`,
-          }"
-          ref="scrollView"
-          :scroll-y="true"
-          @scroll="handleScroll"
-          :scroll-into-view="scrollToViewId"
-          scroll-with-animation="true"
-          refresher-enabled="true"
-          refresher-threshold="300"
-          :refresher-triggered="refresherTriggered"
-          @refresherrefresh="handleRefreshStart"
-          @refresherrestore="handleRefreshEnd">
+        <view class="message-scroll-view">
           <!-- 滚动区域顶部 -->
           <view id="scrollTopView"></view>
           <!-- 每条消息的容器 -->
@@ -74,11 +59,13 @@
               <image
                 v-if="message.isMe"
                 :src="myInfo.avgPath"
-                mode="widthFix"/>
+                mode="aspectFill"
+                @click="gotoUserPage(myInfo.userId)"/>
               <image
                 v-if="!message.isMe"
                 :src="friendInfo.avgPath"
-                mode="widthFix"/>
+                mode="aspectFill"
+                @click="gotoUserPage(friendInfo.userId)"/>
             </view>
             <!-- 消息内容 -->
             <view
@@ -103,8 +90,14 @@
             </view>
           </view>
           <!-- 滚动区域底部 -->
-          <view id="scrollBottomView"></view>
-        </scroll-view>
+          <view
+            class="scroll-bottom"
+            :style="{
+              height: `calc(${keyboardHeight + 60}px)`,
+              height: `calc(constant(safe-area-inset-bottom) + ${keyboardHeight + 60}px)`,
+              height: `calc(env(safe-area-inset-bottom) + ${keyboardHeight + 60}px)`
+            }"></view>
+        </view>
       </view>
       <!-- 底部输入区域 -->
       <view
@@ -138,11 +131,15 @@
             :style="{opacity: `${inputFocusStatus ? '1': '0'}`}"></i>
         </view>
         <!-- 输入框容器 -->
-        <view class="input-container">
+        <view
+          class="input-container"
+          :style="{
+            transform: `translateX(${inputFocusStatus ? '-90': '0'}rpx)`,
+          }">
           <view
             class="input-inner-container"
             @click="showRawInput"
-            :style="{width: `${inputFocusStatus ? 'calc(100vw - 200rpx)' : 'calc(100vw - 220rpx - 80rpx)'}`}">
+            :style="{width: `${inputFocusStatus ? 'calc(100vw - 210rpx)' : 'calc(100vw - 220rpx - 80rpx)'}`}">
             <input
               type="text"
               class="raw-input"
@@ -163,13 +160,15 @@
               {{ rawInputValue }}
             </view>
           </view>
-          <!-- 输入框右侧发送按钮容器 -->
-          <view
-            class="send-btn-container"
-            @click="sendMessage"
-            :style="{opacity: `${isSendReady ? '1': '0.5'}`}">
-            <i class="fas fa-paper-plane"/>
-          </view>
+        </view>
+        <!-- 输入框右侧发送按钮容器 -->
+        <view
+          class="send-btn-container"
+          @click="sendMessage"
+          :style="{
+            opacity: `${isSendReady ? '1': '0.5'}`,
+          }">
+          <i class="fas fa-paper-plane"/>
         </view>
       </view>
     </view>
@@ -182,7 +181,8 @@
       :before-upload="beforeUpload"
       :max-size="10485760"
       :max-count="1"
-      :show-tips="false"
+      :show-tips="true"
+      :limitType="['png', 'jpg', 'jpeg']"
       @on-success="onUploadSuccess"
       @on-error="onUploadError"
       @on-oversize="onUploadOversize"/>
@@ -236,17 +236,16 @@
                 messageRecords: [], //消息记录数组
                 messageRecordsTemp: [], //消息记录缓冲数组
                 recordsLength: NaN, //当前获取聊天消息记录的请求回报的消息总数
-                scrollToViewId: '', //scroll-view的定位锚id
                 messageTouchingId: '', //当前触摸消息记录的数据名
                 action: '', //图片上传Url
                 fileList: [], //发送图片的队列
-                refresherTriggered: false, //scroll-view下拉刷新触发状态
                 currentPage: -1, //当前消息记录的页码
                 pageSize: 15, //每次请求获取聊天记录的单页数据总数
                 existMore: true, //是否存在更多历史消息
                 isReadyToShow: false, //是否加载消息记录完毕
                 isBlocked: false, //是否屏蔽该用户（黑名单）
                 isFocused: false, //是否已关注该用户
+                scrollTop: 0, //页面滚动高度
             }
         },
         methods: {
@@ -267,7 +266,8 @@
                     this.$refs.navigationBar.setNavigation({
                         titleText: this.friendInfo.username,
                         backgroundColor: '#ffffff',
-                        customBackFunc: this.redirectToChatList
+                        customBackFunc: this.redirectToChatList,
+                        hideBadge: true
                     });
                 }).catch(error => {
                     console.error(error);
@@ -282,7 +282,7 @@
              * @param {null|String} time 查询时间戳，为空时则查询第一页
              */
             getChatHistory(time = null) {
-                let queryTime = time === null ? Date.now() : time;
+                const queryTime = time === null ? Date.now() : time;
                 getChatHistory({
                     urlParam: `${this.friendInfo.userId}?pageSize=${this.pageSize}&time=${queryTime}`,
                 }).then(res => {
@@ -299,7 +299,6 @@
                         });
                         this.messageRecords = [];
                         this.messageRecords = recordsTemp;
-                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
                         this.recordsLength = res.data.total;
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
@@ -307,30 +306,42 @@
                         setTimeout(() => {
                             this.isReadyToShow = true;
                             this.$refs.loading.stopLoading();
+                            setTimeout(() => {
+                                uni.pageScrollTo({
+                                    scrollTop: 999999999
+                                });
+                            }, 0);
                         }, 500);
                     }
                     else {
+                        const firstMsgId = this.messageRecords[0].id; //获取更多记录前的第一条消息的id
                         if (res.data.records.length !== 0) {
                             res.data.records.forEach(records => {
-                                this.messageRecords.unshift({
-                                    id: records.id,
-                                    content: records.content,
-                                    isPhoto: !records.isText,
-                                    isMe: records.senderId.toString() !== this.friendInfo.userId,
-                                    time: records.createdTime
-                                });
+                                if (records.id !== firstMsgId) {
+                                    //防止连接处出现重复
+                                    this.messageRecords.unshift({
+                                        id: records.id,
+                                        content: records.content,
+                                        isPhoto: !records.isText,
+                                        isMe: records.senderId.toString() !== this.friendInfo.userId,
+                                        time: records.createdTime
+                                    });
+                                }
                             });
                         }
                         this.recordsLength = res.data.total;
+                        setTimeout(() => {
+                            uni.pageScrollTo({
+                                selector: `#message${firstMsgId}`,
+                                duration: 0
+                            });
+                        }, 0);
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
                         }
                     }
-                    this.refresherTriggered = false;
-                    this._freshing = false;
                 }).catch(err => {
-                    this.refresherTriggered = false;
-                    this._freshing = false;
+                    console.error(err);
                     this.$refs.toast.show({
                         text: '网络异常',
                         type: 'error',
@@ -343,11 +354,9 @@
              * @param {Object} data Socket接收到的新消息
              */
             receiveNewMessage(data) {
-                console.log(data);
                 if (data.errorCode === 120) {
-                    let newMessage = data.data.messageInfo;
+                    const newMessage = data.data.messageInfo;
                     if (newMessage.senderId.toString() === this.friendInfo.userId) {
-                        this.scrollToViewId = `messageTopView`;
                         setTimeout(() => {
                             this.messageRecords.push({
                                 id: newMessage.id,
@@ -361,7 +370,15 @@
                         if (this.recordsLength <= this.pageSize) {
                             this.existMore = false;
                         }
+                        setTimeout(() => {
+                            uni.pageScrollTo({
+                                scrollTop: 999999999
+                            });
+                        }, 0);
                         this.$forceUpdate();
+                    }
+                    else {
+                        this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
                     }
                 }
             },
@@ -395,16 +412,16 @@
             handleKeyboardHeightChange(e) {
                 if (e.detail.height !== 0) {
                     this.keyboardHeight = e.detail.height;
+                    setTimeout(() => {
+                        uni.pageScrollTo({
+                            scrollTop: 999999999
+                        });
+                    }, 100);
                 }
-                this.$forceUpdate();
             },
             // 发送文字消息
             sendMessage() {
                 this.utils.throttle(() => {
-                    setTimeout(() => {
-                        this.scrollToViewId = `message${this.messageRecords.length - 1}`;
-                        this.$forceUpdate();
-                    }, 0);
                     if (this.isSendReady === true) {
                         uni.showLoading({
                             title: '正在发送'
@@ -433,6 +450,10 @@
                                 text: '发送失败',
                                 type: 'error',
                                 direction: 'top'
+                            });
+                        }).finally(() => {
+                            uni.pageScrollTo({
+                                scrollTop: 999999999
                             });
                         });
                     }
@@ -498,7 +519,6 @@
                     }
                 }).then(res => {
                     this.recordsLength += 1;
-                    this.scrollToViewId = `messageTopView`;
                     setTimeout(() => {
                         this.messageRecords.push({
                             id: res.data.id,
@@ -518,6 +538,11 @@
                 }).finally(() => {
                     this.$refs.uploading.stopLoading();
                     this.$refs.upload.clear();
+                    setTimeout(() => {
+                        uni.pageScrollTo({
+                            scrollTop: 999999999
+                        });
+                    }, 150);
                 });
             },
             //头像上传失败回调事件
@@ -602,8 +627,8 @@
                     title: '正在删除'
                 })
                 deleteChatHistory({
-                    urlParam: "?ids=" + targetId
-                }).then(res => {
+                    urlParam: `?ids=${targetId}`
+                }).then(() => {
                     uni.hideLoading();
                     this.recordsLength -= 1;
                     this.messageRecords.splice(this.messageRecords.findIndex(item => item.id === targetId), 1);
@@ -614,37 +639,13 @@
                     });
                 }).catch(err => {
                     uni.hideLoading();
+                    console.error(err);
                     this.$refs.toast.show({
                         text: '删除失败',
                         type: 'error',
                         direction: 'top'
                     });
-                    console.error(err);
                 })
-            },
-            // scroll-view下拉刷新开始事件
-            handleRefreshStart() {
-                if (this.existMore) {
-                    if (this._freshing) return;
-                    this._freshing = true;
-                    setTimeout(() => {
-                        if (this.messageRecords.length === 0) {
-                            this.getChatHistory();
-                        }
-                        else {
-                            this.getChatHistory(this.messageRecords[0].time);
-                        }
-                    }, 0);
-                }
-                else {
-                    this.refresherTriggered = false;
-                    this._freshing = false;
-                    this.$forceUpdate();
-                }
-            },
-            // scroll-view下拉刷新结束事件
-            handleRefreshEnd() {
-                this.refresherTriggered = 'restore';
             },
             // 导航栏菜单按钮点击事件
             handleMenuBtnClick() {
@@ -769,10 +770,7 @@
             // 获取消息更新
             startCheckingUpdate() {
                 if (this.messageRecords.length === 0) {
-                    this._freshing = false; //还原下拉刷新状态
-                    setTimeout(() => {
-                        this.refresherTriggered = true; //开启下拉刷新
-                    }, 0);
+                    this.getChatHistory();
                 }
                 else {
                     this.$refs.loading.stopLoading();
@@ -785,6 +783,15 @@
                     });
                 }
             },
+            /**
+             * 跳转个人主页
+             * @param {Number|String} userId 用户ID
+             */
+            gotoUserPage(userId) {
+                uni.navigateTo({
+                    url: `/pagesByStore/userPage/userPage?userId=${userId}`
+                });
+            }
         },
         computed: {
             // 计算时间差
@@ -799,11 +806,6 @@
             rawInputValue(nval) {
                 this.isSendReady = nval.replace(/\s*/g, "") !== ''; //判断输入框中是否为空白内容
             },
-            // 消息记录数组
-            messageRecords() {
-                this.scrollToViewId = `scrollBottomView`; //将scroll-view移动到底部
-                this.$forceUpdate();
-            },
             isReadyToShow(nval, oval) {
                 if (!nval && oval) {
                     this.$refs.loading.startLoading();
@@ -811,7 +813,22 @@
                 else if (nval && !oval) {
                     this.$refs.loading.stopLoading();
                 }
+            },
+            scrollTop(nval, oval) {
+                if (nval !== oval && nval === 0) {
+                    if (this.existMore) {
+                        if (this.messageRecords.length === 0) {
+                            this.getChatHistory();
+                        }
+                        else {
+                            this.getChatHistory(this.messageRecords[0].time);
+                        }
+                    }
+                }
             }
+        },
+        onPageScroll(e) {
+            this.scrollTop = e.scrollTop;
         },
         onLoad() {
             this.windowWidth = this.$store.state.windowWidth;
@@ -829,7 +846,14 @@
             await this.getUserRelationships();
             this.startCheckingUpdate();
             uni.onSocketMessage(res => {
-                this.receiveNewMessage(JSON.parse(res.data)); //监听到Socket新消息
+                const data = JSON.parse(res.data);
+                if (data.errorCode === 120) {
+                    //私信消息
+                    this.receiveNewMessage(data); //监听到Socket新消息
+                }
+                else if (data.errorCode === 121) {
+                    //通知消息
+                }
             });
         },
         beforeDestroy() {

@@ -610,7 +610,10 @@
             handleTypeClick(id) {
                 this.utils.throttle(() => {
                     this.currentTypeId = id;
-                    this.scrollToTypeId = `type${id}`;
+                    this.scrollToTypeId = '';
+                    this.$nextTick(() => {
+                        this.scrollToTypeId = `type${id}`;
+                    });
                 }, 500);
             },
             // 菜单滑动触摸开始事件

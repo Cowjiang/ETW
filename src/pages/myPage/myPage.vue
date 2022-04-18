@@ -149,7 +149,8 @@
         </view>
         <view
           v-if="shopkeeper && userId"
-          class="btn_row">
+          class="btn_row"
+          @click="goto('/pagesByStore/storeAdmin/subpages/MyStorePage')">
           <view class="btn_title">
             <i class="fas fa-store"/>
             <text>我的店铺</text>
@@ -204,6 +205,7 @@
             }
         },
         methods: {
+            // 获取我的信息
             getMyInfo() {
                 if (this.userInfo) {
                     const getUserInfoPromise = new Promise((resolve, reject) => {
@@ -214,6 +216,10 @@
                             }
                         }).then(res => {
                             this.userDetailInfo = res.data;
+                            let userInfo = this.userInfo;
+                            userInfo.username = res.data.username;
+                            userInfo.avgPath = res.data.avgPath;
+                            this.$store.commit('userInfo', userInfo);
                             resolve();
                         }).catch(err => {
                             reject(err);
@@ -246,7 +252,7 @@
                             reject(err);
                         })
                     });
-                    Promise.all([getUserInfoPromise, getTrendInfoPromise]).catch(err => {
+                    Promise.all([getUserInfoPromise, getTrendInfoPromise, getOrderInfoPromise]).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
                             text: '获取数据失败',
@@ -280,11 +286,13 @@
             },
         },
         computed: {
+            // 我的个人信息
             userInfo: {
                 get() {
                     return this.$store.state.userInfo;
                 }
             },
+            // 是否为商家
             shopkeeper: {
                 get() {
                     return this.$store.state.shopkeeper;
@@ -298,10 +306,19 @@
         },
         onShow() {
             if (this.$store.state.userInfo) {
-                if ((this.userId = this.$store.state.userInfo.userId ?? null)) {
-                    this.$refs.loading.startLoading();
+                if ((this.userId = this.$store.state.userInfo.userId.toString() ?? null)) {
+                    //用户已登录
+                    if (!this.userDetailInfo.hasOwnProperty('userId')) {
+                        //未获取到用户详细信息（首次加载时显示加载动画）
+                        this.$refs.loading.startLoading();
+                    }
                     this.getMyInfo();
                 }
+            }
+            else {
+                uni.removeTabBarBadge({
+                    index: 2
+                });
             }
         },
         onLoad() {
@@ -312,9 +329,6 @@
             this.windowWidth = this.$store.state.windowWidth;
             this.windowHeight = this.$store.state.windowHeight;
             this.navigationHeight = this.$store.state.navigationHeight;
-        },
-        mounted() {
-
         }
     }
 </script>

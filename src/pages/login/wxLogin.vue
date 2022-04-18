@@ -26,7 +26,7 @@
         </view>
       </view>
       <view class="login-btn-container">
-        <button class="wx-login-btn" @click="wxLogin(false)">
+        <button class="wx-login-btn" @click="handleLoginBtnClick">
           微信一键登录
         </button>
         <view class="username-login" @click="usernameLogin">
@@ -66,6 +66,7 @@
             return {
                 navigationHeight: 0, //导航栏高度
                 agreeCheckbox: false, //用户已阅读并同意使用协议
+                loginSucceeded: false, //是否已经登录了
             }
         },
         methods: {
@@ -87,6 +88,7 @@
                                     }
                                 }).then(async res => {
                                     //登陆成功
+                                    this.loginSucceeded = true;
                                     if (isNewUser) {
                                         //新用户第一次登录
                                         await uni.setStorage({
@@ -97,6 +99,8 @@
                                                 await this.utils.connectSocket().then(() => {
                                                     this.$refs.loading.stopLoading();
                                                     this.getUserProfile();
+                                                }).catch((err) => {
+                                                    console.error(err)
                                                 });
                                             },
                                         });
@@ -112,10 +116,10 @@
                                                     this.$refs.loading.stopLoading();
                                                     const redirectPage = this.$store.state.currentPageUrl ?? null;
                                                     uni.switchTab({
-                                                        url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                        url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
                                                         fail: () => {
                                                             uni.redirectTo({
-                                                                url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                                url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
                                                                 fail: err => {
                                                                     console.error(err);
                                                                 }
@@ -151,7 +155,7 @@
                             direction: "top"
                         });
                     }
-                }, 2000);
+                }, 0);
             },
             // 为当前微信账号注册
             wxRegister() {
@@ -163,9 +167,10 @@
                             queryData: {
                                 code: code
                             }
-                        }).then(res => {
+                        }).then(() => {
                             this.wxLogin(true);
                         }).catch(err => {
+                            console.error(err)
                             if (!err.data.success) {
                                 //账户已存在
                                 this.wxLogin(false);
@@ -180,35 +185,53 @@
                                 });
                             }
                         });
-                    },
+                    }
                 });
             },
             // 获取用户个人资料
             getUserProfile() {
-                uni.getUserProfile({
-                    desc: "请授权获取用户信息",
-                    lang: "zh_CN",
-                    success: res => {
-                        if (res.errMsg === "getUserProfile:ok") {
-                            const encryptedData = res.encryptedData;
-                            const iv = res.iv;
-                            const signature = res.signature;
-                            wxUserProfile({
-                                queryData: {
-                                    encryptedData: encryptedData,
-                                    iv: iv,
-                                    signature: signature
+                uni.showModal({
+                    content: '请授权允许获取用户信息',
+                    confirmText: '立即授权',
+                    confirmColor: '#f4756b',
+                    showCancel: false,
+                    success: ({ confirm }) => {
+                        if (confirm) {
+                            uni.getUserProfile({
+                                desc: "请授权获取用户信息",
+                                lang: "zh_CN",
+                                success: res => {
+                                    if (res.errMsg === "getUserProfile:ok") {
+                                        const encryptedData = res.encryptedData;
+                                        const iv = res.iv;
+                                        const signature = res.signature;
+                                        wxUserProfile({
+                                            queryData: {
+                                                encryptedData: encryptedData,
+                                                iv: iv,
+                                                signature: signature
+                                            }
+                                        }).catch(err => {
+                                            console.error(err);
+                                        }).finally(() => {
+                                            this.getUserPhone();
+                                        });
+                                    }
+                                    else {
+                                        console.error(res);
+                                        this.getUserPhone();
+                                    }
+                                },
+                                fail: error => {
+                                    console.error(error);
+                                    this.getUserPhone();
                                 }
-                            }).then(() => {
-                                //绑定微信用户信息成功
-                                this.getUserPhone();
-                            }).catch(err => {
-                                console.error(err);
                             });
                         }
-                        else {
-                            console.error(res);
-                        }
+                    },
+                    fail: error => {
+                        console.error(error);
+                        this.getUserPhone();
                     }
                 });
             },
@@ -219,29 +242,27 @@
                     url: '/pages/login/wxRegisterPhone',
                     events: {
                         acceptDataFromOpenedPage: (data) => {
-                            if (data.success) {
-                                this.$refs.loading.startLoading();
-                                setTimeout(() => {
-                                    uni.switchTab({
-                                        url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
-                                        fail: () => {
-                                            uni.redirectTo({
-                                                url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
-                                                fail: err => {
-                                                    console.error(err);
-                                                }
-                                            });
-                                        }
-                                    });
-                                }, 300);
-                            }
-                            else {
+                            this.$refs.loading.startLoading();
+                            if (!data.success) {
                                 this.$refs.toast.show({
                                     text: data.res ?? '手机号绑定失败',
                                     type: 'warning',
                                     direction: 'top'
                                 });
                             }
+                            setTimeout(() => {
+                                uni.switchTab({
+                                    url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
+                                    fail: () => {
+                                        uni.redirectTo({
+                                            url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
+                                            fail: err => {
+                                                console.error(err);
+                                            }
+                                        });
+                                    }
+                                });
+                            }, 300);
                         },
                     },
                 });
@@ -259,10 +280,10 @@
                                         this.$refs.loading.startLoading();
                                         setTimeout(() => {
                                             uni.switchTab({
-                                                url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
                                                 fail: () => {
                                                     uni.redirectTo({
-                                                        url: `${redirectPage === null ? "pages/index/index" : redirectPage}`,
+                                                        url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
                                                         fail: err => {
                                                             console.error(err);
                                                         }
@@ -291,6 +312,28 @@
                     this.$store.commit('shopkeeper', !this.shopkeeper);
                     this.$refs.loading.stopLoading();
                 }, 500);
+            },
+            // 登录按钮点击事件
+            handleLoginBtnClick() {
+                this.utils.throttle(() => {
+                    if (this.loginSucceeded) {
+                        const redirectPage = this.$store.state.currentPageUrl ?? null;
+                        uni.switchTab({
+                            url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
+                            fail: () => {
+                                uni.redirectTo({
+                                    url: `${redirectPage === null ? "pages/trending/trending" : redirectPage}`,
+                                    fail: err => {
+                                        console.error(err);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        this.wxLogin(false);
+                    }
+                }, 2000);
             }
         },
         computed: {

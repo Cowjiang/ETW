@@ -49,6 +49,9 @@ Vue.filter('discountFilter', number => {
  * @return {String} 格式化后的时间
  */
 Vue.filter('formatTime', time => {
+    if (!time) {
+        return '';
+    }
     const messageDate = new Date(time);
     const nowDate = new Date();
     const messageTime = {

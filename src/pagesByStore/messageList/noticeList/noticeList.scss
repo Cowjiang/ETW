@@ -1,0 +1,14 @@
+.notice-list-container {
+  width: 100vw;
+  height: 100%;
+  padding: 0 30rpx 40rpx 30rpx;
+
+  .no-result {
+    width: 100%;
+    height: 100%;
+    padding: 20vh 0;
+    color: $uni-text-color-placeholder;
+    font-size: 26rpx;
+    text-align: center;
+  }
+}
