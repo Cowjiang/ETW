@@ -296,6 +296,9 @@
                             //当前查询的结果数量不为0
                             this.focusTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
+                                trend.dynamicImages.forEach(image => {
+                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                });
                                 this.focusTrendList.push(trend);
                             });
                             this.focusTrendListPageNumber += 1;
@@ -338,6 +341,9 @@
                             //当前查询的结果数量不为0
                             this.mainTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
+                                trend.dynamicImages.forEach(image => {
+                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                });
                                 this.mainTrendList.push(trend);
                             });
                             this.mainTrendListPageNumber += 1;
@@ -585,7 +591,7 @@
                         }
                     }
                 });
-            }
+            },
         },
         // 页面滑动触底事件
         onReachBottom() {

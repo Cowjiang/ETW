@@ -33,9 +33,7 @@
             </view>
           </view>
           <view class="btn-container">
-            <view
-              class="btn__default btn__friend"
-              @click.stop="">
+            <view class="btn__default btn__friend">
               <text>查看</text>
             </view>
           </view>

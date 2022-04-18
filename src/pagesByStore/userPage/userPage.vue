@@ -181,12 +181,17 @@
                       </view>
                     </view>
                   </view>
-                  <view class="content-info">
+                  <view class="content-info" v-if="trend.stat === 1">
                     <text>
                       {{ trend.likeNumber }}人点赞
                     </text>
                     <text>
                       {{ trend.commentNumber }}条评论
+                    </text>
+                  </view>
+                  <view class="content-info" v-else>
+                    <text :style="{color: trend.stat === -1 ? '#f4756b' : '#999'}">
+                      {{ trend.stat === 0 ? '正在审核中' : '审核不通过' }}
                     </text>
                   </view>
                 </view>
