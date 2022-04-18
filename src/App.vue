@@ -18,20 +18,6 @@
             unreadMessageCount() {
                 return this.$store.state.unreadMessageCount;
             },
-            // 私信消息列表中的未读消息总数（计算）
-            // chatMessagesTotalUnread: {
-            //     get() {
-            //         const chatMessages = this.$store.state.chatMessages;
-            //         if (this.$store.state.chatMessages.length) {
-            //             let totalCount = 0;
-            //             chatMessages.map(chat => {
-            //                 totalCount += chat.isRead ? 0 : chat.unreadCount;
-            //             });
-            //             return totalCount;
-            //         }
-            //         else return 0;
-            //     }
-            // },
             // 是否为商家
             shopkeeper: {
                 get() {
@@ -76,12 +62,6 @@
                 this.$store.commit('windowWidth', systemInfo.windowWidth);
                 this.$store.commit('windowHeight', systemInfo.windowHeight);
             }, 1000);
-        },
-        async onShow() {
-            // await this.utils.connectSocket();
-        },
-        async onHide() {
-            // await this.utils.closeSocket();
         }
     };
 </script>

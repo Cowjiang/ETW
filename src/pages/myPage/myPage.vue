@@ -5,7 +5,7 @@
     <loading ref="loading" fullscreen maskColor="#f6f6f6"/>
     <view
       class="cover-container"
-      :style="{height: `calc(${navigationHeight}px + 270rpx)`}">
+      :style="{height: `calc(${navigationHeight}px + 340rpx)`}">
       <image
         :src="userDetailInfo.coverUrl"
         mode="aspectFill"/>
@@ -50,9 +50,9 @@
             <view class="title">动态</view>
           </view>
           <view class="divider"></view>
-          <view class="user-info_column" @click="goto('/pagesByStore/order/subpages/orderList/orderList')">
-            <view class="content">{{ orderCount || 0 }}</view>
-            <view class="title">订单</view>
+          <view class="user-info_column">
+            <view class="content">0</view>
+            <view class="title">作品</view>
           </view>
         </view>
       </view>
@@ -61,35 +61,11 @@
         v-else
         class="user-login-container">
         <view class="login-tips">
-          <text class="tips_title">Hi~ 欢迎来到周边大侦探</text>
+          <text class="tips_title">Hi~ 欢迎来到 Aurora+</text>
           <text class="tips_desc">登录后体验更多功能</text>
         </view>
         <view class="login-btn" @click="getMyInfo">
           登录 / 注册
-        </view>
-      </view>
-      <!-- 横排按钮容器 -->
-      <view class="horizontal-btn-container">
-        <view class="title">
-          我的订单
-        </view>
-        <view class="btn-group">
-          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList?type=1')">
-            <i class="far fa-credit-card"/>
-            <text>待付款</text>
-          </view>
-          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList?type=2')">
-            <i class="far fa-hourglass"/>
-            <text>准备中</text>
-          </view>
-          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList?type=3')">
-            <i class="far fa-circle-question"/>
-            <text>退款/售后</text>
-          </view>
-          <view class="btn" @click="goto('/pagesByStore/order/subpages/orderList/orderList')">
-            <i class="far fa-file-lines"/>
-            <text>全部订单</text>
-          </view>
         </view>
       </view>
       <!-- 竖排按钮容器 -->
@@ -147,18 +123,6 @@
             <i class="fas fa-angle-right"/>
           </view>
         </view>
-        <view
-          v-if="shopkeeper && userId"
-          class="btn_row"
-          @click="goto('/pagesByStore/storeAdmin/subpages/MyStorePage')">
-          <view class="btn_title">
-            <i class="fas fa-store"/>
-            <text>我的店铺</text>
-          </view>
-          <view class="btn_angle-icon">
-            <i class="fas fa-angle-right"/>
-          </view>
-        </view>
         <button class="btn_row" open-type="contact">
           <view class="btn_title">
             <i class="far fa-envelope"/>
@@ -201,7 +165,6 @@
                 userId: null, //我的用户ID
                 userDetailInfo: {}, //我的用户详细信息
                 trendCount: 0, //我的动态数量
-                orderCount: 0, //我的订单总数
             }
         },
         methods: {
@@ -237,22 +200,7 @@
                             reject(err);
                         });
                     });
-                    const getOrderInfoPromise = new Promise((resolve, reject) => {
-                        getMyOrder({
-                            queryData: {
-                                pageNumber: 1,
-                            },
-                            headerData: {
-                                "Content-type": "application/json"
-                            }
-                        }).then(res => {
-                            this.orderCount = res.data.total;
-                            resolve();
-                        }).catch(err => {
-                            reject(err);
-                        })
-                    });
-                    Promise.all([getUserInfoPromise, getTrendInfoPromise, getOrderInfoPromise]).catch(err => {
+                    Promise.all([getUserInfoPromise, getTrendInfoPromise]).catch(err => {
                         console.error(err);
                         this.$refs.toast.show({
                             text: '获取数据失败',

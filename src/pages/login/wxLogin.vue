@@ -6,23 +6,13 @@
 
     <view class="wx-login-container">
       <view class="logo-container">
-        <view
-          class="user-type"
-          :style="{top: `${navigationHeight + 5}px`}"
-          @click="changeUserType">
-          <i class="fas fa-rotate"/>
-          <text>{{ shopkeeper ? '返回普通版' : '我是商家' }}</text>
-        </view>
         <view class="image">
           <image
-            src="https://com-etw.oss-cn-guangzhou.aliyuncs.com/sotre/store-info/3/446e7f4376604ebd989acf9b6f012bd6.jpg"
+            src="https://com-etw-new.oss-cn-guangzhou.aliyuncs.com/dynamic/35/d01088f44119453c808e2343058628b4.jpg"
             mode="aspectFill"/>
         </view>
         <view class="name">
-          <text>周边大侦探</text>
-          <view class="shopkeeper-tag" v-if="shopkeeper">
-            商家版
-          </view>
+          <text>Aurora+</text>
         </view>
       </view>
       <view class="login-btn-container">
@@ -43,7 +33,9 @@
           size="36">
           <span>
             我已阅读并同意
-            <span style="color: #f4756b">食途用户协议、隐私协议</span>
+            <span
+              style="color: #f4756b"
+              @click.stop="gotoPrivacy">用户协议及隐私协议</span>
           </span>
         </u-checkbox>
       </view>
@@ -334,6 +326,11 @@
                         this.wxLogin(false);
                     }
                 }, 2000);
+            },
+            gotoPrivacy() {
+                uni.navigateTo({
+                    url: '/pages/login/subpages/privacy'
+                });
             }
         },
         computed: {

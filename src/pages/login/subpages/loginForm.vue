@@ -39,7 +39,7 @@
       </view>
     </view>
     <!-- 忘记密码 -->
-    <view class="forget-password" @click="forgetPassword">
+    <view class="forget-password" :style="{opacity: 0}" @click="forgetPassword">
       <text>忘记密码 ?</text>
     </view>
     <!-- 下方按钮区域 -->
@@ -165,12 +165,6 @@
             // 忘记密码按钮点击事件
             forgetPassword() {
                 //Forget Password
-                this.utils.throttle(() => {
-                    this.$refs.toast.show({
-                        text: "你怎么这么傻能忘记密码",
-                        type: "error",
-                    });
-                });
             },
             // 登录检查，登录按钮点击事件
             loginCheck() {
