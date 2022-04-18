@@ -11,7 +11,7 @@
         class="comment-item"
         v-for="comment in commentList"
         :key="comment.id"
-        @click="handleLikeEventClick(comment)">
+        @click="handleCommentEventClick(comment)">
         <view class="info-container">
           <view class="avatar-container">
             <image
@@ -98,8 +98,7 @@
                     }
                 }).then(res => {
                     if (res.data.records.length) {
-                        //查询到动态记录
-                        console.log(res.data)
+                        //查询到评论记录
                         this.commentList = page === 1 ? res.data.records : [...this.commentList, ...res.data.records];
                         this.currentPage += 1;
                         if (res.data.records.length < 15) {
@@ -122,7 +121,7 @@
              * 评论事件的点击事件
              * @param {Object} commentEvent 评论事件对象
              */
-            handleLikeEventClick(commentEvent) {
+            handleCommentEventClick(commentEvent) {
                 if (commentEvent.targetType === 2 || commentEvent.targetType === 3) {
                     //评论动态、一级评论
                     uni.navigateTo({

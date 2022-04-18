@@ -96,7 +96,6 @@
                 }).then(res => {
                     if (res.data.records.length) {
                         //查询到动态记录
-                        console.log(res.data)
                         this.likeList = page === 1 ? res.data.records : [...this.likeList, ...res.data.records];
                         this.currentPage += 1;
                         if (res.data.records.length < 15) {

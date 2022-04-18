@@ -5,7 +5,9 @@
     <loading ref="loading" fullscreen/>
 
     <view class="notice-list-container">
-
+      <view class="no-result">
+        <text>一条通知也没有哦 ~</text>
+      </view>
     </view>
   </view>
 </template>
@@ -28,11 +30,6 @@
             this.$refs.navigationBar.setNavigation({
                 titleText: '通知消息',
                 backgroundColor: '#ffffff'
-            });
-            this.$refs.toast.show({
-                text: '开发中',
-                type: 'warning',
-                direction: 'top'
             });
         }
     }
