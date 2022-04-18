@@ -207,8 +207,15 @@
           }
         }
 
+        .description {
+          margin-top: 10rpx;
+          font-size: 28rpx;
+          color: #444;
+          word-break: break-all;
+        }
+
         .area-name {
-          margin-top: 14rpx;
+          margin-top: 20rpx;
           border-radius: 30rpx;
           font-size: 24rpx;
           color: #888;

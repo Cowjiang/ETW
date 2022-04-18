@@ -105,6 +105,13 @@
           </view>
           <view class="user-info__row">
             <view
+              v-if="userInfo.signature"
+              class="description">
+              {{ userInfo.signature }}
+            </view>
+          </view>
+          <view class="user-info__row">
+            <view
               v-if="areaName"
               class="area-name">
               <i class="fas fa-location-dot"/>
