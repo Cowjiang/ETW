@@ -272,6 +272,23 @@
                         }
                         this.loadingMore = false;
                     }
+                    getMyUnreadChatCount().then(res => {
+                        if (res.success) {
+                            this.$store.commit('unreadMessageCount', res.data);
+                            if (res.data > 0) {
+                                uni.setTabBarBadge({
+                                    index: 1,
+                                    text: res.data < 100 ? res.data.toString() : '99+'
+                                }); //设置底部导航栏消息页的未读上标
+                            }
+                            else {
+                                uni.removeTabBarBadge({
+                                    index: 1
+                                });
+                            }
+                        }
+                    }).catch(err => {
+                    });
                 }).catch(err => {
                     console.error(err)
                     this.utils.throttle(() => {
@@ -287,23 +304,6 @@
                     this.refresherTriggered = false;
                     this._freshing = false;
                     this.$forceUpdate();
-                });
-                getMyUnreadChatCount().then(res => {
-                    if (res.success) {
-                        this.$store.commit('unreadMessageCount', res.data);
-                        if (res.data > 0) {
-                            uni.setTabBarBadge({
-                                index: 2,
-                                text: res.data < 100 ? res.data.toString() : '99+'
-                            }); //设置底部导航栏消息页的未读上标
-                        }
-                        else {
-                            uni.removeTabBarBadge({
-                                index: 2
-                            });
-                        }
-                    }
-                }).catch(err => {
                 });
             },
             /**
@@ -328,7 +328,7 @@
                     this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - chatMessagesTemp[targetId].unreadCount);
                 }
                 uni.removeTabBarBadge({
-                    index: 2
+                    index: 1
                 });
                 uni.navigateTo({
                     url: `/pages/chat/subpages/chatDetail/chatDetail?senderId=${this.chatMessages[targetId].senderId}`

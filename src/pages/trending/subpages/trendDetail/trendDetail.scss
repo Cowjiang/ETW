@@ -120,8 +120,12 @@
       }
     }
 
-    .content-container {
+    ::v-deep .content-container {
       padding: 0 40rpx;
+
+      .u-content {
+        white-space: pre-line !important;
+      }
     }
 
     .image-container {

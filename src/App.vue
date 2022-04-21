@@ -29,13 +29,13 @@
             unreadMessageCount(nval) {
                 if (nval > 0) {
                     uni.setTabBarBadge({
-                        index: 2,
+                        index: 1,
                         text: nval < 100 ? nval.toString() : '99+'
                     }); //设置底部导航栏消息页的未读上标
                 }
                 else {
                     uni.removeTabBarBadge({
-                        index: 2
+                        index: 1
                     });
                 }
             },

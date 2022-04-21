@@ -72,7 +72,7 @@
       line-height: 1.8;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: normal !important;
+      white-space: pre-line !important;
       -webkit-line-clamp: 5;
       -webkit-box-orient: vertical;
     }

@@ -733,6 +733,7 @@
         async onLoad() {
             this.$refs.loading.startLoading();
             this.userId = this.utils.getCurrentPage().curParam.userId || null;
+            const showType = this.utils.getCurrentPage().curParam.type || null;
             if (this.userId === 'undefined') {
                 this.$refs.toast.show({
                     text: '获取个人信息失败',
@@ -748,6 +749,14 @@
                         this.userId = res.data.userId.toString();
                         await this.getUserInfo();
                         await this.getUserTrendList();
+                        if (!!showType) {
+                            this.currentTab = Number(showType);
+                            setTimeout(() => {
+                                uni.pageScrollTo({
+                                    selector: `.main-content-container`
+                                });
+                            }, 500);
+                        }
                     },
                     fail: () => {
                         const currentPage = this.utils.getCurrentPage();
@@ -761,6 +770,14 @@
             else {
                 await this.getUserInfo();
                 await this.getUserTrendList();
+                if (!!showType) {
+                    this.currentTab = Number(showType);
+                    setTimeout(() => {
+                        uni.pageScrollTo({
+                            selector: `.main-content-container`
+                        });
+                    }, 500);
+                }
             }
         },
         mounted() {
