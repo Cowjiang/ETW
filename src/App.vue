@@ -5,8 +5,6 @@
 </style>
 
 <script>
-    import store from "@/common/js/store";
-
     export default {
         data() {
             return {}
@@ -39,9 +37,6 @@
                     });
                 }
             },
-            // chatMessagesTotalUnread(nval) {
-                // this.$store.commit('unreadMessageCount', nval);
-            // },
             shopkeeper(nval) {
                 uni.setStorage({
                     key: "shopkeeper",

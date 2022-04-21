@@ -1,6 +1,6 @@
 import store from '@/common/js/store';
 import {closeSocket, connectSocket} from "@/common/js/api/socket";
-import {getMyChatList, getMyUnreadChatCount, logOut} from "@/common/js/api/models";
+import {getMyChatList, getUnreadCount, logOut} from "@/common/js/api/models";
 
 export class Utils {
     constructor() {
@@ -124,9 +124,10 @@ export class Utils {
                 connectSocket(store.state.userInfo.userId).then(() => {
                     console.log('已连接socket');
                     store.commit('socketStatus', true);
-                    getMyUnreadChatCount().then(res => {
+                    getUnreadCount().then(res => {
                         if (res.success) {
-                            store.commit('unreadMessageCount', res.data);
+                            const unread = res.data.reduce((pre, current) => pre + Number(current.count), 0);
+                            store.commit('unreadMessageCount', unread);
                         }
                     }).catch(err => {});
                     uni.getStorage({
@@ -178,7 +179,7 @@ export class Utils {
                             store.commit('chatMessages', chatMessages);
                         }
                         else if (data.errorCode === 121) {
-                            console.log(data);
+                            store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
                         }
                     });
                     resolve();

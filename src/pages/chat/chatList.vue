@@ -189,10 +189,10 @@
         addToBlockList,
         deleteChatWithFriend,
         getChatHistory,
-        getMyChatList, getMyUnreadChatCount,
+        getMyChatList,
+        getUnreadCount,
         removeFromBlockList
     } from "@/common/js/api/models.js";
-    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -205,7 +205,6 @@
                 navigationHeight: 0, //导航栏高度
                 btnMessageUnreadCount: [0, 0, 0, 0],
                 pageSize: 15, //请求聊天记录每页数据的数量
-                // chatMessages: [], //聊天列表信息数组
                 messageTouchingId: '', //当前触摸元素的id
                 refresherTriggered: false, //scroll-view下拉刷新触发状态
                 loadingMore: false, //正在加载更多消息
@@ -272,13 +271,18 @@
                         }
                         this.loadingMore = false;
                     }
-                    getMyUnreadChatCount().then(res => {
+                    getUnreadCount().then(res => {
                         if (res.success) {
-                            this.$store.commit('unreadMessageCount', res.data);
-                            if (res.data > 0) {
+                            const unread = res.data.reduce((pre, current) => pre + Number(current.count), 0);
+                            const likeUnread = res.data.find(item => item.eventType === 1) ?? {count: 0};
+                            const commentUnread = res.data.find(item => item.eventType === 2) ?? {count: 0};
+                            const fansUnread = res.data.find(item => item.eventType === 4) ?? {count: 0};
+                            this.btnMessageUnreadCount = [likeUnread.count, commentUnread.count, fansUnread.count, 0];
+                            this.$store.commit('unreadMessageCount', unread);
+                            if (unread > 0) {
                                 uni.setTabBarBadge({
                                     index: 1,
-                                    text: res.data < 100 ? res.data.toString() : '99+'
+                                    text: unread < 100 ? unread.toString() : '99+'
                                 }); //设置底部导航栏消息页的未读上标
                             }
                             else {
@@ -288,6 +292,7 @@
                             }
                         }
                     }).catch(err => {
+                        console.error(err);
                     });
                 }).catch(err => {
                     console.error(err)
@@ -312,6 +317,9 @@
              */
             handleMessageBtnClick(index) {
                 this.utils.throttle(() => {
+                    uni.removeTabBarBadge({
+                        index: 1
+                    });
                     const url = ['likeList/likeList', 'commentList/commentList', 'fansList/fansList', 'noticeList/noticeList'];
                     uni.navigateTo({
                         url: `/pagesByStore/messageList/${url[index]}`
