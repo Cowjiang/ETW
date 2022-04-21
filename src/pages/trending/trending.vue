@@ -186,7 +186,7 @@
         </view>
         <view class="tags-container">
           <view class="browse-count">
-            <!--            浏览 {{ trend.browseNumber }}-->
+            <!--浏览 {{ trend.browseNumber }}-->
             <text
               style="color: #576991"
               v-if="trend.topic">
@@ -257,7 +257,6 @@
         getRecommendUserList, getTopTrend,
         like
     } from "@/common/js/api/models.js";
-    import {onShow} from "@dcloudio/uni-mp-vue";
 
     export default {
         components: {
@@ -356,6 +355,23 @@
                             //刷新
                             this.mainTrendListPageNumber = 0;
                             this.mainTrendList = [];
+                            getTopTrend().then(res => {
+                                if (!!res.data.id) {
+                                    res.data.dynamicImages.forEach(image => {
+                                        image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                    });
+                                    res.data.isTop = true;
+                                    const topicStartIndex = res.data.content.indexOf('#');
+                                    if (topicStartIndex !== -1) {
+                                        //内容包含话题
+                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
+                                        res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
+                                    }
+                                    this.mainTrendList.unshift(res.data);
+                                }
+                            }).catch(err => {
+                                console.error(err);
+                            });
                         }
                         const data = res.data;
                         if (data.records.length !== 0) {
@@ -387,26 +403,8 @@
                             direction: 'top'
                         });
                     }).finally(() => {
-                        getTopTrend().then(res => {
-                            if (!!res.data.id) {
-                                res.data.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
-                                });
-                                res.data.isTop = true;
-                                const topicStartIndex = res.data.content.indexOf('#');
-                                if (topicStartIndex !== -1) {
-                                    //内容包含话题
-                                    res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
-                                    res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
-                                }
-                                this.mainTrendList.unshift(res.data);
-                            }
-                        }).catch(err => {
-                            console.error(err);
-                        }).finally(() => {
-                            this.mainTrendListLoadingMore = false;
-                            uni.stopPullDownRefresh();
-                        });
+                        this.mainTrendListLoadingMore = false;
+                        uni.stopPullDownRefresh();
                     });
                 }
             },
@@ -691,7 +689,7 @@
         onShow() {
             if (!this.$store.state.userInfo) {
                 uni.removeTabBarBadge({
-                    index: 1
+                    index: 2
                 });
             }
         },
