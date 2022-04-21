@@ -254,6 +254,12 @@ export const getMyFocusedTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/d
     requestConfig
 });
 
+//获取置顶动态
+export const getTopTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/top`, {
+    method: "GET",
+    requestConfig
+});
+
 //获取最新动态
 export const getNewTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic/news`, {
     method: "GET",

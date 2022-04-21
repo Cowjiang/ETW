@@ -24,6 +24,7 @@
       height: fit-content;
       display: flex;
       flex-direction: row;
+      align-items: center;
       padding: 40rpx 10rpx 30rpx 10rpx;
 
       .avatar-container {
@@ -62,6 +63,22 @@
           line-height: 44rpx;
         }
       }
+
+      .tag-container {
+        width: fit-content;
+        height: fit-content;
+        flex-shrink: 0;
+        margin-left: auto;
+        padding: 6rpx 20rpx 6rpx 30rpx;
+        position: relative;
+        left: 40rpx;
+        background-color: #f4756b;
+        border-radius: 30rpx 0 0 30rpx;
+        border: 2rpx solid #f4756b;
+        border-right: 0;
+        font-size: 30rpx;
+        color: #fff;
+      }
     }
 
     .content-container {
@@ -91,7 +108,7 @@
       align-items: center;
 
       .browse-count {
-        font-size: 26rpx;
+        font-size: 28rpx;
         color: #888;
       }
 
@@ -232,6 +249,15 @@
 
     .content-row {
       width: inherit;
+
+      ::-webkit-scrollbar {
+        display: none;
+        width: 0 !important;
+        height: 0 !important;
+        -webkit-appearance: none;
+        background: transparent;
+        color: transparent;
+      }
 
       .user-scroll-view {
         width: inherit;
