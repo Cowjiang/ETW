@@ -103,6 +103,11 @@
             @click.stop="gotoTrendDetail(trend.id)">
             <view class="browse-count">
               <!-- 浏览 {{ trend.browseNumber }} -->
+              <text
+                style="color: #576991"
+                v-if="trend.topic">
+                # {{ trend.topic }}
+              </text>
             </view>
             <view
               class="position-tag"
@@ -165,6 +170,11 @@
             <view class="username" @click="gotoUserPage(trend.userInfo.id)">{{ trend.userInfo.username }}</view>
             <view class="post-time">{{ trend.createdTime | formatTime }}</view>
           </view>
+          <view
+            class="tag-container"
+            v-if="trend.isTop">
+            置顶动态
+          </view>
         </view>
         <view class="content-container">
           {{ trend.content }}
@@ -177,6 +187,11 @@
         <view class="tags-container">
           <view class="browse-count">
 <!--            浏览 {{ trend.browseNumber }}-->
+            <text
+              style="color: #576991"
+              v-if="trend.topic">
+              # {{ trend.topic }}
+            </text>
           </view>
           <view
             class="position-tag"
@@ -239,7 +254,7 @@
         getMyFocusedTrend,
         getMyProfile,
         getNewTrend,
-        getRecommendUserList,
+        getRecommendUserList, getTopTrend,
         like
     } from "@/common/js/api/models.js";
     import {onShow} from "@dcloudio/uni-mp-vue";
@@ -272,8 +287,7 @@
              * 获取动态列表数据
              * @param {Number} type 动态列表的类型，0:关注用户的动态，1:附近的动态
              * @param {Boolean} isRefresh 是否为刷新数据（重新获取），默认为true
-             */
-            getTrendData(type, isRefresh = true) {
+             */ async getTrendData(type, isRefresh = true) {
                 if (type === 0) {
                     //当前获取动态数据类型为关注的动态
                     if (this.focusTrendListLoadingMore) {
@@ -299,6 +313,12 @@
                                 trend.dynamicImages.forEach(image => {
                                     image.imgUrl = `${image.imgUrl}#${Math.random()}`;
                                 });
+                                const topicStartIndex = trend.content.indexOf('#');
+                                if (topicStartIndex !== -1) {
+                                    //内容包含话题
+                                    trend.topic = trend.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
+                                    trend.content = trend.content.substring(trend.content.indexOf(' ') + 1, trend.content.length);
+                                }
                                 this.focusTrendList.push(trend);
                             });
                             this.focusTrendListPageNumber += 1;
@@ -335,6 +355,23 @@
                             //刷新
                             this.mainTrendListPageNumber = 0;
                             this.mainTrendList = [];
+                            getTopTrend().then(res => {
+                                if (!!res.data.id) {
+                                    res.data.dynamicImages.forEach(image => {
+                                        image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                    });
+                                    res.data.isTop = true;
+                                    const topicStartIndex = res.data.content.indexOf('#');
+                                    if (topicStartIndex !== -1) {
+                                        //内容包含话题
+                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
+                                        res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
+                                    }
+                                    this.mainTrendList.unshift(res.data);
+                                }
+                            }).catch(err => {
+                                console.error(err);
+                            });
                         }
                         const data = res.data;
                         if (data.records.length !== 0) {
@@ -344,6 +381,12 @@
                                 trend.dynamicImages.forEach(image => {
                                     image.imgUrl = `${image.imgUrl}#${Math.random()}`;
                                 });
+                                const topicStartIndex = trend.content.indexOf('#');
+                                if (topicStartIndex !== -1) {
+                                    //内容包含话题
+                                    trend.topic = trend.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
+                                    trend.content = trend.content.substring(trend.content.indexOf(' ') + 1, trend.content.length);
+                                }
                                 this.mainTrendList.push(trend);
                             });
                             this.mainTrendListPageNumber += 1;

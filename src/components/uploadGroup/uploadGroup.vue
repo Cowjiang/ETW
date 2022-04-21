@@ -164,15 +164,6 @@
         },
         mounted() {
             this.uploadItemWidth = (this.width - 60) / 3 - 10;
-            console.log(this.uploadItemWidth)
-            // const view = uni.createSelectorQuery().in(this).select(".container");
-            // view.fields({
-            //     size: true,
-            //     scrollOffset: true
-            // }, data => {
-            //     this.uploadItemWidth = (Math.floor(data.width) * 2 - 60) / 3;
-            //     console.log(this.uploadItemWidth)
-            // }).exec();
         }
     };
 </script>

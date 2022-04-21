@@ -66,6 +66,11 @@
             :imageDataList="trendDetail.dynamicImages"/>
         </view>
         <view class="tags-container">
+          <view
+            class="topic"
+            v-if="trendDetail.topic">
+            {{ trendDetail.topic }}
+          </view>
           <view class="like-number">
             点赞 {{ trendDetail.likeNumber || 0 }}
           </view>
@@ -318,6 +323,12 @@
                     }
                 }).then(res => {
                     this.trendDetail = res.data.dynamicWithImages;
+                    const topicStartIndex = this.trendDetail.content.indexOf('#');
+                    if (topicStartIndex !== -1) {
+                        //内容包含话题
+                        this.trendDetail.topic = this.trendDetail.content.substring(topicStartIndex, this.trendDetail.content.indexOf(' ') + 1);
+                        this.trendDetail.content = this.trendDetail.content.substring(this.trendDetail.content.indexOf(' ') + 1, this.trendDetail.content.length);
+                    }
                     this.getUserRelationships();
                 }).catch(err => {
                     console.error(err);
