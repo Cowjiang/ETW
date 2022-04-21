@@ -45,12 +45,12 @@
             <view class="title">粉丝</view>
           </view>
           <view class="divider"></view>
-          <view class="user-info_column" @click="goto('/pagesByStore/userPage/userPage?type=1')">
+          <view class="user-info_column" @click="goto('/pagesByStore/userPage/userPage?type=0')">
             <view class="content">{{ trendCount || 0 }}</view>
             <view class="title">动态</view>
           </view>
           <view class="divider"></view>
-          <view class="user-info_column">
+          <view class="user-info_column" @click="goto('/pagesByStore/userPage/userPage?type=1')">
             <view class="content">0</view>
             <view class="title">作品</view>
           </view>
@@ -81,7 +81,9 @@
             <i class="fas fa-angle-right"/>
           </view>
         </view>
-        <view class="btn_row">
+        <view
+          class="btn_row"
+          @click="showToast('功能开发中', 'warning')">
           <view class="btn_title">
             <i class="far fa-star"/>
             <text>我的收藏</text>
@@ -132,7 +134,9 @@
             <i class="fas fa-angle-right"/>
           </view>
         </button>
-        <view class="btn_row">
+        <view
+          class="btn_row"
+          @click="showToast('功能开发中', 'warning')">
           <view class="btn_title">
             <i class="far fa-face-smile"></i>
             <text>关于我们</text>
@@ -232,6 +236,18 @@
                     }
                 });
             },
+            /**
+             * 显示Toast消息提醒
+             * @param {String} text 内容
+             * @param {String} type 类型
+             */
+            showToast(text, type) {
+                this.$refs.toast.show({
+                    text: text,
+                    type: type,
+                    direction: 'top'
+                });
+            }
         },
         computed: {
             // 我的个人信息
