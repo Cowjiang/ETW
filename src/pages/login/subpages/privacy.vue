@@ -101,5 +101,6 @@
 <style lang="scss" scoped>
   .privacy-container {
     padding: 20rpx 40rpx 150rpx 40rpx;
+    white-space: pre-line;
   }
 </style>

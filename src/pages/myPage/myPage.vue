@@ -242,11 +242,13 @@
              * @param {String} type 类型
              */
             showToast(text, type) {
-                this.$refs.toast.show({
-                    text: text,
-                    type: type,
-                    direction: 'top'
-                });
+                this.utils.throttle(() => {
+                    this.$refs.toast.show({
+                        text: text,
+                        type: type,
+                        direction: 'top'
+                    });
+                }, 1000);
             }
         },
         computed: {
