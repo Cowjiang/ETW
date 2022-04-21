@@ -15,7 +15,7 @@
           class="u-delete-icon"
           @tap.stop="deleteItem(index)"
         >
-          X
+          <i class="fas fa-xmark"/>
         </view>
         <u-line-progress
           v-if="showProgress && item.progress > 0 && !item.error"
@@ -596,14 +596,16 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  box-sizing: unset;
 }
 
 .u-list-item {
-  width: 200rpx;
-  height: 200rpx;
+  min-width: 200rpx;
+  width: calc((100% - 72rpx) / 3) !important;
   overflow: hidden;
   margin: 10rpx;
   background: rgb(244, 245, 246);
+  box-sizing: unset;
   position: relative;
   border-radius: 10rpx;
   /* #ifndef APP-NVUE */
@@ -614,7 +616,7 @@ export default {
 }
 
 .u-preview-wrap {
-  border: 1px solid rgb(235, 236, 238);
+  border: 2rpx solid rgb(235, 236, 238);
 }
 
 .u-add-wrap {
@@ -647,7 +649,7 @@ export default {
   color: white;
   background-color: $uni-color-primary;
   border-radius: 50%;
-  font-size: 22rpx;
+  font-size: 26rpx;
   width: 36rpx;
   height: 36rpx;
   line-height: 36rpx;

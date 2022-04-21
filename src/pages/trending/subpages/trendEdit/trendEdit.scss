@@ -19,6 +19,7 @@
 
   .menu-container {
     padding: 10rpx 0;
+    margin-bottom: 100rpx;
 
     .menu-item {
       width: 100%;
@@ -26,7 +27,7 @@
       flex-direction: column;
       //border-top: 2rpx solid #f1f1f1;
 
-      .select-position-container {
+      .select-position-container, .select-topic-container {
         min-height: 40rpx;
         display: flex;
         flex-direction: row;
@@ -41,28 +42,42 @@
         }
 
         .title-text {
-          margin-left: 24rpx;
+          margin-left: 20rpx;
           font-size: 28rpx;
         }
 
-        .address-name {
+        .content-text {
           max-width: 50vw;
           margin-left: auto;
-          margin-right: 20rpx;
           padding: 2rpx 24rpx;
           flex-shrink: 0;
-          background-color: #f4756b;
-          color: #fff;
           font-size: 28rpx;
-          border-radius: 50rpx;
+          text-align: right;
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
+        }
+
+        .address-name {
+          margin-right: 20rpx;
+          text-align: unset;
+          background-color: #f4756b;
+          color: #fff;
+          border-radius: 50rpx;
         }
       }
 
       .address-tips-container {
         margin-bottom: 30rpx;
+
+        ::-webkit-scrollbar {
+          display: none;
+          width: 0 !important;
+          height: 0 !important;
+          -webkit-appearance: none;
+          background: transparent;
+          color: transparent;
+        }
 
         .address-tips {
           width: fit-content;

@@ -22,11 +22,29 @@
           ref="uploadGroup"
           uploadImageDir="dynamic"
           maxImageCount="9"
+          :width="(windowWidth * 2) - 72"
           @onImageUploaded="submitPost(arguments)"/>
       </view>
       <view class="menu-container">
-        <view
-          class="menu-item">
+        <view class="menu-item">
+          <view class="select-topic-container">
+            <i class="fas fa-hashtag"></i>
+            <view
+              class="title-text"
+              @click="topicInputFocus = true">
+              话题
+            </view>
+            <input
+              class="content-text"
+              type="text"
+              v-model="topicValue"
+              :focus="topicInputFocus"
+              maxlength="10"
+              @focus="topicInputFocus = false">
+            <i class="fas fa-angle-right"/>
+          </view>
+        </view>
+        <view class="menu-item">
           <view
             class="select-position-container"
             @click="gotoMap">
@@ -34,7 +52,7 @@
             <view class="title-text">
               选择地点
             </view>
-            <view class="address-name" v-if="positionInfo.addressName">
+            <view class="content-text address-name" v-if="positionInfo.addressName">
               {{ positionInfo.addressName }}
             </view>
             <i
@@ -98,6 +116,8 @@
                 titleValue: '', //帖子标题的值
                 textareaValue: '', //文本域的值
                 isPostReady: false, //是否准备发送
+                topicValue: '', //话题
+                topicInputFocus: false, //话题输入框的聚焦状态
                 positionInfo: {}, //位置信息
                 addressTips: [], //附近地点建议
             }
@@ -153,7 +173,7 @@
             // 发布帖子
             submitPost(args) {
                 let trendContent = {
-                    content: this.textareaValue,
+                    content: this.topicValue.replace(/\s*/g, "") !== '' ? `#${this.topicValue} ${this.textareaValue}` : this.textareaValue,
                     images: args[0],
                 };
                 if (this.positionInfo.latitude) {
@@ -209,7 +229,10 @@
         },
         watch: {
             textareaValue(nval) {
-                this.isPostReady = nval.replace(/[ ]/g, "").length > 1;
+                this.isPostReady = nval.replace(/[ ]/g, '').length > 1;
+            },
+            topicValue(nval) {
+                this.topicValue = nval.replaceAll(/\s*/g, '').replaceAll('#', '');
             }
         },
         mounted() {
