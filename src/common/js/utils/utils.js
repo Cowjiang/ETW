@@ -1,6 +1,6 @@
 import store from '@/common/js/store';
 import {closeSocket, connectSocket} from "@/common/js/api/socket";
-import {getMyChatList, getUnreadCount, logOut} from "@/common/js/api/models";
+import {getUnreadCount, logOut} from "@/common/js/api/models";
 
 export class Utils {
     constructor() {
@@ -184,7 +184,7 @@ export class Utils {
                     });
                     resolve();
                 }).catch(err => {
-                    if (err !== '未登录') {
+                    if (err !== '未登录' && err !== '正在连接') {
                         console.error(err);
                     }
                 });
@@ -244,4 +244,3 @@ export class Utils {
         });
     }
 }
-

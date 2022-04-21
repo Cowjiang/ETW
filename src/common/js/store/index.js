@@ -9,6 +9,7 @@ const state = {
     navigationHeight: 0, //导航栏高度
     currentPageUrl: '', //当前页面Url
     userInfo: null, //当前登录的用户信息
+    connectingSocket: false, //是否正在连接Socket
     socketStatus: false, //当前Socket是否已经连接成功
     unreadMessageCount: 0, //用户的未读消息数量
     chatMessages: [], //聊天信息列表

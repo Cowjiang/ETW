@@ -287,14 +287,15 @@
              * 获取动态列表数据
              * @param {Number} type 动态列表的类型，0:关注用户的动态，1:附近的动态
              * @param {Boolean} isRefresh 是否为刷新数据（重新获取），默认为true
-             */ async getTrendData(type, isRefresh = true) {
+             */
+            async getTrendData(type, isRefresh = true) {
                 if (type === 0) {
                     //当前获取动态数据类型为关注的动态
                     if (this.focusTrendListLoadingMore) {
                         return;
                     }
                     this.focusTrendListLoadingMore = true;
-                    getMyFocusedTrend({
+                    await getMyFocusedTrend({
                         queryData: {
                             pageNumber: isRefresh ? 1 : this.focusTrendListPageNumber + 1,
                             pageSize: this.pageSize,
@@ -355,23 +356,6 @@
                             //刷新
                             this.mainTrendListPageNumber = 0;
                             this.mainTrendList = [];
-                            getTopTrend().then(res => {
-                                if (!!res.data.id) {
-                                    res.data.dynamicImages.forEach(image => {
-                                        image.imgUrl = `${image.imgUrl}#${Math.random()}`;
-                                    });
-                                    res.data.isTop = true;
-                                    const topicStartIndex = res.data.content.indexOf('#');
-                                    if (topicStartIndex !== -1) {
-                                        //内容包含话题
-                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
-                                        res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
-                                    }
-                                    this.mainTrendList.unshift(res.data);
-                                }
-                            }).catch(err => {
-                                console.error(err);
-                            });
                         }
                         const data = res.data;
                         if (data.records.length !== 0) {
@@ -403,8 +387,26 @@
                             direction: 'top'
                         });
                     }).finally(() => {
-                        this.mainTrendListLoadingMore = false;
-                        uni.stopPullDownRefresh();
+                        getTopTrend().then(res => {
+                            if (!!res.data.id) {
+                                res.data.dynamicImages.forEach(image => {
+                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                });
+                                res.data.isTop = true;
+                                const topicStartIndex = res.data.content.indexOf('#');
+                                if (topicStartIndex !== -1) {
+                                    //内容包含话题
+                                    res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
+                                    res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
+                                }
+                                this.mainTrendList.unshift(res.data);
+                            }
+                        }).catch(err => {
+                            console.error(err);
+                        }).finally(() => {
+                            this.mainTrendListLoadingMore = false;
+                            uni.stopPullDownRefresh();
+                        });
                     });
                 }
             },
