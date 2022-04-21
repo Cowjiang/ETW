@@ -100,7 +100,7 @@
           </view>
           <view
             class="tags-container"
-            @click="gotoTrendDetail(trend.id)">
+            @click.stop="gotoTrendDetail(trend.id)">
             <view class="browse-count">
               <!-- 浏览 {{ trend.browseNumber }} -->
             </view>
