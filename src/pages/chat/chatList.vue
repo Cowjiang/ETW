@@ -38,8 +38,8 @@
               </view>
               <view
                 class="btn-unread"
-                v-if="btnMessageUnreadCount[0] !== 0">
-                {{ btnMessageUnreadCount[0] > 99 ? '99+' : btnMessageUnreadCount[0] }}
+                v-if="unreadLikeCount !== 0">
+                {{ unreadLikeCount > 99 ? '99+' : unreadLikeCount }}
               </view>
             </view>
             <view class="btn-title">赞</view>
@@ -58,8 +58,8 @@
               </view>
               <view
                 class="btn-unread"
-                v-if="btnMessageUnreadCount[1] !== 0">
-                {{ btnMessageUnreadCount[31] > 99 ? '99+' : btnMessageUnreadCount[1] }}
+                v-if="unreadCommentCount !== 0">
+                {{ unreadCommentCount > 99 ? '99+' : unreadCommentCount }}
               </view>
             </view>
             <view class="btn-title">回复我的</view>
@@ -78,8 +78,8 @@
               </view>
               <view
                 class="btn-unread"
-                v-if="btnMessageUnreadCount[2] !== 0">
-                {{ btnMessageUnreadCount[2] > 99 ? '99+' : btnMessageUnreadCount[2] }}
+                v-if="unreadFansCount !== 0">
+                {{ unreadFansCount > 99 ? '99+' : unreadFansCount }}
               </view>
             </view>
             <view class="btn-title">新增关注</view>
@@ -102,8 +102,8 @@
               </view>
               <view
                 class="btn-unread"
-                v-if="btnMessageUnreadCount[3] !== 0">
-                {{ btnMessageUnreadCount[3] > 99 ? '99+' : btnMessageUnreadCount[3] }}
+                v-if="unreadNoticeCount !== 0">
+                {{ unreadNoticeCount > 99 ? '99+' : unreadNoticeCount }}
               </view>
             </view>
             <view class="btn-title">通知消息</view>
@@ -193,6 +193,7 @@
         getUnreadCount,
         removeFromBlockList
     } from "@/common/js/api/models.js";
+    import store from "@/common/js/store";
 
     export default {
         components: {
@@ -277,7 +278,9 @@
                             const likeUnread = res.data.find(item => item.eventType === 1) ?? {count: 0};
                             const commentUnread = res.data.find(item => item.eventType === 2) ?? {count: 0};
                             const fansUnread = res.data.find(item => item.eventType === 4) ?? {count: 0};
-                            this.btnMessageUnreadCount = [likeUnread.count, commentUnread.count, fansUnread.count, 0];
+                            this.$store.commit('unreadLikeCount', likeUnread.count);
+                            this.$store.commit('unreadCommentCount', commentUnread.count);
+                            this.$store.commit('unreadFansCount', fansUnread.count);
                             this.$store.commit('unreadMessageCount', unread);
                             if (unread > 0) {
                                 uni.setTabBarBadge({
@@ -320,6 +323,22 @@
                     uni.removeTabBarBadge({
                         index: 1
                     });
+                    if (index === 0) {
+                        this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - this.unreadLikeCount);
+                        this.$store.commit('unreadLikeCount', 0);
+                    }
+                    else if (index === 1) {
+                        this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - this.unreadCommentCount);
+                        this.$store.commit('unreadCommentCount', 0);
+                    }
+                    else if (index === 2) {
+                        this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - this.unreadFansCount);
+                        this.$store.commit('unreadFansCount', 0);
+                    }
+                    else if (index === 3) {
+                        this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount - this.unreadNoticeCount);
+                        this.$store.commit('unreadNoticeCount', 0);
+                    }
                     const url = ['likeList/likeList', 'commentList/commentList', 'fansList/fansList', 'noticeList/noticeList'];
                     uni.navigateTo({
                         url: `/pagesByStore/messageList/${url[index]}`
@@ -479,49 +498,6 @@
                     }
                 }, 1000);
             },
-            /**
-             * 监听接收到新消息
-             * @param {Object} data Socket接收到的新消息
-             */
-            receiveNewMessage(data) {
-                if (data.errorCode === 120) {
-                    const newMessage = data.data.messageInfo;
-                    let chatMessages = this.$store.state.chatMessages;
-                    const findIndex = chatMessages.findIndex(message => message.senderId === newMessage.friendId);
-                    if (findIndex !== -1) {
-                        const messageTemp = chatMessages[findIndex];
-                        chatMessages.splice(findIndex, 1);
-                        chatMessages.unshift({
-                            senderName: messageTemp.senderName, //用户名称
-                            senderId: messageTemp.senderId, //用户ID
-                            senderAvatar: messageTemp.senderAvatar, //用户头像地址
-                            messageId: newMessage.id, //消息ID
-                            content: newMessage.content, //消息内容
-                            isPhoto: !newMessage.isText, //是否为图片消息
-                            time: newMessage.createdTime, //消息发送时间
-                            isRead: newMessage.isRead, //消息是否已读
-                            unreadCount: messageTemp.unreadCount + 1 || 1, //当前对话消息未读数量
-                            isBlocked: messageTemp.isBlocked, //聊天对象是否在黑名单中
-                        });
-                    }
-                    else {
-                        chatMessages.unshift({
-                            senderName: data.data.userInfo.username, //用户名称
-                            senderId: data.data.messageInfo.friendId, //用户ID
-                            senderAvatar: data.data.userInfo.avgPath, //用户头像地址
-                            messageId: data.data.messageInfo.id, //消息ID
-                            content: data.data.messageInfo.content, //消息内容
-                            isPhoto: !data.data.messageInfo.isText, //是否为图片消息
-                            time: data.data.messageInfo.createdTime, //消息发送时间
-                            isRead: data.data.messageInfo.isRead, //消息是否已读
-                            unreadCount: 1, //当前对话消息未读数量
-                            isBlocked: false, //聊天对象是否在黑名单中
-                        });
-                    }
-                    this.$store.commit('chatMessages', chatMessages);
-                    this.$forceUpdate();
-                }
-            },
             // 获取消息更新
             startCheckingUpdate() {
                 if (this.chatMessages.length === 0) {
@@ -549,6 +525,18 @@
                 get() {
                     return this.$store.state.chatMessages;
                 }
+            },
+            unreadLikeCount() {
+                return this.$store.state.unreadLikeCount;
+            },
+            unreadCommentCount() {
+                return this.$store.state.unreadCommentCount;
+            },
+            unreadFansCount() {
+                return this.$store.state.unreadFansCount;
+            },
+            unreadNoticeCount() {
+                return this.$store.state.unreadNoticeCount;
             }
         },
         filters: {
@@ -585,17 +573,6 @@
                 titleText: '消息',
                 backgroundColor: '#f6f6f6',
                 isShowButton: false,
-            });
-            uni.onSocketMessage(res => {
-                const data = JSON.parse(res.data);
-                if (data.errorCode === 120) {
-                    //私信消息
-                    this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
-                    this.receiveNewMessage(data); //监听到Socket新消息
-                }
-                else if (data.errorCode === 121) {
-                    //通知消息
-                }
             });
         },
     }

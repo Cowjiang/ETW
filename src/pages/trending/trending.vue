@@ -105,7 +105,8 @@
               <!-- 浏览 {{ trend.browseNumber }} -->
               <text
                 style="color: #576991"
-                v-if="trend.topic">
+                v-if="trend.topic"
+                @click.stop="handleTopicClick(trend.topic)">
                 # {{ trend.topic }}
               </text>
             </view>
@@ -189,7 +190,8 @@
 <!--            浏览 {{ trend.browseNumber }}-->
             <text
               style="color: #576991"
-              v-if="trend.topic">
+              v-if="trend.topic"
+              @click.stop="handleTopicClick(trend.topic)">
               # {{ trend.topic }}
             </text>
           </view>
@@ -636,6 +638,15 @@
                     }
                 });
             },
+            /**
+             * 跳转话题动态
+             * @param {String} topic 话题
+             */
+            handleTopicClick(topic) {
+                uni.navigateTo({
+                    url: `/pages/trending/subpages/trendTopic/trendTopic?topic=${topic}`
+                });
+            }
         },
         // 页面滑动触底事件
         onReachBottom() {

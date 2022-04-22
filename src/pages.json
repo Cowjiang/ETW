@@ -84,6 +84,14 @@
             }
         },
         {
+            "path": "pages/trending/subpages/trendTopic/trendTopic",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/myPage/myPage",
             "style": {
                 "navigationBarTitleText": "",

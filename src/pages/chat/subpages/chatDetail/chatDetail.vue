@@ -853,6 +853,19 @@
                 }
                 else if (data.errorCode === 121) {
                     //通知消息
+                    this.$store.commit('unreadMessageCount', this.$store.state.unreadMessageCount + 1);
+                    if (data.data.eventType === 1) {
+                        //点赞
+                        this.$store.commit('unreadLikeCount', this.$store.state.unreadLikeCount + 1);
+                    }
+                    else if (data.data.eventType === 2) {
+                        //评论
+                        this.$store.commit('unreadCommentCount', this.$store.state.unreadCommentCount + 1);
+                    }
+                    else if (data.data.eventType === 4) {
+                        //新增粉丝
+                        this.$store.commit('unreadFansCount', this.$store.state.unreadFansCount + 1);
+                    }
                 }
             });
         },

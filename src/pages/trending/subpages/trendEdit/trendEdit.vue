@@ -185,8 +185,11 @@
                 postTrend({
                     queryData: trendContent,
                 }).then(() => {
-                    const eventChannel = this.getOpenerEventChannel();
-                    eventChannel.emit("onSent", {});
+                    try {
+                        const eventChannel = this.getOpenerEventChannel();
+                        eventChannel.emit("onSent", {});
+                    }
+                    catch (e) {}
                     uni.navigateBack({
                         fail: () => {
                             uni.switchTab({

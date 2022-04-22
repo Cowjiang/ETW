@@ -180,6 +180,18 @@ export class Utils {
                         }
                         else if (data.errorCode === 121) {
                             store.commit('unreadMessageCount', store.state.unreadMessageCount + 1);
+                            if (data.data.eventType === 1) {
+                                //点赞
+                                store.commit('unreadLikeCount', store.state.unreadLikeCount + 1);
+                            }
+                            else if (data.data.eventType === 2) {
+                                //评论
+                                store.commit('unreadCommentCount', store.state.unreadCommentCount + 1);
+                            }
+                            else if (data.data.eventType === 4) {
+                                //新增粉丝
+                                store.commit('unreadFansCount', store.state.unreadFansCount + 1);
+                            }
                         }
                     });
                     resolve();
