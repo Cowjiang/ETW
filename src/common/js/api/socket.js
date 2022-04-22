@@ -21,6 +21,7 @@ export const connectSocket = uid => {
                 success: async res => {
                     if (res.data.errorCode === 3002) {
                         store.commit('userInfo', null);
+                        store.commit('connectingSocket', false);
                         reject('未登录');
                     }
                     else {
@@ -32,16 +33,19 @@ export const connectSocket = uid => {
                             method: 'GET',
                             success: socketResponse => {
                                 uni.onSocketOpen(res => {
+                                    store.commit('connectingSocket', false);
                                     resolve(socketResponse);
                                 });
                             },
                             fail: err => {
+                                store.commit('connectingSocket', false);
                                 reject(err);
                             }
                         });
                     }
                 },
                 fail: err => {
+                    store.commit('connectingSocket', false);
                     reject(err);
                 }
             });
