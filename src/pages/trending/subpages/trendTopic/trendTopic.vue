@@ -123,7 +123,7 @@
                     queryData: {
                         pageNumber: isRefresh ? 1 : this.trendListPageNumber + 1,
                         pageSize: this.pageSize,
-                        keywords: this.topicName
+                        keywords: `#${this.topicName}`
                     },
                 }).then(res => {
                     if (isRefresh) {

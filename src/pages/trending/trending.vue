@@ -367,7 +367,7 @@
                                     const topicStartIndex = res.data.content.indexOf('#');
                                     if (topicStartIndex !== -1) {
                                         //内容包含话题
-                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
+                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, res.data.content.indexOf(' ') + 1);
                                         res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
                                     }
                                     this.mainTrendList.unshift(res.data);
