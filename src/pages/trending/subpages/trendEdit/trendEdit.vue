@@ -233,6 +233,16 @@
         watch: {
             textareaValue(nval) {
                 this.isPostReady = nval.replace(/[ ]/g, '').length > 1;
+                if (nval.indexOf('#') === 0) {
+                    this.utils.throttle(() => {
+                        this.$refs.toast.show({
+                            text: '不能以#开头',
+                            type: 'warning',
+                            direction: 'top'
+                        });
+                    }, 3000);
+                    this.textareaValue = nval.replace('#', '');
+                }
             },
             topicValue(nval) {
                 this.topicValue = nval.replaceAll(/\s*/g, '').replaceAll('#', '');

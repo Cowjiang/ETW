@@ -325,10 +325,11 @@
                 }).then(res => {
                     this.trendDetail = res.data.dynamicWithImages;
                     const topicStartIndex = this.trendDetail.content.indexOf('#');
-                    if (topicStartIndex !== -1) {
+                    const topicEndIndex = this.trendDetail.content.indexOf(' ');
+                    if (topicStartIndex === 0 && topicEndIndex !== -1) {
                         //内容包含话题
-                        this.trendDetail.topic = this.trendDetail.content.substring(topicStartIndex + 1, this.trendDetail.content.indexOf(' ') + 1);
-                        this.trendDetail.content = this.trendDetail.content.substring(this.trendDetail.content.indexOf(' ') + 1, this.trendDetail.content.length);
+                        this.trendDetail.topic = this.trendDetail.content.substring(topicStartIndex + 1, topicEndIndex + 1);
+                        this.trendDetail.content = this.trendDetail.content.substring(topicEndIndex + 1, this.trendDetail.content.length);
                     }
                     this.getUserRelationships();
                 }).catch(err => {

@@ -142,6 +142,8 @@
       align-items: center;
 
       .like-number {
+        margin-right: 20rpx;
+        white-space: nowrap;
         font-size: 26rpx;
         color: #888;
       }
@@ -150,10 +152,14 @@
         margin-right: 20rpx;
         font-size: 28rpx;
         color: #576991;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .position-tag {
         width: fit-content;
+        max-width: 45vw;
         height: 50rpx;
         padding: 0 30rpx;
         margin-left: auto;
@@ -164,6 +170,9 @@
         text-align: center;
         line-height: 50rpx;
         border-radius: 50rpx;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         .fas {
           margin-right: 10rpx;

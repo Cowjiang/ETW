@@ -181,7 +181,7 @@
                       </view>
                     </view>
                   </view>
-                  <view class="content-info" v-if="trend.stat === 1">
+                  <view class="content-info" v-if="trend.stat === 1 || trend.stat === 2">
                     <text>
                       {{ trend.likeNumber }}人点赞
                     </text>
@@ -705,6 +705,13 @@
                 if (this.userInfo.hasOwnProperty('userId') && !!userInfo) {
                     return userInfo.userId === this.userInfo.userId;
                 }
+            }
+        },
+        filters: {
+            formatTrendStatus(status) {
+                const statusList = {
+                    '-1': '审核不通过'
+                };
             }
         },
         onPageScroll(e) {

@@ -108,6 +108,10 @@
       align-items: center;
 
       .browse-count {
+        margin-right: 20rpx;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         font-size: 28rpx;
         color: #888;
       }
