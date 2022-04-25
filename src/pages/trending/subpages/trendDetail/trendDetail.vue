@@ -333,12 +333,22 @@
                     }
                     this.getUserRelationships();
                 }).catch(err => {
-                    console.error(err);
-                    this.$refs.toast.show({
-                        text: '获取动态详情失败',
-                        type: 'error',
-                        direction: 'top'
-                    })
+                    if (err.data.errorMsg === '动态不存在') {
+                        this.$refs.toast.show({
+                            text: '动态已被删除',
+                            type: 'error',
+                            direction: 'top',
+                            showDuration: 99999999
+                        });
+                    }
+                    else {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '获取动态详情失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    }
                 });
             },
             // 获取动态评论
@@ -1016,10 +1026,12 @@
                         this.getTopComment(data);
                     });
                 } catch (e) {}
-                this.readyToShow = true;
-                setTimeout(() => {
-                    this.$refs.loading.stopLoading();
-                }, 300);
+                if (this.trendDetail.hasOwnProperty('id')) {
+                    this.readyToShow = true;
+                    setTimeout(() => {
+                        this.$refs.loading.stopLoading();
+                    }, 300);
+                }
             }
             else {
                 uni.navigateBack();
@@ -1033,6 +1045,12 @@
                 titleText: '动态详情',
                 backgroundColor: '#fff',
             });
+        },
+        onShareAppMessage() {
+            return {
+                title: `分享动态`,
+                path: `${this.utils.getCurrentPage().curFullUrl}`
+            }
         }
     }
 </script>

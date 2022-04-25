@@ -717,6 +717,12 @@
                 backgroundBlur: true
             });
             this.getTrendData(this.currentTrendType);
+        },
+        onShareAppMessage() {
+            return {
+                title: '分享生活中的美好点滴',
+                path: '/pages/trending/trending'
+            }
         }
     };
 </script>

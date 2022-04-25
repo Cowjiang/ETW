@@ -796,6 +796,12 @@
             this.$refs.navigationBar.setNavigation({
                 titleText: '',
             });
+        },
+        onShareAppMessage() {
+            return {
+                title: `分享${this.userInfo.username}的个人主页`,
+                path: `/${this.utils.getCurrentPage().curUrl}?userId=${this.userId}`
+            }
         }
     }
 </script>
