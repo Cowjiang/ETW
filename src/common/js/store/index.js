@@ -12,6 +12,10 @@ const state = {
     connectingSocket: false, //是否正在连接Socket
     socketStatus: false, //当前Socket是否已经连接成功
     unreadMessageCount: 0, //用户的未读消息数量
+    unreadLikeCount: 0, //用户未读的点赞数量
+    unreadCommentCount: 0, //用户未读的评论、回复数量
+    unreadFansCount: 0, //用户未读的新增粉丝数量
+    unreadNoticeCount: 0, //用户未读的通知数量
     chatMessages: [], //聊天信息列表
     shopkeeper: false, //当前登录账户为商家
 };

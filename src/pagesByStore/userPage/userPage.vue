@@ -181,7 +181,7 @@
                       </view>
                     </view>
                   </view>
-                  <view class="content-info" v-if="trend.stat === 1">
+                  <view class="content-info" v-if="trend.stat === 1 || trend.stat === 2">
                     <text>
                       {{ trend.likeNumber }}人点赞
                     </text>
@@ -707,6 +707,13 @@
                 }
             }
         },
+        filters: {
+            formatTrendStatus(status) {
+                const statusList = {
+                    '-1': '审核不通过'
+                };
+            }
+        },
         onPageScroll(e) {
             if (e.scrollTop > this.windowHeight * 0.2 && this.coverVisible) {
                 this.coverVisible = false;
@@ -789,6 +796,12 @@
             this.$refs.navigationBar.setNavigation({
                 titleText: '',
             });
+        },
+        onShareAppMessage() {
+            return {
+                title: `分享${this.userInfo.username}的个人主页`,
+                path: `/${this.utils.getCurrentPage().curUrl}?userId=${this.userId}`
+            }
         }
     }
 </script>

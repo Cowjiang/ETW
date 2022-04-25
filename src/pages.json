@@ -77,6 +77,14 @@
             }
         },
         {
+            "path": "pages/login/subpages/privacy",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/trending/subpages/trendEdit/trendEdit",
             "style": {
                 "navigationBarTitleText": "",
@@ -86,6 +94,14 @@
         },
         {
             "path": "pages/trending/subpages/trendDetail/trendDetail",
+            "style": {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom"
+            }
+        },
+        {
+            "path": "pages/trending/subpages/trendTopic/trendTopic",
             "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,

@@ -68,8 +68,9 @@
         <view class="tags-container">
           <view
             class="topic"
-            v-if="trendDetail.topic">
-            {{ trendDetail.topic }}
+            v-if="trendDetail.topic"
+            @click.stop="handleTopicClick(trendDetail.topic)">
+            #{{ trendDetail.topic }}
           </view>
           <view class="like-number">
             点赞 {{ trendDetail.likeNumber || 0 }}
@@ -137,7 +138,7 @@
               class="comment-child"
               v-for="commentChild in comment.commentChildList"
               :key="commentChild.id"
-              @click="handleCommentClick(comment, commentChild.scUserInfo)">
+              @click="handleCommentClick(comment, commentChild.scUserInfo, commentChild.id)">
               <view class="user-info-container" @click.stop="gotoUserPage(commentChild.scUserInfo.id)">
                 <view class="avatar">
                   <image :src="commentChild.scUserInfo.avgPath" mode="aspectFill"/>
@@ -324,19 +325,30 @@
                 }).then(res => {
                     this.trendDetail = res.data.dynamicWithImages;
                     const topicStartIndex = this.trendDetail.content.indexOf('#');
-                    if (topicStartIndex !== -1) {
+                    const topicEndIndex = this.trendDetail.content.indexOf(' ');
+                    if (topicStartIndex === 0 && topicEndIndex !== -1) {
                         //内容包含话题
-                        this.trendDetail.topic = this.trendDetail.content.substring(topicStartIndex, this.trendDetail.content.indexOf(' ') + 1);
-                        this.trendDetail.content = this.trendDetail.content.substring(this.trendDetail.content.indexOf(' ') + 1, this.trendDetail.content.length);
+                        this.trendDetail.topic = this.trendDetail.content.substring(topicStartIndex + 1, topicEndIndex + 1);
+                        this.trendDetail.content = this.trendDetail.content.substring(topicEndIndex + 1, this.trendDetail.content.length);
                     }
                     this.getUserRelationships();
                 }).catch(err => {
-                    console.error(err);
-                    this.$refs.toast.show({
-                        text: '获取动态详情失败',
-                        type: 'error',
-                        direction: 'top'
-                    })
+                    if (err.data.errorMsg === '动态不存在') {
+                        this.$refs.toast.show({
+                            text: '动态已被删除',
+                            type: 'error',
+                            direction: 'top',
+                            showDuration: 99999999
+                        });
+                    }
+                    else {
+                        console.error(err);
+                        this.$refs.toast.show({
+                            text: '获取动态详情失败',
+                            type: 'error',
+                            direction: 'top'
+                        });
+                    }
                 });
             },
             // 获取动态评论
@@ -571,6 +583,7 @@
                             if (this.currentCommentInfo.toUserId !== null) {
                                 //当前为回复二级评论
                                 queryData.toUserId = this.currentCommentInfo.toUserId;
+                                queryData.replyId = this.currentCommentInfo.replyCommentId;
                             }
                             postTrendSecondComment({
                                 urlParam: {
@@ -636,15 +649,17 @@
              * 评论点击事件
              * @param {Object} comment 评论对象
              * @param {Object|Null} replyUserInfo 回复二级评论时的目标用户（回复一级评论时为null）
+             * @param {Number|Null} replayCommentId 回复二级评论时的目标评论ID
              */
-            handleCommentClick(comment, replyUserInfo = null) {
+            handleCommentClick(comment, replyUserInfo = null, replayCommentId = null) {
                 if (!replyUserInfo) {
                     this.rawInputValue = '';
                     this.currentCommentType = 1;
                     this.currentCommentInfo = {
                         id: comment.id,
                         userName: comment.userInfo.username,
-                        toUserId: null
+                        toUserId: null,
+                        replyCommentId: null
                     };
                     this.inputFocusStatus = true;
                 }
@@ -654,7 +669,8 @@
                     this.currentCommentInfo = {
                         id: comment.id,
                         userName: replyUserInfo.username,
-                        toUserId: replyUserInfo.id
+                        toUserId: replyUserInfo.id,
+                        replyCommentId: replayCommentId
                     };
                     this.inputFocusStatus = true;
                 }
@@ -942,6 +958,15 @@
                     url: `/pagesByStore/userPage/userPage?userId=${userId}`
                 });
             },
+            /**
+             * 跳转话题动态
+             * @param {String} topic 话题
+             */
+            handleTopicClick(topic) {
+                uni.navigateTo({
+                    url: `/pages/trending/subpages/trendTopic/trendTopic?topic=${topic}`
+                });
+            },
             // 返回上一级页面
             navigateBack() {
                 uni.navigateBack({
@@ -959,7 +984,7 @@
                         });
                     }
                 });
-            },
+            }
         },
         computed: {
             // 是否是我发送的动态
@@ -1001,10 +1026,12 @@
                         this.getTopComment(data);
                     });
                 } catch (e) {}
-                this.readyToShow = true;
-                setTimeout(() => {
-                    this.$refs.loading.stopLoading();
-                }, 300);
+                if (this.trendDetail.hasOwnProperty('id')) {
+                    this.readyToShow = true;
+                    setTimeout(() => {
+                        this.$refs.loading.stopLoading();
+                    }, 300);
+                }
             }
             else {
                 uni.navigateBack();
@@ -1018,6 +1045,12 @@
                 titleText: '动态详情',
                 backgroundColor: '#fff',
             });
+        },
+        onShareAppMessage() {
+            return {
+                title: `分享动态`,
+                path: `${this.utils.getCurrentPage().curFullUrl}`
+            }
         }
     }
 </script>

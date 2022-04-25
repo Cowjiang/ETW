@@ -105,7 +105,8 @@
               <!-- 浏览 {{ trend.browseNumber }} -->
               <text
                 style="color: #576991"
-                v-if="trend.topic">
+                v-if="trend.topic"
+                @click.stop="handleTopicClick(trend.topic)">
                 # {{ trend.topic }}
               </text>
             </view>
@@ -186,10 +187,11 @@
         </view>
         <view class="tags-container">
           <view class="browse-count">
-            <!--浏览 {{ trend.browseNumber }}-->
+            <!--            浏览 {{ trend.browseNumber }}-->
             <text
               style="color: #576991"
-              v-if="trend.topic">
+              v-if="trend.topic"
+              @click.stop="handleTopicClick(trend.topic)">
               # {{ trend.topic }}
             </text>
           </view>
@@ -254,7 +256,8 @@
         getMyFocusedTrend,
         getMyProfile,
         getNewTrend,
-        getRecommendUserList, getTopTrend,
+        getRecommendUserList,
+        getTopTrend,
         like
     } from "@/common/js/api/models.js";
 
@@ -314,10 +317,11 @@
                                     image.imgUrl = `${image.imgUrl}#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
-                                if (topicStartIndex !== -1) {
+                                const topicEndIndex = trend.content.indexOf(' ');
+                                if (topicStartIndex === 0 && topicEndIndex !== -1) {
                                     //内容包含话题
-                                    trend.topic = trend.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
-                                    trend.content = trend.content.substring(trend.content.indexOf(' ') + 1, trend.content.length);
+                                    trend.topic = trend.content.substring(topicStartIndex + 1, topicEndIndex + 1);
+                                    trend.content = trend.content.substring(topicEndIndex + 1, trend.content.length);
                                 }
                                 this.focusTrendList.push(trend);
                             });
@@ -356,16 +360,17 @@
                             this.mainTrendListPageNumber = 0;
                             this.mainTrendList = [];
                             getTopTrend().then(res => {
-                                if (!!res.data.id) {
+                                if (!!res.data) {
                                     res.data.dynamicImages.forEach(image => {
                                         image.imgUrl = `${image.imgUrl}#${Math.random()}`;
                                     });
                                     res.data.isTop = true;
                                     const topicStartIndex = res.data.content.indexOf('#');
-                                    if (topicStartIndex !== -1) {
+                                    const topicEndIndex = res.data.content.indexOf(' ');
+                                    if (topicStartIndex === 0 && topicEndIndex !== -1) {
                                         //内容包含话题
-                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
-                                        res.data.content = res.data.content.substring(res.data.content.indexOf(' ') + 1, res.data.content.length);
+                                        res.data.topic = res.data.content.substring(topicStartIndex + 1, topicEndIndex + 1);
+                                        res.data.content = res.data.content.substring(topicEndIndex + 1, res.data.content.length);
                                     }
                                     this.mainTrendList.unshift(res.data);
                                 }
@@ -382,10 +387,11 @@
                                     image.imgUrl = `${image.imgUrl}#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
-                                if (topicStartIndex !== -1) {
+                                const topicEndIndex = trend.content.indexOf(' ');
+                                if (topicStartIndex === 0 && topicEndIndex !== -1) {
                                     //内容包含话题
-                                    trend.topic = trend.content.substring(topicStartIndex + 1, trend.content.indexOf(' ') + 1);
-                                    trend.content = trend.content.substring(trend.content.indexOf(' ') + 1, trend.content.length);
+                                    trend.topic = trend.content.substring(topicStartIndex + 1, topicEndIndex + 1);
+                                    trend.content = trend.content.substring(topicEndIndex + 1, trend.content.length);
                                 }
                                 this.mainTrendList.push(trend);
                             });
@@ -635,6 +641,15 @@
                     }
                 });
             },
+            /**
+             * 跳转话题动态
+             * @param {String} topic 话题
+             */
+            handleTopicClick(topic) {
+                uni.navigateTo({
+                    url: `/pages/trending/subpages/trendTopic/trendTopic?topic=${topic}`
+                });
+            }
         },
         // 页面滑动触底事件
         onReachBottom() {
@@ -702,6 +717,12 @@
                 backgroundBlur: true
             });
             this.getTrendData(this.currentTrendType);
+        },
+        onShareAppMessage() {
+            return {
+                title: '分享生活中的美好点滴',
+                path: '/pages/trending/trending'
+            }
         }
     };
 </script>
