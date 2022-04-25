@@ -6,7 +6,7 @@
       :file-list="fileList"
       :auto-upload="false"
       :before-upload="beforeUpload"
-      :max-size="5242880"
+      :max-size="20971520"
       :max-count="maxImageCount"
       :size-type="sizeType"
       :limitType="['png', 'jpg', 'jpeg']"
