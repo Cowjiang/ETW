@@ -55,6 +55,7 @@
                   <image
                     :src="user.avgPath"
                     class="avatar-image"
+                    :lazy-load="true"
                     mode="aspectFill"/>
                 </view>
                 <view class="username">
@@ -83,7 +84,10 @@
           @click="gotoTrendDetail(trend.id)">
           <view class="user-info-container" @click.stop>
             <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
-              <image :src="trend.userInfo.avgPath" mode="aspectFill"/>
+              <image
+                :src="trend.userInfo.avgPath"
+                mode="aspectFill"
+                :lazy-load="true"/>
             </view>
             <view class="user-container">
               <view class="username" @click="gotoUserPage(trend.userInfo.id)">{{ trend.userInfo.username }}</view>
@@ -165,7 +169,10 @@
         @click="gotoTrendDetail(trend.id)">
         <view class="user-info-container" @click.stop>
           <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
-            <image :src="trend.userInfo.avgPath" mode="aspectFill"/>
+            <image
+              :src="trend.userInfo.avgPath"
+              mode="aspectFill"
+              :lazy-load="true"/>
           </view>
           <view class="user-container">
             <view class="username" @click="gotoUserPage(trend.userInfo.id)">{{ trend.userInfo.username }}</view>
@@ -273,7 +280,7 @@
                 focusTrendList: [], //关注的动态列表（关注用户）
                 mainTrendListPageNumber: 0, //主要的动态列表的页码
                 focusTrendListPageNumber: 0, //关注的动态列表的页码
-                pageSize: 10, //分页查询动态数据的每页数量
+                pageSize: 6, //分页查询动态数据的每页数量
                 mainTrendListLoadingMore: false, //是否正在请求（主要的动态列表）
                 focusTrendListLoadingMore: false, //是否正在请求（关注的动态列表）
                 mainTrendListExistMore: true, //存在更多数据（主要的动态列表）

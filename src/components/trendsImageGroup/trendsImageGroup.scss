@@ -43,3 +43,8 @@ $image-border-radius: 20rpx;
     height: ($box-length - $image-margin * 6)/3;
   }
 }
+
+image {
+  background-color: #f6f6f6;
+  will-change: transform;
+}

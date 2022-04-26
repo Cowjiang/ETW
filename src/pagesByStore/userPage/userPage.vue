@@ -31,6 +31,7 @@
         <image
           class="cover-image"
           :src="userInfo.coverUrl"
+          :lazy-load="true"
           @click.stop="handleCoverImageClick(userInfo.coverUrl)"
           mode="aspectFill"/>
         <view
@@ -45,6 +46,7 @@
               <image
                 class="avatar-image"
                 :src="userInfo.avgPath"
+                :lazy-load="true"
                 mode="aspectFill"
                 @click="previewImage(userInfo.avgPath)"/>
             </view>
@@ -168,14 +170,16 @@
                       :key="trendImage.id">
                       <image
                         :src="trendImage.imgUrl"
-                        mode="aspectFill"/>
+                        mode="aspectFill"
+                        :lazy-load="true"/>
                     </view>
                     <view
                       v-if="trend.dynamicImages.length > 5"
                       class="trend-image">
                       <image
                         :src="trend.dynamicImages[6].imgUrl"
-                        mode="aspectFill"/>
+                        mode="aspectFill"
+                        :lazy-load="true"/>
                       <view class="more-images">
                         +{{ trend.dynamicImages.length - 5 }}
                       </view>
