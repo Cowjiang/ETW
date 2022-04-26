@@ -5,7 +5,8 @@
       <image
         :src="imageDataList[0].imgUrl"
         @tap="previewImage(0)"
-        mode="aspectFill"/>
+        mode="aspectFill"
+        :lazy-load="true"/>
     </view>
     <!-- 两张或四张图片 -->
     <view
@@ -16,7 +17,8 @@
         :key="index"
         :src="item.imgUrl"
         mode="aspectFill"
-        @tap="previewImage(index)"/>
+        @tap="previewImage(index)"
+        :lazy-load="true"/>
     </view>
     <!-- 其他张数 -->
     <view v-else class="other-image-box">
@@ -25,7 +27,8 @@
         :key="index"
         :src="item.imgUrl"
         mode="aspectFill"
-        @tap="previewImage(index)"/>
+        @tap="previewImage(index)"
+        :lazy-load="true"/>
     </view>
   </view>
 </template>

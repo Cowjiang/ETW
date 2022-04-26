@@ -6,7 +6,7 @@
       :file-list="fileList"
       :auto-upload="false"
       :before-upload="beforeUpload"
-      :max-size="20971520"
+      :max-size="10485760"
       :max-count="maxImageCount"
       :size-type="sizeType"
       :limitType="['png', 'jpg', 'jpeg']"
@@ -121,16 +121,9 @@
                             }
                         })
                         .catch((err) => {
-                            console.log("getUploadSignature错误", err);
-                            uni.showModal({
-                                title: "警告",
-                                content: `获取签名发生错误：${err}`,
-                                success: function (res) {
-                                    if (res.confirm) {
-                                    }
-                                    else if (res.cancel) {
-                                    }
-                                },
+                            console.error("getUploadSignature错误", err);
+                            uni.showToast({
+                                title: '网络异常'
                             });
                         });
                 });
