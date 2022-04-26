@@ -101,7 +101,6 @@
     import loading from '@/components/loading/loading';
     import uploadGroup from '@/components/uploadGroup/uploadGroup';
     import {postTrend} from "@/common/js/api/models";
-    import store from "@/common/js/store";
 
     export default {
         name: "trendEdit",

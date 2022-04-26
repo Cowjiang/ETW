@@ -620,7 +620,7 @@
                         success: res => {
                             const imageTempPath = res.tempFilePath;
                             const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                            getUploadSignature({urlParam: 'cover'}).then(res => {
+                            getUploadSignature({queryData: {dir: 'cover'}}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
@@ -709,13 +709,6 @@
                 if (this.userInfo.hasOwnProperty('userId') && !!userInfo) {
                     return userInfo.userId === this.userInfo.userId;
                 }
-            }
-        },
-        filters: {
-            formatTrendStatus(status) {
-                const statusList = {
-                    '-1': '审核不通过'
-                };
             }
         },
         onPageScroll(e) {

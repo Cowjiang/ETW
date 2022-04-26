@@ -75,7 +75,10 @@
               @touchend="handleTouchEnd"
               @touchcancel="handleTouchEnd"
               @longpress="handleLongPress"
-              :class="message.isMe === false ? 'message-content-left' : 'message-content-right'"
+              :class="[
+                message.isMe === false ? 'message-content-left' : 'message-content-right',
+                message.isPhoto ? 'message-content__image' : ''
+              ]"
               :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}">
               <view v-if="!message.isPhoto">
                 {{ message.content }}
@@ -487,7 +490,7 @@
                         success: res => {
                             const imageTempPath = res.tempFilePath;
                             const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                            getUploadSignature({urlParam: 'chat-images'}).then(res => {
+                            getUploadSignature({queryData: {dir: 'chat'}}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
