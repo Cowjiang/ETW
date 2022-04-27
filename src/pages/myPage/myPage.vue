@@ -7,7 +7,7 @@
       class="cover-container"
       :style="{height: `calc(${navigationHeight}px + 340rpx)`}">
       <image
-        :src="userDetailInfo.coverUrl"
+        :src="`${userDetailInfo.coverUrl}?x-oss-process=image/resize,w_1000/quality,q_50`"
         mode="aspectFill"/>
     </view>
 

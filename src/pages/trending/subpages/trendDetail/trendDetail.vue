@@ -323,6 +323,9 @@
                         trendId: this.trendId
                     }
                 }).then(res => {
+                    res.data.dynamicWithImages.dynamicImages.forEach(image => {
+                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                    });
                     this.trendDetail = res.data.dynamicWithImages;
                     const topicStartIndex = this.trendDetail.content.indexOf('#');
                     const topicEndIndex = this.trendDetail.content.indexOf(' ');
@@ -450,7 +453,9 @@
                             this.currentTopCommentId = res.data.id;
                             this.commentList = this.commentList.filter(comment => comment.id !== res.data.id);
                             res.data.commentChildList = [];
-                            res.data.commentChildList.push(res.data.secondComment);
+                            if (!!res.data.secondComment) {
+                                res.data.commentChildList.push(res.data.secondComment);
+                            }
                             res.data.currentCommentChildPage = 0;
                             res.data.existMoreCommentChild = true;
                             this.commentList.unshift(res.data);
@@ -798,7 +803,6 @@
                 this.utils.throttle(() => {
                     const userInfo = this.$store.state.userInfo;
                     const isMe = userInfo.userId === (target.scUserInfo ? target.scUserInfo.id : target.userInfo.id);
-                    console.log(arguments)
                     if (type === 0) {
                         //动态
                         uni.vibrateShort();
