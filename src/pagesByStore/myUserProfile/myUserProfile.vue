@@ -383,7 +383,7 @@
                         success: res => {
                             const imageTempPath = res.tempFilePath;
                             const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                            getUploadSignature({urlParam: 'avatar'}).then(res => {
+                            getUploadSignature({queryData: {dir: 'avatar'}}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径

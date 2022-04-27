@@ -5,6 +5,7 @@
       <image
         :src="imageDataList[0].imgUrl"
         @tap="previewImage(0)"
+        @longpress="handleLongPress(item.imgUrl)"
         mode="aspectFill"
         :lazy-load="true"/>
     </view>
@@ -18,6 +19,7 @@
         :src="item.imgUrl"
         mode="aspectFill"
         @tap="previewImage(index)"
+        @longpress="handleLongPress(item.imgUrl)"
         :lazy-load="true"/>
     </view>
     <!-- 其他张数 -->
@@ -28,6 +30,7 @@
         :src="item.imgUrl"
         mode="aspectFill"
         @tap="previewImage(index)"
+        @longpress="handleLongPress(item.imgUrl)"
         :lazy-load="true"/>
     </view>
   </view>
@@ -55,24 +58,56 @@
                 let imageDataList = this.imageDataList;
                 for (const key in imageDataList) {
                     if (Object.hasOwnProperty.call(imageDataList, key)) {
-                        const imgUrl = imageDataList[key].imgUrl;
+                        const imgUrl = imageDataList[key].imgUrl.replace('?x-oss-process=image/resize,w_400/quality,q_80', '');
                         previewImageList.push(imgUrl);
                     }
                 }
                 uni.previewImage({
                     current: index,
-                    urls: previewImageList,
-                    // longPressActions: {
-                    //   itemList: ['发送给朋友', '保存图片', '收藏'],
-                    //   success: function(data) {
-                    //     console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
-                    //   },
-                    //   fail: function(err) {
-                    //     console.log(err.errMsg);
-                    //   }
-                    // }
+                    urls: previewImageList
                 });
             },
+            /**
+             * 图片长按事件
+             * @param {String} imgUrl 图片地址
+             */
+            handleLongPress(imgUrl) {
+                uni.vibrateShort();
+                uni.showActionSheet({
+                    itemList: ['查看原图', '保存到手机'],
+                    success: res => {
+                        if (res.tapIndex === 0) {
+                            uni.previewImage({
+                                urls: [imgUrl.replace('?x-oss-process=image/resize,w_400/quality,q_80', '')],
+                            });
+                        }
+                        else if (res.tapIndex === 1) {
+                            uni.downloadFile({
+                                url: imgUrl.replace('?x-oss-process=image/resize,w_400/quality,q_80', '?x-oss-process=image/resize,w_2000/quality,q_80'),
+                                success: (res) => {
+                                    if (res.statusCode === 200) {
+                                        uni.saveImageToPhotosAlbum({
+                                            filePath: res.tempFilePath,
+                                            success: function () {
+                                                uni.showToast({
+                                                    title: "保存成功",
+                                                    icon: "none"
+                                                });
+                                            },
+                                            fail: function () {
+                                                uni.showToast({
+                                                    title: "保存失败",
+                                                    icon: "none"
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                })
+            }
         },
     };
 </script>

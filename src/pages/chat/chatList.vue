@@ -127,9 +127,10 @@
             <view class="avatar-container">
               <view class="avatar">
                 <image
-                  :src="message.senderAvatar"
+                  :src="`${message.senderAvatar}?x-oss-process=image/resize,w_200/quality,q_80`"
                   mode="aspectFill"
-                  :lazy-load="true"/>              </view>
+                  :lazy-load="true"/>
+              </view>
             </view>
             <view class="content-container">
               <view class="sender-name">

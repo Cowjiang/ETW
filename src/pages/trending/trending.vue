@@ -85,7 +85,7 @@
           <view class="user-info-container" @click.stop>
             <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
               <image
-                :src="trend.userInfo.avgPath"
+                :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
                 mode="aspectFill"
                 :lazy-load="true"/>
             </view>
@@ -170,7 +170,7 @@
         <view class="user-info-container" @click.stop>
           <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
             <image
-              :src="trend.userInfo.avgPath"
+              :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
               mode="aspectFill"
               :lazy-load="true"/>
           </view>
@@ -321,7 +321,7 @@
                             this.focusTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
                                 trend.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
                                 const topicEndIndex = trend.content.indexOf(' ');
@@ -369,7 +369,7 @@
                             getTopTrend().then(res => {
                                 if (!!res.data) {
                                     res.data.dynamicImages.forEach(image => {
-                                        image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
                                     });
                                     res.data.isTop = true;
                                     const topicStartIndex = res.data.content.indexOf('#');
@@ -391,7 +391,7 @@
                             this.mainTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
                                 trend.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
                                 const topicEndIndex = trend.content.indexOf(' ');

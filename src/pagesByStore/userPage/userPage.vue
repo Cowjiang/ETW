@@ -30,7 +30,7 @@
       <view class="cover-image-container">
         <image
           class="cover-image"
-          :src="userInfo.coverUrl"
+          :src="`${userInfo.coverUrl}?x-oss-process=image/resize,w_1000/quality,q_80`"
           :lazy-load="true"
           @click.stop="handleCoverImageClick(userInfo.coverUrl)"
           mode="aspectFill"/>
@@ -46,7 +46,6 @@
               <image
                 class="avatar-image"
                 :src="userInfo.avgPath"
-                :lazy-load="true"
                 mode="aspectFill"
                 @click="previewImage(userInfo.avgPath)"/>
             </view>
@@ -169,7 +168,7 @@
                       v-for="trendImage in trend.dynamicImages.slice(0, 5)"
                       :key="trendImage.id">
                       <image
-                        :src="trendImage.imgUrl"
+                        :src="`${trendImage.imgUrl}?x-oss-process=image/resize,w_100/quality,q_80`"
                         mode="aspectFill"
                         :lazy-load="true"/>
                     </view>
@@ -535,6 +534,7 @@
             handleTrendLongPress(trendId) {
                 if (Number(this.userId) === this.$store.state.userInfo.userId) {
                     //当前登录用户
+                    uni.vibrateShort();
                     uni.showActionSheet({
                         itemList: ['删除动态'],
                         itemColor: '#f4756b',
@@ -620,7 +620,7 @@
                         success: res => {
                             const imageTempPath = res.tempFilePath;
                             const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                            getUploadSignature({urlParam: 'cover'}).then(res => {
+                            getUploadSignature({queryData: {dir: 'cover'}}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径
@@ -709,13 +709,6 @@
                 if (this.userInfo.hasOwnProperty('userId') && !!userInfo) {
                     return userInfo.userId === this.userInfo.userId;
                 }
-            }
-        },
-        filters: {
-            formatTrendStatus(status) {
-                const statusList = {
-                    '-1': '审核不通过'
-                };
             }
         },
         onPageScroll(e) {
