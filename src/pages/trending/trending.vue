@@ -85,7 +85,7 @@
           <view class="user-info-container" @click.stop>
             <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
               <image
-                :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
+                :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_90`"
                 mode="aspectFill"
                 :lazy-load="true"/>
             </view>
@@ -170,7 +170,7 @@
         <view class="user-info-container" @click.stop>
           <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
             <image
-              :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
+              :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_90`"
               mode="aspectFill"
               :lazy-load="true"/>
           </view>
@@ -250,6 +250,22 @@
       @click="gotoTrendEdit">
       <i class="fas fa-pen"/>
     </view>
+    <u-popup
+      v-model="showAdPopup"
+      mode="center"
+      closeable
+      border-radius="20">
+      <view class="ad-container">
+        <u-image
+          class="ad-image"
+          width="70vw"
+          @click="gotoTrendDetail(adInfo.trendId)"
+          :height="adInfo.imageHeight"
+          :src="adInfo.imageUrl"
+          :show-menu-by-longpress="false"
+          mode="aspectFill"/>
+      </view>
+    </u-popup>
   </view>
 </template>
 
@@ -289,6 +305,14 @@
                 schoolId: null, //学校ID
                 schoolName: null, //学校名称
                 recommendUserList: [], //推荐用户列表
+                showAdPopup: false, //是否显示广告弹窗
+                adInfo: {
+                    imageUrl: 'https://com-etw-new.oss-cn-guangzhou.aliyuncs.com/dynamic/35/d9440317e09846788d9c0c9eb2e00592.jpg?x-oss-process=image/resize,w_1000/quality,q_80', //广告弹窗图片
+                    imageHeight: 0, //广告图片高度
+                    trendId: 280, //广告对应的动态ID
+                    startTime: null, //广告开始时间
+                    endTime: null, //广告结束时间
+                }, //广告信息
             };
         },
         methods: {
@@ -321,7 +345,7 @@
                             this.focusTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
                                 trend.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
                                 const topicEndIndex = trend.content.indexOf(' ');
@@ -369,7 +393,7 @@
                             getTopTrend().then(res => {
                                 if (!!res.data) {
                                     res.data.dynamicImages.forEach(image => {
-                                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                                     });
                                     res.data.isTop = true;
                                     const topicStartIndex = res.data.content.indexOf('#');
@@ -391,7 +415,7 @@
                             this.mainTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
                                 trend.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
                                 const topicEndIndex = trend.content.indexOf(' ');
@@ -724,6 +748,23 @@
                 backgroundBlur: true
             });
             this.getTrendData(this.currentTrendType);
+            uni.downloadFile({
+                url: this.adInfo.imageUrl,
+                success: res => {
+                    if (res.statusCode === 200) {
+                        uni.getImageInfo({
+                            src: res.tempFilePath,
+                            success: image => {
+                                this.adInfo.imageHeight = image.height / image.width * this.windowWidth * 1.4 ;
+                                this.$forceUpdate();
+                                setTimeout(() => {
+                                    this.showAdPopup = true;
+                                }, 300);
+                            }
+                        });
+                    }
+                }
+            });
         },
         onShareAppMessage() {
             return {

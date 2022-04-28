@@ -137,7 +137,7 @@
                         this.trendListExistMore = data.records.length >= this.pageSize;
                         data.records.forEach(trend => {
                             trend.dynamicImages.forEach(image => {
-                                image.imgUrl = `${image.imgUrl}#${Math.random()}`;
+                                image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                             });
                             const topicStartIndex = trend.content.indexOf('#');
                             if (topicStartIndex !== -1) {

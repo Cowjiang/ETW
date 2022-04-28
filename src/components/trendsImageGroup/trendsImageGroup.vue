@@ -5,9 +5,10 @@
       <image
         :src="imageDataList[0].imgUrl"
         @tap="previewImage(0)"
-        @longpress="handleLongPress(item.imgUrl)"
+        @longpress="handleLongPress(imageDataList[0].imgUrl)"
         mode="aspectFill"
-        :lazy-load="true"/>
+        :lazy-load="true"
+        :show-menu-by-longpress="true"/>
     </view>
     <!-- 两张或四张图片 -->
     <view
@@ -20,7 +21,8 @@
         mode="aspectFill"
         @tap="previewImage(index)"
         @longpress="handleLongPress(item.imgUrl)"
-        :lazy-load="true"/>
+        :lazy-load="true"
+        :show-menu-by-longpress="true"/>
     </view>
     <!-- 其他张数 -->
     <view v-else class="other-image-box">
@@ -31,7 +33,8 @@
         mode="aspectFill"
         @tap="previewImage(index)"
         @longpress="handleLongPress(item.imgUrl)"
-        :lazy-load="true"/>
+        :lazy-load="true"
+        :show-menu-by-longpress="true"/>
     </view>
   </view>
 </template>
@@ -58,7 +61,7 @@
                 let imageDataList = this.imageDataList;
                 for (const key in imageDataList) {
                     if (Object.hasOwnProperty.call(imageDataList, key)) {
-                        const imgUrl = imageDataList[key].imgUrl.replace('?x-oss-process=image/resize,w_400/quality,q_80', '');
+                        const imgUrl = imageDataList[key].imgUrl.replace('?x-oss-process=image/resize,w_800/quality,q_90', '');
                         previewImageList.push(imgUrl);
                     }
                 }
@@ -73,17 +76,18 @@
              */
             handleLongPress(imgUrl) {
                 uni.vibrateShort();
+                return;
                 uni.showActionSheet({
                     itemList: ['查看原图', '保存到手机'],
                     success: res => {
                         if (res.tapIndex === 0) {
                             uni.previewImage({
-                                urls: [imgUrl.replace('?x-oss-process=image/resize,w_400/quality,q_80', '')],
+                                urls: [imgUrl.replace('?x-oss-process=image/resize,w_800/quality,q_90', '')],
                             });
                         }
                         else if (res.tapIndex === 1) {
                             uni.downloadFile({
-                                url: imgUrl.replace('?x-oss-process=image/resize,w_400/quality,q_80', '?x-oss-process=image/resize,w_2000/quality,q_80'),
+                                url: imgUrl.replace('?x-oss-process=image/resize,w_800/quality,q_90', '?x-oss-process=image/resize,w_2000/quality,q_90'),
                                 success: (res) => {
                                     if (res.statusCode === 200) {
                                         uni.saveImageToPhotosAlbum({

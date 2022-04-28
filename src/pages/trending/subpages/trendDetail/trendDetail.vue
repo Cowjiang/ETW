@@ -272,7 +272,11 @@
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
         addFriend,
-        deleteTrend, deleteTrendComment, deleteTrendSecondComment, getOneTrendComment, getOneTrendSecondComment,
+        deleteTrend,
+        deleteTrendComment,
+        deleteTrendSecondComment,
+        getOneTrendComment,
+        getOneTrendSecondComment,
         getTrendComment,
         getTrendDetail,
         getTrendSecondComment,
@@ -324,7 +328,7 @@
                     }
                 }).then(res => {
                     res.data.dynamicWithImages.dynamicImages.forEach(image => {
-                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                     });
                     this.trendDetail = res.data.dynamicWithImages;
                     const topicStartIndex = this.trendDetail.content.indexOf('#');
