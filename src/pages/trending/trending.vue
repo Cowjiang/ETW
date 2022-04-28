@@ -275,7 +275,7 @@
     import loading from "@/components/loading/loading";
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
-        editMyProfile,
+        editMyProfile, getAdvertisement,
         getMyFocusedTrend,
         getMyProfile,
         getNewTrend,
@@ -307,11 +307,9 @@
                 recommendUserList: [], //推荐用户列表
                 showAdPopup: false, //是否显示广告弹窗
                 adInfo: {
-                    imageUrl: 'https://com-etw-new.oss-cn-guangzhou.aliyuncs.com/dynamic/35/d9440317e09846788d9c0c9eb2e00592.jpg?x-oss-process=image/resize,w_1000/quality,q_80', //广告弹窗图片
+                    imageUrl: '', //广告弹窗图片
                     imageHeight: 0, //广告图片高度
-                    trendId: 280, //广告对应的动态ID
-                    startTime: null, //广告开始时间
-                    endTime: null, //广告结束时间
+                    trendId: 0, //广告对应的动态ID
                 }, //广告信息
             };
         },
@@ -444,6 +442,32 @@
                         uni.stopPullDownRefresh();
                     });
                 }
+            },
+            // 获取推广广告信息
+            getAdvertisement() {
+                getAdvertisement().then(res => {
+                    if (res.data.hasOwnProperty('id')) {
+                        this.adInfo.imageUrl = `${res.data.imgUrl}?x-oss-process=image/resize,w_1000/quality,q_80`;
+                        this.adInfo.trendId = res.data.dynamicId;
+                        uni.downloadFile({
+                            url: this.adInfo.imageUrl,
+                            success: res => {
+                                if (res.statusCode === 200) {
+                                    uni.getImageInfo({
+                                        src: res.tempFilePath,
+                                        success: image => {
+                                            this.adInfo.imageHeight = image.height / image.width * this.windowWidth * 1.4 ;
+                                            this.$forceUpdate();
+                                            setTimeout(() => {
+                                                this.showAdPopup = true;
+                                            }, 300);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }).catch(error => {});
             },
             // 获取学校信息
             getSchoolInfo() {
@@ -748,23 +772,7 @@
                 backgroundBlur: true
             });
             this.getTrendData(this.currentTrendType);
-            uni.downloadFile({
-                url: this.adInfo.imageUrl,
-                success: res => {
-                    if (res.statusCode === 200) {
-                        uni.getImageInfo({
-                            src: res.tempFilePath,
-                            success: image => {
-                                this.adInfo.imageHeight = image.height / image.width * this.windowWidth * 1.4 ;
-                                this.$forceUpdate();
-                                setTimeout(() => {
-                                    this.showAdPopup = true;
-                                }, 300);
-                            }
-                        });
-                    }
-                }
-            });
+            this.getAdvertisement();
         },
         onShareAppMessage() {
             return {
