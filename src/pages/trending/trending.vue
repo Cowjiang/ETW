@@ -579,6 +579,7 @@
             },
             // 前往动态编辑发布页面
             gotoTrendEdit() {
+                this.utils.requestSubscribeMessage();
                 uni.navigateTo({
                     url: "/pages/trending/subpages/trendEdit/trendEdit",
                     events: {
@@ -779,7 +780,10 @@
                 title: '分享生活中的美好点滴',
                 path: '/pages/trending/trending'
             }
-        }
+        },
+        onTabItemTap() {
+            this.utils.requestSubscribeMessage();
+        },
     };
 </script>
 

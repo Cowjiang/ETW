@@ -48,8 +48,9 @@
               <view class="img-container">
                 <view class="image">
                   <image
-                    :src="user.avgPath"
+                    :src="`${user.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
                     style="width: 100%; height: 100%"
+                    :lazy-load="true"
                     mode="aspectFill"/>
                 </view>
               </view>
@@ -110,8 +111,9 @@
               <view class="img-container">
                 <view class="image">
                   <image
-                    :src="user.avgPath"
+                    :src="`${user.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
                     style="width: 100%; height: 100%"
+                    :lazy-load="true"
                     mode="aspectFill"/>
                 </view>
               </view>
@@ -187,8 +189,9 @@
               <view class="img-container">
                 <view class="image">
                   <image
-                    :src="user.avgPath"
+                    :src="`${user.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
                     style="width: 100%; height: 100%"
+                    :lazy-load="true"
                     mode="aspectFill"/>
                 </view>
               </view>

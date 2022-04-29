@@ -7,7 +7,7 @@ export class Utils {
         this.throttleBackTime = 0;
         this.throttleGapTime = 0;
         this.throttleEnterTime = 0;
-        this.debounceTimer;
+        this.debounceTimer = null;
         this.debounceGapTime = 0;
     }
 
@@ -254,5 +254,25 @@ export class Utils {
         uni.removeTabBarBadge({
             index: 2
         });
+    }
+
+    // 申请获取订阅消息权限
+    requestSubscribeMessage() {
+        if (!store.state.subscribeMessageStatus) {
+            uni.getSetting({
+                withSubscriptions: true,
+                success: () => {}
+            });
+            uni.requestSubscribeMessage({
+                tmplIds: ['1l1zrEj65kMFH6TgqdNe2rebRHdwv_14WLCFQR8BncU'],
+                success: res => {
+                    store.commit('subscribeMessageStatus', res.errMsg === 'requestSubscribeMessage:ok');
+                },
+                fail: error => {
+                    console.error(error);
+                    store.commit('subscribeMessageStatus', false);
+                }
+            });
+        }
     }
 }
