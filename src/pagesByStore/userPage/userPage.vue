@@ -565,7 +565,9 @@
                                     type: 'success',
                                     direction: 'top'
                                 });
-                                this.getUserTrendList();
+                                setTimeout(() => {
+                                    this.getUserTrendList();
+                                }, 500);
                             }).catch(err => {
                                 console.error(err);
                                 this.$refs.toast.show({

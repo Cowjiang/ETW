@@ -85,7 +85,7 @@
           <view class="user-info-container" @click.stop>
             <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
               <image
-                :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
+                :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_90`"
                 mode="aspectFill"
                 :lazy-load="true"/>
             </view>
@@ -170,7 +170,7 @@
         <view class="user-info-container" @click.stop>
           <view class="avatar-container" @click="gotoUserPage(trend.userInfo.id)">
             <image
-              :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`"
+              :src="`${trend.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_90`"
               mode="aspectFill"
               :lazy-load="true"/>
           </view>
@@ -250,6 +250,22 @@
       @click="gotoTrendEdit">
       <i class="fas fa-pen"/>
     </view>
+    <u-popup
+      v-model="showAdPopup"
+      mode="center"
+      closeable
+      border-radius="20">
+      <view class="ad-container">
+        <u-image
+          class="ad-image"
+          width="70vw"
+          @click="gotoTrendDetail(adInfo.trendId)"
+          :height="adInfo.imageHeight"
+          :src="adInfo.imageUrl"
+          :show-menu-by-longpress="false"
+          mode="aspectFill"/>
+      </view>
+    </u-popup>
   </view>
 </template>
 
@@ -259,7 +275,7 @@
     import loading from "@/components/loading/loading";
     import trendsImageGroup from "@/components/trendsImageGroup/trendsImageGroup";
     import {
-        editMyProfile,
+        editMyProfile, getAdvertisement,
         getMyFocusedTrend,
         getMyProfile,
         getNewTrend,
@@ -289,6 +305,12 @@
                 schoolId: null, //学校ID
                 schoolName: null, //学校名称
                 recommendUserList: [], //推荐用户列表
+                showAdPopup: false, //是否显示广告弹窗
+                adInfo: {
+                    imageUrl: '', //广告弹窗图片
+                    imageHeight: 0, //广告图片高度
+                    trendId: 0, //广告对应的动态ID
+                }, //广告信息
             };
         },
         methods: {
@@ -321,7 +343,7 @@
                             this.focusTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
                                 trend.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
                                 const topicEndIndex = trend.content.indexOf(' ');
@@ -369,7 +391,7 @@
                             getTopTrend().then(res => {
                                 if (!!res.data) {
                                     res.data.dynamicImages.forEach(image => {
-                                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                                        image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                                     });
                                     res.data.isTop = true;
                                     const topicStartIndex = res.data.content.indexOf('#');
@@ -391,7 +413,7 @@
                             this.mainTrendListExistMore = data.records.length >= this.pageSize;
                             data.records.forEach(trend => {
                                 trend.dynamicImages.forEach(image => {
-                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_400/quality,q_80#${Math.random()}`;
+                                    image.imgUrl = `${image.imgUrl}?x-oss-process=image/resize,w_800/quality,q_90#${Math.random()}`;
                                 });
                                 const topicStartIndex = trend.content.indexOf('#');
                                 const topicEndIndex = trend.content.indexOf(' ');
@@ -420,6 +442,32 @@
                         uni.stopPullDownRefresh();
                     });
                 }
+            },
+            // 获取推广广告信息
+            getAdvertisement() {
+                getAdvertisement().then(res => {
+                    if (res.data.hasOwnProperty('id')) {
+                        this.adInfo.imageUrl = `${res.data.imgUrl}?x-oss-process=image/resize,w_1000/quality,q_80`;
+                        this.adInfo.trendId = res.data.dynamicId;
+                        uni.downloadFile({
+                            url: this.adInfo.imageUrl,
+                            success: res => {
+                                if (res.statusCode === 200) {
+                                    uni.getImageInfo({
+                                        src: res.tempFilePath,
+                                        success: image => {
+                                            this.adInfo.imageHeight = image.height / image.width * this.windowWidth * 1.4 ;
+                                            this.$forceUpdate();
+                                            setTimeout(() => {
+                                                this.showAdPopup = true;
+                                            }, 300);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }).catch(error => {});
             },
             // 获取学校信息
             getSchoolInfo() {
@@ -531,6 +579,7 @@
             },
             // 前往动态编辑发布页面
             gotoTrendEdit() {
+                this.utils.requestSubscribeMessage();
                 uni.navigateTo({
                     url: "/pages/trending/subpages/trendEdit/trendEdit",
                     events: {
@@ -724,13 +773,17 @@
                 backgroundBlur: true
             });
             this.getTrendData(this.currentTrendType);
+            this.getAdvertisement();
         },
         onShareAppMessage() {
             return {
                 title: '分享生活中的美好点滴',
                 path: '/pages/trending/trending'
             }
-        }
+        },
+        onTabItemTap() {
+            this.utils.requestSubscribeMessage();
+        },
     };
 </script>
 

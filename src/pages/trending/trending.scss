@@ -344,3 +344,7 @@
     color: #fff;
   }
 }
+
+::v-deep .u-drawer {
+  z-index: 99999999 !important;
+}

@@ -41,7 +41,7 @@
             },
             sizeType: {
                 type: Array,
-                default: ["compressed"],
+                default: ["original", "compressed"],
             },
             fileList: {
                 type: Array,

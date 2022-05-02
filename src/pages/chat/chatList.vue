@@ -578,6 +578,9 @@
                 isShowButton: false,
             });
         },
+        onTabItemTap(e) {
+            this.utils.requestSubscribeMessage();
+        },
     }
 </script>
 

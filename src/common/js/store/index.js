@@ -18,6 +18,7 @@ const state = {
     unreadNoticeCount: 0, //用户未读的通知数量
     chatMessages: [], //聊天信息列表
     shopkeeper: false, //当前登录账户为商家
+    subscribeMessageStatus: false, //是否已授权订阅消息通知
 };
 
 export default new vuex.Store({

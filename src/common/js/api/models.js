@@ -236,6 +236,12 @@ export const getUploadSignature = (requestConfig) => apiRequest(`${httpBaseUrl}/
     requestConfig
 });
 
+//获取推广广告
+export const getAdvertisement = (requestConfig) => apiRequest(`${httpBaseUrl}/AD`, {
+    method: "GET",
+    requestConfig
+});
+
 //发布动态
 export const postTrend = (requestConfig) => apiRequest(`${httpBaseUrl}/dynamic`, {
     method: "POST",

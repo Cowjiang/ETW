@@ -11,10 +11,12 @@ $image-border-radius: 20rpx;
 
 .one-image-box {
   width: $box-length;
+  height: $box-length;
 
   image {
     border-radius: $image-border-radius;
     width: $box-length;
+    height: $box-length;
   }
 }
 

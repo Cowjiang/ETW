@@ -75,17 +75,14 @@
               @touchend="handleTouchEnd"
               @touchcancel="handleTouchEnd"
               @longpress="handleLongPress"
-              :class="[
-                message.isMe === false ? 'message-content-left' : 'message-content-right',
-                message.isPhoto ? 'message-content__image' : ''
-              ]"
+              :class="message.isMe === false ? 'message-content-left' : 'message-content-right'"
               :style="{filter: `${messageTouchingId === 'message' + index ? 'brightness(90%)' : 'brightness(100%)'}`}">
               <view v-if="!message.isPhoto">
                 {{ message.content }}
               </view>
               <image
                 v-if="message.isPhoto"
-                :src="`${message.content}?x-oss-process=image/resize,w_1000/quality,q_80`"
+                :src="message.content"
                 :data-name="`message${index}`"
                 mode="widthFix"
                 @longpress="handleLongPress"
@@ -265,7 +262,7 @@
                     }
                 }).then(res => {
                     this.friendInfo.username = res.data.username;
-                    this.friendInfo.avgPath = `${res.data.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`;
+                    this.friendInfo.avgPath = res.data.avgPath;
                     this.$refs.navigationBar.setNavigation({
                         titleText: this.friendInfo.username,
                         backgroundColor: '#ffffff',
@@ -278,7 +275,7 @@
                 });
                 this.myInfo.userId = this.$store.state.userInfo.userId;
                 this.myInfo.username = this.$store.state.userInfo.username;
-                this.myInfo.avgPath = `${this.$store.state.userInfo.avgPath}?x-oss-process=image/resize,w_200/quality,q_80`;
+                this.myInfo.avgPath = this.$store.state.userInfo.avgPath;
             },
             /**
              * 获取聊天消息记录
@@ -490,7 +487,7 @@
                         success: res => {
                             const imageTempPath = res.tempFilePath;
                             const fileSuffix = imageTempPath.substr(imageTempPath.lastIndexOf("."));
-                            getUploadSignature({queryData: {dir: 'chat'}}).then(res => {
+                            getUploadSignature({urlParam: 'chat-images'}).then(res => {
                                 const signData = res.data;
                                 this.action = signData.host;
                                 const key = `${signData.dir}${signData.uuid}${fileSuffix}`; //文件路径

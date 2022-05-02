@@ -61,7 +61,7 @@
         v-else
         class="user-login-container">
         <view class="login-tips">
-          <text class="tips_title">Hi~ 欢迎来到周边大侦探</text>
+          <text class="tips_title">Hi~ 欢迎来到 Aurora+</text>
           <text class="tips_desc">登录后体验更多功能</text>
         </view>
         <view class="login-btn" @click="getMyInfo">

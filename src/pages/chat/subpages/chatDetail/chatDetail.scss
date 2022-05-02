@@ -112,9 +112,7 @@
           }
 
           image {
-            max-width: 38vw;
-            border-radius: 20rpx;
-            background-color: #f6f6f6;
+            max-width: 35vw;
           }
         }
 
@@ -142,12 +140,6 @@
           border-radius: 20rpx 0rpx 40rpx 20rpx;
           background-color: #f4756b;
           color: #fff;
-        }
-
-        .message-content__image {
-          max-width: calc(100vw - 250rpx);
-          padding: 0;
-          background-color: #fff;
         }
       }
 
