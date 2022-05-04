@@ -1059,6 +1059,11 @@
                 title: `分享动态`,
                 path: `${this.utils.getCurrentPage().curFullUrl}`
             }
+        },
+        onShareTimeline() {
+            return {
+                title: !!this.trendDetail.userInfo.username ? `${this.trendDetail.userInfo.username}的动态` : '动态详情'
+            }
         }
     }
 </script>

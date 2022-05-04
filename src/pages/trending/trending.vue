@@ -781,6 +781,11 @@
                 path: '/pages/trending/trending'
             }
         },
+        onShareTimeline() {
+            return {
+                title: '分享生活中的美好点滴'
+            }
+        },
         onTabItemTap() {
             this.utils.requestSubscribeMessage();
         },

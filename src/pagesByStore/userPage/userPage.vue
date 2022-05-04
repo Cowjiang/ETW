@@ -801,7 +801,12 @@
                 title: `分享${this.userInfo.username}的个人主页`,
                 path: `/${this.utils.getCurrentPage().curUrl}?userId=${this.userId}`
             }
-        }
+        },
+        onShareTimeline() {
+            return {
+                title: `${this.userInfo.username}的个人主页`,
+            }
+        },
     }
 </script>
 
