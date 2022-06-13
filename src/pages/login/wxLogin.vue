@@ -6,6 +6,13 @@
 
     <view class="wx-login-container">
       <view class="logo-container">
+        <view
+          class="user-type"
+          :style="{top: `${navigationHeight + 5}px`}"
+          @click="changeUserType">
+          <i class="fas fa-rotate"/>
+          <text>{{ shopkeeper ? '返回普通版' : '我是商家' }}</text>
+        </view>
         <view class="image">
           <image
             src="https://com-etw-new.oss-cn-guangzhou.aliyuncs.com/dynamic/35/d01088f44119453c808e2343058628b4.jpg"
@@ -327,6 +334,7 @@
                     }
                 }, 2000);
             },
+            // 跳转用户协议页
             gotoPrivacy() {
                 uni.navigateTo({
                     url: '/pages/login/subpages/privacy'
